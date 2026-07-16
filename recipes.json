@@ -1,0 +1,1237 @@
+[
+  {
+    "id": "ail-roti",
+    "title": "Ail rôti au thym",
+    "category": "Préparation",
+    "goals": [
+      "Cuisine méditerranéenne"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 45,
+    "servings": 4,
+    "ingredients": [
+      "2 têtes d’ail",
+      "1 c. à soupe d’huile d’olive",
+      "2 branches de thym",
+      "Poivre"
+    ],
+    "steps": [
+      "Préchauffer le four à 180 °C.",
+      "Couper le haut des têtes d’ail.",
+      "Arroser d’huile et ajouter le thym.",
+      "Couvrir et cuire 40 minutes."
+    ],
+    "why": [
+      "La cuisson lente adoucit fortement l’ail.",
+      "Le thym complète son parfum."
+    ],
+    "caution": "L’ail peut être mal toléré en grande quantité chez certaines personnes."
+  },
+  {
+    "id": "poulet-ail-citron",
+    "title": "Poulet ail, citron et romarin",
+    "category": "Plat",
+    "goals": [
+      "Protéines",
+      "Cuisine méditerranéenne"
+    ],
+    "tags": [
+      "sans gluten",
+      "riche en protéines"
+    ],
+    "time": 40,
+    "servings": 2,
+    "ingredients": [
+      "2 filets de poulet",
+      "2 gousses d’ail",
+      "1 citron",
+      "1 branche de romarin",
+      "1 c. à soupe d’huile d’olive",
+      "Poivre"
+    ],
+    "steps": [
+      "Mélanger citron, ail, romarin et huile.",
+      "Enrober le poulet et laisser reposer 15 minutes.",
+      "Cuire à cœur au four ou à la poêle."
+    ],
+    "why": [
+      "L’ail, le citron et le romarin donnent beaucoup de saveur sans sauce lourde."
+    ],
+    "caution": "Cuire le poulet à cœur."
+  },
+  {
+    "id": "houmous-ail-roti",
+    "title": "Houmous à l’ail rôti et cumin",
+    "category": "Tartinade",
+    "goals": [
+      "Fibres",
+      "Satiété"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 15,
+    "servings": 4,
+    "ingredients": [
+      "400 g de pois chiches cuits",
+      "4 gousses d’ail rôti",
+      "2 c. à soupe de tahini",
+      "1 citron",
+      "1/2 c. à café de cumin",
+      "2 c. à soupe d’huile d’olive"
+    ],
+    "steps": [
+      "Mixer tous les ingrédients.",
+      "Ajouter un peu d’eau jusqu’à la texture désirée.",
+      "Rectifier l’assaisonnement."
+    ],
+    "why": [
+      "Les pois chiches apportent fibres et protéines végétales.",
+      "L’ail rôti est plus doux que l’ail cru."
+    ],
+    "caution": "Le sésame est un allergène fréquent."
+  },
+  {
+    "id": "oignons-confits-thym",
+    "title": "Oignons confits au thym",
+    "category": "Accompagnement",
+    "goals": [
+      "Confort"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 35,
+    "servings": 4,
+    "ingredients": [
+      "4 oignons",
+      "1 c. à soupe d’huile d’olive",
+      "1 branche de thym",
+      "1 c. à café de vinaigre balsamique"
+    ],
+    "steps": [
+      "Émincer les oignons.",
+      "Cuire doucement dans l’huile 25 minutes.",
+      "Ajouter thym et vinaigre en fin de cuisson."
+    ],
+    "why": [
+      "La cuisson lente développe la douceur naturelle de l’oignon."
+    ],
+    "caution": "Surveiller la cuisson pour éviter qu’ils ne brûlent."
+  },
+  {
+    "id": "soupe-oignon-lentilles",
+    "title": "Soupe d’oignon et lentilles corail",
+    "category": "Soupe",
+    "goals": [
+      "Fibres",
+      "Satiété"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 30,
+    "servings": 4,
+    "ingredients": [
+      "3 oignons",
+      "150 g de lentilles corail",
+      "1 c. à café de cumin",
+      "900 ml de bouillon peu salé",
+      "1 c. à soupe d’huile d’olive"
+    ],
+    "steps": [
+      "Faire revenir les oignons.",
+      "Ajouter cumin et lentilles.",
+      "Verser le bouillon et cuire 20 minutes.",
+      "Mixer partiellement."
+    ],
+    "why": [
+      "Les lentilles épaississent naturellement la soupe et apportent des fibres."
+    ],
+    "caution": "Rincer les lentilles avant utilisation."
+  },
+  {
+    "id": "carottes-cumin",
+    "title": "Carottes rôties au cumin et coriandre",
+    "category": "Accompagnement",
+    "goals": [
+      "Fibres",
+      "Cuisine végétale"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 35,
+    "servings": 4,
+    "ingredients": [
+      "700 g de carottes",
+      "1 c. à café de cumin",
+      "1 c. à café de coriandre moulue",
+      "1 c. à soupe d’huile d’olive",
+      "Persil"
+    ],
+    "steps": [
+      "Couper les carottes.",
+      "Mélanger avec huile et épices.",
+      "Rôtir 30 minutes à 200 °C.",
+      "Ajouter le persil."
+    ],
+    "why": [
+      "Les épices renforcent la douceur des carottes."
+    ],
+    "caution": "Adapter la quantité d’épices aux enfants."
+  },
+  {
+    "id": "veloute-carotte-gingembre",
+    "title": "Velouté carotte, gingembre et orange",
+    "category": "Soupe",
+    "goals": [
+      "Confort",
+      "Hydratation"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 35,
+    "servings": 4,
+    "ingredients": [
+      "700 g de carottes",
+      "1 petit oignon",
+      "2 cm de gingembre",
+      "Le jus d’une orange",
+      "800 ml de bouillon peu salé"
+    ],
+    "steps": [
+      "Cuire carottes, oignon et gingembre dans le bouillon.",
+      "Mixer après 25 minutes.",
+      "Ajouter le jus d’orange hors du feu."
+    ],
+    "why": [
+      "L’orange et le gingembre donnent une finale vive au velouté."
+    ],
+    "caution": "Le gingembre peut être irritant en grande quantité."
+  },
+  {
+    "id": "betterave-pomme",
+    "title": "Salade de betterave, pomme et noix",
+    "category": "Salade",
+    "goals": [
+      "Fibres",
+      "Fraîcheur"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 12,
+    "servings": 2,
+    "ingredients": [
+      "2 betteraves cuites",
+      "1 pomme",
+      "30 g de noix",
+      "1 c. à soupe d’huile de colza",
+      "1 c. à soupe de vinaigre de cidre",
+      "Persil"
+    ],
+    "steps": [
+      "Couper betterave et pomme.",
+      "Mélanger huile et vinaigre.",
+      "Assembler et ajouter noix et persil."
+    ],
+    "why": [
+      "La pomme apporte du croquant et équilibre la douceur de la betterave."
+    ],
+    "caution": "La betterave peut colorer temporairement les urines ou les selles."
+  },
+  {
+    "id": "fenouil-orange",
+    "title": "Fenouil braisé à l’orange",
+    "category": "Accompagnement",
+    "goals": [
+      "Digestion",
+      "Cuisine végétale"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 30,
+    "servings": 3,
+    "ingredients": [
+      "2 bulbes de fenouil",
+      "1 orange",
+      "1 c. à soupe d’huile d’olive",
+      "1 pincée de graines de fenouil"
+    ],
+    "steps": [
+      "Émincer le fenouil.",
+      "Le faire revenir 5 minutes.",
+      "Ajouter jus d’orange et graines.",
+      "Couvrir et cuire 20 minutes."
+    ],
+    "why": [
+      "L’orange souligne le goût anisé du fenouil."
+    ],
+    "caution": "Les graines de fenouil s’utilisent ici en quantité culinaire."
+  },
+  {
+    "id": "poireaux-moutarde",
+    "title": "Poireaux tièdes, moutarde et noisettes",
+    "category": "Salade",
+    "goals": [
+      "Fibres"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 25,
+    "servings": 3,
+    "ingredients": [
+      "4 poireaux",
+      "1 c. à café de moutarde",
+      "1 c. à soupe de vinaigre",
+      "2 c. à soupe d’huile de colza",
+      "30 g de noisettes"
+    ],
+    "steps": [
+      "Cuire les poireaux à la vapeur.",
+      "Mélanger moutarde, vinaigre et huile.",
+      "Servir tiède avec les noisettes."
+    ],
+    "why": [
+      "La vinaigrette vive équilibre la douceur des poireaux."
+    ],
+    "caution": "La moutarde et les noisettes peuvent provoquer des allergies."
+  },
+  {
+    "id": "brocoli-sesame",
+    "title": "Brocoli au sésame et gingembre",
+    "category": "Accompagnement",
+    "goals": [
+      "Cuisine végétale"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 18,
+    "servings": 3,
+    "ingredients": [
+      "1 brocoli",
+      "1 c. à café de gingembre râpé",
+      "1 c. à soupe de graines de sésame",
+      "1 c. à café d’huile de sésame",
+      "1 c. à soupe de sauce soja sans gluten"
+    ],
+    "steps": [
+      "Cuire le brocoli à la vapeur.",
+      "Mélanger gingembre, huile et sauce soja.",
+      "Napper et ajouter le sésame."
+    ],
+    "why": [
+      "Le gingembre et le sésame donnent une saveur marquée à un légume simple."
+    ],
+    "caution": "Le sésame et le soja sont des allergènes."
+  },
+  {
+    "id": "chou-rouge-pomme",
+    "title": "Chou rouge braisé, pomme et cannelle",
+    "category": "Accompagnement",
+    "goals": [
+      "Fibres",
+      "Confort"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 50,
+    "servings": 5,
+    "ingredients": [
+      "1 petit chou rouge",
+      "2 pommes",
+      "1/2 c. à café de cannelle",
+      "1 c. à soupe de vinaigre",
+      "1 c. à soupe d’huile"
+    ],
+    "steps": [
+      "Émincer le chou et les pommes.",
+      "Faire revenir 5 minutes.",
+      "Ajouter vinaigre, cannelle et un peu d’eau.",
+      "Couvrir et cuire 40 minutes."
+    ],
+    "why": [
+      "La pomme et la cannelle adoucissent le chou rouge."
+    ],
+    "caution": "Commencer par une petite portion si les choux vous ballonnent."
+  },
+  {
+    "id": "epinards-ail-muscade",
+    "title": "Épinards à l’ail et à la muscade",
+    "category": "Accompagnement",
+    "goals": [
+      "Rapide",
+      "Cuisine végétale"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 12,
+    "servings": 2,
+    "ingredients": [
+      "400 g d’épinards",
+      "1 gousse d’ail",
+      "1 pincée de muscade",
+      "1 c. à café d’huile d’olive"
+    ],
+    "steps": [
+      "Faire revenir l’ail brièvement.",
+      "Ajouter les épinards.",
+      "Cuire jusqu’à réduction.",
+      "Ajouter une petite pincée de muscade."
+    ],
+    "why": [
+      "L’ail et la muscade relèvent les épinards sans sauce riche."
+    ],
+    "caution": "La muscade s’utilise en très petite quantité culinaire."
+  },
+  {
+    "id": "tomates-origan",
+    "title": "Tomates rôties à l’origan",
+    "category": "Accompagnement",
+    "goals": [
+      "Cuisine méditerranéenne"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 30,
+    "servings": 4,
+    "ingredients": [
+      "6 tomates",
+      "1 c. à café d’origan",
+      "2 gousses d’ail",
+      "1 c. à soupe d’huile d’olive"
+    ],
+    "steps": [
+      "Couper les tomates.",
+      "Ajouter ail, origan et huile.",
+      "Rôtir 25 minutes à 200 °C."
+    ],
+    "why": [
+      "L’origan et l’ail concentrent le caractère méditerranéen de la tomate."
+    ],
+    "caution": "La tomate peut être mal tolérée en cas de reflux chez certaines personnes."
+  },
+  {
+    "id": "courgette-menthe",
+    "title": "Courgettes à la menthe et au citron",
+    "category": "Accompagnement",
+    "goals": [
+      "Fraîcheur",
+      "Rapide"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 15,
+    "servings": 3,
+    "ingredients": [
+      "3 courgettes",
+      "1 citron",
+      "10 feuilles de menthe",
+      "1 c. à soupe d’huile d’olive"
+    ],
+    "steps": [
+      "Sauter les courgettes 8 minutes.",
+      "Ajouter zeste et jus de citron.",
+      "Terminer avec la menthe."
+    ],
+    "why": [
+      "La menthe et le citron donnent de la fraîcheur aux courgettes."
+    ],
+    "caution": "La menthe peut aggraver le reflux chez certaines personnes."
+  },
+  {
+    "id": "aubergine-cumin",
+    "title": "Aubergines au cumin et yaourt citronné",
+    "category": "Plat",
+    "goals": [
+      "Cuisine végétale",
+      "Satiété"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 40,
+    "servings": 3,
+    "ingredients": [
+      "2 aubergines",
+      "1 c. à café de cumin",
+      "1 c. à soupe d’huile d’olive",
+      "150 g de yaourt",
+      "1/2 citron",
+      "Persil"
+    ],
+    "steps": [
+      "Rôtir les aubergines avec huile et cumin.",
+      "Mélanger yaourt et citron.",
+      "Servir avec persil."
+    ],
+    "why": [
+      "Le yaourt acidulé équilibre la richesse de l’aubergine rôtie."
+    ],
+    "caution": "Utiliser un yaourt végétal pour une version sans lait."
+  },
+  {
+    "id": "champignons-thym",
+    "title": "Champignons au thym et persil",
+    "category": "Accompagnement",
+    "goals": [
+      "Rapide"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 15,
+    "servings": 2,
+    "ingredients": [
+      "400 g de champignons",
+      "1 gousse d’ail",
+      "1 branche de thym",
+      "1 c. à soupe de persil",
+      "1 c. à café d’huile d’olive"
+    ],
+    "steps": [
+      "Saisir les champignons.",
+      "Ajouter ail et thym en fin de cuisson.",
+      "Terminer avec le persil."
+    ],
+    "why": [
+      "Les herbes renforcent la saveur umami des champignons."
+    ],
+    "caution": "Ne consommer que des champignons correctement identifiés."
+  },
+  {
+    "id": "lentilles-tomate-romarin",
+    "title": "Lentilles à la tomate et au romarin",
+    "category": "Plat",
+    "goals": [
+      "Fibres",
+      "Satiété"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 30,
+    "servings": 3,
+    "ingredients": [
+      "250 g de lentilles cuites",
+      "300 g de tomates concassées",
+      "2 gousses d’ail",
+      "1 branche de romarin",
+      "1 c. à soupe d’huile d’olive"
+    ],
+    "steps": [
+      "Faire revenir l’ail.",
+      "Ajouter tomate et romarin.",
+      "Mijoter 10 minutes.",
+      "Ajouter les lentilles 8 minutes."
+    ],
+    "why": [
+      "Les lentilles apportent fibres et protéines végétales."
+    ],
+    "caution": "En cas de régime pauvre en potassium, demander conseil."
+  },
+  {
+    "id": "pois-chiches-curcuma",
+    "title": "Pois chiches au curcuma et gingembre",
+    "category": "Plat",
+    "goals": [
+      "Satiété",
+      "Cuisine végétale"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 20,
+    "servings": 2,
+    "ingredients": [
+      "400 g de pois chiches",
+      "1 oignon",
+      "1 c. à café de curcuma",
+      "1 c. à café de gingembre",
+      "1/2 citron",
+      "Persil"
+    ],
+    "steps": [
+      "Faire revenir l’oignon.",
+      "Ajouter les épices.",
+      "Ajouter les pois chiches avec un peu d’eau.",
+      "Finir avec citron et persil."
+    ],
+    "why": [
+      "Les pois chiches forment une base nourrissante et les épices donnent de la profondeur."
+    ],
+    "caution": "Les épices concentrées peuvent interagir avec certains traitements; les quantités ici sont culinaires."
+  },
+  {
+    "id": "haricots-blancs-sauge",
+    "title": "Haricots blancs à la sauge et au citron",
+    "category": "Plat",
+    "goals": [
+      "Fibres",
+      "Économique"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 22,
+    "servings": 3,
+    "ingredients": [
+      "400 g de haricots blancs cuits",
+      "6 feuilles de sauge",
+      "1 citron",
+      "1 gousse d’ail",
+      "1 c. à soupe d’huile d’olive"
+    ],
+    "steps": [
+      "Faire revenir doucement ail et sauge.",
+      "Ajouter les haricots.",
+      "Chauffer 8 minutes.",
+      "Ajouter le citron."
+    ],
+    "why": [
+      "La sauge et le citron réveillent la saveur douce des haricots blancs."
+    ],
+    "caution": "La sauge s’emploie ici en petite quantité culinaire."
+  },
+  {
+    "id": "pomme-cannelle-noix",
+    "title": "Pommes au four, cannelle et noix",
+    "category": "Dessert",
+    "goals": [
+      "Confort"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 35,
+    "servings": 4,
+    "ingredients": [
+      "4 pommes",
+      "1 c. à café de cannelle",
+      "40 g de noix",
+      "4 c. à café de flocons d’avoine",
+      "Un peu d’eau"
+    ],
+    "steps": [
+      "Évider les pommes.",
+      "Mélanger noix, avoine et cannelle.",
+      "Farcir et cuire 30 minutes à 180 °C."
+    ],
+    "why": [
+      "La cannelle et les noix enrichissent un dessert naturellement sucré."
+    ],
+    "caution": "Utiliser de l’avoine certifiée sans gluten si nécessaire."
+  },
+  {
+    "id": "poire-vanille-anis",
+    "title": "Compote poire, vanille et anis",
+    "category": "Dessert",
+    "goals": [
+      "Confort"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 20,
+    "servings": 3,
+    "ingredients": [
+      "4 poires",
+      "1/2 gousse de vanille",
+      "1 étoile de badiane",
+      "2 c. à soupe d’eau"
+    ],
+    "steps": [
+      "Couper les poires.",
+      "Cuire avec vanille, badiane et eau 15 minutes.",
+      "Retirer la badiane puis écraser."
+    ],
+    "why": [
+      "La vanille et l’anis parfument sans exiger beaucoup de sucre."
+    ],
+    "caution": "Retirer la badiane avant de mixer ou servir."
+  },
+  {
+    "id": "orange-cardamome-yaourt",
+    "title": "Orange à la cardamome et au yaourt",
+    "category": "Dessert",
+    "goals": [
+      "Fraîcheur"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 8,
+    "servings": 2,
+    "ingredients": [
+      "2 oranges",
+      "150 g de yaourt nature",
+      "1/4 c. à café de cardamome",
+      "1 c. à soupe d’amandes"
+    ],
+    "steps": [
+      "Peler et couper les oranges.",
+      "Mélanger yaourt et cardamome.",
+      "Servir avec les amandes."
+    ],
+    "why": [
+      "La cardamome se marie particulièrement bien avec les agrumes."
+    ],
+    "caution": "Les amandes sont allergènes."
+  },
+  {
+    "id": "saumon-cardamome-orange",
+    "title": "Saumon à l’orange et à la cardamome",
+    "category": "Plat",
+    "goals": [
+      "Cœur",
+      "Protéines"
+    ],
+    "tags": [
+      "sans gluten",
+      "riche en protéines"
+    ],
+    "time": 25,
+    "servings": 2,
+    "ingredients": [
+      "2 pavés de saumon",
+      "1 orange",
+      "1 c. à café de cardamome",
+      "1 c. à soupe d’huile d’olive",
+      "1 c. à café de miel facultatif"
+    ],
+    "steps": [
+      "Mélanger jus, zeste, cardamome et huile.",
+      "Verser sur le saumon.",
+      "Cuire 12 à 15 minutes à 190 °C."
+    ],
+    "why": [
+      "Le saumon apporte protéines et oméga‑3; orange et cardamome forment un glaçage aromatique."
+    ],
+    "caution": "Le miel reste facultatif."
+  },
+  {
+    "id": "myrtilles-lin-yaourt",
+    "title": "Bol de yaourt, myrtilles et lin",
+    "category": "Petit-déjeuner",
+    "goals": [
+      "Fibres",
+      "Satiété"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 5,
+    "servings": 1,
+    "ingredients": [
+      "150 g de yaourt nature",
+      "80 g de myrtilles",
+      "1 c. à soupe de graines de lin moulues",
+      "1 c. à soupe d’amandes"
+    ],
+    "steps": [
+      "Verser le yaourt dans un bol.",
+      "Ajouter myrtilles, lin et amandes."
+    ],
+    "why": [
+      "Le lin moulu ajoute des fibres et les myrtilles diversifient les fruits."
+    ],
+    "caution": "Introduire progressivement les graines de lin."
+  },
+  {
+    "id": "porridge-pomme-cannelle",
+    "title": "Porridge pomme, cannelle et noix",
+    "category": "Petit-déjeuner",
+    "goals": [
+      "Énergie",
+      "Satiété"
+    ],
+    "tags": [
+      "végétarien"
+    ],
+    "time": 12,
+    "servings": 1,
+    "ingredients": [
+      "50 g de flocons d’avoine",
+      "200 ml de lait ou boisson végétale",
+      "1 pomme",
+      "1/2 c. à café de cannelle",
+      "1 c. à soupe de noix"
+    ],
+    "steps": [
+      "Cuire l’avoine, le lait, la pomme et la cannelle.",
+      "Servir avec les noix."
+    ],
+    "why": [
+      "L’avoine apporte des fibres solubles et la pomme une douceur naturelle."
+    ],
+    "caution": "Choisir une avoine certifiée sans gluten en cas de maladie cœliaque."
+  },
+  {
+    "id": "infusion-menthe-fenouil",
+    "title": "Infusion menthe, fenouil et citron",
+    "category": "Boisson",
+    "goals": [
+      "Digestion",
+      "Hydratation"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 10,
+    "servings": 1,
+    "ingredients": [
+      "1 c. à café de graines de fenouil",
+      "6 feuilles de menthe",
+      "1 rondelle de citron",
+      "250 ml d’eau chaude"
+    ],
+    "steps": [
+      "Verser l’eau chaude.",
+      "Couvrir 7 minutes.",
+      "Filtrer et ajouter le citron."
+    ],
+    "why": [
+      "Le fenouil et la menthe sont traditionnellement consommés après les repas."
+    ],
+    "caution": "La menthe peut aggraver le reflux."
+  },
+  {
+    "id": "tisane-pomme-cannelle",
+    "title": "Infusion pomme, cannelle et gingembre",
+    "category": "Boisson",
+    "goals": [
+      "Confort",
+      "Hydratation"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 12,
+    "servings": 2,
+    "ingredients": [
+      "1/2 pomme en fines tranches",
+      "1 petit bâton de cannelle",
+      "2 fines tranches de gingembre",
+      "500 ml d’eau"
+    ],
+    "steps": [
+      "Faire frémir 8 minutes.",
+      "Laisser reposer 3 minutes.",
+      "Filtrer ou servir avec les morceaux."
+    ],
+    "why": [
+      "Une boisson aromatique et peu sucrée pour les journées froides."
+    ],
+    "caution": "Le gingembre peut être irritant chez certaines personnes."
+  },
+  {
+    "id": "omelette-epinards",
+    "title": "Omelette épinards, persil et muscade",
+    "category": "Plat",
+    "goals": [
+      "Rapide",
+      "Protéines"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten",
+      "riche en protéines"
+    ],
+    "time": 15,
+    "servings": 1,
+    "ingredients": [
+      "2 œufs",
+      "1 poignée d’épinards",
+      "1 c. à soupe de persil",
+      "1 pincée de muscade",
+      "1 c. à café d’huile"
+    ],
+    "steps": [
+      "Faire tomber les épinards.",
+      "Battre les œufs avec persil et muscade.",
+      "Cuire doucement."
+    ],
+    "why": [
+      "Une préparation rapide qui associe protéines, légumes et herbes."
+    ],
+    "caution": "La muscade s’utilise en petite quantité."
+  },
+  {
+    "id": "riz-lait-epices",
+    "title": "Riz au lait à la cannelle et cardamome",
+    "category": "Dessert",
+    "goals": [
+      "Confort"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 35,
+    "servings": 4,
+    "ingredients": [
+      "100 g de riz rond",
+      "600 ml de lait ou boisson végétale",
+      "1/2 c. à café de cannelle",
+      "1/2 c. à café de cardamome",
+      "1 à 2 c. à soupe de sucre"
+    ],
+    "steps": [
+      "Cuire à feu doux 30 minutes en remuant.",
+      "Sucrer légèrement en fin de cuisson."
+    ],
+    "why": [
+      "Les épices permettent de donner une impression aromatique riche avec peu de sucre."
+    ],
+    "caution": "Adapter sucre et portion en cas de diabète."
+  },
+  {
+    "id": "sardines-citron-persil",
+    "title": "Sardines au citron, persil et ail",
+    "category": "Plat",
+    "goals": [
+      "Cœur",
+      "Rapide"
+    ],
+    "tags": [
+      "sans gluten",
+      "riche en protéines"
+    ],
+    "time": 10,
+    "servings": 2,
+    "ingredients": [
+      "2 boîtes de sardines",
+      "1/2 citron",
+      "1 petite gousse d’ail",
+      "2 c. à soupe de persil",
+      "Poivre"
+    ],
+    "steps": [
+      "Égoutter légèrement les sardines.",
+      "Mélanger citron, ail et persil.",
+      "Verser sur les sardines et servir."
+    ],
+    "why": [
+      "Les sardines apportent protéines et oméga‑3.",
+      "Le citron et le persil apportent fraîcheur."
+    ],
+    "caution": "Vérifier la teneur en sel des conserves."
+  },
+  {
+    "id": "oeufs-tomate-paprika",
+    "title": "Œufs à la tomate et au paprika",
+    "category": "Plat",
+    "goals": [
+      "Rapide",
+      "Protéines"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten",
+      "riche en protéines"
+    ],
+    "time": 20,
+    "servings": 2,
+    "ingredients": [
+      "4 œufs",
+      "300 g de tomates concassées",
+      "1 petit oignon",
+      "1/2 c. à café de paprika",
+      "1 c. à café d’huile d’olive"
+    ],
+    "steps": [
+      "Faire revenir l’oignon.",
+      "Ajouter tomate et paprika.",
+      "Casser les œufs dans la sauce.",
+      "Couvrir jusqu’à cuisson désirée."
+    ],
+    "why": [
+      "Un repas rapide et rassasiant.",
+      "Le paprika donne du goût sans beaucoup de sel."
+    ],
+    "caution": "Cuire les œufs selon vos besoins de sécurité alimentaire."
+  },
+  {
+    "id": "salade-lentilles-carotte",
+    "title": "Salade de lentilles, carotte et cumin",
+    "category": "Salade",
+    "goals": [
+      "Fibres",
+      "Économique"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 20,
+    "servings": 3,
+    "ingredients": [
+      "300 g de lentilles cuites",
+      "2 carottes râpées",
+      "1/2 c. à café de cumin",
+      "1 c. à soupe de vinaigre",
+      "2 c. à soupe d’huile de colza",
+      "Persil"
+    ],
+    "steps": [
+      "Mélanger lentilles et carottes.",
+      "Préparer la vinaigrette au cumin.",
+      "Ajouter le persil."
+    ],
+    "why": [
+      "Les lentilles apportent fibres et protéines végétales.",
+      "La carotte ajoute croquant et douceur."
+    ],
+    "caution": "Commencer par une petite portion si les légumineuses vous ballonnent."
+  },
+  {
+    "id": "quinoa-herbes-citron",
+    "title": "Quinoa aux herbes, citron et pois chiches",
+    "category": "Plat",
+    "goals": [
+      "Satiété",
+      "Cuisine végétale"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 25,
+    "servings": 3,
+    "ingredients": [
+      "180 g de quinoa",
+      "250 g de pois chiches",
+      "1 citron",
+      "Persil et menthe",
+      "1 c. à soupe d’huile d’olive"
+    ],
+    "steps": [
+      "Cuire le quinoa.",
+      "Ajouter les pois chiches.",
+      "Mélanger avec citron, huile et herbes."
+    ],
+    "why": [
+      "Une base végétale complète et pratique."
+    ],
+    "caution": "Rincer soigneusement le quinoa avant cuisson."
+  },
+  {
+    "id": "soupe-poireau-pdt",
+    "title": "Soupe poireau, pomme de terre et muscade",
+    "category": "Soupe",
+    "goals": [
+      "Confort",
+      "Économique"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 35,
+    "servings": 4,
+    "ingredients": [
+      "3 poireaux",
+      "3 pommes de terre",
+      "900 ml de bouillon peu salé",
+      "1 pincée de muscade",
+      "1 c. à soupe d’huile"
+    ],
+    "steps": [
+      "Faire revenir les poireaux.",
+      "Ajouter pommes de terre et bouillon.",
+      "Cuire 25 minutes puis mixer.",
+      "Ajouter la muscade."
+    ],
+    "why": [
+      "Une soupe simple, économique et douce."
+    ],
+    "caution": "La muscade s’utilise en très petite quantité."
+  },
+  {
+    "id": "salade-orange-fenouil",
+    "title": "Salade d’orange, fenouil et menthe",
+    "category": "Salade",
+    "goals": [
+      "Fraîcheur",
+      "Hydratation"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 12,
+    "servings": 2,
+    "ingredients": [
+      "2 oranges",
+      "1 petit fenouil",
+      "8 feuilles de menthe",
+      "1 c. à café d’huile d’olive"
+    ],
+    "steps": [
+      "Peler les oranges à vif.",
+      "Émincer le fenouil.",
+      "Assembler avec menthe et huile."
+    ],
+    "why": [
+      "L’orange et le fenouil partagent des notes fraîches et anisées."
+    ],
+    "caution": "La menthe peut aggraver le reflux."
+  },
+  {
+    "id": "yaourt-concombre-menthe",
+    "title": "Yaourt au concombre, menthe et cumin",
+    "category": "Accompagnement",
+    "goals": [
+      "Fraîcheur",
+      "Rapide"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 10,
+    "servings": 3,
+    "ingredients": [
+      "250 g de yaourt nature",
+      "1/2 concombre",
+      "8 feuilles de menthe",
+      "1/4 c. à café de cumin",
+      "1 filet de citron"
+    ],
+    "steps": [
+      "Râper le concombre.",
+      "Mélanger tous les ingrédients.",
+      "Réserver au frais."
+    ],
+    "why": [
+      "Une sauce fraîche pour légumes, céréales ou grillades."
+    ],
+    "caution": "Choisir un yaourt végétal pour une version sans lait."
+  },
+  {
+    "id": "compote-pomme-gingembre",
+    "title": "Compote pomme, gingembre et citron",
+    "category": "Dessert",
+    "goals": [
+      "Confort"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 20,
+    "servings": 4,
+    "ingredients": [
+      "6 pommes",
+      "1 cm de gingembre",
+      "1 bande de zeste de citron",
+      "3 c. à soupe d’eau"
+    ],
+    "steps": [
+      "Couper les pommes.",
+      "Cuire avec gingembre, zeste et eau.",
+      "Retirer le zeste et écraser."
+    ],
+    "why": [
+      "Le gingembre et le citron donnent du relief sans beaucoup de sucre."
+    ],
+    "caution": "Réduire le gingembre si vous êtes sensible."
+  },
+  {
+    "id": "truite-aneth-amandes",
+    "title": "Truite au citron, aneth et amandes",
+    "category": "Plat",
+    "goals": [
+      "Protéines",
+      "Cuisine légère"
+    ],
+    "tags": [
+      "sans gluten",
+      "riche en protéines"
+    ],
+    "time": 25,
+    "servings": 2,
+    "ingredients": [
+      "2 filets de truite",
+      "1 citron",
+      "2 c. à soupe d’amandes",
+      "1 c. à soupe d’aneth",
+      "1 c. à café d’huile"
+    ],
+    "steps": [
+      "Ajouter citron, aneth et huile à la truite.",
+      "Cuire 12 à 15 minutes à 190 °C.",
+      "Ajouter les amandes grillées."
+    ],
+    "why": [
+      "L’aneth et le citron se marient naturellement avec la truite."
+    ],
+    "caution": "Les amandes sont allergènes."
+  },
+  {
+    "id": "patate-douce-curcuma",
+    "title": "Patate douce rôtie au curcuma et thym",
+    "category": "Accompagnement",
+    "goals": [
+      "Confort",
+      "Cuisine végétale"
+    ],
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ],
+    "time": 35,
+    "servings": 3,
+    "ingredients": [
+      "700 g de patate douce",
+      "1/2 c. à café de curcuma",
+      "1 branche de thym",
+      "1 c. à soupe d’huile d’olive"
+    ],
+    "steps": [
+      "Couper la patate douce.",
+      "Mélanger avec huile, curcuma et thym.",
+      "Rôtir 30 minutes à 200 °C."
+    ],
+    "why": [
+      "Le curcuma et le thym complètent sa douceur."
+    ],
+    "caution": "Adapter la portion en cas de contrôle strict de la glycémie."
+  }
+]
