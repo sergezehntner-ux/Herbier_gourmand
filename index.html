@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="fr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#345c45">
+<link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css">
+<title>Herbier Gourmand</title></head>
+<body>
+<header><div><small>VOLUME 1</small><h1>Herbier Gourmand</h1><p>Recettes avec aliments, épices et plantes aromatiques</p></div><button id="install" hidden>Installer</button></header>
+<main>
+<section class="daily-box">
+<h2>Que cuisiner aujourd’hui ?</h2>
+<div class="daily-actions">
+<button data-quick="Rapide">⏱ Rapide</button>
+<button data-quick="Économique">€ Économique</button>
+<button data-quick="végétarien">🥕 Végétarien</button>
+<button id="surpriseTop">✦ Surprise</button>
+</div>
+</section>
+<div class="notice"><b>Important :</b> guide culinaire et informatif. Il ne remplace pas un avis médical.</div>
+<section class="toolbar">
+<input id="search" type="search" placeholder="Rechercher : ail, digestion, soupe…">
+<div class="row"><select id="category"><option value="">Toutes les catégories</option></select><select id="tag"><option value="">Tous les régimes</option></select></div>
+<div class="row buttons"><button id="favOnly">♡ Favoris</button><button id="pdfCurrent">PDF des résultats</button><button id="pdfAll">PDF complet</button></div>
+</section>
+<section class="pantry-box">
+<h2>Mon garde-manger</h2>
+<p>Saisissez plusieurs ingrédients séparés par des virgules.</p>
+<div class="row"><input id="pantryInput" placeholder="Ex. œufs, tomate, ail"><button id="pantryBtn">Trouver</button></div>
+</section>
+<div class="head"><h2>Recettes</h2><span id="count"></span></div>
+<section id="grid"></section>
+</main>
+<dialog id="dialog"><article id="detail"></article><button id="close">×</button></dialog>
+<nav><button id="home">⌂<span>Accueil</span></button><button id="random">✦<span>Surprise</span></button><button id="favorites">♡<span>Favoris</span></button></nav>
+<script src="app.js"></script></body></html>
