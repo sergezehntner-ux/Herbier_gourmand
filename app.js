@@ -3,7 +3,7 @@ let recipes=[], favOnly=false;
 const favs=new Set(JSON.parse(localStorage.getItem("hg-favs")||"[]"));
 const $=s=>document.querySelector(s);
 const norm=s=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
-async function init(){recipes=await fetch("data/recipes.json").then(r=>r.json());fill();bind();render();if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js")}
+async function init(){recipes=await fetch("recipes.json").then(r=>r.json());fill();bind();render();if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js")}
 function fill(){[...new Set(recipes.map(r=>r.category))].sort().forEach(x=>$("#category").insertAdjacentHTML("beforeend",`<option>${x}</option>`));[...new Set(recipes.flatMap(r=>r.tags))].sort().forEach(x=>$("#tag").insertAdjacentHTML("beforeend",`<option>${x}</option>`))}
 function bind(){
 $("#search").oninput=render;$("#category").onchange=render;$("#tag").onchange=render;
