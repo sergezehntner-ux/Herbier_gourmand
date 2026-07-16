@@ -13,5 +13,6 @@
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "description": "Assistant culinaire quotidien avec recettes, ingrédients, favoris et export PDF."
 }

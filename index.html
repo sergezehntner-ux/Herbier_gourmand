@@ -17,6 +17,46 @@
 </div>
 </section>
 <div class="notice"><b>Important :</b> guide culinaire et informatif. Il ne remplace pas un avis médical.</div>
+
+<section class="assistant-box">
+  <h2>Je ne sais pas quoi cuisiner</h2>
+  <p>Répondez à trois questions et Herbier Gourmand vous proposera des idées.</p>
+  <div class="assistant-grid">
+    <label>Temps disponible
+      <select id="assistTime">
+        <option value="">Peu importe</option>
+        <option value="15">15 minutes maximum</option>
+        <option value="30">30 minutes maximum</option>
+        <option value="60">60 minutes maximum</option>
+      </select>
+    </label>
+    <label>Type de repas
+      <select id="assistType">
+        <option value="">Peu importe</option>
+        <option value="Plat">Plat</option>
+        <option value="Soupe">Soupe</option>
+        <option value="Salade">Salade</option>
+        <option value="Petit-déjeuner">Petit-déjeuner</option>
+        <option value="Dessert">Dessert</option>
+        <option value="Boisson">Boisson</option>
+      </select>
+    </label>
+    <label>Préférence
+      <select id="assistDiet">
+        <option value="">Peu importe</option>
+        <option value="végétarien">Végétarien</option>
+        <option value="sans gluten">Sans gluten</option>
+        <option value="riche en protéines">Riche en protéines</option>
+      </select>
+    </label>
+  </div>
+  <label class="wide-label">Ingrédients que vous avez déjà
+    <input id="assistIngredients" placeholder="Ex. ail, œufs, tomate">
+  </label>
+  <button id="assistBtn" class="primary-wide">Proposer 3 recettes</button>
+  <div id="assistResults" class="assistant-results"></div>
+</section>
+
 <section class="toolbar">
 <input id="search" type="search" placeholder="Rechercher : ail, digestion, soupe…">
 <div class="row"><select id="category"><option value="">Toutes les catégories</option></select><select id="tag"><option value="">Tous les régimes</option></select></div>

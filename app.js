@@ -14,6 +14,8 @@ $("#random").onclick=()=>{let p=filtered();if(p.length)openRecipe(p[Math.floor(M
 $("#favorites").onclick=()=>{favOnly=true;$("#favOnly").classList.add("active");render();window.scrollTo({top:0,behavior:"smooth"})};
 $("#pdfCurrent").onclick=()=>printRecipes(filtered(),"Sélection de recettes");
 $("#pdfAll").onclick=()=>printRecipes(recipes,"Volume 1");
+$("#assistBtn").onclick=runAssistant;
+
 document.querySelectorAll("[data-quick]").forEach(b=>b.onclick=()=>{$("#search").value=b.dataset.quick;render();});
 $("#surpriseTop").onclick=()=>{let p=filtered();if(p.length)openRecipe(p[Math.floor(Math.random()*p.length)].id)};
 $("#pantryBtn").onclick=()=>renderPantry($("#pantryInput").value.split(",").map(x=>x.trim()).filter(Boolean));
@@ -41,4 +43,38 @@ function renderPantry(parts){
   }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
   $("#count").textContent=`${scored.length} recette${scored.length>1?"s":""}`;
   $("#grid").innerHTML=scored.map(x=>card(x.r)).join("")||"<p>Aucune recette trouvée avec ces ingrédients.</p>";
+}
+
+function runAssistant(){
+  const maxTime=Number($("#assistTime").value||999);
+  const type=$("#assistType").value;
+  const diet=$("#assistDiet").value;
+  const ingredients=$("#assistIngredients").value.split(",").map(x=>norm(x.trim())).filter(Boolean);
+
+  let scored=recipes.map(r=>{
+    if(r.time>maxTime) return null;
+    if(type && r.category!==type) return null;
+    if(diet && !r.tags.includes(diet)) return null;
+
+    const hay=norm(r.ingredients.join(" "));
+    const matched=ingredients.filter(i=>hay.includes(i)).length;
+    let score=matched*5;
+    if(r.time<=15) score+=2;
+    else if(r.time<=30) score+=1;
+    score+=Math.random()*1.5;
+    return {r,score,matched};
+  }).filter(Boolean).sort((a,b)=>b.score-a.score).slice(0,3);
+
+  const box=$("#assistResults");
+  if(!scored.length){
+    box.innerHTML="<p>Aucune recette ne correspond exactement. Essayez avec moins de critères.</p>";
+    return;
+  }
+  box.innerHTML="<h3>Mes suggestions</h3>"+scored.map(x=>`
+    <article class="assist-card">
+      <h3>${x.r.title}</h3>
+      <div class="meta">${x.r.time} min · ${x.r.category}${ingredients.length?` · ${x.matched}/${ingredients.length} ingrédient(s) trouvé(s)`:""}</div>
+      <button data-assist-open="${x.r.id}">Voir la recette</button>
+    </article>`).join("");
+  box.querySelectorAll("[data-assist-open]").forEach(b=>b.onclick=()=>openRecipe(b.dataset.assistOpen));
 }

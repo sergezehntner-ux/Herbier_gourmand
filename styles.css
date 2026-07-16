@@ -28,3 +28,17 @@ nav{position:fixed;bottom:0;left:0;right:0;background:#fffdf7ee;border-top:1px s
 .daily-actions button,#pantryBtn{padding:13px;border:1px solid var(--line);border-radius:11px;background:white;color:var(--ink);font-weight:bold}
 #pantryBtn{flex:0 0 auto;background:var(--brand);color:white}
 .pantry-box p{margin:4px 0 8px;color:#68776e}
+
+.assistant-box{margin-top:14px;background:var(--paper);border:1px solid var(--line);padding:16px;border-radius:16px}
+.assistant-box h2{font-family:Georgia,serif;margin:0 0 6px}
+.assistant-box p{margin:0 0 12px;color:#68776e}
+.assistant-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.assistant-grid label,.wide-label{font-weight:700;font-size:.92rem}
+.assistant-grid select,.wide-label input{display:block;width:100%;margin-top:6px}
+.wide-label{display:block;margin-top:10px}
+.primary-wide{width:100%;margin-top:12px;padding:14px;border:0;border-radius:11px;background:var(--brand);color:white;font-weight:800}
+.assistant-results{margin-top:12px}
+.assist-card{background:#faf7ef;border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:8px}
+.assist-card h3{font-family:Georgia,serif;margin:0 0 5px}
+.assist-card button{border:0;background:transparent;color:var(--brand);font-weight:800;padding:4px 0}
+@media(max-width:680px){.assistant-grid{grid-template-columns:1fr}}
