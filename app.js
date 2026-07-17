@@ -137,3 +137,76 @@ let deferredPrompt;window.addEventListener("beforeinstallprompt",e=>{e.preventDe
 $("#installBtn").onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;$("#installBtn").classList.add("hidden")}};
 
 init();
+
+
+const APP_VERSION="2.3.0";
+const UPDATE_CHECK_KEY="hg-app-version";
+
+async function clearAppCaches(){
+  if(!("caches" in window)) return;
+  const keys=await caches.keys();
+  await Promise.all(keys.map(k=>caches.delete(k)));
+}
+
+async function unregisterOldWorkers(){
+  if(!("serviceWorker" in navigator)) return;
+  const regs=await navigator.serviceWorker.getRegistrations();
+  await Promise.all(regs.map(r=>r.unregister()));
+}
+
+async function forceLatestVersion(){
+  const status=$("#updateStatus");
+  try{
+    status.textContent="Mise à jour…";
+    status.className="update-status loading";
+    await clearAppCaches();
+    localStorage.setItem(UPDATE_CHECK_KEY,APP_VERSION);
+    const url=new URL(window.location.href);
+    url.searchParams.set("_update",Date.now().toString());
+    window.location.replace(url.toString());
+  }catch(e){
+    status.textContent="Échec de mise à jour";
+    status.className="update-status error";
+  }
+}
+
+async function checkForUpdate(){
+  const status=$("#updateStatus");
+  try{
+    status.textContent="Vérification…";
+    status.className="update-status loading";
+    const response=await fetch(`version.json?_=${Date.now()}`,{
+      cache:"no-store",
+      headers:{"Cache-Control":"no-cache, no-store, must-revalidate"}
+    });
+    if(!response.ok) throw new Error("version.json indisponible");
+    const remote=await response.json();
+    const known=localStorage.getItem(UPDATE_CHECK_KEY);
+
+    if(remote.version!==APP_VERSION || (known && known!==remote.version)){
+      status.textContent=`Nouvelle version ${remote.version}`;
+      status.className="update-status loading";
+      await clearAppCaches();
+      localStorage.setItem(UPDATE_CHECK_KEY,remote.version);
+      const url=new URL(window.location.href);
+      if(!url.searchParams.has("_fresh")){
+        url.searchParams.set("_fresh",Date.now().toString());
+        window.location.replace(url.toString());
+        return;
+      }
+    }
+
+    localStorage.setItem(UPDATE_CHECK_KEY,remote.version);
+    status.textContent=`À jour · v${remote.version}`;
+    status.className="update-status ok";
+  }catch(e){
+    status.textContent="Mode hors connexion";
+    status.className="update-status error";
+  }
+}
+
+window.addEventListener("load",()=>{
+  checkForUpdate();
+  const btn=$("#forceUpdateBtn");
+  if(btn) btn.onclick=forceLatestVersion;
+});

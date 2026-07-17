@@ -5,3 +5,14 @@
 .day-choice input{width:20px;height:20px}
 .rule-ok{background:#e7f2e9;border-left:5px solid var(--green)}
 @media(max-width:540px){.day-choices{grid-template-columns:repeat(2,1fr)}}
+
+.header-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.update-status{font-size:.85rem;opacity:.9}
+.update-status.ok{color:#e7f7ea}
+.update-status.loading{color:#fff4bd}
+.update-status.error{color:#ffd4d4}
+@media(max-width:540px){
+  header{align-items:flex-start;gap:10px}
+  .header-actions{max-width:46%;justify-content:flex-end}
+  .update-status{width:100%;text-align:right}
+}

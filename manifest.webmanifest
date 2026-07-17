@@ -1,1 +1,15 @@
-{"name":"Herbier Gourmand","short_name":"Herbier","start_url":"./","display":"standalone","background_color":"#f4efe3","theme_color":"#355e48","icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml"}]}
+{
+  "name": "Herbier Gourmand v2.3",
+  "short_name": "Herbier",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4efe3",
+  "theme_color": "#355e48",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
