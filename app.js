@@ -27,9 +27,50 @@ $("#search").oninput=renderRecipes;$("#category").onchange=renderRecipes;$("#max
 $("#surpriseBtn").onclick=()=>{$("#surpriseCard").innerHTML=recipeCard(recipes[Math.floor(Math.random()*recipes.length)]);$("#surpriseCard .recipe-head").onclick=e=>e.currentTarget.nextElementSibling.classList.toggle("open")};
 
 function renderDayChoices(){
- $("#dayChoices").innerHTML=days.map((d,i)=>`<label class="day-choice"><input type="checkbox" data-day="${i}" checked><span>${d}</span></label>`).join("");
+ $("#dayChoices").innerHTML=days.map((d,i)=>`<label class="day-choice selected"><input type="checkbox" data-day="${i}" checked><span>${d}</span></label>`).join("");
+ $$("[data-day]").forEach(box=>box.addEventListener("change",()=>{
+   box.closest(".day-choice").classList.toggle("selected",box.checked);
+   updateSelectedDaysStatus();
+   syncPlanWithSelectedDays();
+   saveDayPreferences();
+ }));
+ $("#selectAllDays").onclick=()=>{
+   $$("[data-day]").forEach(box=>{box.checked=true;box.closest(".day-choice").classList.add("selected")});
+   updateSelectedDaysStatus();syncPlanWithSelectedDays();saveDayPreferences();
+ };
+ $("#clearAllDays").onclick=()=>{
+   $$("[data-day]").forEach(box=>{box.checked=false;box.closest(".day-choice").classList.remove("selected")});
+   updateSelectedDaysStatus();syncPlanWithSelectedDays();saveDayPreferences();
+ };
+ updateSelectedDaysStatus();
 }
 function selectedDayIndexes(){return $$("[data-day]:checked").map(x=>+x.dataset.day)}
+function updateSelectedDaysStatus(){
+ const n=selectedDayIndexes().length;
+ $("#selectedDaysStatus").textContent=`${n} jour${n>1?"s":""} sélectionné${n>1?"s":""}`;
+}
+function saveDayPreferences(){
+ localStorage.setItem("hg-selected-days",JSON.stringify(selectedDayIndexes()));
+}
+function syncPlanWithSelectedDays(){
+ if(!plan.length) return;
+ const selected=selectedDayIndexes();
+ plan=plan.filter(item=>selected.includes(item.dayIndex));
+ const used=new Set(plan.map(item=>item.dayIndex));
+ const mode=$("#mealTemp").value, maxTime=+$("#planTime").value||999;
+ const maxMeat=Math.floor(selected.length/3);
+ for(const dayIndex of selected){
+   if(used.has(dayIndex)) continue;
+   const currentMeat=plan.filter(x=>x.recipe.avecViande).length;
+   let choices=recipes.filter(r=>r.time<=maxTime && temperatureAccepted(r,mode) && (!r.avecViande || currentMeat<maxMeat));
+   choices=choices.filter(r=>!plan.some(x=>x.recipe.id===r.id));
+   if(!choices.length) choices=recipes.filter(r=>!r.avecViande);
+   const recipe=choices[Math.floor(Math.random()*choices.length)];
+   if(recipe) plan.push({dayIndex,recipe});
+ }
+ plan.sort((a,b)=>a.dayIndex-b.dayIndex);
+ renderPlan();
+}
 function seasonalTemp(){
  const m=new Date().getMonth()+1;
  return (m>=5 && m<=9) ? "froid" : "chaud";
@@ -108,9 +149,22 @@ function loadSaved(){
   const s=JSON.parse(localStorage.getItem("hg-plan"));
   if(s){
     $("#people").value=s.people||4;$("#mealTemp").value=s.temp||"saisonnier";$("#planTime").value=s.time||"";
-    $$("[data-day]").forEach(c=>c.checked=(s.days||[]).includes(+c.dataset.day));
-    plan=(s.items||[]).map(x=>({dayIndex:x.dayIndex,recipe:recipes.find(r=>r.id===x.id)})).filter(x=>x.recipe);
+    const storedDays=Array.isArray(s.days)&&s.days.length?s.days:JSON.parse(localStorage.getItem("hg-selected-days")||"[0,1,2,3,4,5,6]");
+    $$("[data-day]").forEach(c=>{
+      c.checked=storedDays.includes(+c.dataset.day);
+      c.closest(".day-choice").classList.toggle("selected",c.checked);
+    });
+    updateSelectedDaysStatus();
+    plan=(s.items||[]).map(x=>({dayIndex:x.dayIndex,recipe:recipes.find(r=>r.id===x.id)})).filter(x=>x.recipe && storedDays.includes(x.dayIndex));
     renderPlan();
+  }
+  if(!s){
+    const storedDays=JSON.parse(localStorage.getItem("hg-selected-days")||"[0,1,2,3,4,5,6]");
+    $$("[data-day]").forEach(c=>{
+      c.checked=storedDays.includes(+c.dataset.day);
+      c.closest(".day-choice").classList.toggle("selected",c.checked);
+    });
+    updateSelectedDaysStatus();
   }
   const sh=JSON.parse(localStorage.getItem("hg-shopping"));if(sh){shopping=sh;renderShopping()}
  }catch(e){}
@@ -139,7 +193,7 @@ $("#installBtn").onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();aw
 init();
 
 
-const APP_VERSION="2.4.0";
+const APP_VERSION="2.4.1";
 const UPDATE_RELOAD_KEY="hg-update-reload";
 
 async function clearAppCaches(){

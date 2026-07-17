@@ -1,6 +1,6 @@
 {
-  "version": "2.4.0",
-  "build": 240,
-  "label": "Mise à jour fiable",
+  "version": "2.4.1",
+  "build": 241,
+  "label": "Correction du choix des jours",
   "published": "2026-07-17"
 }

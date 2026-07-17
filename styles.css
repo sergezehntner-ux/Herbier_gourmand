@@ -16,3 +16,10 @@
   .header-actions{max-width:46%;justify-content:flex-end}
   .update-status{width:100%;text-align:right}
 }
+
+.day-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.day-tools strong{margin-left:auto}
+.day-choice{cursor:pointer;user-select:none;transition:.15s ease}
+.day-choice.selected{background:var(--green);color:white;border-color:var(--green)}
+.day-choice input{accent-color:var(--green)}
+.day-choice:not(.selected){opacity:.72}

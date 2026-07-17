@@ -7,11 +7,11 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <title>Herbier Gourmand</title>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="stylesheet" href="styles.css?v=2.4.0">
+<link rel="stylesheet" href="styles.css?v=2.4.1">
 </head>
 <body>
 <header>
-  <div><h1>Herbier Gourmand</h1><p>v2.4 · Planning saisonnier</p></div>
+  <div><h1>Herbier Gourmand</h1><p>v2.4.1 · Planning saisonnier</p></div>
   <div class="header-actions">
     <span id="updateStatus" class="update-status loading">Vérification…</span>
     <button id="forceUpdateBtn" class="ghost">Actualiser</button>
@@ -60,6 +60,11 @@
       <label>Style des repas<select id="mealTemp"><option value="saisonnier">Saisonnier automatique</option><option value="chaud">Repas chauds</option><option value="froid">Repas froids</option><option value="mixte">Mixte</option></select></label>
     </div>
     <h3>Jours mangés à la maison</h3>
+    <div class="day-tools">
+      <button type="button" id="selectAllDays">Tous</button>
+      <button type="button" id="clearAllDays">Aucun</button>
+      <strong id="selectedDaysStatus">7 jours sélectionnés</strong>
+    </div>
     <div id="dayChoices" class="day-choices"></div>
     <p class="muted">La viande est limitée automatiquement à un maximum d’un tiers des jours sélectionnés.</p>
   </div>
@@ -84,6 +89,6 @@
 </section>
 </main>
 <footer>Guide culinaire — ne remplace pas un avis médical.</footer>
-<script src="app.js?v=2.4.0"></script>
+<script src="app.js?v=2.4.1"></script>
 </body>
 </html>

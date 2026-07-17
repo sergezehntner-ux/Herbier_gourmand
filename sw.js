@@ -1,5 +1,5 @@
-const CACHE='herbier-v2-4';
-const ASSETS=['./','index.html','styles.css?v=2.4.0','app.js?v=2.4.0','recipes.json','manifest.webmanifest','icon.svg','version.json'];
+const CACHE='herbier-v2-4-1';
+const ASSETS=['./','index.html','styles.css?v=2.4.1','app.js?v=2.4.1','recipes.json','manifest.webmanifest','icon.svg','version.json'];
 
 self.addEventListener('install',event=>{
   self.skipWaiting();
