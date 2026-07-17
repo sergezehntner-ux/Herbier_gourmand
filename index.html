@@ -1,75 +1,9 @@
-<!doctype html>
-<html lang="fr"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#345c45">
-<link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css">
-<title>Herbier Gourmand</title></head>
-<body>
-<header><div><small>VOLUME 1</small><h1>Herbier Gourmand</h1><p>Recettes avec aliments, épices et plantes aromatiques</p></div><button id="install" hidden>Installer</button></header>
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#355e48"><title>Herbier Gourmand</title><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css"></head><body>
+<header><h1>Herbier Gourmand</h1><p>v2.1 · Planning & Menus</p></header>
+<nav><button data-v="home" class="active">Accueil</button><button data-v="recipes">Recettes</button><button data-v="planner">Planning</button><button data-v="shopping">Courses</button></nav>
 <main>
-<section class="daily-box">
-<h2>Que cuisiner aujourd’hui ?</h2>
-<div class="daily-actions">
-<button data-quick="Rapide">⏱ Rapide</button>
-<button data-quick="Économique">€ Économique</button>
-<button data-quick="végétarien">🥕 Végétarien</button>
-<button id="surpriseTop">✦ Surprise</button>
-</div>
-</section>
-<div class="notice"><b>Important :</b> guide culinaire et informatif. Il ne remplace pas un avis médical.</div>
-
-<section class="assistant-box">
-  <h2>Je ne sais pas quoi cuisiner</h2>
-  <p>Répondez à trois questions et Herbier Gourmand vous proposera des idées.</p>
-  <div class="assistant-grid">
-    <label>Temps disponible
-      <select id="assistTime">
-        <option value="">Peu importe</option>
-        <option value="15">15 minutes maximum</option>
-        <option value="30">30 minutes maximum</option>
-        <option value="60">60 minutes maximum</option>
-      </select>
-    </label>
-    <label>Type de repas
-      <select id="assistType">
-        <option value="">Peu importe</option>
-        <option value="Plat">Plat</option>
-        <option value="Soupe">Soupe</option>
-        <option value="Salade">Salade</option>
-        <option value="Petit-déjeuner">Petit-déjeuner</option>
-        <option value="Dessert">Dessert</option>
-        <option value="Boisson">Boisson</option>
-      </select>
-    </label>
-    <label>Préférence
-      <select id="assistDiet">
-        <option value="">Peu importe</option>
-        <option value="végétarien">Végétarien</option>
-        <option value="sans gluten">Sans gluten</option>
-        <option value="riche en protéines">Riche en protéines</option>
-      </select>
-    </label>
-  </div>
-  <label class="wide-label">Ingrédients que vous avez déjà
-    <input id="assistIngredients" placeholder="Ex. ail, œufs, tomate">
-  </label>
-  <button id="assistBtn" class="primary-wide">Proposer 3 recettes</button>
-  <div id="assistResults" class="assistant-results"></div>
-</section>
-
-<section class="toolbar">
-<input id="search" type="search" placeholder="Rechercher : ail, digestion, soupe…">
-<div class="row"><select id="category"><option value="">Toutes les catégories</option></select><select id="tag"><option value="">Tous les régimes</option></select></div>
-<div class="row buttons"><button id="favOnly">♡ Favoris</button><button id="pdfCurrent">PDF des résultats</button><button id="pdfAll">PDF complet</button></div>
-</section>
-<section class="pantry-box">
-<h2>Mon garde-manger</h2>
-<p>Saisissez plusieurs ingrédients séparés par des virgules.</p>
-<div class="row"><input id="pantryInput" placeholder="Ex. œufs, tomate, ail"><button id="pantryBtn">Trouver</button></div>
-</section>
-<div class="head"><h2>Recettes</h2><span id="count"></span></div>
-<section id="grid"></section>
-</main>
-<dialog id="dialog"><article id="detail"></article><button id="close">×</button></dialog>
-<nav><button id="home">⌂<span>Accueil</span></button><button id="random">✦<span>Surprise</span></button><button id="favorites">♡<span>Favoris</span></button></nav>
-<script src="app.js"></script></body></html>
+<section id="home" class="view active"><div class="notice"><b>Préférences actives :</b> poissons, crustacés et abats exclus.</div><div class="hero"><h2>Préparer la semaine</h2><button class="primary" data-go="planner">Créer mon planning</button><button id="surprise">Surprise sans poisson</button></div><div id="surpriseCard"></div></section>
+<section id="recipes" class="view"><h2>Recettes</h2><input id="search" placeholder="Rechercher : poulet, thym, 30 min…"><div class="filters"><select id="cat"><option value="">Toutes catégories</option></select><select id="time"><option value="">Tous les temps</option><option value="30">30 min max</option><option value="45">45 min max</option><option value="60">60 min max</option></select></div><div id="recipeList"></div></section>
+<section id="planner" class="view"><h2>Planning de la semaine</h2><div class="panel"><label>Personnes <input id="people" type="number" min="1" max="12" value="4"></label><label>Temps max <select id="planTime"><option value="">Varié</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></label></div><button id="generate" class="primary">Générer 7 repas</button><button id="default">Charger le menu proposé</button><div id="week"></div><div class="actions"><button id="save">Enregistrer</button><button id="build">Créer les courses</button><button onclick="print()">Imprimer / PDF</button></div></section>
+<section id="shopping" class="view"><h2>Liste de courses</h2><div id="shoppingList"></div><div class="actions"><button id="uncheck">Tout décocher</button><button onclick="print()">Imprimer / PDF</button></div></section>
+</main><footer>Guide culinaire — ne remplace pas un avis médical.</footer><script src="app.js"></script></body></html>

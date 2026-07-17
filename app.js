@@ -1,80 +1,9 @@
-
-let recipes=[], favOnly=false;
-const favs=new Set(JSON.parse(localStorage.getItem("hg-favs")||"[]"));
-const $=s=>document.querySelector(s);
-const norm=s=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
-async function init(){recipes=await fetch("recipes.json").then(r=>r.json());fill();bind();render();if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js")}
-function fill(){[...new Set(recipes.map(r=>r.category))].sort().forEach(x=>$("#category").insertAdjacentHTML("beforeend",`<option>${x}</option>`));[...new Set(recipes.flatMap(r=>r.tags))].sort().forEach(x=>$("#tag").insertAdjacentHTML("beforeend",`<option>${x}</option>`))}
-function bind(){
-$("#search").oninput=render;$("#category").onchange=render;$("#tag").onchange=render;
-$("#favOnly").onclick=()=>{favOnly=!favOnly;$("#favOnly").classList.toggle("active",favOnly);render()};
-$("#grid").onclick=e=>{let f=e.target.closest("[data-fav]");if(f){toggle(f.dataset.fav);return}let o=e.target.closest("[data-open]");if(o)openRecipe(o.dataset.open)};
-$("#close").onclick=()=>$("#dialog").close();$("#home").onclick=()=>window.scrollTo({top:0,behavior:"smooth"});
-$("#random").onclick=()=>{let p=filtered();if(p.length)openRecipe(p[Math.floor(Math.random()*p.length)].id)};
-$("#favorites").onclick=()=>{favOnly=true;$("#favOnly").classList.add("active");render();window.scrollTo({top:0,behavior:"smooth"})};
-$("#pdfCurrent").onclick=()=>printRecipes(filtered(),"Sélection de recettes");
-$("#pdfAll").onclick=()=>printRecipes(recipes,"Volume 1");
-$("#assistBtn").onclick=runAssistant;
-
-document.querySelectorAll("[data-quick]").forEach(b=>b.onclick=()=>{$("#search").value=b.dataset.quick;render();});
-$("#surpriseTop").onclick=()=>{let p=filtered();if(p.length)openRecipe(p[Math.floor(Math.random()*p.length)].id)};
-$("#pantryBtn").onclick=()=>renderPantry($("#pantryInput").value.split(",").map(x=>x.trim()).filter(Boolean));
-}
-function filtered(){let q=norm($("#search").value);return recipes.filter(r=>(!q||norm(JSON.stringify(r)).includes(q))&&(!$("#category").value||r.category===$("#category").value)&&(!$("#tag").value||r.tags.includes($("#tag").value))&&(!favOnly||favs.has(r.id)))}
-function render(){let p=filtered();$("#count").textContent=`${p.length} recette${p.length>1?"s":""}`;$("#grid").innerHTML=p.map(card).join("")||"<p>Aucune recette trouvée.</p>"}
-function card(r){return `<article class="card"><div class="card-body"><div class="top"><span class="cat">${r.category}</span><button class="fav" data-fav="${r.id}">${favs.has(r.id)?"♥":"♡"}</button></div><h3>${r.title}</h3><div class="meta">${r.time} min · ${r.servings} portion${r.servings>1?"s":""}</div>${r.goals.map(g=>`<span class="pill">${g}</span>`).join("")}</div><button class="open" data-open="${r.id}">Voir la recette</button></article>`}
-function toggle(id){favs.has(id)?favs.delete(id):favs.add(id);localStorage.setItem("hg-favs",JSON.stringify([...favs]));render()}
-function openRecipe(id){let r=recipes.find(x=>x.id===id);$("#detail").innerHTML=`<span class="cat">${r.category}</span><h2>${r.title}</h2><div class="meta">${r.time} min · ${r.servings} portion${r.servings>1?"s":""} · ${r.tags.join(" · ")}</div><div class="detail-grid"><section><h3>Ingrédients</h3><ul>${r.ingredients.map(x=>`<li>${x}</li>`).join("")}</ul></section><section><h3>Préparation</h3><ol>${r.steps.map(x=>`<li>${x}</li>`).join("")}</ol></section></div><h3>Pourquoi cette combinaison ?</h3><ul>${r.why.map(x=>`<li>${x}</li>`).join("")}</ul><h3>Précaution</h3><div class="warn">${r.caution}</div>`;$("#dialog").showModal()}
-function printRecipes(list,subtitle){
- let old=document.getElementById("printArea");if(old)old.remove();
- let area=document.createElement("div");area.id="printArea";
- area.innerHTML=`<section class="print-cover"><h1>Herbier Gourmand</h1><h2>${subtitle}</h2><p>${list.length} recettes</p><p>Guide culinaire et informatif — ne remplace pas un avis médical.</p></section>`+
- list.map(r=>`<article class="print-recipe"><h2>${r.title}</h2><p><b>${r.category}</b> · ${r.time} min · ${r.servings} portion${r.servings>1?"s":""}</p><h3>Ingrédients</h3><ul>${r.ingredients.map(x=>`<li>${x}</li>`).join("")}</ul><h3>Préparation</h3><ol>${r.steps.map(x=>`<li>${x}</li>`).join("")}</ol><h3>Pourquoi cette combinaison ?</h3><ul>${r.why.map(x=>`<li>${x}</li>`).join("")}</ul><p><b>Précaution :</b> ${r.caution}</p></article>`).join("");
- document.body.appendChild(area);setTimeout(()=>window.print(),100);
-}
-let promptEvent;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();promptEvent=e;$("#install").hidden=false});$("#install").onclick=async()=>{if(promptEvent){promptEvent.prompt();await promptEvent.userChoice;promptEvent=null;$("#install").hidden=true}};
-init();
-
-function renderPantry(parts){
-  const terms=parts.map(norm);
-  const scored=recipes.map(r=>{
-    const hay=norm(r.ingredients.join(" "));
-    return {r,score:terms.filter(t=>hay.includes(t)).length};
-  }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
-  $("#count").textContent=`${scored.length} recette${scored.length>1?"s":""}`;
-  $("#grid").innerHTML=scored.map(x=>card(x.r)).join("")||"<p>Aucune recette trouvée avec ces ingrédients.</p>";
-}
-
-function runAssistant(){
-  const maxTime=Number($("#assistTime").value||999);
-  const type=$("#assistType").value;
-  const diet=$("#assistDiet").value;
-  const ingredients=$("#assistIngredients").value.split(",").map(x=>norm(x.trim())).filter(Boolean);
-
-  let scored=recipes.map(r=>{
-    if(r.time>maxTime) return null;
-    if(type && r.category!==type) return null;
-    if(diet && !r.tags.includes(diet)) return null;
-
-    const hay=norm(r.ingredients.join(" "));
-    const matched=ingredients.filter(i=>hay.includes(i)).length;
-    let score=matched*5;
-    if(r.time<=15) score+=2;
-    else if(r.time<=30) score+=1;
-    score+=Math.random()*1.5;
-    return {r,score,matched};
-  }).filter(Boolean).sort((a,b)=>b.score-a.score).slice(0,3);
-
-  const box=$("#assistResults");
-  if(!scored.length){
-    box.innerHTML="<p>Aucune recette ne correspond exactement. Essayez avec moins de critères.</p>";
-    return;
-  }
-  box.innerHTML="<h3>Mes suggestions</h3>"+scored.map(x=>`
-    <article class="assist-card">
-      <h3>${x.r.title}</h3>
-      <div class="meta">${x.r.time} min · ${x.r.category}${ingredients.length?` · ${x.matched}/${ingredients.length} ingrédient(s) trouvé(s)`:""}</div>
-      <button data-assist-open="${x.r.id}">Voir la recette</button>
-    </article>`).join("");
-  box.querySelectorAll("[data-assist-open]").forEach(b=>b.onclick=()=>openRecipe(b.dataset.assistOpen));
-}
+let R=[],plan=[],shop=[];const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],days=['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+function view(id){$$('.view').forEach(x=>x.classList.toggle('active',x.id===id));$$('nav button').forEach(x=>x.classList.toggle('active',x.dataset.v===id));scrollTo(0,0)}$$('nav button').forEach(b=>b.onclick=()=>view(b.dataset.v));$$('[data-go]').forEach(b=>b.onclick=()=>view(b.dataset.go));
+function card(r){return `<article class="recipe"><div class="meta">${r.category} · ${r.time} min · ${r.servings} pers.</div><h3>${r.title}</h3><details><summary>Voir la recette</summary><h4>Ingrédients</h4><ul>${r.ingredients.map(i=>`<li>${i[0]} : ${i[1]} ${i[2]}</li>`).join('')}</ul><h4>Préparation</h4><ol>${r.steps.map(s=>`<li>${s}</li>`).join('')}</ol></details></article>`}
+function renderRecipes(){let q=norm($('#search').value),c=$('#cat').value,t=+$('#time').value||999;$('#recipeList').innerHTML=R.filter(r=>(!c||r.category===c)&&r.time<=t&&(!q||norm(JSON.stringify(r)).includes(q))).map(card).join('')||'<p>Aucune recette.</p>'}$('#search').oninput=renderRecipes;$('#cat').onchange=renderRecipes;$('#time').onchange=renderRecipes;
+function pick(def=false){let max=+$('#planTime').value||999,pool=R.filter(r=>r.time<=max);if(pool.length<7)pool=R;if(def){let ids=['poulet-thym','boeuf-champi','gratin-courgettes','porc-moutarde','chili','agneau','poulet-creme'];plan=ids.map(id=>R.find(r=>r.id===id))}else plan=[...pool].sort(()=>Math.random()-.5).slice(0,7);renderPlan()}$('#generate').onclick=()=>pick();$('#default').onclick=()=>pick(true);
+function renderPlan(){let people=+$('#people').value||4;$('#week').innerHTML=plan.map((r,i)=>`<article class="day"><div class="daytop"><div><div class="meta">${days[i]} · ${r.time} min</div><h3>${r.title}</h3></div><button data-r="${i}">Remplacer</button></div><select data-s="${i}">${R.map(x=>`<option value="${x.id}" ${x.id===r.id?'selected':''}>${x.title}</option>`).join('')}</select><details><summary>Voir la recette</summary><ul>${r.ingredients.map(x=>`<li>${x[0]} : ${Math.round((x[1]*people/r.servings)*10)/10} ${x[2]}</li>`).join('')}</ul><ol>${r.steps.map(x=>`<li>${x}</li>`).join('')}</ol></details></article>`).join('');$$('[data-s]').forEach(s=>s.onchange=()=>{plan[+s.dataset.s]=R.find(r=>r.id===s.value);renderPlan()});$$('[data-r]').forEach(b=>b.onclick=()=>{let i=+b.dataset.r,o=R.filter(r=>!plan.includes(r));plan[i]=o[Math.floor(Math.random()*o.length)]||R[0];renderPlan()})}$('#people').onchange=()=>plan.length&&renderPlan();
+$('#save').onclick=()=>{localStorage.setItem('hgplan',JSON.stringify({p:+$('#people').value,ids:plan.map(x=>x.id)}));alert('Planning enregistré.')};$('#build').onclick=()=>{if(!plan.length)return alert('Génère d’abord un planning.');let p=+$('#people').value||4,m={};plan.forEach(r=>r.ingredients.forEach(([n,q,u])=>{let k=norm(n)+'|'+u;if(!m[k])m[k]={n,q:0,u,checked:false};m[k].q+=q*p/r.servings}));shop=Object.values(m).sort((a,b)=>a.n.localeCompare(b.n));localStorage.setItem('hgshop',JSON.stringify(shop));renderShop();view('shopping')};
+function renderShop(){$('#shoppingList').innerHTML=`<div class="shop">${shop.map((x,i)=>`<label class="${x.checked?'checked':''}"><input type="checkbox" data-c="${i}" ${x.checked?'checked':''}><span>${x.n} — ${Math.round(x.q*10)/10} ${x.u}</span></label>`).join('')}</div>`;$$('[data-c]').forEach(c=>c.onchange=()=>{shop[+c.dataset.c].checked=c.checked;localStorage.setItem('hgshop',JSON.stringify(shop));renderShop()})}$('#uncheck').onclick=()=>{shop.forEach(x=>x.checked=false);renderShop()};$('#surprise').onclick=()=>$('#surpriseCard').innerHTML=card(R[Math.floor(Math.random()*R.length)]);
+fetch('recipes.json').then(r=>r.json()).then(x=>{R=x;[...new Set(R.map(r=>r.category))].sort().forEach(c=>$('#cat').insertAdjacentHTML('beforeend',`<option>${c}</option>`));renderRecipes();try{let s=JSON.parse(localStorage.getItem('hgplan'));if(s){$('#people').value=s.p;plan=s.ids.map(id=>R.find(r=>r.id===id)).filter(Boolean);renderPlan()}shop=JSON.parse(localStorage.getItem('hgshop'))||[];renderShop()}catch(e){};if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js')});

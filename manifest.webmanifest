@@ -1,18 +1,1 @@
-{
-  "name": "Herbier Gourmand",
-  "short_name": "Herbier",
-  "start_url": "./",
-  "display": "standalone",
-  "background_color": "#f6f2e8",
-  "theme_color": "#345c45",
-  "lang": "fr",
-  "icons": [
-    {
-      "src": "icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
-  ],
-  "description": "Assistant culinaire quotidien avec recettes, ingrédients, favoris et export PDF."
-}
+{"name":"Herbier Gourmand","short_name":"Herbier","start_url":"./","display":"standalone","background_color":"#f4efe3","theme_color":"#355e48","icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml"}]}
