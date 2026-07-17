@@ -1,301 +1,119 @@
+const herbs=[
+{id:"thym",name:"Thym",type:"herbe",latin:"Thymus vulgaris",taste:"Boisé, chaud, légèrement camphré",intensity:"Forte",uses:["Poulet","Agneau","Pommes de terre","Champignons","Tomate"],pairs:["Romarin","Laurier","Ail","Citron"],tradition:"Traditionnellement apprécié en infusion et dans les cuisines méditerranéennes.",benefit:"Apporte surtout du goût, ce qui peut aider à limiter l’excès de sel dans certaines préparations.",caution:"Les usages culinaires habituels sont différents des extraits concentrés et huiles essentielles."},
+{id:"basilic",name:"Basilic",type:"herbe",latin:"Ocimum basilicum",taste:"Frais, poivré, légèrement anisé",intensity:"Moyenne",uses:["Tomate","Courgette","Mozzarella","Œufs","Fraises"],pairs:["Persil","Origan","Menthe","Ail"],tradition:"Très présent dans les cuisines méditerranéennes et asiatiques.",benefit:"Permet d’apporter fraîcheur et parfum sans alourdir le plat.",caution:"Ajouter de préférence en fin de cuisson pour préserver son arôme."},
+{id:"romarin",name:"Romarin",type:"herbe",latin:"Salvia rosmarinus",taste:"Résineux, puissant, légèrement amer",intensity:"Très forte",uses:["Agneau","Pommes de terre","Pain","Champignons","Haricots blancs"],pairs:["Thym","Ail","Sauge","Citron"],tradition:"Herbe emblématique du bassin méditerranéen.",benefit:"Son intensité permet de parfumer fortement avec une petite quantité.",caution:"Peut dominer les autres saveurs; doser avec modération."},
+{id:"estragon",name:"Estragon",type:"herbe",latin:"Artemisia dracunculus",taste:"Anisé, frais, légèrement poivré",intensity:"Moyenne",uses:["Poulet","Œufs","Champignons","Crème","Moutarde"],pairs:["Persil","Ciboulette","Cerfeuil","Citron"],tradition:"Classique de la cuisine française, notamment dans les sauces.",benefit:"Apporte une forte personnalité aromatique aux sauces légères.",caution:"Son caractère anisé ne convient pas à toutes les préparations."},
+{id:"menthe",name:"Menthe",type:"herbe",latin:"Mentha spicata",taste:"Très frais, végétal",intensity:"Forte",uses:["Courgette","Petits pois","Yaourt","Concombre","Fruits"],pairs:["Coriandre","Basilic","Citron","Cumin"],tradition:"Utilisée dans de nombreuses cuisines et boissons traditionnelles.",benefit:"Renforce la sensation de fraîcheur et facilite les préparations légères.",caution:"Peut gêner certaines personnes sujettes au reflux."},
+{id:"cumin",name:"Cumin",type:"épice",latin:"Cuminum cyminum",taste:"Terreux, chaud, légèrement amer",intensity:"Forte",uses:["Lentilles","Pois chiches","Carottes","Agneau","Yaourt"],pairs:["Coriandre","Paprika","Curcuma","Menthe"],tradition:"Très présent du Maghreb à l’Inde et au Moyen-Orient.",benefit:"Donne profondeur et chaleur aux plats végétaux et aux légumineuses.",caution:"Torréfier brièvement sans brûler pour développer son parfum."},
+{id:"paprika",name:"Paprika",type:"épice",latin:"Capsicum annuum",taste:"Doux, fruité ou fumé selon la variété",intensity:"Douce à moyenne",uses:["Poulet","Œufs","Pommes de terre","Poivrons","Haricots"],pairs:["Cumin","Ail","Origan","Thym"],tradition:"Essentiel dans plusieurs cuisines d’Europe centrale et méditerranéennes.",benefit:"Ajoute couleur et rondeur, parfois sans piquant.",caution:"Le paprika brûlé devient amer; éviter une chaleur trop forte."},
+{id:"curcuma",name:"Curcuma",type:"épice",latin:"Curcuma longa",taste:"Terreux, chaud, légèrement amer",intensity:"Moyenne",uses:["Riz","Lentilles","Chou-fleur","Œufs","Poulet"],pairs:["Cumin","Coriandre","Poivre","Gingembre"],tradition:"Très utilisé dans les cuisines d’Asie du Sud.",benefit:"Apporte couleur et profondeur aromatique aux plats.",caution:"Les effets d’un usage culinaire ne doivent pas être confondus avec ceux de compléments concentrés."},
+{id:"coriandre",name:"Coriandre",type:"épice",latin:"Coriandrum sativum",taste:"Agrumé et floral en graines; frais en feuilles",intensity:"Moyenne",uses:["Carottes","Lentilles","Poulet","Courge","Agrumes"],pairs:["Cumin","Menthe","Gingembre","Curcuma"],tradition:"Présente dans de nombreuses cuisines du monde.",benefit:"Relie facilement notes fraîches, chaudes et citronnées.",caution:"Les feuilles ont un goût très polarisant; proposer du persil en alternative."},
+{id:"cannelle",name:"Cannelle",type:"épice",latin:"Cinnamomum verum",taste:"Douce, chaude, boisée",intensity:"Forte",uses:["Pomme","Poire","Courge","Carotte","Agneau"],pairs:["Cardamome","Gingembre","Cumin","Poivre"],tradition:"Employée dans les desserts comme dans les plats salés.",benefit:"Renforce la perception de douceur aromatique.",caution:"Doser très légèrement dans les plats salés."}
+];
 
-let recipes=[], plan=[], shopping=[];
+const foods={
+"Poulet":["thym","estragon","paprika","romarin","curcuma"],
+"Courgette":["basilic","menthe","thym","cumin","coriandre"],
+"Champignons":["thym","estragon","romarin","paprika","coriandre"],
+"Lentilles":["cumin","coriandre","curcuma","thym","paprika"],
+"Carottes":["cumin","coriandre","thym","curcuma","cannelle"],
+"Œufs":["estragon","basilic","paprika","curcuma","thym"],
+"Pommes de terre":["thym","romarin","paprika","cumin","coriandre"],
+"Agneau":["romarin","thym","cumin","coriandre","cannelle"]
+};
+const styles={
+mediterraneen:["basilic","thym","romarin","paprika"],francais:["estragon","thym","romarin"],oriental:["cumin","coriandre","cannelle","menthe"],indien:["curcuma","cumin","coriandre"],frais:["menthe","basilic","coriandre"],libre:[]
+};
+const recipes=[
+{title:"Poulet au thym et citron",meat:true,temp:"chaud"},
+{title:"Lentilles, carottes et cumin",meat:false,temp:"chaud"},
+{title:"Omelette aux champignons et estragon",meat:false,temp:"chaud"},
+{title:"Salade de courgettes, menthe et yaourt",meat:false,temp:"froid"},
+{title:"Pommes de terre rôties au romarin, œuf mollet",meat:false,temp:"chaud"},
+{title:"Salade de lentilles au paprika et herbes",meat:false,temp:"froid"},
+{title:"Poulet froid au basilic et légumes croquants",meat:true,temp:"froid"},
+{title:"Carottes rôties au cumin et pois chiches",meat:false,temp:"chaud"}
+];
+
+let currentType="tous";
+function go(id){
+ document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ document.querySelectorAll(".bottom button").forEach(b=>b.classList.toggle("active",b.dataset.go===id));
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+document.addEventListener("click",e=>{
+ const goBtn=e.target.closest("[data-go]"); if(goBtn) go(goBtn.dataset.go);
+ const card=e.target.closest("[data-herb]"); if(card) showDetail(card.dataset.herb);
+});
+function renderHerbs(){
+ const q=document.getElementById("herbSearch").value.toLowerCase();
+ const rows=herbs.filter(h=>(currentType==="tous"||h.type===currentType)&&JSON.stringify(h).toLowerCase().includes(q));
+ herbList.innerHTML=rows.map(h=>`<article class="card action" data-herb="${h.id}"><div class="meta">${h.type} · ${h.latin}</div><h3>${h.name}</h3><p>${h.taste}</p><div class="tags">${h.uses.slice(0,4).map(x=>`<span class="tag">${x}</span>`).join("")}</div></article>`).join("");
+}
+document.getElementById("herbSearch").oninput=renderHerbs;
+document.getElementById("typeFilters").onclick=e=>{if(e.target.dataset.type){currentType=e.target.dataset.type;document.querySelectorAll("#typeFilters .chip").forEach(x=>x.classList.toggle("active",x===e.target));renderHerbs();}};
+function showDetail(id){
+ const h=herbs.find(x=>x.id===id);
+ detailContent.innerHTML=`<div class="detail-hero"><div class="eyebrow">${h.type} · ${h.latin}</div><h2>${h.name}</h2><p>${h.taste} · Intensité : ${h.intensity}</p></div>
+ <div class="detail-grid">
+ <div><h3>Accords alimentaires</h3>${h.uses.map((x,i)=>`<p><span class="rating">${"★".repeat(Math.max(3,5-i%3))}</span> ${x}</p>`).join("")}</div>
+ <div><h3>Se combine avec</h3><div class="tags">${h.pairs.map(x=>`<span class="tag">${x}</span>`).join("")}</div></div>
+ <div><h3>Intérêt culinaire</h3><p>${h.benefit}</p><h3>Tradition</h3><p>${h.tradition}</p></div>
+ <div><h3>Précaution</h3><p>${h.caution}</p><p class="muted">Information culinaire générale, sans visée médicale.</p></div></div>`;
+ go("detail");
+}
+
+foodSelect.innerHTML=Object.keys(foods).map(x=>`<option>${x}</option>`).join("");
+suggestBtn.onclick=()=>{
+ const food=foodSelect.value, style=styleSelect.value;
+ let ids=foods[food].slice();
+ if(style!=="libre") ids.sort((a,b)=>(styles[style].includes(b)?1:0)-(styles[style].includes(a)?1:0));
+ accordResults.innerHTML=ids.map((id,i)=>{const h=herbs.find(x=>x.id===id);return `<article class="card action" data-herb="${id}"><div class="meta">${i<2?"Accord prioritaire":"Bonne alternative"}</div><h3>${h.name} <span class="rating">${"★".repeat(Math.max(3,5-i))}</span></h3><p>${h.name} apporte un profil ${h.taste.toLowerCase()} qui complète bien ${food.toLowerCase()}.</p></article>`}).join("");
+};
+
 const days=["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
-const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const norm=s=>(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
-
-async function init(){
-  // Les jours doivent apparaître même si le chargement des recettes échoue.
-  renderDayChoices();
-  if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
-  try{
-    const response=await fetch(`recipes.json?_=${Date.now()}`,{cache:"no-store"});
-    if(!response.ok) throw new Error("recipes.json indisponible");
-    recipes=await response.json();
-    fillCategories();
-    renderRecipes();
-    loadSaved();
-  }catch(error){
-    console.error(error);
-    $("#recipeList").innerHTML="<p>Les recettes n’ont pas pu être chargées. Appuie sur « Actualiser ».</p>";
-    // Les préférences de jours restent utilisables et mémorisées.
-    try{
-      const storedDays=JSON.parse(localStorage.getItem("hg-selected-days")||"[0,1,2,3,4,5,6]");
-      $$("[data-day]").forEach(c=>{
-        c.checked=storedDays.includes(+c.dataset.day);
-        c.closest(".day-choice").classList.toggle("selected",c.checked);
-      });
-      updateSelectedDaysStatus();
-    }catch(e){}
-  }
+let selected=JSON.parse(localStorage.getItem("hg_meals")||"{}");
+function renderMeals(){
+ mealGrid.innerHTML=`<div></div><div class="head">Midi</div><div class="head">Soir</div>`+days.map(d=>`<div class="day">${d}</div>${["midi","soir"].map(p=>{let key=d+"-"+p;return `<button class="meal-toggle ${selected[key]?"selected":""}" data-meal="${key}">${selected[key]?"À la maison":"À l’extérieur"}<small>${p}</small></button>`}).join("")}`).join("");
+ mealGrid.querySelectorAll("[data-meal]").forEach(b=>b.onclick=()=>{selected[b.dataset.meal]=!selected[b.dataset.meal];localStorage.setItem("hg_meals",JSON.stringify(selected));renderMeals();});
+ const n=Object.values(selected).filter(Boolean).length; mealSummary.innerHTML=`<b>${n} repas sélectionné${n>1?"s":""}</b><br><span class="muted">Maximum indicatif de viande : ${Math.floor(n/3)} repas sur ${n}.</span>`;
 }
-function switchView(id){$$(".view").forEach(v=>v.classList.toggle("active",v.id===id));$$("nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===id));window.scrollTo(0,0)}
-$$("nav button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));$$("[data-go]").forEach(b=>b.onclick=()=>switchView(b.dataset.go));
-
-function fillCategories(){[...new Set(recipes.map(r=>r.category))].sort().forEach(c=>$("#category").insertAdjacentHTML("beforeend",`<option>${c}</option>`))}
-function renderRecipes(){
- const q=norm($("#search").value), cat=$("#category").value, max=+$("#maxTime").value||999;
- const found=recipes.filter(r=>(!cat||r.category===cat)&&r.time<=max&&(!q||norm(JSON.stringify(r)).includes(q)));
- $("#recipeList").innerHTML=found.map(recipeCard).join("")||"<p>Aucune recette trouvée.</p>";
- $$(".recipe-head").forEach(b=>b.onclick=()=>b.nextElementSibling.classList.toggle("open"));
-}
-function recipeCard(r){
- return `<article class="recipe"><button class="recipe-head"><div class="meta">${r.category} · ${r.time} min · ${r.servings} pers. · ${r.temperature}</div><h3>${r.title}</h3><div class="badges">${r.tags.map(t=>`<span>${t}</span>`).join("")}</div></button>
- <div class="details"><h4>Ingrédients</h4><ul>${r.ingredients.map(i=>`<li>${i[0]} : ${i[1]} ${i[2]}</li>`).join("")}</ul><h4>Préparation</h4><ol>${r.steps.map(s=>`<li>${s}</li>`).join("")}</ol></div></article>`
-}
-$("#search").oninput=renderRecipes;$("#category").onchange=renderRecipes;$("#maxTime").onchange=renderRecipes;
-$("#surpriseBtn").onclick=()=>{$("#surpriseCard").innerHTML=recipeCard(recipes[Math.floor(Math.random()*recipes.length)]);$("#surpriseCard .recipe-head").onclick=e=>e.currentTarget.nextElementSibling.classList.toggle("open")};
-
-function renderDayChoices(){
- $("#dayChoices").innerHTML=days.map((d,i)=>`<label class="day-choice selected" role="button" tabindex="0"><input type="checkbox" data-day="${i}" checked><span>${d}</span></label>`).join("");
- $$(".day-choice").forEach(label=>{
-   const box=label.querySelector("[data-day]");
-   const toggle=()=>{
-     box.checked=!box.checked;
-     box.dispatchEvent(new Event("change"));
-   };
-   label.addEventListener("click",event=>{
-     event.preventDefault();
-     toggle();
-   });
-   label.addEventListener("keydown",event=>{
-     if(event.key==="Enter"||event.key===" "){event.preventDefault();toggle();}
-   });
+allMeals.onclick=()=>{days.forEach(d=>["midi","soir"].forEach(p=>selected[d+"-"+p]=true));localStorage.setItem("hg_meals",JSON.stringify(selected));renderMeals()};
+clearMeals.onclick=()=>{selected={};localStorage.setItem("hg_meals","{}");renderMeals()};
+generatePlan.onclick=()=>{
+ let slots=Object.keys(selected).filter(k=>selected[k]), meatMax=Math.floor(slots.length/3), meatUsed=0, idx=0;
+ const chosen=slots.map((slot,i)=>{
+   let pool=recipes.filter(r=>!r.meat||meatUsed<meatMax);
+   let r=pool[(idx++)%pool.length]; if(r.meat) meatUsed++;
+   return {slot,r};
  });
- $$("[data-day]").forEach(box=>box.addEventListener("change",()=>{
-   box.closest(".day-choice").classList.toggle("selected",box.checked);
-   updateSelectedDaysStatus();
-   syncPlanWithSelectedDays();
-   saveDayPreferences();
- }));
- $("#selectAllDays").onclick=()=>{
-   $$("[data-day]").forEach(box=>{box.checked=true;box.closest(".day-choice").classList.add("selected")});
-   updateSelectedDaysStatus();syncPlanWithSelectedDays();saveDayPreferences();
- };
- $("#clearAllDays").onclick=()=>{
-   $$("[data-day]").forEach(box=>{box.checked=false;box.closest(".day-choice").classList.remove("selected")});
-   updateSelectedDaysStatus();syncPlanWithSelectedDays();saveDayPreferences();
- };
- updateSelectedDaysStatus();
-}
-function selectedDayIndexes(){return $$("[data-day]:checked").map(x=>+x.dataset.day)}
-function updateSelectedDaysStatus(){
- const n=selectedDayIndexes().length;
- $("#selectedDaysStatus").textContent=`${n} jour${n>1?"s":""} sélectionné${n>1?"s":""}`;
-}
-function saveDayPreferences(){
- localStorage.setItem("hg-selected-days",JSON.stringify(selectedDayIndexes()));
-}
-function syncPlanWithSelectedDays(){
- if(!plan.length) return;
- const selected=selectedDayIndexes();
- plan=plan.filter(item=>selected.includes(item.dayIndex));
- const used=new Set(plan.map(item=>item.dayIndex));
- const mode=$("#mealTemp").value, maxTime=+$("#planTime").value||999;
- const maxMeat=Math.floor(selected.length/3);
- for(const dayIndex of selected){
-   if(used.has(dayIndex)) continue;
-   const currentMeat=plan.filter(x=>x.recipe.avecViande).length;
-   let choices=recipes.filter(r=>r.time<=maxTime && temperatureAccepted(r,mode) && (!r.avecViande || currentMeat<maxMeat));
-   choices=choices.filter(r=>!plan.some(x=>x.recipe.id===r.id));
-   if(!choices.length) choices=recipes.filter(r=>!r.avecViande);
-   const recipe=choices[Math.floor(Math.random()*choices.length)];
-   if(recipe) plan.push({dayIndex,recipe});
- }
- plan.sort((a,b)=>a.dayIndex-b.dayIndex);
- renderPlan();
-}
-function seasonalTemp(){
- const m=new Date().getMonth()+1;
- return (m>=5 && m<=9) ? "froid" : "chaud";
-}
-function temperatureAccepted(r, mode){
- if(mode==="mixte") return true;
- if(mode==="saisonnier") mode=seasonalTemp();
- return r.temperature===mode || r.temperature==="les-deux";
-}
-function shuffled(arr){return [...arr].sort(()=>Math.random()-.5)}
-
-function choosePlan(defaultMenu=false){
- const selected=selectedDayIndexes();
- if(!selected.length) return alert("Choisis au moins un jour.");
- const maxTime=+$("#planTime").value||999;
- const mode=$("#mealTemp").value;
- let pool=recipes.filter(r=>r.time<=maxTime && temperatureAccepted(r,mode));
- if(pool.length<selected.length) pool=recipes.filter(r=>temperatureAccepted(r,mode));
- if(pool.length<selected.length) pool=recipes;
-
- const maxMeat=Math.floor(selected.length/3);
- const meat=shuffled(pool.filter(r=>r.avecViande)).slice(0,maxMeat);
- const nonMeat=shuffled(pool.filter(r=>!r.avecViande));
- const picked=[];
- let meatUsed=0;
-
- for(let i=0;i<selected.length;i++){
-   const allowMeat=meatUsed<maxMeat && meat.length && (i%3===2 || nonMeat.length<selected.length-i);
-   let r;
-   if(allowMeat){r=meat.shift();meatUsed++}
-   else r=nonMeat.shift() || meat.shift();
-   if(r) picked.push({dayIndex:selected[i],recipe:r});
- }
- plan=picked;
- renderPlan();
-}
-$("#generatePlan").onclick=()=>choosePlan(false);
-$("#defaultPlan").onclick=()=>choosePlan(false);
-
-function renderPlan(){
- if(!plan.length){$("#weekPlan").innerHTML="";return}
- const meatCount=plan.filter(x=>x.recipe.avecViande).length;
- const maxMeat=Math.floor(plan.length/3);
- $("#weekPlan").innerHTML=`<div class="notice rule-ok"><strong>${plan.length} repas planifiés :</strong> ${meatCount} avec viande, maximum autorisé ${maxMeat}.</div>`+
- plan.map((item,i)=>{const r=item.recipe;return `<article class="day"><div class="day-top"><div><div class="meta">${days[item.dayIndex]} · ${r.time} min · ${r.temperature}</div><h3>${r.title}</h3></div><button data-replace="${i}">Remplacer</button></div>
- <select data-choice="${i}">${compatibleChoices(i).map(x=>`<option value="${x.id}" ${x.id===r.id?"selected":""}>${x.title} (${x.time} min)</option>`).join("")}</select>
- <details><summary>Voir la recette</summary><ul>${scaledIngredients(r).map(x=>`<li>${x}</li>`).join("")}</ul><ol>${r.steps.map(s=>`<li>${s}</li>`).join("")}</ol></details></article>`}).join("");
- $$("[data-choice]").forEach(s=>s.onchange=()=>{plan[+s.dataset.choice].recipe=recipes.find(r=>r.id===s.value);renderPlan()});
- $$("[data-replace]").forEach(b=>b.onclick=()=>replaceOne(+b.dataset.replace));
-}
-function compatibleChoices(index){
- const mode=$("#mealTemp").value, maxTime=+$("#planTime").value||999;
- const otherMeat=plan.filter((x,i)=>i!==index && x.recipe.avecViande).length;
- const maxMeat=Math.floor(plan.length/3);
- return recipes.filter(r=>r.time<=maxTime && temperatureAccepted(r,mode) && (!r.avecViande || otherMeat<maxMeat));
-}
-function replaceOne(index){
- const choices=compatibleChoices(index).filter(r=>!plan.some((x,i)=>i!==index&&x.recipe.id===r.id));
- if(!choices.length) return alert("Aucune autre recette compatible avec ces règles.");
- plan[index].recipe=choices[Math.floor(Math.random()*choices.length)];
- renderPlan();
-}
-function scaledIngredients(r){
- const factor=(+$("#people").value||4)/r.servings;
- return r.ingredients.map(([n,q,u])=>`${n} : ${typeof q==="number"?(Math.round(q*factor*10)/10):q} ${u}`);
-}
-$("#people").onchange=()=>{if(plan.length)renderPlan()};
-
-$("#savePlan").onclick=()=>{
- const selected=selectedDayIndexes();
- localStorage.setItem("hg-plan",JSON.stringify({people:+$("#people").value,days:selected,temp:$("#mealTemp").value,time:$("#planTime").value,items:plan.map(x=>({dayIndex:x.dayIndex,id:x.recipe.id}))}));
- alert("Planning enregistré sur cet appareil.");
+ planResults.innerHTML=chosen.length?chosen.map(x=>{let [d,p]=x.slot.split("-");return `<div class="plan-meal"><b>${d} · ${p}</b><br>${x.r.title} <span class="tag">${x.r.temp}</span></div>`}).join(""):`<p class="note">Sélectionnez au moins un repas.</p>`;
 };
-function loadSaved(){
- try{
-  const s=JSON.parse(localStorage.getItem("hg-plan"));
-  if(s){
-    $("#people").value=s.people||4;$("#mealTemp").value=s.temp||"saisonnier";$("#planTime").value=s.time||"";
-    const storedDays=Array.isArray(s.days)&&s.days.length?s.days:JSON.parse(localStorage.getItem("hg-selected-days")||"[0,1,2,3,4,5,6]");
-    $$("[data-day]").forEach(c=>{
-      c.checked=storedDays.includes(+c.dataset.day);
-      c.closest(".day-choice").classList.toggle("selected",c.checked);
-    });
-    updateSelectedDaysStatus();
-    plan=(s.items||[]).map(x=>({dayIndex:x.dayIndex,recipe:recipes.find(r=>r.id===x.id)})).filter(x=>x.recipe && storedDays.includes(x.dayIndex));
-    renderPlan();
-  }
-  if(!s){
-    const storedDays=JSON.parse(localStorage.getItem("hg-selected-days")||"[0,1,2,3,4,5,6]");
-    $$("[data-day]").forEach(c=>{
-      c.checked=storedDays.includes(+c.dataset.day);
-      c.closest(".day-choice").classList.toggle("selected",c.checked);
-    });
-    updateSelectedDaysStatus();
-  }
-  const sh=JSON.parse(localStorage.getItem("hg-shopping"));if(sh){shopping=sh;renderShopping()}
- }catch(e){}
-}
-$("#buildShopping").onclick=()=>{
- if(!plan.length)return alert("Génère d’abord un planning.");
- const people=(+$("#people").value||4), map={};
- plan.forEach(item=>item.recipe.ingredients.forEach(([n,q,u])=>{
-   const key=norm(n)+"|"+u, amount=typeof q==="number"?q*people/item.recipe.servings:q;
-   if(!map[key])map[key]={name:n,qty:0,unit:u,checked:false};
-   if(typeof amount==="number")map[key].qty+=amount
- }));
- shopping=Object.values(map).sort((a,b)=>a.name.localeCompare(b.name));
- localStorage.setItem("hg-shopping",JSON.stringify(shopping));renderShopping();switchView("shopping")
-};
-function renderShopping(){
- $("#shoppingList").innerHTML=`<div class="shop-group">${shopping.map((x,i)=>`<label class="shop-item ${x.checked?"checked":""}"><input type="checkbox" data-shop="${i}" ${x.checked?"checked":""}><span>${x.name} — ${Math.round(x.qty*10)/10} ${x.unit}</span></label>`).join("")}</div>`;
- $$("[data-shop]").forEach(c=>c.onchange=()=>{shopping[+c.dataset.shop].checked=c.checked;localStorage.setItem("hg-shopping",JSON.stringify(shopping));renderShopping()})
-}
-$("#clearChecks").onclick=()=>{shopping.forEach(x=>x.checked=false);localStorage.setItem("hg-shopping",JSON.stringify(shopping));renderShopping()};
-$("#printPlan").onclick=()=>window.print();$("#printShopping").onclick=()=>window.print();
 
-let deferredPrompt;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;$("#installBtn").classList.remove("hidden")});
-$("#installBtn").onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;$("#installBtn").classList.add("hidden")}};
+let shopping=JSON.parse(localStorage.getItem("hg_shopping")||"null")||[
+{name:"Tomates",store:"Marché / primeur",aisle:"Fruits et légumes",done:false},
+{name:"Œufs",store:"Supermarché",aisle:"Produits laitiers",done:false},
+{name:"Thym frais",store:"Marché / primeur",aisle:"Herbes et épices",done:false},
+{name:"Poulet",store:"Boucherie",aisle:"Viandes",done:false}
+];
+let groupMode="store";
+function saveShop(){localStorage.setItem("hg_shopping",JSON.stringify(shopping))}
+function renderShop(){
+ let groups={};
+ if(groupMode==="alpha"){groups["Liste alphabétique"]=[...shopping].sort((a,b)=>a.name.localeCompare(b.name))}
+ else shopping.forEach(x=>{let k=groupMode==="store"?x.store:x.aisle;(groups[k]??=[]).push(x)});
+ shoppingList.innerHTML=Object.entries(groups).map(([g,items])=>`<section class="group"><h3>${g}</h3>${items.map(item=>{let i=shopping.indexOf(item);return `<div class="shop-item ${item.done?"done":""}"><input type="checkbox" data-check="${i}" ${item.done?"checked":""}><span>${item.name}</span><button data-delete="${i}">✕</button></div>`}).join("")}</section>`).join("");
+ shoppingList.querySelectorAll("[data-check]").forEach(x=>x.onchange=()=>{shopping[+x.dataset.check].done=x.checked;saveShop();renderShop()});
+ shoppingList.querySelectorAll("[data-delete]").forEach(x=>x.onclick=()=>{shopping.splice(+x.dataset.delete,1);saveShop();renderShop()});
+}
+document.querySelector(".segmented").onclick=e=>{if(e.target.dataset.group){groupMode=e.target.dataset.group;document.querySelectorAll(".segmented button").forEach(x=>x.classList.toggle("active",x===e.target));renderShop()}};
+addItem.onclick=()=>{let n=itemInput.value.trim();if(!n)return;shopping.push({name:n,store:storeInput.value,aisle:aisleInput.value,done:false});itemInput.value="";saveShop();renderShop()};
 
-init();
+renderHerbs();renderMeals();renderShop();
+suggestBtn.click();
 
-
-const APP_VERSION="2.4.2";
-const UPDATE_RELOAD_KEY="hg-update-reload";
-
-async function clearAppCaches(){
-  if(!("caches" in window)) return;
-  const keys=await caches.keys();
-  await Promise.all(keys.filter(k=>k.startsWith("herbier-")).map(k=>caches.delete(k)));
-}
-async function activateWaitingWorker(){
-  if(!("serviceWorker" in navigator)) return;
-  const registration=await navigator.serviceWorker.getRegistration();
-  if(registration?.waiting) registration.waiting.postMessage({type:"SKIP_WAITING"});
-  await registration?.update();
-}
-async function reloadFresh(reason){
-  sessionStorage.setItem(UPDATE_RELOAD_KEY,reason);
-  const url=new URL(window.location.href);
-  url.searchParams.set("_v",Date.now().toString());
-  window.location.replace(url.toString());
-}
-async function forceLatestVersion(){
-  const status=$("#updateStatus");
-  try{
-    status.textContent="Actualisation…";
-    status.className="update-status loading";
-    await activateWaitingWorker();
-    await clearAppCaches();
-    await reloadFresh("manual");
-  }catch(e){
-    status.textContent="Échec de mise à jour";
-    status.className="update-status error";
-  }
-}
-async function checkForUpdate(){
-  const status=$("#updateStatus");
-  try{
-    status.textContent="Vérification…";
-    status.className="update-status loading";
-    await activateWaitingWorker();
-    const response=await fetch(`version.json?_=${Date.now()}`,{
-      cache:"no-store",
-      headers:{"Cache-Control":"no-cache, no-store, must-revalidate","Pragma":"no-cache"}
-    });
-    if(!response.ok) throw new Error("version.json indisponible");
-    const remote=await response.json();
-    const lastReload=sessionStorage.getItem(UPDATE_RELOAD_KEY);
-    if(remote.version!==APP_VERSION && lastReload!=="automatic"){
-      status.textContent=`Mise à jour vers v${remote.version}…`;
-      status.className="update-status loading";
-      await clearAppCaches();
-      await activateWaitingWorker();
-      await reloadFresh("automatic");
-      return;
-    }
-    sessionStorage.removeItem(UPDATE_RELOAD_KEY);
-    status.textContent=`À jour · v${APP_VERSION}`;
-    status.className="update-status ok";
-  }catch(e){
-    status.textContent="Mode hors connexion";
-    status.className="update-status error";
-  }
-}
-window.addEventListener("load",()=>{
-  checkForUpdate();
-  $("#forceUpdateBtn")?.addEventListener("click",forceLatestVersion);
-});
-navigator.serviceWorker?.addEventListener("controllerchange",()=>{
-  if(!sessionStorage.getItem("hg-controller-reloaded")){
-    sessionStorage.setItem("hg-controller-reloaded","1");
-    window.location.reload();
-  }
-});
+let deferredPrompt;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;installBtn.hidden=false});
+installBtn.onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();deferredPrompt=null;installBtn.hidden=true}};
+if("serviceWorker" in navigator) navigator.serviceWorker.register("service-worker.js");

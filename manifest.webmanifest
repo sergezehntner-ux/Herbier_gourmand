@@ -1,15 +1,9 @@
 {
-  "name": "Herbier Gourmand",
-  "short_name": "Herbier",
+  "name": "Herbier Gourmand v3.0 Alpha",
+  "short_name": "Herbier Gourmand",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#f4efe3",
-  "theme_color": "#355e48",
-  "icons": [
-    {
-      "src": "icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml"
-    }
-  ]
+  "background_color": "#f4efe4",
+  "theme_color": "#315c46",
+  "description": "Prototype fonctionnel : herbier, accords culinaires, planning et courses."
 }
