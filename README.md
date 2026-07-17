@@ -1,19 +1,14 @@
-# Herbier Gourmand v2.1 — Planning & Menus
-
-## Mise à jour GitHub
-1. Décompresser le ZIP.
-2. Dans le dépôt GitHub, remplacer les anciens fichiers par ceux du dossier.
-3. Vérifier que `index.html` est à la racine.
-4. Attendre 1 à 3 minutes puis actualiser la page GitHub Pages.
-5. Si l’ancienne version reste visible, vider le cache du navigateur ou supprimer puis réinstaller l’application.
+# Herbier Gourmand — v2.2 Planning saisonnier
 
 ## Nouveautés
-- Planning automatique sur 7 jours
-- Menu hebdomadaire proposé
-- 14 recettes sans poisson, crustacés ni abats
-- Remplacement individuel d’un plat
-- Quantités adaptées au nombre de personnes
-- Liste de courses consolidée et cochable
-- Sauvegarde locale
-- Impression / export PDF par le navigateur
-- Fonctionnement hors connexion
+- Choix précis des jours où l’on mange à la maison
+- Maximum d’un tiers des jours avec viande
+- Choix repas chauds, froids, mixtes ou saisonniers
+- Mode saisonnier automatique : froid de mai à septembre, chaud d’octobre à avril
+- Nouvelles recettes froides sans poisson, crustacés ni abats
+- Liste de courses calculée uniquement pour les jours sélectionnés
+- Sauvegarde locale du planning
+
+## Mise à jour GitHub
+Décompresser le ZIP et remplacer tous les fichiers du dépôt par ceux-ci.
+Attendre quelques minutes, puis actualiser la page. Si l’ancienne version persiste, vider le cache ou réinstaller l’application.

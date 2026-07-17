@@ -1,16 +1,948 @@
 [
-{"id":"poulet-thym","title":"Poulet rôti au thym et citron","category":"Volaille","time":75,"servings":4,"ingredients":[["Poulet",1,"pièce"],["Pommes de terre",1000,"g"],["Citron",1,"pièce"],["Ail",4,"gousses"],["Thym",2,"c. à café"]],"steps":["Préchauffer le four à 200 °C.","Ajouter pommes de terre, ail, thym et citron autour du poulet.","Cuire 60 à 75 minutes en arrosant."]},
-{"id":"boeuf-champi","title":"Émincé de bœuf aux champignons","category":"Bœuf","time":30,"servings":4,"ingredients":[["Émincé de bœuf",500,"g"],["Champignons",400,"g"],["Oignon",1,"pièce"],["Crème",200,"ml"],["Paprika fumé",1,"c. à café"],["Tagliatelles",400,"g"]],"steps":["Cuire les pâtes.","Saisir le bœuf puis réserver.","Cuire oignon et champignons, ajouter crème et paprika, puis remettre la viande."]},
-{"id":"gratin-courgettes","title":"Gratin de courgettes au romarin","category":"Végétarien","time":45,"servings":4,"ingredients":[["Courgettes",4,"pièces"],["Oignon",1,"pièce"],["Ail",2,"gousses"],["Gruyère",150,"g"],["Crème",150,"ml"],["Romarin",1,"c. à café"]],"steps":["Faire revenir les légumes.","Ajouter crème, romarin et fromage.","Gratiner 25 minutes à 190 °C."]},
-{"id":"porc-moutarde","title":"Filet mignon de porc à la moutarde ancienne","category":"Porc","time":35,"servings":4,"ingredients":[["Filet mignon",600,"g"],["Échalotes",2,"pièces"],["Crème",200,"ml"],["Moutarde à l’ancienne",2,"c. à soupe"],["Estragon",1,"c. à café"],["Riz",300,"g"]],"steps":["Cuire le riz.","Dorer le porc.","Ajouter échalotes, crème, moutarde et estragon."]},
-{"id":"chili","title":"Chili con carne doux","category":"Bœuf","time":40,"servings":4,"ingredients":[["Bœuf haché",500,"g"],["Haricots rouges",400,"g"],["Tomates concassées",400,"g"],["Oignon",1,"pièce"],["Ail",2,"gousses"],["Cumin",1,"c. à café"],["Paprika",1,"c. à café"],["Riz",300,"g"]],"steps":["Faire revenir oignon, ail et bœuf.","Ajouter tomates, haricots et épices.","Mijoter 20 minutes et servir avec le riz."]},
-{"id":"agneau","title":"Gigot d’agneau au romarin","category":"Agneau","time":90,"servings":4,"ingredients":[["Gigot d’agneau",1200,"g"],["Pommes grenaille",800,"g"],["Haricots verts",500,"g"],["Ail",4,"gousses"],["Romarin",2,"c. à café"]],"steps":["Frotter le gigot avec ail et romarin.","Ajouter les pommes grenaille.","Cuire au four selon la cuisson souhaitée."]},
-{"id":"poulet-creme","title":"Poulet à la crème et aux champignons","category":"Volaille","time":40,"servings":4,"ingredients":[["Blancs de poulet",600,"g"],["Champignons",400,"g"],["Crème",250,"ml"],["Moutarde",1,"c. à soupe"],["Persil",2,"c. à soupe"],["Nouilles",400,"g"]],"steps":["Cuire les nouilles.","Dorer le poulet.","Ajouter champignons, crème et moutarde, puis le persil."]},
-{"id":"boulettes","title":"Boulettes de bœuf, tomate et basilic","category":"Bœuf","time":35,"servings":4,"ingredients":[["Bœuf haché",500,"g"],["Tomates concassées",500,"g"],["Oignon",1,"pièce"],["Basilic",2,"c. à soupe"],["Spaghetti",400,"g"]],"steps":["Former et dorer les boulettes.","Préparer la sauce tomate.","Mijoter 15 minutes avec le basilic."]},
-{"id":"omelette","title":"Omelette forestière au persil","category":"Œufs","time":20,"servings":2,"ingredients":[["Œufs",6,"pièces"],["Champignons",250,"g"],["Échalote",1,"pièce"],["Persil",2,"c. à soupe"]],"steps":["Faire revenir échalote et champignons.","Ajouter les œufs battus.","Cuire doucement et parsemer de persil."]},
-{"id":"curry","title":"Poulet au curry doux et lait de coco","category":"Volaille","time":30,"servings":4,"ingredients":[["Blancs de poulet",600,"g"],["Lait de coco",400,"ml"],["Oignon",1,"pièce"],["Curry doux",2,"c. à café"],["Carottes",3,"pièces"],["Riz",300,"g"]],"steps":["Cuire le riz.","Faire revenir poulet, oignon et carottes.","Ajouter curry et lait de coco, mijoter 15 minutes."]},
-{"id":"risotto","title":"Risotto aux champignons et parmesan","category":"Végétarien","time":35,"servings":4,"ingredients":[["Riz à risotto",320,"g"],["Champignons",400,"g"],["Bouillon",1000,"ml"],["Oignon",1,"pièce"],["Parmesan",80,"g"]],"steps":["Faire revenir oignon et champignons.","Ajouter le riz.","Verser progressivement le bouillon et terminer avec le parmesan."]},
-{"id":"hachis","title":"Hachis parmentier maison","category":"Bœuf","time":55,"servings":4,"ingredients":[["Bœuf haché",500,"g"],["Pommes de terre",1000,"g"],["Carottes",2,"pièces"],["Oignon",1,"pièce"],["Lait",200,"ml"],["Beurre",40,"g"]],"steps":["Préparer la purée.","Cuire bœuf, carottes et oignon.","Monter le plat et gratiner 20 minutes."]},
-{"id":"quiche","title":"Quiche aux poireaux et fromage","category":"Végétarien","time":50,"servings":4,"ingredients":[["Pâte brisée",1,"pièce"],["Poireaux",3,"pièces"],["Œufs",3,"pièces"],["Crème",200,"ml"],["Gruyère",120,"g"],["Muscade",1,"pincée"]],"steps":["Faire fondre les poireaux.","Mélanger œufs, crème et fromage.","Garnir la pâte et cuire 35 minutes."]},
-{"id":"dinde","title":"Escalopes de dinde au paprika","category":"Volaille","time":25,"servings":4,"ingredients":[["Escalopes de dinde",600,"g"],["Paprika",2,"c. à café"],["Crème",150,"ml"],["Oignon",1,"pièce"],["Semoule",300,"g"]],"steps":["Préparer la semoule.","Dorer les escalopes.","Ajouter oignon, paprika et crème."]}
+  {
+    "id": "poulet-thym",
+    "title": "Poulet rôti au thym et citron",
+    "category": "Volaille",
+    "time": 75,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Poulet",
+        1,
+        "pièce"
+      ],
+      [
+        "Pommes de terre",
+        1000,
+        "g"
+      ],
+      [
+        "Citron",
+        1,
+        "pièce"
+      ],
+      [
+        "Ail",
+        4,
+        "gousses"
+      ],
+      [
+        "Thym",
+        2,
+        "c. à café"
+      ]
+    ],
+    "steps": [
+      "Préchauffer le four à 200 °C.",
+      "Ajouter pommes de terre, ail, thym et citron autour du poulet.",
+      "Cuire 60 à 75 minutes en arrosant."
+    ],
+    "avecViande": true,
+    "temperature": "chaud"
+  },
+  {
+    "id": "boeuf-champi",
+    "title": "Émincé de bœuf aux champignons",
+    "category": "Bœuf",
+    "time": 30,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Émincé de bœuf",
+        500,
+        "g"
+      ],
+      [
+        "Champignons",
+        400,
+        "g"
+      ],
+      [
+        "Oignon",
+        1,
+        "pièce"
+      ],
+      [
+        "Crème",
+        200,
+        "ml"
+      ],
+      [
+        "Paprika fumé",
+        1,
+        "c. à café"
+      ],
+      [
+        "Tagliatelles",
+        400,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Cuire les pâtes.",
+      "Saisir le bœuf puis réserver.",
+      "Cuire oignon et champignons, ajouter crème et paprika, puis remettre la viande."
+    ],
+    "avecViande": true,
+    "temperature": "chaud"
+  },
+  {
+    "id": "gratin-courgettes",
+    "title": "Gratin de courgettes au romarin",
+    "category": "Végétarien",
+    "time": 45,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Courgettes",
+        4,
+        "pièces"
+      ],
+      [
+        "Oignon",
+        1,
+        "pièce"
+      ],
+      [
+        "Ail",
+        2,
+        "gousses"
+      ],
+      [
+        "Gruyère",
+        150,
+        "g"
+      ],
+      [
+        "Crème",
+        150,
+        "ml"
+      ],
+      [
+        "Romarin",
+        1,
+        "c. à café"
+      ]
+    ],
+    "steps": [
+      "Faire revenir les légumes.",
+      "Ajouter crème, romarin et fromage.",
+      "Gratiner 25 minutes à 190 °C."
+    ],
+    "avecViande": false,
+    "temperature": "les-deux"
+  },
+  {
+    "id": "porc-moutarde",
+    "title": "Filet mignon de porc à la moutarde ancienne",
+    "category": "Porc",
+    "time": 35,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Filet mignon",
+        600,
+        "g"
+      ],
+      [
+        "Échalotes",
+        2,
+        "pièces"
+      ],
+      [
+        "Crème",
+        200,
+        "ml"
+      ],
+      [
+        "Moutarde à l’ancienne",
+        2,
+        "c. à soupe"
+      ],
+      [
+        "Estragon",
+        1,
+        "c. à café"
+      ],
+      [
+        "Riz",
+        300,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Cuire le riz.",
+      "Dorer le porc.",
+      "Ajouter échalotes, crème, moutarde et estragon."
+    ],
+    "avecViande": true,
+    "temperature": "chaud"
+  },
+  {
+    "id": "chili",
+    "title": "Chili con carne doux",
+    "category": "Bœuf",
+    "time": 40,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Bœuf haché",
+        500,
+        "g"
+      ],
+      [
+        "Haricots rouges",
+        400,
+        "g"
+      ],
+      [
+        "Tomates concassées",
+        400,
+        "g"
+      ],
+      [
+        "Oignon",
+        1,
+        "pièce"
+      ],
+      [
+        "Ail",
+        2,
+        "gousses"
+      ],
+      [
+        "Cumin",
+        1,
+        "c. à café"
+      ],
+      [
+        "Paprika",
+        1,
+        "c. à café"
+      ],
+      [
+        "Riz",
+        300,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Faire revenir oignon, ail et bœuf.",
+      "Ajouter tomates, haricots et épices.",
+      "Mijoter 20 minutes et servir avec le riz."
+    ],
+    "avecViande": true,
+    "temperature": "chaud"
+  },
+  {
+    "id": "agneau",
+    "title": "Gigot d’agneau au romarin",
+    "category": "Agneau",
+    "time": 90,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Gigot d’agneau",
+        1200,
+        "g"
+      ],
+      [
+        "Pommes grenaille",
+        800,
+        "g"
+      ],
+      [
+        "Haricots verts",
+        500,
+        "g"
+      ],
+      [
+        "Ail",
+        4,
+        "gousses"
+      ],
+      [
+        "Romarin",
+        2,
+        "c. à café"
+      ]
+    ],
+    "steps": [
+      "Frotter le gigot avec ail et romarin.",
+      "Ajouter les pommes grenaille.",
+      "Cuire au four selon la cuisson souhaitée."
+    ],
+    "avecViande": true,
+    "temperature": "chaud"
+  },
+  {
+    "id": "poulet-creme",
+    "title": "Poulet à la crème et aux champignons",
+    "category": "Volaille",
+    "time": 40,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Blancs de poulet",
+        600,
+        "g"
+      ],
+      [
+        "Champignons",
+        400,
+        "g"
+      ],
+      [
+        "Crème",
+        250,
+        "ml"
+      ],
+      [
+        "Moutarde",
+        1,
+        "c. à soupe"
+      ],
+      [
+        "Persil",
+        2,
+        "c. à soupe"
+      ],
+      [
+        "Nouilles",
+        400,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Cuire les nouilles.",
+      "Dorer le poulet.",
+      "Ajouter champignons, crème et moutarde, puis le persil."
+    ],
+    "avecViande": true,
+    "temperature": "chaud"
+  },
+  {
+    "id": "boulettes",
+    "title": "Boulettes de bœuf, tomate et basilic",
+    "category": "Bœuf",
+    "time": 35,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Bœuf haché",
+        500,
+        "g"
+      ],
+      [
+        "Tomates concassées",
+        500,
+        "g"
+      ],
+      [
+        "Oignon",
+        1,
+        "pièce"
+      ],
+      [
+        "Basilic",
+        2,
+        "c. à soupe"
+      ],
+      [
+        "Spaghetti",
+        400,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Former et dorer les boulettes.",
+      "Préparer la sauce tomate.",
+      "Mijoter 15 minutes avec le basilic."
+    ],
+    "avecViande": true,
+    "temperature": "chaud"
+  },
+  {
+    "id": "omelette",
+    "title": "Omelette forestière au persil",
+    "category": "Œufs",
+    "time": 20,
+    "servings": 2,
+    "ingredients": [
+      [
+        "Œufs",
+        6,
+        "pièces"
+      ],
+      [
+        "Champignons",
+        250,
+        "g"
+      ],
+      [
+        "Échalote",
+        1,
+        "pièce"
+      ],
+      [
+        "Persil",
+        2,
+        "c. à soupe"
+      ]
+    ],
+    "steps": [
+      "Faire revenir échalote et champignons.",
+      "Ajouter les œufs battus.",
+      "Cuire doucement et parsemer de persil."
+    ],
+    "avecViande": false,
+    "temperature": "chaud"
+  },
+  {
+    "id": "curry",
+    "title": "Poulet au curry doux et lait de coco",
+    "category": "Volaille",
+    "time": 30,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Blancs de poulet",
+        600,
+        "g"
+      ],
+      [
+        "Lait de coco",
+        400,
+        "ml"
+      ],
+      [
+        "Oignon",
+        1,
+        "pièce"
+      ],
+      [
+        "Curry doux",
+        2,
+        "c. à café"
+      ],
+      [
+        "Carottes",
+        3,
+        "pièces"
+      ],
+      [
+        "Riz",
+        300,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Cuire le riz.",
+      "Faire revenir poulet, oignon et carottes.",
+      "Ajouter curry et lait de coco, mijoter 15 minutes."
+    ],
+    "avecViande": true,
+    "temperature": "chaud"
+  },
+  {
+    "id": "risotto",
+    "title": "Risotto aux champignons et parmesan",
+    "category": "Végétarien",
+    "time": 35,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Riz à risotto",
+        320,
+        "g"
+      ],
+      [
+        "Champignons",
+        400,
+        "g"
+      ],
+      [
+        "Bouillon",
+        1000,
+        "ml"
+      ],
+      [
+        "Oignon",
+        1,
+        "pièce"
+      ],
+      [
+        "Parmesan",
+        80,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Faire revenir oignon et champignons.",
+      "Ajouter le riz.",
+      "Verser progressivement le bouillon et terminer avec le parmesan."
+    ],
+    "avecViande": false,
+    "temperature": "chaud"
+  },
+  {
+    "id": "hachis",
+    "title": "Hachis parmentier maison",
+    "category": "Bœuf",
+    "time": 55,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Bœuf haché",
+        500,
+        "g"
+      ],
+      [
+        "Pommes de terre",
+        1000,
+        "g"
+      ],
+      [
+        "Carottes",
+        2,
+        "pièces"
+      ],
+      [
+        "Oignon",
+        1,
+        "pièce"
+      ],
+      [
+        "Lait",
+        200,
+        "ml"
+      ],
+      [
+        "Beurre",
+        40,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Préparer la purée.",
+      "Cuire bœuf, carottes et oignon.",
+      "Monter le plat et gratiner 20 minutes."
+    ],
+    "avecViande": true,
+    "temperature": "chaud"
+  },
+  {
+    "id": "quiche",
+    "title": "Quiche aux poireaux et fromage",
+    "category": "Végétarien",
+    "time": 50,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Pâte brisée",
+        1,
+        "pièce"
+      ],
+      [
+        "Poireaux",
+        3,
+        "pièces"
+      ],
+      [
+        "Œufs",
+        3,
+        "pièces"
+      ],
+      [
+        "Crème",
+        200,
+        "ml"
+      ],
+      [
+        "Gruyère",
+        120,
+        "g"
+      ],
+      [
+        "Muscade",
+        1,
+        "pincée"
+      ]
+    ],
+    "steps": [
+      "Faire fondre les poireaux.",
+      "Mélanger œufs, crème et fromage.",
+      "Garnir la pâte et cuire 35 minutes."
+    ],
+    "avecViande": false,
+    "temperature": "chaud"
+  },
+  {
+    "id": "dinde",
+    "title": "Escalopes de dinde au paprika",
+    "category": "Volaille",
+    "time": 25,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Escalopes de dinde",
+        600,
+        "g"
+      ],
+      [
+        "Paprika",
+        2,
+        "c. à café"
+      ],
+      [
+        "Crème",
+        150,
+        "ml"
+      ],
+      [
+        "Oignon",
+        1,
+        "pièce"
+      ],
+      [
+        "Semoule",
+        300,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Préparer la semoule.",
+      "Dorer les escalopes.",
+      "Ajouter oignon, paprika et crème."
+    ],
+    "avecViande": true,
+    "temperature": "chaud"
+  },
+  {
+    "id": "salade-lentilles-feta",
+    "title": "Salade de lentilles, carottes et feta",
+    "category": "Végétarien",
+    "time": 30,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Lentilles vertes",
+        300,
+        "g"
+      ],
+      [
+        "Carottes",
+        3,
+        "pièces"
+      ],
+      [
+        "Feta",
+        180,
+        "g"
+      ],
+      [
+        "Échalote",
+        1,
+        "pièce"
+      ],
+      [
+        "Persil",
+        2,
+        "c. à soupe"
+      ],
+      [
+        "Moutarde",
+        1,
+        "c. à soupe"
+      ],
+      [
+        "Huile d’olive",
+        3,
+        "c. à soupe"
+      ]
+    ],
+    "steps": [
+      "Cuire les lentilles puis les laisser tiédir.",
+      "Couper les carottes finement.",
+      "Mélanger avec la feta, l’échalote et le persil.",
+      "Assaisonner avec la moutarde et l’huile."
+    ],
+    "tags": [
+      "froid",
+      "végétarien",
+      "été"
+    ],
+    "temperature": "froid",
+    "avecViande": false
+  },
+  {
+    "id": "salade-pommes-terre-herbes",
+    "title": "Salade de pommes de terre aux herbes",
+    "category": "Œufs",
+    "time": 35,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Pommes de terre",
+        900,
+        "g"
+      ],
+      [
+        "Œufs",
+        4,
+        "pièces"
+      ],
+      [
+        "Cornichons",
+        100,
+        "g"
+      ],
+      [
+        "Ciboulette",
+        2,
+        "c. à soupe"
+      ],
+      [
+        "Persil",
+        2,
+        "c. à soupe"
+      ],
+      [
+        "Moutarde",
+        1,
+        "c. à soupe"
+      ],
+      [
+        "Yaourt nature",
+        180,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Cuire les pommes de terre et les œufs, puis laisser refroidir.",
+      "Couper les ingrédients.",
+      "Mélanger yaourt, moutarde et herbes.",
+      "Assembler et réserver au frais."
+    ],
+    "tags": [
+      "froid",
+      "sans viande",
+      "familial"
+    ],
+    "temperature": "froid",
+    "avecViande": false
+  },
+  {
+    "id": "taboule-herbes",
+    "title": "Taboulé aux herbes et légumes croquants",
+    "category": "Végétarien",
+    "time": 20,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Semoule",
+        300,
+        "g"
+      ],
+      [
+        "Tomates",
+        4,
+        "pièces"
+      ],
+      [
+        "Concombre",
+        1,
+        "pièce"
+      ],
+      [
+        "Citron",
+        1,
+        "pièce"
+      ],
+      [
+        "Persil",
+        3,
+        "c. à soupe"
+      ],
+      [
+        "Menthe",
+        2,
+        "c. à soupe"
+      ],
+      [
+        "Huile d’olive",
+        3,
+        "c. à soupe"
+      ]
+    ],
+    "steps": [
+      "Préparer la semoule et la laisser refroidir.",
+      "Couper les légumes.",
+      "Ajouter les herbes, le citron et l’huile.",
+      "Laisser reposer au frais."
+    ],
+    "tags": [
+      "froid",
+      "rapide",
+      "été"
+    ],
+    "temperature": "froid",
+    "avecViande": false
+  },
+  {
+    "id": "salade-pates-pesto",
+    "title": "Salade de pâtes au pesto et mozzarella",
+    "category": "Végétarien",
+    "time": 25,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Pâtes courtes",
+        400,
+        "g"
+      ],
+      [
+        "Tomates cerises",
+        300,
+        "g"
+      ],
+      [
+        "Mozzarella",
+        250,
+        "g"
+      ],
+      [
+        "Basilic",
+        2,
+        "c. à soupe"
+      ],
+      [
+        "Pesto",
+        3,
+        "c. à soupe"
+      ],
+      [
+        "Roquette",
+        100,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Cuire les pâtes et les refroidir.",
+      "Couper tomates et mozzarella.",
+      "Mélanger avec pesto, basilic et roquette.",
+      "Servir frais."
+    ],
+    "tags": [
+      "froid",
+      "rapide",
+      "été"
+    ],
+    "temperature": "froid",
+    "avecViande": false
+  },
+  {
+    "id": "gaspacho-tomate",
+    "title": "Gaspacho tomate, concombre et basilic",
+    "category": "Végétarien",
+    "time": 15,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Tomates",
+        800,
+        "g"
+      ],
+      [
+        "Concombre",
+        1,
+        "pièce"
+      ],
+      [
+        "Poivron rouge",
+        1,
+        "pièce"
+      ],
+      [
+        "Ail",
+        1,
+        "gousse"
+      ],
+      [
+        "Basilic",
+        2,
+        "c. à soupe"
+      ],
+      [
+        "Huile d’olive",
+        2,
+        "c. à soupe"
+      ]
+    ],
+    "steps": [
+      "Couper les légumes.",
+      "Mixer avec l’ail, le basilic et l’huile.",
+      "Assaisonner.",
+      "Réserver au frais avant de servir."
+    ],
+    "tags": [
+      "froid",
+      "très rapide",
+      "été"
+    ],
+    "temperature": "froid",
+    "avecViande": false
+  },
+  {
+    "id": "wraps-legumes-houmous",
+    "title": "Wraps aux légumes et houmous",
+    "category": "Végétarien",
+    "time": 15,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Tortillas",
+        8,
+        "pièces"
+      ],
+      [
+        "Houmous",
+        250,
+        "g"
+      ],
+      [
+        "Carottes",
+        3,
+        "pièces"
+      ],
+      [
+        "Concombre",
+        1,
+        "pièce"
+      ],
+      [
+        "Salade verte",
+        1,
+        "pièce"
+      ],
+      [
+        "Menthe",
+        2,
+        "c. à soupe"
+      ]
+    ],
+    "steps": [
+      "Tailler les légumes en bâtonnets.",
+      "Tartiner les tortillas de houmous.",
+      "Ajouter légumes, salade et menthe.",
+      "Rouler et servir frais."
+    ],
+    "tags": [
+      "froid",
+      "rapide",
+      "sans viande"
+    ],
+    "temperature": "froid",
+    "avecViande": false
+  }
 ]
