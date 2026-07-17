@@ -1,22 +1,12 @@
-# Herbier Gourmand v3.0 Alpha
+# Herbier Gourmand — v2.4.2
 
-Prototype fonctionnel destiné aux essais et aux discussions.
+Correction confirmée du choix des jours :
 
-## Fonctions incluses
-- Herbier de démonstration : 5 herbes et 5 épices
-- Fiches détaillées : goût, accords, intérêt culinaire, tradition, précautions
-- Assistant d’accords par aliment et style culinaire
-- Planning midi/soir indépendant, avec boutons toujours visibles
-- Proposition simple de menus, avec maximum d’un tiers de repas carnés
-- Liste de courses groupable par magasin, rayon ou ordre alphabétique
-- Sauvegarde locale du planning et des courses
-- Installation PWA et usage hors connexion
+- les sept boutons de jours sont affichés avant le chargement des recettes ;
+- ils restent visibles même si `recipes.json` rencontre un problème réseau ;
+- la zone du planning est forcée en disposition verticale ;
+- chaque jour est un grand bouton vert clairement sélectionnable ;
+- fonctionnement au clic, au toucher et au clavier ;
+- mémorisation des jours conservée.
 
-## Publication sur GitHub Pages
-1. Décompresser l’archive.
-2. Copier tous les fichiers à la racine du dépôt `Herbier_gourmand`.
-3. Remplacer les anciens fichiers.
-4. Valider les changements.
-5. Ouvrir la page GitHub Pages et actualiser.
-
-Cette version est une base de discussion, pas une version finalisée.
+Remplacer tous les fichiers du dépôt GitHub par ceux du ZIP, puis attendre le déploiement.

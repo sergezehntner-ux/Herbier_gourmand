@@ -3,125 +3,92 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#315c46">
-<title>Herbier Gourmand v3.0 Alpha</title>
+<meta name="theme-color" content="#355e48">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>Herbier Gourmand</title>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="stylesheet" href="styles.css?v=3.0.0-alpha">
+<link rel="stylesheet" href="styles.css?v=2.4.2">
 </head>
 <body>
-<header class="top">
-  <div>
-    <div class="eyebrow">v3.0 Alpha · prototype de discussion</div>
-    <h1>Herbier Gourmand</h1>
-    <p>Bien manger, simplement et sainement.</p>
+<header>
+  <div><h1>Herbier Gourmand</h1><p>v2.4.2 · Planning saisonnier</p></div>
+  <div class="header-actions">
+    <span id="updateStatus" class="update-status loading">Vérification…</span>
+    <button id="forceUpdateBtn" class="ghost">Actualiser</button>
+    <button id="installBtn" class="ghost hidden">Installer</button>
   </div>
-  <button class="iconbtn" id="installBtn" hidden>Installer</button>
 </header>
-
+<nav>
+  <button class="active" data-view="home">Accueil</button>
+  <button data-view="recipes">Recettes</button>
+  <button data-view="planner">Planning</button>
+  <button data-view="shopping">Courses</button>
+</nav>
 <main>
 <section id="home" class="view active">
-  <blockquote>« Se nourrir est une nécessité vitale, manger est un acte de culture. »</blockquote>
-  <div class="hero-card">
-    <h2>Que souhaitez-vous faire ?</h2>
-    <div class="module-grid">
-      <button data-go="herbier"><span>🌿</span><b>Explorer l’Herbier</b><small>Herbes, épices, bienfaisances et accords</small></button>
-      <button data-go="accords"><span>✨</span><b>Trouver un accord</b><small>Choisir un aliment et découvrir quoi ajouter</small></button>
-      <button data-go="planning"><span>📅</span><b>Planifier la semaine</b><small>Midi et soir, indépendamment</small></button>
-      <button data-go="courses"><span>🛒</span><b>Organiser les courses</b><small>Par magasin ou par rayon</small></button>
+  <div class="notice"><strong>Préférences actives :</strong> poissons, crustacés et abats exclus.</div>
+  <div class="hero">
+    <h2>Préparer la semaine</h2>
+    <button class="primary" data-go="planner">Créer mon planning</button>
+    <button id="surpriseBtn" class="secondary">Surprise sans poisson</button>
+  </div>
+  <div id="surpriseCard"></div>
+</section>
+
+<section id="recipes" class="view">
+  <h2>Recettes</h2>
+  <input id="search" type="search" placeholder="Rechercher : poulet, thym, 30 min…">
+  <div class="filters">
+    <select id="category"><option value="">Toutes catégories</option></select>
+    <select id="maxTime">
+      <option value="">Tous les temps</option>
+      <option value="25">25 min max</option>
+      <option value="35">35 min max</option>
+      <option value="45">45 min max</option>
+      <option value="60">60 min max</option>
+    </select>
+  </div>
+  <div id="recipeList"></div>
+</section>
+
+<section id="planner" class="view">
+  <h2>Planning de la semaine</h2>
+  <div class="panel">
+    <div class="grid">
+      <label>Nombre de personnes<input id="people" type="number" min="1" max="12" value="4"></label>
+      <label>Temps souhaité<select id="planTime"><option value="">Varié</option><option value="30">30 min max</option><option value="45">45 min max</option><option value="60">60 min max</option></select></label>
+      <label>Style des repas<select id="mealTemp"><option value="saisonnier">Saisonnier automatique</option><option value="chaud">Repas chauds</option><option value="froid">Repas froids</option><option value="mixte">Mixte</option></select></label>
     </div>
+    <h3>Jours mangés à la maison</h3>
+    <div class="day-tools">
+      <button type="button" id="selectAllDays">Tous</button>
+      <button type="button" id="clearAllDays">Aucun</button>
+      <strong id="selectedDaysStatus">7 jours sélectionnés</strong>
+    </div>
+    <div id="dayChoices" class="day-choices"></div>
+    <p class="muted">La viande est limitée automatiquement à un maximum d’un tiers des jours sélectionnés.</p>
   </div>
-  <div class="note"><b>Principe :</b> nous proposons, expliquons et inspirons. Nous ne prescrivons pas et ne remplaçons pas un professionnel de santé.</div>
+  <button id="generatePlan" class="primary">Générer le planning</button>
+  <button id="defaultPlan" class="secondary">Autre proposition</button>
+  <div id="weekPlan"></div>
+  <div class="sticky-actions">
+    <button id="savePlan">Enregistrer</button>
+    <button id="buildShopping">Créer les courses</button>
+    <button id="printPlan">Imprimer / PDF</button>
+  </div>
 </section>
 
-<section id="herbier" class="view">
-  <div class="section-head"><div><span class="kicker">Le cœur du projet</span><h2>Herbes & épices</h2></div></div>
-  <input id="herbSearch" class="search" type="search" placeholder="Rechercher : thym, cumin, basilic…">
-  <div class="chips" id="typeFilters">
-    <button class="chip active" data-type="tous">Tous</button>
-    <button class="chip" data-type="herbe">Herbes</button>
-    <button class="chip" data-type="épice">Épices</button>
-  </div>
-  <div id="herbList" class="cards"></div>
-</section>
-
-<section id="detail" class="view">
-  <button class="back" data-go="herbier">← Retour à l’Herbier</button>
-  <div id="detailContent"></div>
-</section>
-
-<section id="accords" class="view">
-  <div class="section-head"><div><span class="kicker">Assistant d’accords culinaires</span><h2>Avec quoi parfumer votre aliment ?</h2></div></div>
-  <label>Aliment principal
-    <select id="foodSelect"></select>
-  </label>
-  <label>Style recherché
-    <select id="styleSelect">
-      <option value="libre">Libre</option>
-      <option value="mediterraneen">Méditerranéen</option>
-      <option value="francais">Français</option>
-      <option value="oriental">Oriental</option>
-      <option value="indien">Indien</option>
-      <option value="frais">Frais et léger</option>
-    </select>
-  </label>
-  <button class="primary" id="suggestBtn">Proposer des accords</button>
-  <div id="accordResults" class="cards"></div>
-</section>
-
-<section id="planning" class="view">
-  <div class="section-head"><div><span class="kicker">Agenda des repas</span><h2>Quand mangez-vous à la maison ?</h2></div></div>
-  <p class="muted">Chaque repas est indépendant. Les cases restent toujours visibles.</p>
-  <div class="planning-tools">
-    <button id="allMeals">Tout sélectionner</button>
-    <button id="clearMeals">Tout désélectionner</button>
-  </div>
-  <div id="mealGrid" class="meal-grid"></div>
-  <div class="summary" id="mealSummary"></div>
-  <button class="primary" id="generatePlan">Proposer des repas</button>
-  <div id="planResults"></div>
-</section>
-
-<section id="courses" class="view">
-  <div class="section-head"><div><span class="kicker">Liste intelligente</span><h2>Courses</h2></div></div>
-  <div class="segmented">
-    <button class="active" data-group="store">Par magasin</button>
-    <button data-group="aisle">Par rayon</button>
-    <button data-group="alpha">Alphabétique</button>
-  </div>
-  <div class="add-row">
-    <input id="itemInput" placeholder="Ajouter un produit">
-    <select id="storeInput">
-      <option>Supermarché</option><option>Marché / primeur</option><option>Boucherie</option><option>Laiterie / fromagerie</option><option>Boulangerie</option>
-    </select>
-    <select id="aisleInput">
-      <option>Fruits et légumes</option><option>Viandes</option><option>Produits laitiers</option><option>Épicerie</option><option>Herbes et épices</option><option>Boulangerie</option><option>Divers</option>
-    </select>
-    <button class="primary" id="addItem">Ajouter</button>
-  </div>
+<section id="shopping" class="view">
+  <h2>Liste de courses</h2>
+  <p class="muted">Calculée uniquement pour les jours sélectionnés.</p>
   <div id="shoppingList"></div>
-</section>
-
-<section id="about" class="view">
-  <div class="section-head"><div><span class="kicker">Charte fondatrice</span><h2>Notre philosophie</h2></div></div>
-  <div class="prose">
-    <h3>Découvrir</h3><p>Les herbes, les épices, les aliments, leurs histoires et leurs accords.</p>
-    <h3>Cuisiner</h3><p>Des recettes accessibles, de saison et adaptées à la vie quotidienne.</p>
-    <h3>Savourer</h3><p>Moins de temps à organiser. Plus de temps à savourer.</p>
-    <h3>Équilibrer</h3><p>Une alimentation variée et gourmande, sans culpabilisation.</p>
-    <h3>Transmettre</h3><p>Parce que comprendre les ingrédients permet de mieux cuisiner.</p>
+  <div class="sticky-actions">
+    <button id="clearChecks">Tout décocher</button>
+    <button id="printShopping">Imprimer / PDF</button>
   </div>
 </section>
 </main>
-
-<nav class="bottom">
-  <button class="active" data-go="home">Accueil</button>
-  <button data-go="herbier">Herbier</button>
-  <button data-go="accords">Accords</button>
-  <button data-go="planning">Planning</button>
-  <button data-go="courses">Courses</button>
-  <button data-go="about">Charte</button>
-</nav>
-
-<script src="app.js?v=3.0.0-alpha"></script>
+<footer>Guide culinaire — ne remplace pas un avis médical.</footer>
+<script src="app.js?v=2.4.2"></script>
 </body>
 </html>
