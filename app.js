@@ -139,74 +139,75 @@ $("#installBtn").onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();aw
 init();
 
 
-const APP_VERSION="2.3.0";
-const UPDATE_CHECK_KEY="hg-app-version";
+const APP_VERSION="2.4.0";
+const UPDATE_RELOAD_KEY="hg-update-reload";
 
 async function clearAppCaches(){
   if(!("caches" in window)) return;
   const keys=await caches.keys();
-  await Promise.all(keys.map(k=>caches.delete(k)));
+  await Promise.all(keys.filter(k=>k.startsWith("herbier-")).map(k=>caches.delete(k)));
 }
-
-async function unregisterOldWorkers(){
+async function activateWaitingWorker(){
   if(!("serviceWorker" in navigator)) return;
-  const regs=await navigator.serviceWorker.getRegistrations();
-  await Promise.all(regs.map(r=>r.unregister()));
+  const registration=await navigator.serviceWorker.getRegistration();
+  if(registration?.waiting) registration.waiting.postMessage({type:"SKIP_WAITING"});
+  await registration?.update();
 }
-
+async function reloadFresh(reason){
+  sessionStorage.setItem(UPDATE_RELOAD_KEY,reason);
+  const url=new URL(window.location.href);
+  url.searchParams.set("_v",Date.now().toString());
+  window.location.replace(url.toString());
+}
 async function forceLatestVersion(){
   const status=$("#updateStatus");
   try{
-    status.textContent="Mise à jour…";
+    status.textContent="Actualisation…";
     status.className="update-status loading";
+    await activateWaitingWorker();
     await clearAppCaches();
-    localStorage.setItem(UPDATE_CHECK_KEY,APP_VERSION);
-    const url=new URL(window.location.href);
-    url.searchParams.set("_update",Date.now().toString());
-    window.location.replace(url.toString());
+    await reloadFresh("manual");
   }catch(e){
     status.textContent="Échec de mise à jour";
     status.className="update-status error";
   }
 }
-
 async function checkForUpdate(){
   const status=$("#updateStatus");
   try{
     status.textContent="Vérification…";
     status.className="update-status loading";
+    await activateWaitingWorker();
     const response=await fetch(`version.json?_=${Date.now()}`,{
       cache:"no-store",
-      headers:{"Cache-Control":"no-cache, no-store, must-revalidate"}
+      headers:{"Cache-Control":"no-cache, no-store, must-revalidate","Pragma":"no-cache"}
     });
     if(!response.ok) throw new Error("version.json indisponible");
     const remote=await response.json();
-    const known=localStorage.getItem(UPDATE_CHECK_KEY);
-
-    if(remote.version!==APP_VERSION || (known && known!==remote.version)){
-      status.textContent=`Nouvelle version ${remote.version}`;
+    const lastReload=sessionStorage.getItem(UPDATE_RELOAD_KEY);
+    if(remote.version!==APP_VERSION && lastReload!=="automatic"){
+      status.textContent=`Mise à jour vers v${remote.version}…`;
       status.className="update-status loading";
       await clearAppCaches();
-      localStorage.setItem(UPDATE_CHECK_KEY,remote.version);
-      const url=new URL(window.location.href);
-      if(!url.searchParams.has("_fresh")){
-        url.searchParams.set("_fresh",Date.now().toString());
-        window.location.replace(url.toString());
-        return;
-      }
+      await activateWaitingWorker();
+      await reloadFresh("automatic");
+      return;
     }
-
-    localStorage.setItem(UPDATE_CHECK_KEY,remote.version);
-    status.textContent=`À jour · v${remote.version}`;
+    sessionStorage.removeItem(UPDATE_RELOAD_KEY);
+    status.textContent=`À jour · v${APP_VERSION}`;
     status.className="update-status ok";
   }catch(e){
     status.textContent="Mode hors connexion";
     status.className="update-status error";
   }
 }
-
 window.addEventListener("load",()=>{
   checkForUpdate();
-  const btn=$("#forceUpdateBtn");
-  if(btn) btn.onclick=forceLatestVersion;
+  $("#forceUpdateBtn")?.addEventListener("click",forceLatestVersion);
+});
+navigator.serviceWorker?.addEventListener("controllerchange",()=>{
+  if(!sessionStorage.getItem("hg-controller-reloaded")){
+    sessionStorage.setItem("hg-controller-reloaded","1");
+    window.location.reload();
+  }
 });

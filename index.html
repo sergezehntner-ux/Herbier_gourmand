@@ -1,9 +1,89 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#355e48"><title>Herbier Gourmand</title><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css"></head><body>
-<header><h1>Herbier Gourmand</h1><p>v2.1 · Planning & Menus</p></header>
-<nav><button data-v="home" class="active">Accueil</button><button data-v="recipes">Recettes</button><button data-v="planner">Planning</button><button data-v="shopping">Courses</button></nav>
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#355e48">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>Herbier Gourmand</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="styles.css?v=2.4.0">
+</head>
+<body>
+<header>
+  <div><h1>Herbier Gourmand</h1><p>v2.4 · Planning saisonnier</p></div>
+  <div class="header-actions">
+    <span id="updateStatus" class="update-status loading">Vérification…</span>
+    <button id="forceUpdateBtn" class="ghost">Actualiser</button>
+    <button id="installBtn" class="ghost hidden">Installer</button>
+  </div>
+</header>
+<nav>
+  <button class="active" data-view="home">Accueil</button>
+  <button data-view="recipes">Recettes</button>
+  <button data-view="planner">Planning</button>
+  <button data-view="shopping">Courses</button>
+</nav>
 <main>
-<section id="home" class="view active"><div class="notice"><b>Préférences actives :</b> poissons, crustacés et abats exclus.</div><div class="hero"><h2>Préparer la semaine</h2><button class="primary" data-go="planner">Créer mon planning</button><button id="surprise">Surprise sans poisson</button></div><div id="surpriseCard"></div></section>
-<section id="recipes" class="view"><h2>Recettes</h2><input id="search" placeholder="Rechercher : poulet, thym, 30 min…"><div class="filters"><select id="cat"><option value="">Toutes catégories</option></select><select id="time"><option value="">Tous les temps</option><option value="30">30 min max</option><option value="45">45 min max</option><option value="60">60 min max</option></select></div><div id="recipeList"></div></section>
-<section id="planner" class="view"><h2>Planning de la semaine</h2><div class="panel"><label>Personnes <input id="people" type="number" min="1" max="12" value="4"></label><label>Temps max <select id="planTime"><option value="">Varié</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></label></div><button id="generate" class="primary">Générer 7 repas</button><button id="default">Charger le menu proposé</button><div id="week"></div><div class="actions"><button id="save">Enregistrer</button><button id="build">Créer les courses</button><button onclick="print()">Imprimer / PDF</button></div></section>
-<section id="shopping" class="view"><h2>Liste de courses</h2><div id="shoppingList"></div><div class="actions"><button id="uncheck">Tout décocher</button><button onclick="print()">Imprimer / PDF</button></div></section>
-</main><footer>Guide culinaire — ne remplace pas un avis médical.</footer><script src="app.js"></script></body></html>
+<section id="home" class="view active">
+  <div class="notice"><strong>Préférences actives :</strong> poissons, crustacés et abats exclus.</div>
+  <div class="hero">
+    <h2>Préparer la semaine</h2>
+    <button class="primary" data-go="planner">Créer mon planning</button>
+    <button id="surpriseBtn" class="secondary">Surprise sans poisson</button>
+  </div>
+  <div id="surpriseCard"></div>
+</section>
+
+<section id="recipes" class="view">
+  <h2>Recettes</h2>
+  <input id="search" type="search" placeholder="Rechercher : poulet, thym, 30 min…">
+  <div class="filters">
+    <select id="category"><option value="">Toutes catégories</option></select>
+    <select id="maxTime">
+      <option value="">Tous les temps</option>
+      <option value="25">25 min max</option>
+      <option value="35">35 min max</option>
+      <option value="45">45 min max</option>
+      <option value="60">60 min max</option>
+    </select>
+  </div>
+  <div id="recipeList"></div>
+</section>
+
+<section id="planner" class="view">
+  <h2>Planning de la semaine</h2>
+  <div class="panel">
+    <div class="grid">
+      <label>Nombre de personnes<input id="people" type="number" min="1" max="12" value="4"></label>
+      <label>Temps souhaité<select id="planTime"><option value="">Varié</option><option value="30">30 min max</option><option value="45">45 min max</option><option value="60">60 min max</option></select></label>
+      <label>Style des repas<select id="mealTemp"><option value="saisonnier">Saisonnier automatique</option><option value="chaud">Repas chauds</option><option value="froid">Repas froids</option><option value="mixte">Mixte</option></select></label>
+    </div>
+    <h3>Jours mangés à la maison</h3>
+    <div id="dayChoices" class="day-choices"></div>
+    <p class="muted">La viande est limitée automatiquement à un maximum d’un tiers des jours sélectionnés.</p>
+  </div>
+  <button id="generatePlan" class="primary">Générer le planning</button>
+  <button id="defaultPlan" class="secondary">Autre proposition</button>
+  <div id="weekPlan"></div>
+  <div class="sticky-actions">
+    <button id="savePlan">Enregistrer</button>
+    <button id="buildShopping">Créer les courses</button>
+    <button id="printPlan">Imprimer / PDF</button>
+  </div>
+</section>
+
+<section id="shopping" class="view">
+  <h2>Liste de courses</h2>
+  <p class="muted">Calculée uniquement pour les jours sélectionnés.</p>
+  <div id="shoppingList"></div>
+  <div class="sticky-actions">
+    <button id="clearChecks">Tout décocher</button>
+    <button id="printShopping">Imprimer / PDF</button>
+  </div>
+</section>
+</main>
+<footer>Guide culinaire — ne remplace pas un avis médical.</footer>
+<script src="app.js?v=2.4.0"></script>
+</body>
+</html>
