@@ -23,3 +23,18 @@
 .day-choice.selected{background:var(--green);color:white;border-color:var(--green)}
 .day-choice input{accent-color:var(--green)}
 .day-choice:not(.selected){opacity:.72}
+
+/* v2.4.2 — correction d'affichage du choix des jours */
+#planner .panel{display:block!important}
+#planner .panel>.grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#planner .panel>h3{display:block!important;margin:20px 0 10px;grid-column:auto}
+#dayChoices{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;width:100%;margin:10px 0 16px}
+#dayChoices .day-choice{display:flex!important;min-height:48px;align-items:center;justify-content:center;padding:10px;border:2px solid var(--green);border-radius:12px;background:white;color:var(--green);font-weight:700;opacity:1}
+#dayChoices .day-choice.selected{background:var(--green)!important;color:white!important}
+#dayChoices .day-choice input{position:absolute;opacity:0;pointer-events:none}
+.day-tools{display:flex!important;width:100%;align-items:center;gap:8px;flex-wrap:wrap}
+.day-tools #selectedDaysStatus{margin-left:auto}
+@media(max-width:700px){
+  #planner .panel>.grid{grid-template-columns:1fr}
+  #dayChoices{grid-template-columns:repeat(2,minmax(0,1fr))}
+}

@@ -5,9 +5,29 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const norm=s=>(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 
 async function init(){
-  recipes=await fetch("recipes.json").then(r=>r.json());
-  fillCategories(); renderRecipes(); renderDayChoices(); loadSaved();
+  // Les jours doivent apparaître même si le chargement des recettes échoue.
+  renderDayChoices();
   if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
+  try{
+    const response=await fetch(`recipes.json?_=${Date.now()}`,{cache:"no-store"});
+    if(!response.ok) throw new Error("recipes.json indisponible");
+    recipes=await response.json();
+    fillCategories();
+    renderRecipes();
+    loadSaved();
+  }catch(error){
+    console.error(error);
+    $("#recipeList").innerHTML="<p>Les recettes n’ont pas pu être chargées. Appuie sur « Actualiser ».</p>";
+    // Les préférences de jours restent utilisables et mémorisées.
+    try{
+      const storedDays=JSON.parse(localStorage.getItem("hg-selected-days")||"[0,1,2,3,4,5,6]");
+      $$("[data-day]").forEach(c=>{
+        c.checked=storedDays.includes(+c.dataset.day);
+        c.closest(".day-choice").classList.toggle("selected",c.checked);
+      });
+      updateSelectedDaysStatus();
+    }catch(e){}
+  }
 }
 function switchView(id){$$(".view").forEach(v=>v.classList.toggle("active",v.id===id));$$("nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===id));window.scrollTo(0,0)}
 $$("nav button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));$$("[data-go]").forEach(b=>b.onclick=()=>switchView(b.dataset.go));
@@ -27,7 +47,21 @@ $("#search").oninput=renderRecipes;$("#category").onchange=renderRecipes;$("#max
 $("#surpriseBtn").onclick=()=>{$("#surpriseCard").innerHTML=recipeCard(recipes[Math.floor(Math.random()*recipes.length)]);$("#surpriseCard .recipe-head").onclick=e=>e.currentTarget.nextElementSibling.classList.toggle("open")};
 
 function renderDayChoices(){
- $("#dayChoices").innerHTML=days.map((d,i)=>`<label class="day-choice selected"><input type="checkbox" data-day="${i}" checked><span>${d}</span></label>`).join("");
+ $("#dayChoices").innerHTML=days.map((d,i)=>`<label class="day-choice selected" role="button" tabindex="0"><input type="checkbox" data-day="${i}" checked><span>${d}</span></label>`).join("");
+ $$(".day-choice").forEach(label=>{
+   const box=label.querySelector("[data-day]");
+   const toggle=()=>{
+     box.checked=!box.checked;
+     box.dispatchEvent(new Event("change"));
+   };
+   label.addEventListener("click",event=>{
+     event.preventDefault();
+     toggle();
+   });
+   label.addEventListener("keydown",event=>{
+     if(event.key==="Enter"||event.key===" "){event.preventDefault();toggle();}
+   });
+ });
  $$("[data-day]").forEach(box=>box.addEventListener("change",()=>{
    box.closest(".day-choice").classList.toggle("selected",box.checked);
    updateSelectedDaysStatus();
@@ -193,7 +227,7 @@ $("#installBtn").onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();aw
 init();
 
 
-const APP_VERSION="2.4.1";
+const APP_VERSION="2.4.2";
 const UPDATE_RELOAD_KEY="hg-update-reload";
 
 async function clearAppCaches(){

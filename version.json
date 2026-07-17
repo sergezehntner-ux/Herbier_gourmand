@@ -1,6 +1,6 @@
 {
-  "version": "2.4.1",
-  "build": 241,
-  "label": "Correction du choix des jours",
+  "version": "2.4.2",
+  "build": 242,
+  "label": "Jours toujours visibles",
   "published": "2026-07-17"
 }
