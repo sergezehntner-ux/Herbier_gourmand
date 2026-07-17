@@ -1,12 +1,14 @@
-# Herbier Gourmand — v2.4.2
+# Herbier Gourmand — v2.4.3
 
-Correction confirmée du choix des jours :
+Version corrective de la Stable.
 
-- les sept boutons de jours sont affichés avant le chargement des recettes ;
-- ils restent visibles même si `recipes.json` rencontre un problème réseau ;
-- la zone du planning est forcée en disposition verticale ;
-- chaque jour est un grand bouton vert clairement sélectionnable ;
-- fonctionnement au clic, au toucher et au clavier ;
-- mémorisation des jours conservée.
+Corrections incluses :
 
-Remplacer tous les fichiers du dépôt GitHub par ceux du ZIP, puis attendre le déploiement.
+- affichage des recettes même lorsqu’une recette ne possède pas d’étiquettes (`tags`) ;
+- boutons des jours toujours visibles ;
+- fond vert conservé pour les jours sélectionnés ;
+- mémorisation des jours mangés à la maison ;
+- synchronisation du planning quand un jour est ajouté ou retiré ;
+- mémorisation automatique du dernier nombre de personnes choisi.
+
+Importer tous les fichiers à la racine du dépôt `Herbier_gourmand`, valider le commit, attendre le déploiement GitHub Pages, puis appuyer sur « Actualiser ».

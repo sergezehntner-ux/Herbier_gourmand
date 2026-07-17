@@ -40,7 +40,7 @@ function renderRecipes(){
  $$(".recipe-head").forEach(b=>b.onclick=()=>b.nextElementSibling.classList.toggle("open"));
 }
 function recipeCard(r){
- return `<article class="recipe"><button class="recipe-head"><div class="meta">${r.category} · ${r.time} min · ${r.servings} pers. · ${r.temperature}</div><h3>${r.title}</h3><div class="badges">${r.tags.map(t=>`<span>${t}</span>`).join("")}</div></button>
+ return `<article class="recipe"><button class="recipe-head"><div class="meta">${r.category} · ${r.time} min · ${r.servings} pers. · ${r.temperature}</div><h3>${r.title}</h3><div class="badges">${(r.tags || []).map(t=>`<span>${t}</span>`).join("")}</div></button>
  <div class="details"><h4>Ingrédients</h4><ul>${r.ingredients.map(i=>`<li>${i[0]} : ${i[1]} ${i[2]}</li>`).join("")}</ul><h4>Préparation</h4><ol>${r.steps.map(s=>`<li>${s}</li>`).join("")}</ol></div></article>`
 }
 $("#search").oninput=renderRecipes;$("#category").onchange=renderRecipes;$("#maxTime").onchange=renderRecipes;
@@ -171,7 +171,10 @@ function scaledIngredients(r){
  const factor=(+$("#people").value||4)/r.servings;
  return r.ingredients.map(([n,q,u])=>`${n} : ${typeof q==="number"?(Math.round(q*factor*10)/10):q} ${u}`);
 }
-$("#people").onchange=()=>{if(plan.length)renderPlan()};
+$("#people").onchange=()=>{
+ localStorage.setItem("hg-people",String(+$("#people").value||4));
+ if(plan.length)renderPlan();
+};
 
 $("#savePlan").onclick=()=>{
  const selected=selectedDayIndexes();
@@ -180,9 +183,11 @@ $("#savePlan").onclick=()=>{
 };
 function loadSaved(){
  try{
+  const savedPeople=+localStorage.getItem("hg-people");
+  if(savedPeople>=1 && savedPeople<=12) $("#people").value=savedPeople;
   const s=JSON.parse(localStorage.getItem("hg-plan"));
   if(s){
-    $("#people").value=s.people||4;$("#mealTemp").value=s.temp||"saisonnier";$("#planTime").value=s.time||"";
+    $("#people").value=s.people||savedPeople||4;localStorage.setItem("hg-people",String(+$("#people").value||4));$("#mealTemp").value=s.temp||"saisonnier";$("#planTime").value=s.time||"";
     const storedDays=Array.isArray(s.days)&&s.days.length?s.days:JSON.parse(localStorage.getItem("hg-selected-days")||"[0,1,2,3,4,5,6]");
     $$("[data-day]").forEach(c=>{
       c.checked=storedDays.includes(+c.dataset.day);
@@ -227,7 +232,7 @@ $("#installBtn").onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();aw
 init();
 
 
-const APP_VERSION="2.4.2";
+const APP_VERSION="2.4.3";
 const UPDATE_RELOAD_KEY="hg-update-reload";
 
 async function clearAppCaches(){
