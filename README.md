@@ -1,13 +1,11 @@
-# Herbier Gourmand — v2.5-alpha
+# Herbier Gourmand v2.5.1-alpha — Mission Terrain
 
-## Mission Terrain — Terrain 0
+Correctifs issus des premiers essais terrain :
 
-Cette alpha ajoute :
-- création, modification, duplication et suppression de recettes ;
-- sauvegarde locale des recettes personnalisées ;
-- planning hebdomadaire distinct pour le midi et le soir ;
-- adaptation automatique des quantités au nombre de personnes ;
-- génération d'une liste de courses, ajout manuel, coches et suppression ;
-- fonctionnement PWA hors connexion.
+- sélection fiable des jours ;
+- choix Midi, Soir, ou les deux ;
+- articles cochés déplacés en fin de liste ;
+- impression complète du planning ;
+- impression d’une fiche recette.
 
-Les données sont enregistrées dans le navigateur de l'appareil. Pour repartir des recettes d'origine, effacer les données du site dans le navigateur.
+Les données restent enregistrées localement dans le navigateur.
