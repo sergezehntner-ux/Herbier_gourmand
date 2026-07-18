@@ -1,11 +1,19 @@
-# Herbier Gourmand v2.5.1-alpha — Mission Terrain
+# Herbier Gourmand v2.6 — Mission Terrain
 
-Correctifs issus des premiers essais terrain :
+Application web progressive utilisable hors connexion.
 
-- sélection fiable des jours ;
-- choix Midi, Soir, ou les deux ;
-- articles cochés déplacés en fin de liste ;
-- impression complète du planning ;
-- impression d’une fiche recette.
+## Lancer localement
+Servir le dossier avec un petit serveur HTTP, par exemple :
 
-Les données restent enregistrées localement dans le navigateur.
+```bash
+python -m http.server 8000
+```
+
+Puis ouvrir `http://localhost:8000`.
+
+## Contenu de Terrain 1
+- 70 recettes dans la base initiale.
+- Planning Midi/Soir défini jour par jour.
+- Maximum un tiers de repas avec viande lors de la génération.
+- Courses mémorisées localement.
+- Impression compacte du planning, des courses et des recettes.
