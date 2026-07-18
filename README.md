@@ -1,14 +1,13 @@
-# Herbier Gourmand — v2.4.3
+# Herbier Gourmand — v2.5-alpha
 
-Version corrective de la Stable.
+## Mission Terrain — Terrain 0
 
-Corrections incluses :
+Cette alpha ajoute :
+- création, modification, duplication et suppression de recettes ;
+- sauvegarde locale des recettes personnalisées ;
+- planning hebdomadaire distinct pour le midi et le soir ;
+- adaptation automatique des quantités au nombre de personnes ;
+- génération d'une liste de courses, ajout manuel, coches et suppression ;
+- fonctionnement PWA hors connexion.
 
-- affichage des recettes même lorsqu’une recette ne possède pas d’étiquettes (`tags`) ;
-- boutons des jours toujours visibles ;
-- fond vert conservé pour les jours sélectionnés ;
-- mémorisation des jours mangés à la maison ;
-- synchronisation du planning quand un jour est ajouté ou retiré ;
-- mémorisation automatique du dernier nombre de personnes choisi.
-
-Importer tous les fichiers à la racine du dépôt `Herbier_gourmand`, valider le commit, attendre le déploiement GitHub Pages, puis appuyer sur « Actualiser ».
+Les données sont enregistrées dans le navigateur de l'appareil. Pour repartir des recettes d'origine, effacer les données du site dans le navigateur.
