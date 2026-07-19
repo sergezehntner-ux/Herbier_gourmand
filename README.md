@@ -1,19 +1,13 @@
-# Herbier Gourmand v2.6 — Mission Terrain
+# Herbier Gourmand v2.7.1 — Mission Terrain
 
-Application web progressive utilisable hors connexion.
+Cette version introduit la planification assistée : Herbier Gourmand prépare une proposition, mais l’utilisateur garde la décision pour chaque repas.
 
-## Lancer localement
-Servir le dossier avec un petit serveur HTTP, par exemple :
+## Publication
+Décompresser l’archive puis remplacer les fichiers du dépôt GitHub Pages. Les numéros de version correspondent dans `version.json`, `app.js` et `sw.js`.
 
-```bash
-python -m http.server 8000
-```
-
-Puis ouvrir `http://localhost:8000`.
-
-## Contenu de Terrain 1
-- 70 recettes dans la base initiale.
-- Planning Midi/Soir défini jour par jour.
-- Maximum un tiers de repas avec viande lors de la génération.
-- Courses mémorisées localement.
-- Impression compacte du planning, des courses et des recettes.
+## Test terrain prioritaire
+1. Préparer une proposition.
+2. Changer une recette depuis le planning.
+3. Consulter la recette dans l’écran dédié.
+4. Enregistrer le planning.
+5. Recréer la liste de courses.

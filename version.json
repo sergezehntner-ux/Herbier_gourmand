@@ -1,1 +1,6 @@
-{"version":"2.6","name":"Mission Terrain — Terrain 1","date":"2026-07-18"}
+{
+  "version": "2.7.1",
+  "build": 271,
+  "label": "Mission Terrain — Planification assistée",
+  "published": "2026-07-19"
+}

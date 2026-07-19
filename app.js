@@ -6,6 +6,7 @@ const $$ = s => [...document.querySelectorAll(s)];
 const norm = s => (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore = "hg-recipes-v26";
+let recipePickIndex = null, detailRecipeId = null, returnView = "recipes";
 const planStore = "hg-plan-v26";
 const shoppingStore = "hg-shopping-v26";
 const slotStore = "hg-day-slots-v26";
@@ -43,12 +44,42 @@ function fillCategories() {
 }
 
 function recipeCard(r) {
-  return `<article class="recipe"><button class="recipe-head" data-open="${esc(r.id)}"><div class="meta">${esc(r.category)} · ${r.time} min · ${r.servings} pers. · ${esc(r.temperature)}</div><h3>${esc(r.title)}</h3><div class="badges">${(r.tags || []).map(t => `<span>${esc(t)}</span>`).join('')}</div></button><div class="details"><h4>Ingrédients</h4><ul>${r.ingredients.map(i => `<li>${esc(i[0])} : ${esc(i[1])} ${esc(i[2])}</li>`).join('')}</ul><h4>Préparation</h4><ol>${r.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol><div class="recipe-actions"><button data-edit="${esc(r.id)}">Modifier</button><button data-print-recipe="${esc(r.id)}">Imprimer la recette</button></div></div></article>`;
+  const choose = recipePickIndex !== null ? `<button class="primary" data-choose-recipe="${esc(r.id)}">Choisir pour ce repas</button>` : '';
+  return `<article class="recipe"><div class="recipe-summary"><div class="meta">${esc(r.category)} · ${r.time} min · ${r.servings} pers. · ${esc(r.temperature)}</div><h3>${esc(r.title)}</h3><div class="badges">${(r.tags || []).map(t => `<span>${esc(t)}</span>`).join('')}</div><div class="recipe-actions">${choose}<button data-view-recipe="${esc(r.id)}">Voir la recette</button><button data-print-recipe="${esc(r.id)}">Imprimer</button><button data-edit="${esc(r.id)}">Modifier</button></div></div></article>`;
 }
 function bindRecipeCards(root = document) {
-  root.querySelectorAll('.recipe-head').forEach(b => b.onclick = () => b.nextElementSibling.classList.toggle('open'));
+  root.querySelectorAll('[data-view-recipe]').forEach(b => b.onclick = () => showRecipeDetail(b.dataset.viewRecipe, recipePickIndex !== null ? 'recipes' : currentView()));
   root.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => openRecipe(b.dataset.edit));
   root.querySelectorAll('[data-print-recipe]').forEach(b => b.onclick = () => printRecipe(recipes.find(r => r.id === b.dataset.printRecipe)));
+  root.querySelectorAll('[data-choose-recipe]').forEach(b => b.onclick = () => chooseRecipeForPlan(b.dataset.chooseRecipe));
+}
+function currentView(){ return $('.view.active')?.id || 'home'; }
+function showRecipeDetail(id, back = 'recipes') {
+  const r = recipes.find(x => x.id === id); if (!r) return;
+  detailRecipeId = id; returnView = back;
+  $('#recipeDetailContent').innerHTML = `<div class="meta">${esc(r.category)} · ${r.time} min · ${r.servings} pers. · ${esc(r.temperature)}</div><h2>${esc(r.title)}</h2><div class="badges">${(r.tags || []).map(t => `<span>${esc(t)}</span>`).join('')}</div><div class="detail-columns"><section><h3>Ingrédients</h3><ul>${scaled(r).map(x => `<li>${esc(x)}</li>`).join('')}</ul></section><section><h3>Préparation</h3><ol>${r.steps.map(x => `<li>${esc(x)}</li>`).join('')}</ol></section></div>`;
+  switchView('recipeDetail');
+}
+$('#detailBack').onclick = () => switchView(returnView);
+$('#detailPrint').onclick = () => printRecipe(recipes.find(r => r.id === detailRecipeId));
+function beginRecipePick(index){
+  recipePickIndex = index;
+  const m = plan[index];
+  $('#recipePickerBanner').classList.remove('hidden');
+  $('#pickerTarget').textContent = `${days[m.dayIndex]} · ${m.slot}`;
+  $('#search').value = ''; $('#category').value = ''; $('#maxTime').value = $('#planTime').value;
+  renderRecipes(); switchView('recipes');
+}
+function cancelRecipePick(){ recipePickIndex = null; $('#recipePickerBanner').classList.add('hidden'); renderRecipes(); switchView('planner'); }
+$('#cancelRecipePick').onclick = cancelRecipePick;
+function chooseRecipeForPlan(id){
+  if (recipePickIndex === null) return;
+  const r = recipes.find(x => x.id === id); if (!r) return;
+  plan[recipePickIndex].recipe = r;
+  localStorage.removeItem(planStore);
+  invalidateShopping('La recette a été changée : le planning doit être enregistré et la liste de courses recréée.');
+  recipePickIndex = null; $('#recipePickerBanner').classList.add('hidden');
+  renderRecipes(); renderPlan(); switchView('planner');
 }
 function renderRecipes() {
   const q = norm($('#search').value), cat = $('#category').value, max = +$('#maxTime').value || 999;
@@ -175,6 +206,8 @@ $('#generatePlan').onclick = () => {
     used.push(recipe.id);
     if (recipe.avecViande) { meatCount++; meatDays.add(target.dayIndex); }
   });
+  localStorage.removeItem(planStore);
+  invalidateShopping('Une nouvelle proposition a été préparée. Enregistrez-la avant de recréer les courses.');
   renderPlan();
 };
 function scaled(r) {
@@ -185,24 +218,31 @@ function renderPlan() {
   if (!plan.length) { $('#weekPlan').innerHTML = '<p class="muted">Aucun repas planifié.</p>'; return; }
   const plannedDays = [...new Set(plan.map(x => x.dayIndex))].sort((a, b) => a - b);
   const meatCount = plan.filter(x => x.recipe.avecViande).length;
-  $('#weekPlan').innerHTML = `<p class="rule-status">Viande : <strong>${meatCount}/${plan.length}</strong> repas (maximum autorisé : ${Math.floor(plan.length / 3)})</p>` + plannedDays.map(d => {
+  $('#weekPlan').innerHTML = `<p class="rule-status">Viande : <strong>${meatCount}/${plan.length}</strong> repas (maximum conseillé : ${Math.floor(plan.length / 3)})</p>` + plannedDays.map(d => {
     const meals = plan.filter(x => x.dayIndex === d).sort((a, b) => slots.indexOf(a.slot) - slots.indexOf(b.slot));
     return `<article class="day"><h3>${days[d]}</h3>${meals.map(m => {
       const idx = plan.indexOf(m), r = m.recipe;
-      return `<div class="meal"><div><strong>${m.slot}</strong>${r.avecViande ? '<span class="meat-badge">viande</span>' : ''}<div class="meta">${r.time} min</div><h4>${esc(r.title)}</h4></div><select data-plan="${idx}">${choices([]).map(x => `<option value="${esc(x.id)}" ${x.id === r.id ? 'selected' : ''}>${esc(x.title)}</option>`).join('')}</select><details><summary>Voir la recette</summary><ul>${scaled(r).map(x => `<li>${esc(x)}</li>`).join('')}</ul><ol>${r.steps.map(x => `<li>${esc(x)}</li>`).join('')}</ol><button data-print-plan-recipe="${idx}">Imprimer cette recette</button></details></div>`;
+      return `<div class="meal"><div class="meal-main"><div><strong>${m.slot}</strong>${r.avecViande ? '<span class="meat-badge">viande</span>' : ''}<div class="meta">${r.time} min · ${esc(r.category)}</div><h4>${esc(r.title)}</h4></div><button class="change-recipe" data-change-recipe="${idx}">Changer la recette</button></div><div class="meal-actions"><button data-view-plan-recipe="${idx}">Voir la recette</button><button data-print-plan-recipe="${idx}">Imprimer la recette</button></div></div>`;
     }).join('')}</article>`;
   }).join('');
-  $$('[data-plan]').forEach(s => s.onchange = () => { plan[+s.dataset.plan].recipe = recipes.find(r => r.id === s.value); renderPlan(); });
+  $$('[data-change-recipe]').forEach(b => b.onclick = () => beginRecipePick(+b.dataset.changeRecipe));
+  $$('[data-view-plan-recipe]').forEach(b => b.onclick = () => showRecipeDetail(plan[+b.dataset.viewPlanRecipe].recipe.id, 'planner'));
   $$('[data-print-plan-recipe]').forEach(b => b.onclick = () => printRecipe(plan[+b.dataset.printPlanRecipe].recipe));
 }
-$('#people').onchange = () => { localStorage.setItem('hg-people', $('#people').value); renderPlan(); };
-$('#clearPlan').onclick = () => { if (confirm('Vider le planning ?')) { plan = []; localStorage.removeItem(planStore); renderPlan(); } };
+function invalidateShopping(message) {
+  if (shopping.length) { shopping = []; saveShopping(); renderShopping(); }
+  $('#planNotice').innerHTML = `<div class="notice warning"><strong>À actualiser :</strong> ${esc(message)}</div>`;
+}
+$('#people').onchange = () => { localStorage.setItem('hg-people', $('#people').value); if(plan.length) invalidateShopping('Le nombre de personnes a changé. Recréez la liste de courses.'); renderPlan(); };
+$('#clearPlan').onclick = () => { if (confirm('Vider le planning ?')) { plan = []; localStorage.removeItem(planStore); invalidateShopping('Le planning a été vidé.'); renderPlan(); } };
 $('#savePlan').onclick = () => {
   localStorage.setItem(planStore, JSON.stringify({people: +$('#people').value, time: $('#planTime').value, items: plan.map(x => ({dayIndex: x.dayIndex, slot: x.slot, id: x.recipe.id}))}));
+  $('#planNotice').innerHTML = '<div class="notice success"><strong>Planning enregistré.</strong> Vous pouvez maintenant créer les courses.</div>';
   alert('Planning enregistré.');
 };
 $('#buildShopping').onclick = () => {
-  if (!plan.length) return alert('Génère d’abord un planning.');
+  if (!plan.length) return alert('Prépare d’abord un planning.');
+  if (!localStorage.getItem(planStore)) return alert('Enregistre d’abord le planning après tes modifications.');
   const factorPeople = (+$('#people').value || 4);
   shopping = [];
   plan.forEach(m => m.recipe.ingredients.forEach(([name, q, unit]) => {
@@ -264,4 +304,5 @@ function loadSaved() {
 let deferredPrompt;
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; $('#installBtn').classList.remove('hidden'); });
 $('#installBtn').onclick = async () => { if (deferredPrompt) { deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; $('#installBtn').classList.add('hidden'); } };
+const APP_VERSION = '2.7.1';
 init().catch(e => { console.error(e); $('#recipeList').innerHTML = '<p>Impossible de charger les recettes.</p>'; });
