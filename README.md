@@ -1,13 +1,19 @@
 # Herbier Gourmand v2.7.1 — Mission Terrain
 
-Cette version introduit la planification assistée : Herbier Gourmand prépare une proposition, mais l’utilisateur garde la décision pour chaque repas.
+## Mission de cette version
+Redonner le contrôle à l'utilisateur et rendre visible la différence apportée par ses propres recettes Paprika.
 
-## Publication
-Décompresser l’archive puis remplacer les fichiers du dépôt GitHub Pages. Les numéros de version correspondent dans `version.json`, `app.js` et `sw.js`.
+## Nouveautés
+- Planning assisté : une proposition initiale, puis choix libre repas par repas.
+- Bouton **Changer la recette** ouvrant la banque de recettes, avec **Reprendre au planning**.
+- Écran dédié pour lire une recette et impression séparée.
+- La liste de courses est invalidée lorsqu'un changement la rend obsolète.
+- Import expérimental avancé de `.paprikarecipes`, `.paprikarecipe`, JSON et HTML.
+- Aperçu avant import, détection des doublons et remplacement facultatif.
+- Formulaire recette avec séparateur `nom / quantité / unité`.
 
-## Test terrain prioritaire
-1. Préparer une proposition.
-2. Changer une recette depuis le planning.
-3. Consulter la recette dans l’écran dédié.
-4. Enregistrer le planning.
-5. Recréer la liste de courses.
+## Import Paprika
+Dans Paprika, exporter les recettes au format Paprika, puis dans Herbier Gourmand ouvrir **Recettes > Importer Paprika**. Le traitement reste local dans le navigateur.
+
+## Publication GitHub Pages
+Remplacer les fichiers du dépôt par le contenu de ce dossier. Les numéros de version de `app.js`, `version.json` et `sw.js` correspondent à 2.7.1.

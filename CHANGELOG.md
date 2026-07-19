@@ -1,15 +1,11 @@
-# Herbier Gourmand — v2.7.1
+# Changelog
 
-## Mission de la version
-Redonner le contrôle à l’utilisateur tout en simplifiant le choix des repas.
-
-## Changements
-- Planning renommé et présenté comme une planification assistée.
-- Première proposition automatique conservée comme point de départ.
-- Suppression de la grande liste déroulante répétant le nom de la recette.
-- Nouveau bouton **Changer la recette** ouvrant la bibliothèque de recettes.
-- Choix explicite d’une recette puis retour automatique au planning.
-- Écran dédié **Voir la recette**, sans partie repliée ni limite de hauteur.
-- Boutons distincts **Voir la recette** et **Imprimer la recette**.
-- Toute modification importante invalide l’ancienne liste de courses.
-- Le planning doit être enregistré avant de recréer les courses.
+## v2.6 — Mission Terrain / Terrain 1
+- Ajout de 50 recettes (70 au total dans la base fournie).
+- Choix Midi/Soir indépendant pour chacun des sept jours.
+- Génération limitée à un tiers de repas carnés.
+- Interdiction automatique de deux repas carnés le même jour.
+- Indicateur de respect de la règle viande dans le planning.
+- Impression plus compacte afin de réduire la consommation de papier.
+- Impression d'une recette directement depuis le planning.
+- Cache PWA renouvelé.
