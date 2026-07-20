@@ -944,5 +944,2217 @@
     ],
     "temperature": "froid",
     "avecViande": false
+  },
+  {
+    "id": "terrain-veloute-de-courgettes-au-basilic",
+    "title": "Velouté de courgettes au basilic",
+    "category": "Soupes",
+    "time": 30,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Courgettes",
+        800,
+        "g"
+      ],
+      [
+        "Oignon",
+        1,
+        "pièce"
+      ],
+      [
+        "Bouillon de légumes",
+        750,
+        "ml"
+      ],
+      [
+        "Basilic",
+        12,
+        "feuilles"
+      ],
+      [
+        "Crème",
+        100,
+        "ml"
+      ]
+    ],
+    "steps": [
+      "Faire revenir l’oignon émincé.",
+      "Ajouter les courgettes et le bouillon, puis cuire 20 minutes.",
+      "Mixer avec le basilic et la crème."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien",
+      "été"
+    ]
+  },
+  {
+    "id": "terrain-soupe-de-lentilles-corail-au-cumin",
+    "title": "Soupe de lentilles corail au cumin",
+    "category": "Soupes",
+    "time": 35,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Lentilles corail",
+        250,
+        "g"
+      ],
+      [
+        "Carottes",
+        2,
+        "pièces"
+      ],
+      [
+        "Oignon",
+        1,
+        "pièce"
+      ],
+      [
+        "Bouillon de légumes",
+        900,
+        "ml"
+      ],
+      [
+        "Cumin",
+        1,
+        "c. à café"
+      ]
+    ],
+    "steps": [
+      "Faire revenir l’oignon et les carottes.",
+      "Ajouter lentilles, cumin et bouillon.",
+      "Cuire 25 minutes puis mixer légèrement."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-salade-de-pois-chiches-tomate-et-persil",
+    "title": "Salade de pois chiches, tomate et persil",
+    "category": "Salades",
+    "time": 20,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Pois chiches cuits",
+        500,
+        "g"
+      ],
+      [
+        "Tomates",
+        4,
+        "pièces"
+      ],
+      [
+        "Concombre",
+        1,
+        "pièce"
+      ],
+      [
+        "Persil",
+        1,
+        "bouquet"
+      ],
+      [
+        "Citron",
+        1,
+        "pièce"
+      ]
+    ],
+    "steps": [
+      "Égoutter les pois chiches.",
+      "Couper les légumes.",
+      "Mélanger avec le persil, le citron et un filet d’huile."
+    ],
+    "avecViande": false,
+    "temperature": "froid",
+    "tags": [
+      "végétarien",
+      "rapide"
+    ]
+  },
+  {
+    "id": "terrain-salade-tiede-de-pommes-de-terre-et-haricots-verts",
+    "title": "Salade tiède de pommes de terre et haricots verts",
+    "category": "Salades",
+    "time": 35,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Pommes de terre",
+        800,
+        "g"
+      ],
+      [
+        "Haricots verts",
+        500,
+        "g"
+      ],
+      [
+        "Échalote",
+        1,
+        "pièce"
+      ],
+      [
+        "Moutarde",
+        1,
+        "c. à soupe"
+      ],
+      [
+        "Vinaigre",
+        2,
+        "c. à soupe"
+      ]
+    ],
+    "steps": [
+      "Cuire les pommes de terre et les haricots verts.",
+      "Préparer une vinaigrette à la moutarde.",
+      "Mélanger encore tiède."
+    ],
+    "avecViande": false,
+    "temperature": "les-deux",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-taboule-de-quinoa-aux-herbes",
+    "title": "Taboulé de quinoa aux herbes",
+    "category": "Salades",
+    "time": 25,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Quinoa",
+        250,
+        "g"
+      ],
+      [
+        "Tomates",
+        3,
+        "pièces"
+      ],
+      [
+        "Concombre",
+        1,
+        "pièce"
+      ],
+      [
+        "Menthe",
+        12,
+        "feuilles"
+      ],
+      [
+        "Persil",
+        1,
+        "bouquet"
+      ]
+    ],
+    "steps": [
+      "Cuire puis refroidir le quinoa.",
+      "Couper les légumes.",
+      "Mélanger avec les herbes et assaisonner."
+    ],
+    "avecViande": false,
+    "temperature": "froid",
+    "tags": [
+      "végétarien",
+      "sans gluten"
+    ]
+  },
+  {
+    "id": "terrain-gratin-de-chou-fleur-a-la-muscade",
+    "title": "Gratin de chou-fleur à la muscade",
+    "category": "Gratins",
+    "time": 50,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Chou-fleur",
+        1,
+        "pièce"
+      ],
+      [
+        "Lait",
+        500,
+        "ml"
+      ],
+      [
+        "Farine",
+        40,
+        "g"
+      ],
+      [
+        "Beurre",
+        40,
+        "g"
+      ],
+      [
+        "Fromage râpé",
+        120,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Cuire le chou-fleur à la vapeur.",
+      "Préparer une béchamel à la muscade.",
+      "Napper, parsemer de fromage et gratiner 20 minutes."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-gratin-de-courge-et-chevre",
+    "title": "Gratin de courge et chèvre",
+    "category": "Gratins",
+    "time": 55,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Courge",
+        1000,
+        "g"
+      ],
+      [
+        "Fromage de chèvre",
+        180,
+        "g"
+      ],
+      [
+        "Crème",
+        200,
+        "ml"
+      ],
+      [
+        "Thym",
+        1,
+        "c. à café"
+      ],
+      [
+        "Noix",
+        60,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Précuire la courge en cubes.",
+      "Disposer avec chèvre, crème et thym.",
+      "Cuire 30 minutes et ajouter les noix."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien",
+      "automne"
+    ]
+  },
+  {
+    "id": "terrain-lasagnes-aux-epinards-et-ricotta",
+    "title": "Lasagnes aux épinards et ricotta",
+    "category": "Pâtes",
+    "time": 60,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Feuilles de lasagnes",
+        12,
+        "pièces"
+      ],
+      [
+        "Épinards",
+        700,
+        "g"
+      ],
+      [
+        "Ricotta",
+        400,
+        "g"
+      ],
+      [
+        "Sauce tomate",
+        500,
+        "ml"
+      ],
+      [
+        "Parmesan",
+        80,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Faire tomber les épinards.",
+      "Monter les couches avec ricotta et sauce tomate.",
+      "Cuire 35 minutes à 190 °C."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-penne-aux-tomates-roties-et-feta",
+    "title": "Penne aux tomates rôties et feta",
+    "category": "Pâtes",
+    "time": 35,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Penne",
+        350,
+        "g"
+      ],
+      [
+        "Tomates cerises",
+        500,
+        "g"
+      ],
+      [
+        "Feta",
+        200,
+        "g"
+      ],
+      [
+        "Ail",
+        2,
+        "gousses"
+      ],
+      [
+        "Origan",
+        1,
+        "c. à café"
+      ]
+    ],
+    "steps": [
+      "Rôtir tomates, ail et feta 25 minutes.",
+      "Cuire les pâtes.",
+      "Mélanger avec la sauce rôtie."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien",
+      "rapide"
+    ]
+  },
+  {
+    "id": "terrain-spaghetti-aux-poireaux-et-citron",
+    "title": "Spaghetti aux poireaux et citron",
+    "category": "Pâtes",
+    "time": 30,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Spaghetti",
+        350,
+        "g"
+      ],
+      [
+        "Poireaux",
+        3,
+        "pièces"
+      ],
+      [
+        "Citron",
+        1,
+        "pièce"
+      ],
+      [
+        "Crème",
+        150,
+        "ml"
+      ],
+      [
+        "Parmesan",
+        60,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Faire fondre les poireaux.",
+      "Cuire les spaghetti.",
+      "Ajouter crème, zeste de citron et parmesan."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-risotto-aux-champignons",
+    "title": "Risotto aux champignons",
+    "category": "Riz",
+    "time": 40,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Riz arborio",
+        320,
+        "g"
+      ],
+      [
+        "Champignons",
+        500,
+        "g"
+      ],
+      [
+        "Bouillon de légumes",
+        1000,
+        "ml"
+      ],
+      [
+        "Oignon",
+        1,
+        "pièce"
+      ],
+      [
+        "Parmesan",
+        80,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Faire revenir oignon et champignons.",
+      "Ajouter le riz puis le bouillon progressivement.",
+      "Terminer avec le parmesan."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-riz-saute-aux-legumes-et-ufs",
+    "title": "Riz sauté aux légumes et œufs",
+    "category": "Riz",
+    "time": 25,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Riz cuit",
+        600,
+        "g"
+      ],
+      [
+        "Carottes",
+        2,
+        "pièces"
+      ],
+      [
+        "Petits pois",
+        200,
+        "g"
+      ],
+      [
+        "Œufs",
+        4,
+        "pièces"
+      ],
+      [
+        "Sauce soja",
+        2,
+        "c. à soupe"
+      ]
+    ],
+    "steps": [
+      "Faire sauter les légumes.",
+      "Ajouter le riz et la sauce soja.",
+      "Pousser sur le côté et brouiller les œufs avant de mélanger."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "rapide"
+    ]
+  },
+  {
+    "id": "terrain-curry-de-pois-chiches-et-epinards",
+    "title": "Curry de pois chiches et épinards",
+    "category": "Currys",
+    "time": 35,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Pois chiches cuits",
+        500,
+        "g"
+      ],
+      [
+        "Épinards",
+        400,
+        "g"
+      ],
+      [
+        "Lait de coco",
+        400,
+        "ml"
+      ],
+      [
+        "Tomates concassées",
+        400,
+        "g"
+      ],
+      [
+        "Curry",
+        2,
+        "c. à café"
+      ]
+    ],
+    "steps": [
+      "Faire revenir les épices.",
+      "Ajouter tomates, pois chiches et lait de coco.",
+      "Mijoter 20 minutes puis incorporer les épinards."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-curry-de-patate-douce-et-lentilles",
+    "title": "Curry de patate douce et lentilles",
+    "category": "Currys",
+    "time": 40,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Patates douces",
+        700,
+        "g"
+      ],
+      [
+        "Lentilles corail",
+        220,
+        "g"
+      ],
+      [
+        "Lait de coco",
+        400,
+        "ml"
+      ],
+      [
+        "Bouillon de légumes",
+        500,
+        "ml"
+      ],
+      [
+        "Curry",
+        2,
+        "c. à café"
+      ]
+    ],
+    "steps": [
+      "Faire revenir le curry.",
+      "Ajouter tous les ingrédients.",
+      "Mijoter 30 minutes."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-dahl-de-lentilles-au-gingembre",
+    "title": "Dahl de lentilles au gingembre",
+    "category": "Currys",
+    "time": 35,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Lentilles corail",
+        300,
+        "g"
+      ],
+      [
+        "Tomates concassées",
+        400,
+        "g"
+      ],
+      [
+        "Lait de coco",
+        300,
+        "ml"
+      ],
+      [
+        "Gingembre",
+        20,
+        "g"
+      ],
+      [
+        "Curcuma",
+        1,
+        "c. à café"
+      ]
+    ],
+    "steps": [
+      "Faire revenir gingembre et épices.",
+      "Ajouter lentilles, tomates et lait de coco.",
+      "Cuire doucement 25 minutes."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-galettes-de-courgettes-au-fromage",
+    "title": "Galettes de courgettes au fromage",
+    "category": "Légumes",
+    "time": 30,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Courgettes",
+        700,
+        "g"
+      ],
+      [
+        "Œufs",
+        2,
+        "pièces"
+      ],
+      [
+        "Farine",
+        80,
+        "g"
+      ],
+      [
+        "Fromage râpé",
+        100,
+        "g"
+      ],
+      [
+        "Persil",
+        0.5,
+        "bouquet"
+      ]
+    ],
+    "steps": [
+      "Râper et essorer les courgettes.",
+      "Mélanger tous les ingrédients.",
+      "Cuire les galettes à la poêle."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-aubergines-roties-au-yaourt-citronne",
+    "title": "Aubergines rôties au yaourt citronné",
+    "category": "Légumes",
+    "time": 45,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Aubergines",
+        3,
+        "pièces"
+      ],
+      [
+        "Yaourt grec",
+        250,
+        "g"
+      ],
+      [
+        "Citron",
+        1,
+        "pièce"
+      ],
+      [
+        "Ail",
+        1,
+        "gousse"
+      ],
+      [
+        "Coriandre",
+        0.5,
+        "bouquet"
+      ]
+    ],
+    "steps": [
+      "Rôtir les aubergines 35 minutes.",
+      "Mélanger yaourt, citron et ail.",
+      "Servir avec la coriandre."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-poivrons-farcis-au-quinoa",
+    "title": "Poivrons farcis au quinoa",
+    "category": "Légumes",
+    "time": 55,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Poivrons",
+        4,
+        "pièces"
+      ],
+      [
+        "Quinoa",
+        220,
+        "g"
+      ],
+      [
+        "Tomates concassées",
+        300,
+        "g"
+      ],
+      [
+        "Maïs",
+        150,
+        "g"
+      ],
+      [
+        "Fromage râpé",
+        100,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Cuire le quinoa.",
+      "Mélanger avec tomates et maïs.",
+      "Farcir les poivrons et cuire 35 minutes."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-tarte-aux-poireaux-et-moutarde",
+    "title": "Tarte aux poireaux et moutarde",
+    "category": "Tartes",
+    "time": 50,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Pâte brisée",
+        1,
+        "pièce"
+      ],
+      [
+        "Poireaux",
+        4,
+        "pièces"
+      ],
+      [
+        "Œufs",
+        3,
+        "pièces"
+      ],
+      [
+        "Crème",
+        200,
+        "ml"
+      ],
+      [
+        "Moutarde",
+        2,
+        "c. à soupe"
+      ]
+    ],
+    "steps": [
+      "Faire fondre les poireaux.",
+      "Étaler la moutarde sur la pâte.",
+      "Ajouter l’appareil et cuire 35 minutes."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-quiche-aux-courgettes-et-chevre",
+    "title": "Quiche aux courgettes et chèvre",
+    "category": "Tartes",
+    "time": 50,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Pâte brisée",
+        1,
+        "pièce"
+      ],
+      [
+        "Courgettes",
+        2,
+        "pièces"
+      ],
+      [
+        "Fromage de chèvre",
+        180,
+        "g"
+      ],
+      [
+        "Œufs",
+        3,
+        "pièces"
+      ],
+      [
+        "Crème",
+        200,
+        "ml"
+      ]
+    ],
+    "steps": [
+      "Poêler les courgettes.",
+      "Répartir sur la pâte avec le chèvre.",
+      "Verser l’appareil et cuire 35 minutes."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-omelette-aux-fines-herbes",
+    "title": "Omelette aux fines herbes",
+    "category": "Œufs",
+    "time": 15,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Œufs",
+        8,
+        "pièces"
+      ],
+      [
+        "Ciboulette",
+        0.5,
+        "bouquet"
+      ],
+      [
+        "Persil",
+        0.5,
+        "bouquet"
+      ],
+      [
+        "Beurre",
+        20,
+        "g"
+      ],
+      [
+        "Fromage râpé",
+        60,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Battre les œufs avec les herbes.",
+      "Cuire doucement au beurre.",
+      "Ajouter le fromage et plier."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "rapide",
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-frittata-aux-pommes-de-terre-et-epinards",
+    "title": "Frittata aux pommes de terre et épinards",
+    "category": "Œufs",
+    "time": 35,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Œufs",
+        8,
+        "pièces"
+      ],
+      [
+        "Pommes de terre",
+        500,
+        "g"
+      ],
+      [
+        "Épinards",
+        250,
+        "g"
+      ],
+      [
+        "Oignon",
+        1,
+        "pièce"
+      ],
+      [
+        "Feta",
+        100,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Cuire les pommes de terre en dés.",
+      "Ajouter oignon et épinards.",
+      "Verser les œufs et finir au four."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-ufs-cocotte-aux-champignons",
+    "title": "Œufs cocotte aux champignons",
+    "category": "Œufs",
+    "time": 25,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Œufs",
+        4,
+        "pièces"
+      ],
+      [
+        "Champignons",
+        300,
+        "g"
+      ],
+      [
+        "Crème",
+        160,
+        "ml"
+      ],
+      [
+        "Échalote",
+        1,
+        "pièce"
+      ],
+      [
+        "Ciboulette",
+        0.5,
+        "bouquet"
+      ]
+    ],
+    "steps": [
+      "Poêler champignons et échalote.",
+      "Répartir dans des ramequins avec la crème.",
+      "Ajouter les œufs et cuire au bain-marie."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-cabillaud-au-four-tomate-et-olives",
+    "title": "Cabillaud au four, tomate et olives",
+    "category": "Poissons",
+    "time": 35,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Filets de cabillaud",
+        4,
+        "pièces"
+      ],
+      [
+        "Tomates",
+        4,
+        "pièces"
+      ],
+      [
+        "Olives",
+        80,
+        "g"
+      ],
+      [
+        "Citron",
+        1,
+        "pièce"
+      ],
+      [
+        "Thym",
+        1,
+        "c. à café"
+      ]
+    ],
+    "steps": [
+      "Déposer le poisson dans un plat.",
+      "Ajouter tomates, olives, citron et thym.",
+      "Cuire 20 minutes à 190 °C."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "poisson"
+    ]
+  },
+  {
+    "id": "terrain-saumon-a-l-aneth-et-pommes-vapeur",
+    "title": "Saumon à l’aneth et pommes vapeur",
+    "category": "Poissons",
+    "time": 35,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Pavés de saumon",
+        4,
+        "pièces"
+      ],
+      [
+        "Pommes de terre",
+        800,
+        "g"
+      ],
+      [
+        "Aneth",
+        0.5,
+        "bouquet"
+      ],
+      [
+        "Citron",
+        1,
+        "pièce"
+      ],
+      [
+        "Yaourt",
+        150,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Cuire les pommes de terre à la vapeur.",
+      "Cuire le saumon au four 15 minutes.",
+      "Servir avec une sauce yaourt, citron et aneth."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "poisson"
+    ]
+  },
+  {
+    "id": "terrain-truite-poelee-aux-amandes",
+    "title": "Truite poêlée aux amandes",
+    "category": "Poissons",
+    "time": 30,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Filets de truite",
+        4,
+        "pièces"
+      ],
+      [
+        "Amandes effilées",
+        60,
+        "g"
+      ],
+      [
+        "Citron",
+        1,
+        "pièce"
+      ],
+      [
+        "Beurre",
+        30,
+        "g"
+      ],
+      [
+        "Persil",
+        0.5,
+        "bouquet"
+      ]
+    ],
+    "steps": [
+      "Dorer les amandes.",
+      "Poêler la truite au beurre.",
+      "Ajouter citron, persil et amandes."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "poisson",
+      "rapide"
+    ]
+  },
+  {
+    "id": "terrain-poulet-aux-legumes-racines",
+    "title": "Poulet aux légumes racines",
+    "category": "Volaille",
+    "time": 60,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Cuisses de poulet",
+        4,
+        "pièces"
+      ],
+      [
+        "Carottes",
+        4,
+        "pièces"
+      ],
+      [
+        "Panais",
+        3,
+        "pièces"
+      ],
+      [
+        "Oignon",
+        2,
+        "pièces"
+      ],
+      [
+        "Romarin",
+        2,
+        "branches"
+      ]
+    ],
+    "steps": [
+      "Couper les légumes.",
+      "Disposer avec le poulet et le romarin.",
+      "Rôtir 45 minutes à 200 °C."
+    ],
+    "avecViande": true,
+    "temperature": "chaud",
+    "tags": [
+      "viande"
+    ]
+  },
+  {
+    "id": "terrain-emince-de-dinde-a-la-moutarde",
+    "title": "Émincé de dinde à la moutarde",
+    "category": "Volaille",
+    "time": 30,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Escalopes de dinde",
+        600,
+        "g"
+      ],
+      [
+        "Champignons",
+        300,
+        "g"
+      ],
+      [
+        "Crème",
+        200,
+        "ml"
+      ],
+      [
+        "Moutarde",
+        2,
+        "c. à soupe"
+      ],
+      [
+        "Échalote",
+        1,
+        "pièce"
+      ]
+    ],
+    "steps": [
+      "Saisir la dinde en lanières.",
+      "Ajouter échalote et champignons.",
+      "Incorporer crème et moutarde puis mijoter 10 minutes."
+    ],
+    "avecViande": true,
+    "temperature": "chaud",
+    "tags": [
+      "viande",
+      "rapide"
+    ]
+  },
+  {
+    "id": "terrain-poulet-basquaise-simplifie",
+    "title": "Poulet basquaise simplifié",
+    "category": "Volaille",
+    "time": 50,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Poulet",
+        800,
+        "g"
+      ],
+      [
+        "Poivrons",
+        3,
+        "pièces"
+      ],
+      [
+        "Tomates concassées",
+        500,
+        "g"
+      ],
+      [
+        "Oignon",
+        1,
+        "pièce"
+      ],
+      [
+        "Paprika",
+        1,
+        "c. à café"
+      ]
+    ],
+    "steps": [
+      "Dorer le poulet.",
+      "Ajouter oignon et poivrons.",
+      "Verser les tomates et mijoter 35 minutes."
+    ],
+    "avecViande": true,
+    "temperature": "chaud",
+    "tags": [
+      "viande"
+    ]
+  },
+  {
+    "id": "terrain-boulettes-de-b-uf-a-la-tomate",
+    "title": "Boulettes de bœuf à la tomate",
+    "category": "Viandes",
+    "time": 45,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Bœuf haché",
+        600,
+        "g"
+      ],
+      [
+        "Œuf",
+        1,
+        "pièce"
+      ],
+      [
+        "Chapelure",
+        60,
+        "g"
+      ],
+      [
+        "Sauce tomate",
+        600,
+        "ml"
+      ],
+      [
+        "Persil",
+        0.5,
+        "bouquet"
+      ]
+    ],
+    "steps": [
+      "Former les boulettes.",
+      "Les dorer à la poêle.",
+      "Ajouter la sauce tomate et mijoter 25 minutes."
+    ],
+    "avecViande": true,
+    "temperature": "chaud",
+    "tags": [
+      "viande"
+    ]
+  },
+  {
+    "id": "terrain-saute-de-porc-aux-pommes",
+    "title": "Sauté de porc aux pommes",
+    "category": "Viandes",
+    "time": 45,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Échine de porc",
+        700,
+        "g"
+      ],
+      [
+        "Pommes",
+        3,
+        "pièces"
+      ],
+      [
+        "Oignon",
+        1,
+        "pièce"
+      ],
+      [
+        "Cidre",
+        250,
+        "ml"
+      ],
+      [
+        "Thym",
+        1,
+        "c. à café"
+      ]
+    ],
+    "steps": [
+      "Dorer le porc.",
+      "Ajouter oignon et pommes.",
+      "Verser le cidre et mijoter 30 minutes."
+    ],
+    "avecViande": true,
+    "temperature": "chaud",
+    "tags": [
+      "viande"
+    ]
+  },
+  {
+    "id": "terrain-b-uf-aux-carottes-rapide",
+    "title": "Bœuf aux carottes rapide",
+    "category": "Viandes",
+    "time": 60,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Bœuf à mijoter",
+        800,
+        "g"
+      ],
+      [
+        "Carottes",
+        700,
+        "g"
+      ],
+      [
+        "Oignon",
+        2,
+        "pièces"
+      ],
+      [
+        "Bouillon",
+        500,
+        "ml"
+      ],
+      [
+        "Thym",
+        2,
+        "branches"
+      ]
+    ],
+    "steps": [
+      "Dorer le bœuf.",
+      "Ajouter oignons et carottes.",
+      "Verser le bouillon et mijoter 45 minutes."
+    ],
+    "avecViande": true,
+    "temperature": "chaud",
+    "tags": [
+      "viande"
+    ]
+  },
+  {
+    "id": "terrain-couscous-de-legumes",
+    "title": "Couscous de légumes",
+    "category": "Semoule",
+    "time": 50,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Semoule",
+        320,
+        "g"
+      ],
+      [
+        "Courgettes",
+        2,
+        "pièces"
+      ],
+      [
+        "Carottes",
+        4,
+        "pièces"
+      ],
+      [
+        "Pois chiches cuits",
+        400,
+        "g"
+      ],
+      [
+        "Bouillon de légumes",
+        700,
+        "ml"
+      ]
+    ],
+    "steps": [
+      "Faire mijoter les légumes dans le bouillon épicé.",
+      "Ajouter les pois chiches.",
+      "Préparer la semoule et servir ensemble."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-boulgour-aux-legumes-rotis",
+    "title": "Boulgour aux légumes rôtis",
+    "category": "Céréales",
+    "time": 40,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Boulgour",
+        300,
+        "g"
+      ],
+      [
+        "Courgettes",
+        2,
+        "pièces"
+      ],
+      [
+        "Poivrons",
+        2,
+        "pièces"
+      ],
+      [
+        "Oignon rouge",
+        1,
+        "pièce"
+      ],
+      [
+        "Feta",
+        150,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Rôtir les légumes 30 minutes.",
+      "Cuire le boulgour.",
+      "Mélanger avec la feta."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-polenta-cremeuse-aux-champignons",
+    "title": "Polenta crémeuse aux champignons",
+    "category": "Céréales",
+    "time": 35,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Polenta",
+        250,
+        "g"
+      ],
+      [
+        "Lait",
+        700,
+        "ml"
+      ],
+      [
+        "Champignons",
+        500,
+        "g"
+      ],
+      [
+        "Parmesan",
+        80,
+        "g"
+      ],
+      [
+        "Ail",
+        1,
+        "gousse"
+      ]
+    ],
+    "steps": [
+      "Cuire la polenta dans le lait.",
+      "Poêler les champignons avec l’ail.",
+      "Ajouter le parmesan et servir."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-haricots-blancs-a-la-tomate-et-sauge",
+    "title": "Haricots blancs à la tomate et sauge",
+    "category": "Légumineuses",
+    "time": 40,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Haricots blancs cuits",
+        600,
+        "g"
+      ],
+      [
+        "Tomates concassées",
+        500,
+        "g"
+      ],
+      [
+        "Oignon",
+        1,
+        "pièce"
+      ],
+      [
+        "Sauge",
+        8,
+        "feuilles"
+      ],
+      [
+        "Ail",
+        2,
+        "gousses"
+      ]
+    ],
+    "steps": [
+      "Faire revenir oignon, ail et sauge.",
+      "Ajouter tomates et haricots.",
+      "Mijoter 25 minutes."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-chili-sin-carne",
+    "title": "Chili sin carne",
+    "category": "Légumineuses",
+    "time": 40,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Haricots rouges cuits",
+        500,
+        "g"
+      ],
+      [
+        "Maïs",
+        200,
+        "g"
+      ],
+      [
+        "Tomates concassées",
+        500,
+        "g"
+      ],
+      [
+        "Poivron",
+        1,
+        "pièce"
+      ],
+      [
+        "Cumin",
+        1,
+        "c. à café"
+      ]
+    ],
+    "steps": [
+      "Faire revenir oignon et poivron.",
+      "Ajouter tomates, haricots, maïs et épices.",
+      "Mijoter 25 minutes."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-lentilles-vertes-aux-carottes",
+    "title": "Lentilles vertes aux carottes",
+    "category": "Légumineuses",
+    "time": 45,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Lentilles vertes",
+        320,
+        "g"
+      ],
+      [
+        "Carottes",
+        4,
+        "pièces"
+      ],
+      [
+        "Poireau",
+        1,
+        "pièce"
+      ],
+      [
+        "Oignon",
+        1,
+        "pièce"
+      ],
+      [
+        "Laurier",
+        2,
+        "feuilles"
+      ]
+    ],
+    "steps": [
+      "Faire revenir les légumes.",
+      "Ajouter lentilles, laurier et eau.",
+      "Cuire 35 minutes."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-croque-monsieur-aux-epinards",
+    "title": "Croque-monsieur aux épinards",
+    "category": "Repas rapides",
+    "time": 20,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Pain de mie",
+        8,
+        "tranches"
+      ],
+      [
+        "Épinards",
+        250,
+        "g"
+      ],
+      [
+        "Fromage",
+        160,
+        "g"
+      ],
+      [
+        "Moutarde",
+        2,
+        "c. à soupe"
+      ],
+      [
+        "Beurre",
+        20,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Faire tomber les épinards.",
+      "Monter les croques avec moutarde et fromage.",
+      "Dorer à la poêle ou au four."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien",
+      "rapide"
+    ]
+  },
+  {
+    "id": "terrain-bruschettas-tomates-et-mozzarella",
+    "title": "Bruschettas tomates et mozzarella",
+    "category": "Repas rapides",
+    "time": 20,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Pain de campagne",
+        8,
+        "tranches"
+      ],
+      [
+        "Tomates",
+        5,
+        "pièces"
+      ],
+      [
+        "Mozzarella",
+        250,
+        "g"
+      ],
+      [
+        "Basilic",
+        12,
+        "feuilles"
+      ],
+      [
+        "Ail",
+        1,
+        "gousse"
+      ]
+    ],
+    "steps": [
+      "Griller le pain et le frotter à l’ail.",
+      "Ajouter tomates et mozzarella.",
+      "Passer 5 minutes au four et parsemer de basilic."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien",
+      "rapide"
+    ]
+  },
+  {
+    "id": "terrain-wraps-de-legumes-grilles",
+    "title": "Wraps de légumes grillés",
+    "category": "Repas rapides",
+    "time": 30,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Tortillas",
+        8,
+        "pièces"
+      ],
+      [
+        "Courgette",
+        1,
+        "pièce"
+      ],
+      [
+        "Poivron",
+        1,
+        "pièce"
+      ],
+      [
+        "Houmous",
+        250,
+        "g"
+      ],
+      [
+        "Salade",
+        150,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Griller les légumes.",
+      "Tartiner les tortillas de houmous.",
+      "Ajouter légumes et salade puis rouler."
+    ],
+    "avecViande": false,
+    "temperature": "les-deux",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-pommes-de-terre-au-four-fromage-blanc-et-ciboulette",
+    "title": "Pommes de terre au four, fromage blanc et ciboulette",
+    "category": "Repas rapides",
+    "time": 50,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Pommes de terre",
+        4,
+        "grosses"
+      ],
+      [
+        "Fromage blanc",
+        300,
+        "g"
+      ],
+      [
+        "Ciboulette",
+        0.5,
+        "bouquet"
+      ],
+      [
+        "Ail",
+        1,
+        "gousse"
+      ],
+      [
+        "Salade verte",
+        1,
+        "pièce"
+      ]
+    ],
+    "steps": [
+      "Cuire les pommes de terre 45 minutes au four.",
+      "Mélanger fromage blanc, ail et ciboulette.",
+      "Ouvrir les pommes de terre et garnir."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-gnocchis-poeles-aux-petits-pois",
+    "title": "Gnocchis poêlés aux petits pois",
+    "category": "Pâtes",
+    "time": 25,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Gnocchis",
+        600,
+        "g"
+      ],
+      [
+        "Petits pois",
+        250,
+        "g"
+      ],
+      [
+        "Crème",
+        150,
+        "ml"
+      ],
+      [
+        "Parmesan",
+        60,
+        "g"
+      ],
+      [
+        "Menthe",
+        8,
+        "feuilles"
+      ]
+    ],
+    "steps": [
+      "Dorer les gnocchis.",
+      "Ajouter petits pois et crème.",
+      "Terminer avec parmesan et menthe."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien",
+      "rapide"
+    ]
+  },
+  {
+    "id": "terrain-orge-perle-aux-poireaux",
+    "title": "Orge perlé aux poireaux",
+    "category": "Céréales",
+    "time": 45,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Orge perlé",
+        300,
+        "g"
+      ],
+      [
+        "Poireaux",
+        3,
+        "pièces"
+      ],
+      [
+        "Bouillon de légumes",
+        900,
+        "ml"
+      ],
+      [
+        "Parmesan",
+        70,
+        "g"
+      ],
+      [
+        "Noisettes",
+        60,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Faire fondre les poireaux.",
+      "Ajouter l’orge et le bouillon progressivement.",
+      "Terminer avec parmesan et noisettes."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-betteraves-roties-chevre-et-noix",
+    "title": "Betteraves rôties, chèvre et noix",
+    "category": "Salades",
+    "time": 45,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Betteraves",
+        700,
+        "g"
+      ],
+      [
+        "Fromage de chèvre",
+        180,
+        "g"
+      ],
+      [
+        "Noix",
+        80,
+        "g"
+      ],
+      [
+        "Roquette",
+        150,
+        "g"
+      ],
+      [
+        "Vinaigre balsamique",
+        2,
+        "c. à soupe"
+      ]
+    ],
+    "steps": [
+      "Rôtir les betteraves en quartiers.",
+      "Disposer sur la roquette.",
+      "Ajouter chèvre, noix et vinaigrette."
+    ],
+    "avecViande": false,
+    "temperature": "les-deux",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-fenouil-braise-a-l-orange",
+    "title": "Fenouil braisé à l’orange",
+    "category": "Légumes",
+    "time": 40,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Fenouils",
+        4,
+        "pièces"
+      ],
+      [
+        "Orange",
+        2,
+        "pièces"
+      ],
+      [
+        "Bouillon de légumes",
+        200,
+        "ml"
+      ],
+      [
+        "Thym",
+        1,
+        "c. à café"
+      ],
+      [
+        "Olives",
+        60,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Dorer le fenouil.",
+      "Ajouter jus d’orange et bouillon.",
+      "Braiser 25 minutes puis ajouter les olives."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-poireaux-vinaigrette-et-ufs-mollets",
+    "title": "Poireaux vinaigrette et œufs mollets",
+    "category": "Salades",
+    "time": 30,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Poireaux",
+        6,
+        "pièces"
+      ],
+      [
+        "Œufs",
+        4,
+        "pièces"
+      ],
+      [
+        "Moutarde",
+        1,
+        "c. à soupe"
+      ],
+      [
+        "Vinaigre",
+        2,
+        "c. à soupe"
+      ],
+      [
+        "Ciboulette",
+        0.5,
+        "bouquet"
+      ]
+    ],
+    "steps": [
+      "Cuire les poireaux à la vapeur.",
+      "Cuire les œufs mollets 6 minutes.",
+      "Servir avec vinaigrette et ciboulette."
+    ],
+    "avecViande": false,
+    "temperature": "les-deux",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-ratatouille-au-four",
+    "title": "Ratatouille au four",
+    "category": "Légumes",
+    "time": 55,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Aubergines",
+        2,
+        "pièces"
+      ],
+      [
+        "Courgettes",
+        2,
+        "pièces"
+      ],
+      [
+        "Poivrons",
+        2,
+        "pièces"
+      ],
+      [
+        "Tomates",
+        5,
+        "pièces"
+      ],
+      [
+        "Herbes de Provence",
+        2,
+        "c. à café"
+      ]
+    ],
+    "steps": [
+      "Couper tous les légumes.",
+      "Mélanger avec huile et herbes.",
+      "Rôtir 45 minutes en remuant une fois."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien",
+      "été"
+    ]
+  },
+  {
+    "id": "terrain-courge-rotie-lentilles-et-feta",
+    "title": "Courge rôtie, lentilles et feta",
+    "category": "Légumineuses",
+    "time": 50,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Courge",
+        900,
+        "g"
+      ],
+      [
+        "Lentilles vertes",
+        250,
+        "g"
+      ],
+      [
+        "Feta",
+        180,
+        "g"
+      ],
+      [
+        "Roquette",
+        120,
+        "g"
+      ],
+      [
+        "Cumin",
+        1,
+        "c. à café"
+      ]
+    ],
+    "steps": [
+      "Rôtir la courge au cumin.",
+      "Cuire les lentilles.",
+      "Assembler avec feta et roquette."
+    ],
+    "avecViande": false,
+    "temperature": "les-deux",
+    "tags": [
+      "végétarien"
+    ]
+  },
+  {
+    "id": "terrain-minestrone-de-saison",
+    "title": "Minestrone de saison",
+    "category": "Soupes",
+    "time": 45,
+    "servings": 4,
+    "ingredients": [
+      [
+        "Haricots blancs cuits",
+        300,
+        "g"
+      ],
+      [
+        "Carottes",
+        3,
+        "pièces"
+      ],
+      [
+        "Courgette",
+        1,
+        "pièce"
+      ],
+      [
+        "Tomates concassées",
+        400,
+        "g"
+      ],
+      [
+        "Petites pâtes",
+        120,
+        "g"
+      ]
+    ],
+    "steps": [
+      "Faire revenir les légumes.",
+      "Ajouter tomates, eau et haricots.",
+      "Cuire 25 minutes puis ajouter les pâtes."
+    ],
+    "avecViande": false,
+    "temperature": "chaud",
+    "tags": [
+      "végétarien"
+    ]
   }
 ]

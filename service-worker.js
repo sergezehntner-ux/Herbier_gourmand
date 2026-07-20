@@ -1,5 +1,5 @@
-const CACHE="herbier-gourmand-v3-0-alpha-1";
-const ASSETS=["./","index.html","styles.css?v=3.0.0-alpha","app.js?v=3.0.0-alpha","manifest.webmanifest","version.json"];
-self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
-self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
-self.addEventListener("fetch",e=>e.respondWith(fetch(e.request).then(r=>{let copy=r.clone();caches.open(CACHE).then(c=>c.put(e.request,copy));return r}).catch(()=>caches.match(e.request))));
+const CACHE='herbier-v2-5-1-corrected-2512';
+const ASSETS=['./','index.html','styles-v251-corrected.css?v=2512','app-v251-corrected.js?v=2512','recipes.json','manifest.webmanifest','icon.svg','version.json'];
+self.addEventListener('install',event=>{self.skipWaiting();event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)))});
+self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()))});
+self.addEventListener('fetch',event=>{const request=event.request,url=new URL(request.url);if(request.mode==='navigate'||/\.(?:js|css|json)$/.test(url.pathname)){event.respondWith(fetch(request,{cache:'no-store'}).then(response=>{if(response.ok)caches.open(CACHE).then(cache=>cache.put(request,response.clone()));return response}).catch(()=>caches.match(request,{ignoreSearch:true}).then(cached=>cached||caches.match('index.html'))));return}event.respondWith(caches.match(request).then(cached=>cached||fetch(request).then(response=>{if(response.ok)caches.open(CACHE).then(cache=>cache.put(request,response.clone()));return response})))});

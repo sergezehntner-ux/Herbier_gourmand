@@ -1,1 +1,6 @@
-{"version":"2.5.1","date":"2026-07-20","channel":"stable"}
+{
+  "version": "2.5.1 corrigée",
+  "build": 2512,
+  "label": "Courses organisées par magasin et rayon — base Mission Terrain conservée",
+  "published": "2026-07-20"
+}
