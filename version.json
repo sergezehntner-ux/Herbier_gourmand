@@ -1,6 +1,6 @@
 {
-  "version": "2.5.1a",
-  "date": "2026-07-21",
+  "version": "2.5.1b",
+  "date": "2026-07-20",
   "channel": "stable",
-  "notes": "Stabilisation des courses, planning et recettes"
+  "notes": "Consultation et édition des recettes adaptées aux grands écrans, tablettes et affichages agrandis"
 }

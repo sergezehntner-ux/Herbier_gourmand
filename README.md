@@ -32,3 +32,7 @@ Cette livraison doit remplacer les fichiers du dépôt après sauvegarde. Elle e
 - Planning Matin, Midi et Soir.
 - Fiche recette complète sur écran dédié et bouton Modifier conservé.
 - Accueil rétabli en plein écran.
+
+## v2.5.1b — ergonomie des recettes
+
+Cette révision rend la consultation et la modification des recettes réellement exploitables sur ordinateur, tablette et avec un affichage agrandi. Elle ne modifie pas le fonctionnement validé de la liste de courses.

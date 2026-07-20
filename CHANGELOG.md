@@ -27,3 +27,13 @@
 
 ## 2.5.1a — 2026-07-21
 Stabilisation après retour terrain : courses sans déplacement des articles cochés, menus magasin/rayon, planning Matin/Midi/Soir, écran recette complet, bouton Modifier et accueil plein écran.
+
+## 2.5.1b — 2026-07-20
+
+- Fiche recette élargie et adaptée aux grands écrans.
+- Colonnes Ingrédients et Préparation plus lisibles et responsives.
+- Source longue remplacée par un lien court vers le site d’origine.
+- Fenêtre Modifier presque plein écran, avec grandes zones de texte.
+- Barre d’actions Enregistrer/Supprimer/Dupliquer toujours accessible.
+- Mode plein écran sur tablette et affichage agrandi.
+- Conservation de la source et des notes lors de la modification d’une recette.
