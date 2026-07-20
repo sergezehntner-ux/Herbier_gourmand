@@ -23,3 +23,7 @@
 - Impression plus compacte afin de réduire la consommation de papier.
 - Impression d'une recette directement depuis le planning.
 - Cache PWA renouvelé.
+
+
+## 2.5.1a — 2026-07-21
+Stabilisation après retour terrain : courses sans déplacement des articles cochés, menus magasin/rayon, planning Matin/Midi/Soir, écran recette complet, bouton Modifier et accueil plein écran.

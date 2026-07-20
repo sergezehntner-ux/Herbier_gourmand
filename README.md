@@ -21,3 +21,14 @@ Remplacer les fichiers du dépôt par le contenu de ce dossier. Les numéros de 
 
 ## v2.5.1 corrigée
 Cette livraison doit remplacer les fichiers du dépôt après sauvegarde. Elle est basée directement sur le ZIP GitHub du 20 juillet 2026. Après déploiement, ouvrir l’application et forcer une actualisation si l’ancienne interface reste en cache.
+
+
+## v2.5.1a — stabilisation
+- Les articles cochés restent à leur place; suppression uniquement via confirmation.
+- Présentation compacte, une ligne par ingrédient sous le rayon.
+- Menus Magasin et Rayon fonctionnels, avec option « Autre… ».
+- Associations ingrédient → magasin/rayon conservées et modifiables.
+- Bouton Vider maintenu.
+- Planning Matin, Midi et Soir.
+- Fiche recette complète sur écran dédié et bouton Modifier conservé.
+- Accueil rétabli en plein écran.
