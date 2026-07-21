@@ -6,11 +6,11 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v251b.css?v=2514">
+  <link rel="stylesheet" href="styles-v251c.css?v=2515">
 </head>
 <body>
 <header>
-  <div><h1>Herbier Gourmand</h1><p>v2.5.1b · Ergonomie recettes</p></div>
+  <div><h1>Herbier Gourmand</h1><p>v2.5.1c · Sauvegarde et transfert</p></div>
   <div class="header-actions"><span id="updateStatus">Planification assistée</span><button id="installBtn" class="ghost hidden">Installer</button></div>
 </header>
 <nav>
@@ -21,6 +21,13 @@
   <div class="notice"><strong>Mission Terrain :</strong> préparer tranquillement le week-end, gagner du temps toute la semaine.</div>
   <div class="hero"><h2>Que faisons-nous aujourd’hui ?</h2><button class="primary" data-go="planner">Préparer la semaine</button><button id="surpriseBtn" class="secondary">Une idée surprise</button></div>
   <div id="surpriseCard"></div>
+  <section class="panel data-transfer-panel" aria-labelledby="dataTransferTitle">
+    <div class="section-title"><div><h2 id="dataTransferTitle">Sauvegarde et transfert</h2><span class="muted">Pour retrouver tes données sur un autre appareil.</span></div></div>
+    <p>Exporte toutes les données personnelles d’Herbier Gourmand, puis importe le fichier sur le notebook ou le smartphone.</p>
+    <div class="button-row"><button id="exportData" class="primary">Exporter mes données</button><button id="importData">Importer mes données</button></div>
+    <p id="dataTransferStatus" class="muted" aria-live="polite"></p>
+    <input id="dataImportFile" class="hidden" type="file" accept=".json,.hgbak,application/json">
+  </section>
 </section>
 
 <section id="recipes" class="view">
@@ -81,5 +88,9 @@
 <div class="grid"><label>Article<input id="shoppingName" required></label><label>Quantité<input id="shoppingQty" placeholder="Ex. 2 ou 0,5"></label><label>Unité<input id="shoppingUnit" placeholder="Ex. kg, L, pièces"></label><label>Magasin<select id="shoppingStore"><option value="">À définir</option><option>Supermarché</option><option>Marché</option><option>Boulangerie</option><option>Boucherie</option><option>Pharmacie</option><option value="__other__">Autre…</option></select></label><label>Rayon<select id="shoppingAisle"><option value="">À définir</option><option>Fruits et légumes</option><option>Boulangerie</option><option>Boucherie</option><option>Poissonnerie</option><option>Produits laitiers</option><option>Épicerie</option><option>Surgelés</option><option>Boissons</option><option>Hygiène</option><option>Ménage</option><option value="__other__">Autre…</option></select></label></div>
 <div id="shoppingOrigins" class="notice subtle hidden"></div>
 <div class="dialog-actions"><button type="button" id="deleteShopping" class="danger">Supprimer</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
-<script src="app-v251b.js?v=2514"></script>
+<dialog id="dataImportDialog"><form id="dataImportForm" method="dialog"><div class="dialog-head"><h2>Importer les données</h2><button type="button" id="closeDataImport">×</button></div>
+<p>Le fichier remplacera les données Herbier Gourmand actuellement enregistrées sur cet appareil.</p>
+<div id="dataImportSummary" class="notice subtle"></div>
+<div class="dialog-actions"><button type="button" id="cancelDataImport">Annuler</button><button type="submit" class="primary">Remplacer et importer</button></div></form></dialog>
+<script src="app-v251c.js?v=2515"></script>
 </body></html>

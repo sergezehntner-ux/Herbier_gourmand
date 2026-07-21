@@ -37,3 +37,11 @@ Stabilisation après retour terrain : courses sans déplacement des articles coc
 - Barre d’actions Enregistrer/Supprimer/Dupliquer toujours accessible.
 - Mode plein écran sur tablette et affichage agrandi.
 - Conservation de la source et des notes lors de la modification d’une recette.
+
+## v2.5.1c — 2026-07-21
+
+- Ajout de **Exporter mes données** sur la page d’accueil.
+- Ajout de **Importer mes données** avec aperçu et confirmation avant remplacement.
+- La sauvegarde contient toutes les données locales Herbier Gourmand : recettes modifiées, planning, courses, magasins, rayons, associations et préférences.
+- Rechargement automatique de l’application après import.
+- Mise à jour du cache PWA.

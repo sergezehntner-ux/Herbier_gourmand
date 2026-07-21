@@ -1,6 +1,6 @@
 {
-  "version": "2.5.1b",
-  "date": "2026-07-20",
+  "version": "2.5.1c",
+  "date": "2026-07-21",
   "channel": "stable",
-  "notes": "Consultation et édition des recettes adaptées aux grands écrans, tablettes et affichages agrandis"
+  "notes": "Export et import complets des données personnelles pour transfert temporaire entre smartphone et notebook"
 }
