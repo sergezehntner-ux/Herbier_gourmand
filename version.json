@@ -1,6 +1,6 @@
 {
-  "version": "2.5.1c",
-  "date": "2026-07-21",
+  "version": "2.5.1d",
+  "date": "2026-07-26",
   "channel": "stable",
-  "notes": "Export et import complets des données personnelles pour transfert temporaire entre smartphone et notebook"
+  "notes": "Affichage compact, retour à la position précédente et planning modifiable sur tous les jours et repas"
 }

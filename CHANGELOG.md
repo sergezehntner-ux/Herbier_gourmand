@@ -45,3 +45,9 @@ Stabilisation après retour terrain : courses sans déplacement des articles coc
 - La sauvegarde contient toutes les données locales Herbier Gourmand : recettes modifiées, planning, courses, magasins, rayons, associations et préférences.
 - Rechargement automatique de l’application après import.
 - Mise à jour du cache PWA.
+
+## 2.5.1d — 2026-07-26
+- Affichage compact des recettes, ingrédients, listes et courses.
+- Conservation de la position de lecture après les actions et changements de vue.
+- Ajout d’une recette à un repas vide, quel que soit le jour.
+- Déplacement, retrait et remplacement des recettes dans le planning.
