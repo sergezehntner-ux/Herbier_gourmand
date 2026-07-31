@@ -8,7 +8,10 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLo
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.6';
+const APP_VERSION='2.6 stable';
+const BACKUP_META_KEY='hg-backup-meta-v26';
+const EMERGENCY_BACKUP_KEY='hg-emergency-before-import-v26';
+const CHANGE_COUNTER_KEY='hg-changes-since-backup-v26';
 const uid=()=>globalThis.crypto?.randomUUID?.()||`${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
 async function init(){
@@ -19,7 +22,7 @@ async function init(){
   recipes=recipes.map(normalizeRecipe);
   fillCategories(); renderRecipes(); loadSaved(); checkForUpdate();
 }
-function saveRecipes(){localStorage.setItem(recipeStore,JSON.stringify(recipes));}
+function saveRecipes(){localStorage.setItem(recipeStore,JSON.stringify(recipes));registerProtectedChange();}
 function activeViewId(){return document.querySelector('.view.active')?.id||'home'}
 function rememberScroll(view=activeViewId()){viewScrollPositions[view]=scrollY}
 function restoreScroll(view){requestAnimationFrame(()=>scrollTo(0,viewScrollPositions[view]||0))}
@@ -173,10 +176,11 @@ function herbierStorageSnapshot(){
   const data={};
   for(let i=0;i<localStorage.length;i++){
     const key=localStorage.key(i);
-    if(key && key.startsWith('hg-')) data[key]=localStorage.getItem(key);
+    if(key && key.startsWith('hg-') && key!==EMERGENCY_BACKUP_KEY) data[key]=localStorage.getItem(key);
   }
-  // Garantit que les recettes actuellement chargées figurent dans la sauvegarde.
-  if(!data[recipeStore]) data[recipeStore]=JSON.stringify(recipes);
+  // Garantit que les collections actuellement chargées figurent dans la sauvegarde.
+  data[recipeStore]=JSON.stringify(recipes);
+  if(typeof restaurants!=='undefined' && Array.isArray(restaurants)) data[restaurantStore]=JSON.stringify(restaurants);
   return {format:'HerbierGourmandBackup',formatVersion:1,appVersion:APP_VERSION,exportedAt:new Date().toISOString(),data};
 }
 function downloadTextFile(filename,text){
@@ -189,11 +193,33 @@ function backupFilename(){
   const d=new Date(),pad=n=>String(n).padStart(2,'0');
   return `Herbier_Gourmand_${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}.hgbak`;
 }
+function backupMeta(){try{return JSON.parse(localStorage.getItem(BACKUP_META_KEY)||'null')}catch{return null}}
+function updateBackupReminder(){
+  const el=$('#backupReminder');if(!el)return;
+  const meta=backupMeta(),changes=Number(localStorage.getItem(CHANGE_COUNTER_KEY)||0);
+  if(!meta){el.textContent='Conseil : crée une première sauvegarde et range-la dans ton dossier OneDrive.';return}
+  const when=new Date(meta.at).toLocaleString('fr-FR');
+  el.textContent=`Dernière sauvegarde : ${when}${changes?` · ${changes} modification${changes>1?'s':''} depuis`:''}.`;
+}
+function registerProtectedChange(){
+  const n=Number(localStorage.getItem(CHANGE_COUNTER_KEY)||0)+1;
+  localStorage.setItem(CHANGE_COUNTER_KEY,String(n));updateBackupReminder();
+}
+function markBackupCreated(filename){
+  localStorage.setItem(BACKUP_META_KEY,JSON.stringify({at:new Date().toISOString(),filename}));
+  localStorage.setItem(CHANGE_COUNTER_KEY,'0');updateBackupReminder();
+}
+function createEmergencyCheckpoint(reason='opération sensible'){
+  const snapshot=herbierStorageSnapshot();
+  const record={reason,createdAt:new Date().toISOString(),snapshot};
+  localStorage.setItem(EMERGENCY_BACKUP_KEY,JSON.stringify(record));
+  return snapshot;
+}
 $('#exportData').onclick=()=>{
   try{
-    const backup=herbierStorageSnapshot();
-    downloadTextFile(backupFilename(),JSON.stringify(backup,null,2));
-    $('#dataTransferStatus').textContent=`Sauvegarde créée : ${Object.keys(backup.data).length} ensemble(s) de données.`;
+    const backup=herbierStorageSnapshot(),filename=backupFilename();
+    downloadTextFile(filename,JSON.stringify(backup,null,2));markBackupCreated(filename);
+    $('#dataTransferStatus').textContent=`Sauvegarde créée : ${Object.keys(backup.data).length} ensemble(s) de données. Range le fichier dans OneDrive/Herbier Gourmand/Sauvegardes.`;
   }catch(err){console.error(err);alert('Impossible de créer la sauvegarde.');}
 };
 $('#importData').onclick=()=>{$('#dataImportFile').value='';$('#dataImportFile').click()};
@@ -218,14 +244,19 @@ $('#closeDataImport').onclick=$('#cancelDataImport').onclick=()=>{$('#dataImport
 $('#dataImportForm').onsubmit=e=>{
   e.preventDefault();if(!pendingDataImport)return;
   try{
+    // Double protection : point de restauration local + téléchargement avant remplacement.
+    const safety=createEmergencyCheckpoint('avant import'),safetyName=backupFilename().replace('.hgbak','_avant-import.hgbak');
+    downloadTextFile(safetyName,JSON.stringify(safety,null,2));
     const currentHgKeys=[];
-    for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key?.startsWith('hg-'))currentHgKeys.push(key)}
+    for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key?.startsWith('hg-')&&key!==EMERGENCY_BACKUP_KEY)currentHgKeys.push(key)}
     currentHgKeys.forEach(key=>localStorage.removeItem(key));
     Object.entries(pendingDataImport.data).forEach(([key,value])=>localStorage.setItem(key,value));
+    localStorage.setItem(BACKUP_META_KEY,JSON.stringify({at:pendingDataImport.exportedAt||new Date().toISOString(),filename:'sauvegarde importée'}));
+    localStorage.setItem(CHANGE_COUNTER_KEY,'0');
     $('#dataImportDialog').close();
-    alert('Import terminé. Herbier Gourmand va maintenant recharger les données.');
+    alert('Import terminé. Une sauvegarde « avant import » a aussi été téléchargée. Herbier Gourmand va maintenant recharger les données.');
     location.reload();
-  }catch(err){console.error(err);alert('Impossible d’importer les données. Les données présentes sur cet appareil n’ont peut-être pas toutes été remplacées.');}
+  }catch(err){console.error(err);alert('Impossible d’importer les données. Le point de restauration local a été conservé lorsque sa création a réussi.');}
 };
 
 async function checkForUpdate(){const status=$('#updateStatus');try{const remote=await fetch(`version.json?_=${Date.now()}`,{cache:'no-store'}).then(r=>r.json());status.textContent=`À jour · v${remote.version}`}catch{status.textContent=`Hors connexion · v${APP_VERSION}`}}
@@ -237,7 +268,7 @@ init().catch(e=>{console.error(e);alert('Impossible de démarrer Herbier Gourman
 const restaurantStore='hg-restaurants-v26';
 let restaurants=[], viewedRestaurantId=null, previousRestaurantView='restaurants';
 function normalizeRestaurant(r={}){return {id:String(r.id||slug(r.name||'restaurant')),name:String(r.name||'Restaurant sans nom'),tenant:String(r.tenant||''),address:String(r.address||''),postalCode:String(r.postalCode||''),city:String(r.city||''),country:String(r.country||''),phone:String(r.phone||''),phones:Array.isArray(r.phones)?r.phones:[],email:String(r.email||''),website:String(r.website||''),hours:String(r.hours||''),specialties:Array.isArray(r.specialties)?r.specialties:[],notes:String(r.notes||''),source:String(r.source||'')};}
-function saveRestaurants(){localStorage.setItem(restaurantStore,JSON.stringify(restaurants));}
+function saveRestaurants(){localStorage.setItem(restaurantStore,JSON.stringify(restaurants));registerProtectedChange();}
 async function initRestaurants(){
   try{const stored=JSON.parse(localStorage.getItem(restaurantStore)||'null');if(stored)restaurants=stored;else{const res=await fetch(`restaurants.json?_=${Date.now()}`,{cache:'no-store'});restaurants=res.ok?await res.json():[];saveRestaurants();}restaurants=restaurants.map(normalizeRestaurant);renderRestaurantFilters();renderRestaurants();}
   catch(e){console.error(e);restaurants=[];renderRestaurants();}
@@ -260,3 +291,4 @@ $('#restaurantForm').onsubmit=e=>{e.preventDefault();const r=restaurantFromForm(
 $('#deleteRestaurant').onclick=()=>{const id=$('#restaurantId').value;if(id&&confirm('Supprimer définitivement ce restaurant ?')){restaurants=restaurants.filter(r=>r.id!==id);saveRestaurants();renderRestaurantFilters();renderRestaurants();$('#restaurantDialog').close();switchView('restaurants')}};
 $('#duplicateRestaurant').onclick=()=>{const r=restaurantFromForm(`${slug($('#restaurantName').value)}-${Date.now()}`);r.name+=' (copie)';restaurants.unshift(r);saveRestaurants();renderRestaurantFilters();renderRestaurants();$('#restaurantDialog').close();};
 initRestaurants();
+updateBackupReminder();

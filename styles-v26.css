@@ -100,3 +100,6 @@ nav{grid-template-columns:repeat(5,1fr)}
 #restaurantDialog{width:min(1000px,94vw);max-width:1000px}#restaurantDialog form{max-height:90vh;overflow:auto}
 @media(max-width:760px){nav button{font-size:.78rem;padding-inline:2px}.outing-home-card{display:block}.outing-home-card button{width:100%;margin-top:12px}.restaurant-search-grid{grid-template-columns:1fr 1fr}.restaurant-search-grid label:first-child{grid-column:1/-1}.restaurant-detail-grid{grid-template-columns:1fr}}
 @media(max-width:470px){.restaurant-search-grid{grid-template-columns:1fr}.restaurant-search-grid label:first-child{grid-column:auto}.restaurant-card{grid-template-columns:1fr}.restaurant-card-edit{border-width:1px 0 0}}
+
+/* v2.6 stable — sécurité et état de sauvegarde */
+.backup-reminder{margin:.45rem 0 0;padding:.55rem .7rem;border-left:3px solid var(--green,#355e48);background:#f4f7f2;border-radius:6px}

@@ -6,11 +6,11 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v26.css?v=2600">
+  <link rel="stylesheet" href="styles-v26.css?v=2601">
 </head>
 <body>
 <header>
-  <div><h1>Herbier Gourmand</h1><p>v2.6 · Envie d’une sortie ?</p></div>
+  <div><h1>Herbier Gourmand</h1><p>v2.6 stable · Envie d’une sortie ?</p></div>
   <div class="header-actions"><span id="updateStatus">Planification assistée</span><button id="installBtn" class="ghost hidden">Installer</button></div>
 </header>
 <nav>
@@ -26,7 +26,7 @@
     <div class="section-title"><div><h2 id="dataTransferTitle">Sauvegarde et transfert</h2><span class="muted">Pour retrouver tes données sur un autre appareil.</span></div></div>
     <p>Exporte toutes les données personnelles d’Herbier Gourmand, puis importe le fichier sur le notebook ou le smartphone.</p>
     <div class="button-row"><button id="exportData" class="primary">Exporter mes données</button><button id="importData">Importer mes données</button></div>
-    <p id="dataTransferStatus" class="muted" aria-live="polite"></p>
+    <p id="dataTransferStatus" class="muted" aria-live="polite"></p><p id="backupReminder" class="backup-reminder muted" aria-live="polite"></p>
     <input id="dataImportFile" class="hidden" type="file" accept=".json,.hgbak,application/json">
   </section>
 </section>
@@ -126,5 +126,5 @@
 <div class="dialog-actions"><button type="button" id="deleteRestaurant" class="danger">Supprimer</button><button type="button" id="duplicateRestaurant">Dupliquer</button><button type="submit" class="primary">Enregistrer</button></div>
 </form></dialog>
 
-<script src="app-v26.js?v=2600"></script>
+<script src="app-v26.js?v=2601"></script>
 </body></html>

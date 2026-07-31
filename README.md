@@ -1,3 +1,7 @@
+# Herbier Gourmand — v2.6 stable
+
+Voir `README-v2.6-stable.md` pour l’installation et le contenu de la version.
+
 # Herbier Gourmand v2.7.1 — Mission Terrain
 
 ## Mission de cette version
