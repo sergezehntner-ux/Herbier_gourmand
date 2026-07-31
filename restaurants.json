@@ -1,0 +1,3111 @@
+[
+  {
+    "id": "restaurant-tha-bee-bamboo",
+    "name": "Restaurant Thaï Bee Bamboo",
+    "tenant": "Daniel Mermod",
+    "address": "12 Rue du Quai",
+    "postalCode": "1844",
+    "city": "Villeneuve",
+    "country": "Suisse",
+    "phone": "+41 79 378 36 54",
+    "phones": [
+      "+41 79 378 36 54",
+      "+41 21 960 12 68"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-kumo",
+    "name": "Restaurant Kumo",
+    "tenant": "Patricia Coard",
+    "address": "Rue de Lausanne",
+    "postalCode": "1700",
+    "city": "Fribourg",
+    "country": "",
+    "phone": "+41 26 555 28 08",
+    "phones": [
+      "+41 26 555 28 08"
+    ],
+    "email": "kumo.fribourg@gmail.com",
+    "website": "",
+    "hours": "",
+    "specialties": [
+      "Spécialiste de Ramen"
+    ],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-la-poularde",
+    "name": "Restaurant La Poularde",
+    "tenant": "",
+    "address": "28 Rte de Fribourg",
+    "postalCode": "1680",
+    "city": "Romont",
+    "country": "Suisse",
+    "phone": "+41266522721",
+    "phones": [
+      "+41266522721"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-caf-des-bains",
+    "name": "Restaurant Café des Bains",
+    "tenant": "",
+    "address": "26 Rue des Bains",
+    "postalCode": "1205",
+    "city": "Genève",
+    "country": "Suisse",
+    "phone": "+41 22 321 57 98",
+    "phones": [
+      "+41 22 321 57 98"
+    ],
+    "email": "info@cafedesbains.com",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-luce",
+    "name": "Restaurant Luce",
+    "tenant": "",
+    "address": "Zeughausgasse 28",
+    "postalCode": "3011",
+    "city": "Bern",
+    "country": "Suisse",
+    "phone": "+41 31 310 99 99",
+    "phones": [
+      "+41 31 310 99 99",
+      "+41313109999"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-l-equinoxe",
+    "name": "Restaurant l'Equinoxe",
+    "tenant": "M. Jaunin Patrick",
+    "address": "21 Rte du Gros Buisson",
+    "postalCode": "1585",
+    "city": "Salavaux",
+    "country": "Suisse",
+    "phone": "+41 79 204 20 82",
+    "phones": [
+      "+41 79 204 20 82",
+      "+41792042082"
+    ],
+    "email": "jaunin71@bluewin.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [
+      "Traiteur"
+    ],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-le-tsal",
+    "name": "Restaurant Le Tsalè",
+    "tenant": "",
+    "address": "",
+    "postalCode": "",
+    "city": "",
+    "country": "",
+    "phone": "+41 21 948 07 00",
+    "phones": [
+      "+41 21 948 07 00"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Fermé le lundi",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-perle-du-lac",
+    "name": "Restaurant Perle du Lac",
+    "tenant": "",
+    "address": "128 Rue de Lausanne",
+    "postalCode": "1202",
+    "city": "Genève",
+    "country": "Suisse",
+    "phone": "+41 22-909-10-20",
+    "phones": [
+      "+41 22-909-10-20"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Lundi fermé",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-la-pinte-de-sauvabelin",
+    "name": "Restaurant La Pinte de Sauvabelin",
+    "tenant": "",
+    "address": "Lac de Sauvabelin Ch. des Celtes",
+    "postalCode": "1018",
+    "city": "Lausanne",
+    "country": "Suisse",
+    "phone": "+41 21 647 39 38",
+    "phones": [
+      "+41 21 647 39 38"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Pinte à Fromage",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-l-arboulastre",
+    "name": "Restaurant l'Arboulastre",
+    "tenant": "",
+    "address": "4 rue Basse",
+    "postalCode": "1422",
+    "city": "Grandson",
+    "country": "",
+    "phone": "+41 24 445 69 97",
+    "phones": [
+      "+41 24 445 69 97"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [
+      "Restaurant médiéval"
+    ],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-htel-de-ville",
+    "name": "Restaurant Hôtel de Ville",
+    "tenant": "",
+    "address": "Hôtel de Ville",
+    "postalCode": "1040",
+    "city": "Echallens",
+    "country": "Suisse",
+    "phone": "+41 21 881 62 63",
+    "phones": [
+      "+41 21 881 62 63"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Clef pour le 1er : 26785B",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-le-cercle-d-agriculture",
+    "name": "Restaurant Le Cercle d'Agriculture",
+    "tenant": "",
+    "address": "Grand-Rue 68",
+    "postalCode": "1815",
+    "city": "Châtel-St-Denis",
+    "country": "Suisse",
+    "phone": "+41 21 948 70 53",
+    "phones": [
+      "+41 21 948 70 53"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Fonction: Fondue et cuisine fribourgoise",
+    "source": "VCF"
+  },
+  {
+    "id": "hotel-motel-stans-sd-ag",
+    "name": "Hotel Motel Stans-Süd AG",
+    "tenant": "",
+    "address": "Rieden 4",
+    "postalCode": "6370",
+    "city": "Stans",
+    "country": "Suisse",
+    "phone": "+41 41 618 07 77",
+    "phones": [
+      "+41 41 618 07 77"
+    ],
+    "email": "info@motelstans.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-delta-du-mkong",
+    "name": "Restaurant Delta du Mékong",
+    "tenant": "",
+    "address": "1 Route des Flumeaux",
+    "postalCode": "1008",
+    "city": "Prilly",
+    "country": "Suisse",
+    "phone": "+41 21 625 73 61",
+    "phones": [
+      "+41 21 625 73 61"
+    ],
+    "email": "",
+    "website": "www.delta-mekong.ch",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "traiteur-take-away-traiteur-coren",
+    "name": "Traiteur Take Away;Traiteur coréen",
+    "tenant": "Namoo",
+    "address": "Av du Mont-Blanc 14b",
+    "postalCode": "1196",
+    "city": "Gland",
+    "country": "",
+    "phone": "+41 22 364 62 62",
+    "phones": [
+      "+41 22 364 62 62"
+    ],
+    "email": "",
+    "website": "www.namoo.ch",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-la-croix-fdrale",
+    "name": "Restaurant La Croix Fédérale",
+    "tenant": "",
+    "address": "Ave de Plan 12",
+    "postalCode": "1100",
+    "city": "Morges",
+    "country": "Suisse",
+    "phone": "+41 21 801 51 60",
+    "phones": [
+      "+41 21 801 51 60"
+    ],
+    "email": "info@la-croix-federale.com",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "fermé DI et LU",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-bleu-lzard",
+    "name": "Restaurant Bleu Lézard",
+    "tenant": "",
+    "address": "10 Rue Enning",
+    "postalCode": "1003",
+    "city": "Lausanne",
+    "country": "Suisse",
+    "phone": "+41 21 321 38 30",
+    "phones": [
+      "+41 21 321 38 30"
+    ],
+    "email": "bleulezard@carte-blanche.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-de-saletta",
+    "name": "Restaurant de Saletta",
+    "tenant": "Colliard Raoul",
+    "address": "Rte de la Dent de Lys\nLa Saletta",
+    "postalCode": "1619",
+    "city": "Les Paccots",
+    "country": "Suisse",
+    "phone": "+41 79 332 23 86",
+    "phones": [
+      "+41 79 332 23 86",
+      "+41793322386"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Ouvert de juin à septembre\nFermé le lundi",
+    "source": "VCF"
+  },
+  {
+    "id": "hotel-aarau-west-ag",
+    "name": "Hotel Aarau-West AG",
+    "tenant": "",
+    "address": "Muhenstr. 58",
+    "postalCode": "5036",
+    "city": "Oberentfelden",
+    "country": "Suisse",
+    "phone": "+41 62 737 01 01",
+    "phones": [
+      "+41 62 737 01 01"
+    ],
+    "email": "hotel@aarau-west.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "htel-le-palais-art",
+    "name": "Hôtel Le Palais Art",
+    "tenant": "",
+    "address": "1 U Zvonarky\nPrague 2 12000",
+    "postalCode": "",
+    "city": "République Tchèque",
+    "country": "",
+    "phone": "+420 (0) 234 634 635",
+    "phones": [
+      "+420 (0) 234 634 635",
+      "+420 (0) 234 634 111"
+    ],
+    "email": "info@lepalaishotel.eu",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-arirang",
+    "name": "Restaurant Arirang",
+    "tenant": "Kim Jong Nam",
+    "address": "Hirschengraben 11",
+    "postalCode": "3011",
+    "city": "Bern",
+    "country": "Suisse",
+    "phone": "+41 31 329 29 45",
+    "phones": [
+      "+41 31 329 29 45",
+      "+41 79 429 79 73",
+      "+41794297973"
+    ],
+    "email": "mail@restaurant-arirang.ch",
+    "website": "restaurant-arirang.ch",
+    "hours": "",
+    "specialties": [
+      "Cuisine Coréenne"
+    ],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-le-barbaro",
+    "name": "Restaurant Le Barbaro",
+    "tenant": "",
+    "address": "Rte Industrielle",
+    "postalCode": "1860",
+    "city": "Aigle",
+    "country": "Suisse",
+    "phone": "+41 24 466 56 77",
+    "phones": [
+      "+41 24 466 56 77"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Fonction: Spécialités Barbecue mongol",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-la-grandsonnaz-dessus",
+    "name": "Restaurant La Grandsonnaz-Dessus",
+    "tenant": "Sylvie Oberson",
+    "address": "Fiez",
+    "postalCode": "1453",
+    "city": "Bullet",
+    "country": "Suisse",
+    "phone": "+41 79 721 63 64",
+    "phones": [
+      "+41 79 721 63 64",
+      "+41 24 454 23 62",
+      "+41797216364"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-yukiguni-meilleurs-ramen",
+    "name": "Restaurant Yukiguni;Meilleurs Ramen",
+    "tenant": "",
+    "address": "4 Boulevard James-Fazy\nGenève, GE 1201",
+    "postalCode": "",
+    "city": "CH",
+    "country": "",
+    "phone": "+41227389066",
+    "phones": [
+      "+41227389066"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "traiteur-uchitomi",
+    "name": "Traiteur Uchitomi",
+    "tenant": "",
+    "address": "13 Rue Ferrier",
+    "postalCode": "1202",
+    "city": "Genève",
+    "country": "Suisse",
+    "phone": "+41 22 731 26 01",
+    "phones": [
+      "+41 22 731 26 01"
+    ],
+    "email": "",
+    "website": "http://www.uchitomi.ch",
+    "hours": "",
+    "specialties": [],
+    "notes": "traiteur et magasin japonais",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-vroom-genve",
+    "name": "Restaurant Vroom Genève",
+    "tenant": "",
+    "address": "13 Rue des Rois",
+    "postalCode": "1204",
+    "city": "Genève",
+    "country": "Suisse",
+    "phone": "+41 22 321 44 13",
+    "phones": [
+      "+41 22 321 44 13"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "htel-royal-savoy",
+    "name": "Hôtel Royal Savoy",
+    "tenant": "",
+    "address": "40 Avenue d'Ouchy\nLausanne, VD 1006",
+    "postalCode": "",
+    "city": "CH",
+    "country": "",
+    "phone": "+41216148888",
+    "phones": [
+      "+41216148888"
+    ],
+    "email": "info@royalsavoy.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-rssli",
+    "name": "Restaurant Rössli",
+    "tenant": "Stefan & Monica Wiesner",
+    "address": "111 Hauptstrasse",
+    "postalCode": "6182",
+    "city": "Escholzmatt-Marbach",
+    "country": "Suisse",
+    "phone": "+41 41 486 12 41",
+    "phones": [
+      "+41 41 486 12 41"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [
+      "Cuisine naturelle et créative"
+    ],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-il-boccale",
+    "name": "Restaurant Il Boccale",
+    "tenant": "",
+    "address": "33 R Borgo S.S. Apostoli",
+    "postalCode": "",
+    "city": "Firenze, Firenze FI I-50123",
+    "country": "Italie",
+    "phone": "+39 (055) 28-33-84",
+    "phones": [
+      "+39 (055) 28-33-84"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-gaya",
+    "name": "Restaurant Gaya",
+    "tenant": "Sim Soo Myoung",
+    "address": "19 Rue Ferrier",
+    "postalCode": "1202",
+    "city": "Genève",
+    "country": "Suisse",
+    "phone": "+41 79 647 32 64",
+    "phones": [
+      "+41 79 647 32 64",
+      "+41 22 732 46 36",
+      "+41796473264"
+    ],
+    "email": "gayageneva@hotmail.com",
+    "website": "",
+    "hours": "",
+    "specialties": [
+      "Cuisine coréenne"
+    ],
+    "notes": "du lundi au vendredi de 12h00 à 14h30 et de 18h00 à 22h30 sam 19h00-22h30",
+    "source": "VCF"
+  },
+  {
+    "id": "auberge-communale",
+    "name": "Auberge Communale",
+    "tenant": "M. Miceli Nicola",
+    "address": "Rte de la Croix-Blanche 27",
+    "postalCode": "1066",
+    "city": "Epalinges",
+    "country": "Suisse",
+    "phone": "+41 21 784 06 09",
+    "phones": [
+      "+41 21 784 06 09"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-au-major-davel",
+    "name": "Restaurant au Major-Davel",
+    "tenant": "",
+    "address": "chemin de l'Orme 2",
+    "postalCode": "1054",
+    "city": "Morrens",
+    "country": "",
+    "phone": "+41 21 731 11 16",
+    "phones": [
+      "+41 21 731 11 16"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-china-house",
+    "name": "Restaurant China House",
+    "tenant": "",
+    "address": "84 Rue de l'église",
+    "postalCode": "1680",
+    "city": "Romont",
+    "country": "Suisse",
+    "phone": "+41 26 652 22 09",
+    "phones": [
+      "+41 26 652 22 09"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-gambatte",
+    "name": "Restaurant Gambatte",
+    "tenant": "",
+    "address": "",
+    "postalCode": "",
+    "city": "",
+    "country": "",
+    "phone": "+41 21 320 18 18",
+    "phones": [
+      "+41 21 320 18 18"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [
+      "Cuisine coréenne"
+    ],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-st-christophe",
+    "name": "Restaurant St-Christophe",
+    "tenant": "",
+    "address": "Rte de Lavey",
+    "postalCode": "1880",
+    "city": "Bex",
+    "country": "Suisse",
+    "phone": "+41 24 485 29 77",
+    "phones": [
+      "+41 24 485 29 77"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "htel-des-vignes",
+    "name": "Hôtel des Vignes",
+    "tenant": "M. Daniel Leuenberger",
+    "address": "9 Rue du Pont\nUvrier\nVS",
+    "postalCode": "",
+    "city": "1958",
+    "country": "Suisse",
+    "phone": "+41 272031671",
+    "phones": [
+      "+41 272031671"
+    ],
+    "email": "hotel@desvignes.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-des-mossettes",
+    "name": "Restaurant des Mossettes",
+    "tenant": "",
+    "address": "",
+    "postalCode": "1873",
+    "city": "Les Crosets",
+    "country": "Suisse",
+    "phone": "+41 24-47935 24",
+    "phones": [
+      "+41 24-47935 24"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-le-th",
+    "name": "Restaurant Le Thé",
+    "tenant": "",
+    "address": "Rue des Bains 65",
+    "postalCode": "1205",
+    "city": "Genève",
+    "country": "Suisse",
+    "phone": "+41 79 436 77 18",
+    "phones": [
+      "+41 79 436 77 18"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-la-fleur-de-lys",
+    "name": "Restaurant La Fleur de Lys",
+    "tenant": "",
+    "address": "7 Rue Ecole-de-Médecine",
+    "postalCode": "1205",
+    "city": "Genève",
+    "country": "Suisse",
+    "phone": "+41 22 328 78 26",
+    "phones": [
+      "+41 22 328 78 26"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "auberge-de-l-epi-d-or",
+    "name": "Auberge de l'Epi d'Or",
+    "tenant": "",
+    "address": "3 Rte Saint-Germain",
+    "postalCode": "1042",
+    "city": "Assens",
+    "country": "Suisse",
+    "phone": "+41218821414",
+    "phones": [
+      "+41218821414"
+    ],
+    "email": "epidor@hotmail.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-le-moulin-de-cugy",
+    "name": "Restaurant Le Moulin de Cugy",
+    "tenant": "",
+    "address": "2 Ch. du Moulin",
+    "postalCode": "1053",
+    "city": "Cugy",
+    "country": "Suisse",
+    "phone": "+41 21 731 23 62",
+    "phones": [
+      "+41 21 731 23 62"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "alimentation-komojapon",
+    "name": "Alimentation Komojapon",
+    "tenant": "",
+    "address": "",
+    "postalCode": "",
+    "city": "",
+    "country": "",
+    "phone": "+41 21 634 48 18",
+    "phones": [
+      "+41 21 634 48 18"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "traiteur-huynh",
+    "name": "Traiteur Huynh",
+    "tenant": "Xuan Phuong Huynh",
+    "address": "4 Av. des Jordils",
+    "postalCode": "1006",
+    "city": "Lausanne",
+    "country": "Suisse",
+    "phone": "+41 21 616 03 62",
+    "phones": [
+      "+41 21 616 03 62"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "produits vietnamien et cuisine à l'emporter",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-isushi",
+    "name": "Restaurant iSushi",
+    "tenant": "",
+    "address": "2 Chemin de Fontadel\nPrilly\nVD\n1008",
+    "postalCode": "",
+    "city": "CH",
+    "country": "",
+    "phone": "+41215592652",
+    "phones": [
+      "+41215592652"
+    ],
+    "email": "isushi.prilly@gmail.com",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "htel-akomo",
+    "name": "Hôtel Akomo",
+    "tenant": "",
+    "address": "55 Aarbergerstrasse",
+    "postalCode": "3011",
+    "city": "Bern",
+    "country": "Suisse",
+    "phone": "+41797784003",
+    "phones": [
+      "+41797784003"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-chalet-la-renardire",
+    "name": "Restaurant Chalet La Renardière",
+    "tenant": "Castelier Françoise",
+    "address": "13 Rue du Collège",
+    "postalCode": "1406",
+    "city": "Cronay",
+    "country": "Suisse",
+    "phone": "+41 76 392 11 30",
+    "phones": [
+      "+41 76 392 11 30",
+      "+41763921130"
+    ],
+    "email": "francoise@renardiere.ch",
+    "website": "http://www.renardiere.ch",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "swin-golf",
+    "name": "Swin Golf",
+    "tenant": "",
+    "address": "Ch. des Écoliers 5",
+    "postalCode": "1526",
+    "city": "Cremin",
+    "country": "Suisse",
+    "phone": "+41 21 906 87 90",
+    "phones": [
+      "+41 21 906 87 90"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Ouverture 7/7 08.00-17.00",
+    "source": "VCF"
+  },
+  {
+    "id": "htel-atlas",
+    "name": "Hôtel Atlas",
+    "tenant": "",
+    "address": "30 Rue du Vieux-Marché-aux-Grains\nBruxelles 1000",
+    "postalCode": "",
+    "city": "Bélgique",
+    "country": "",
+    "phone": "+32 (2) 502 60 06",
+    "phones": [
+      "+32 (2) 502 60 06"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "traiteur-sushi-zen",
+    "name": "Traiteur Sushi Zen",
+    "tenant": "",
+    "address": "1 Rue Etraz",
+    "postalCode": "1003",
+    "city": "Lausanne",
+    "country": "Suisse",
+    "phone": "+41 21 311 11 12",
+    "phones": [
+      "+41 21 311 11 12"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-aviation",
+    "name": "Restaurant Aviation",
+    "tenant": "Baumann Gérard",
+    "address": "Ch. des Coquelicots 18",
+    "postalCode": "1214",
+    "city": "Vernier",
+    "country": "Suisse",
+    "phone": "+41 22-341-12-32",
+    "phones": [
+      "+41 22-341-12-32"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "hotel-allegra",
+    "name": "Hotel Allegra",
+    "tenant": "",
+    "address": "Hamelirainstr. 3",
+    "postalCode": "8302",
+    "city": "Kloten",
+    "country": "Suisse",
+    "phone": "+41 44 804 44 44",
+    "phones": [
+      "+41 44 804 44 44"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "traiteur-chez-ho",
+    "name": "Traiteur chez Ho",
+    "tenant": "Thi Thu Bui",
+    "address": "11 Rue de la Borde",
+    "postalCode": "1018",
+    "city": "Lausanne",
+    "country": "Suisse",
+    "phone": "+41 21 646 89 74",
+    "phones": [
+      "+41 21 646 89 74"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "produits thaï\nouvert dimanche 9h00-18h00\npossibilité de faire préparer des plats du Sud-Est minimum 5 persones",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-du-jorat",
+    "name": "Restaurant du Jorat",
+    "tenant": "Gauthier Pascal",
+    "address": "Grand'Rue 16",
+    "postalCode": "1083",
+    "city": "Mézières",
+    "country": "Suisse",
+    "phone": "+41 21 903 11 28",
+    "phones": [
+      "+41 21 903 11 28"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "fermé DI & LU",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-entrecte-couronne",
+    "name": "Restaurant Entrecôte Couronnée",
+    "tenant": "",
+    "address": "Rue des Pâquis 5",
+    "postalCode": "1201",
+    "city": "Genève",
+    "country": "Suisse",
+    "phone": "+41 22 732 84 45",
+    "phones": [
+      "+41 22 732 84 45"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-pices-caf",
+    "name": "Restaurant Épices & Café",
+    "tenant": "",
+    "address": "Grand'Rue 10",
+    "postalCode": "1373",
+    "city": "Chavornay",
+    "country": "Suisse",
+    "phone": "+41792433939",
+    "phones": [
+      "+41792433939"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-le-vieil-ouchy",
+    "name": "Restaurant Le Vieil Ouchy",
+    "tenant": "",
+    "address": "3 Pl. du Port",
+    "postalCode": "1006",
+    "city": "Lausanne",
+    "country": "Suisse",
+    "phone": "021 616 21 94",
+    "phones": [
+      "021 616 21 94"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-le-poney-express",
+    "name": "Restaurant Le Poney Express",
+    "tenant": "",
+    "address": "",
+    "postalCode": "2114",
+    "city": "Fleurier",
+    "country": "Suisse",
+    "phone": "+41 79 690 02 01",
+    "phones": [
+      "+41 79 690 02 01",
+      "+41796900201"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "VE + SA\nSpécialités Fondue desperados",
+    "source": "VCF"
+  },
+  {
+    "id": "auberge-de-chaulin",
+    "name": "Auberge de Chaulin",
+    "tenant": "Cull Stéphanie & Christopher",
+    "address": "81 Rte de Chaulin",
+    "postalCode": "1832",
+    "city": "Chamby",
+    "country": "Suisse",
+    "phone": "+41 21 964 32 70",
+    "phones": [
+      "+41 21 964 32 70"
+    ],
+    "email": "",
+    "website": "http://www.aubergedechaulin.com",
+    "hours": "",
+    "specialties": [],
+    "notes": "Fermé DI soir et LU",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-chez-sopoong-restaurant-coren",
+    "name": "Restaurant Chez Sopoong;Restaurant coréen",
+    "tenant": "Meyer Lee Nami",
+    "address": "45 Ch. de Rovéréaz\nLausanne\n1012",
+    "postalCode": "",
+    "city": "CH",
+    "country": "",
+    "phone": "+41 21 311 36 48",
+    "phones": [
+      "+41 21 311 36 48",
+      "+41796769109"
+    ],
+    "email": "namimlee4u@gmail.com",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-il-portale",
+    "name": "Restaurant Il Portale",
+    "tenant": "",
+    "address": "29 R Via Luigi Alamanni",
+    "postalCode": "",
+    "city": "Firenze, Firenze FI I-50123",
+    "country": "Italie",
+    "phone": "+39 (055) 21-29-92",
+    "phones": [
+      "+39 (055) 21-29-92"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-le-moulin-d-assens",
+    "name": "Restaurant Le Moulin d'Assens",
+    "tenant": "",
+    "address": "Rte du Moulin 15",
+    "postalCode": "1042",
+    "city": "Assens",
+    "country": "Suisse",
+    "phone": "+41 21 882 29 50",
+    "phones": [
+      "+41 21 882 29 50"
+    ],
+    "email": "info@le-moulin-assens.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "fermé mardi",
+    "source": "VCF"
+  },
+  {
+    "id": "hotel-zur-krone",
+    "name": "Hotel zur Krone",
+    "tenant": "",
+    "address": "Burgunderstr. 21",
+    "postalCode": "",
+    "city": "Weil-Haltingen D-79576",
+    "country": "Allemagne",
+    "phone": "+49762162203",
+    "phones": [
+      "+49762162203"
+    ],
+    "email": "krone-haltingen@t-online.de",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-asadal",
+    "name": "Restaurant Asadal",
+    "tenant": "Mme Mija Rine",
+    "address": "9 Rue des Eaux-Vives",
+    "postalCode": "1207",
+    "city": "Genève",
+    "country": "Suisse",
+    "phone": "+41 22 786 01 98",
+    "phones": [
+      "+41 22 786 01 98"
+    ],
+    "email": "asadal@asadal.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [
+      "Cuisine coréenne"
+    ],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-le-florissant",
+    "name": "Restaurant Le Florissant",
+    "tenant": "",
+    "address": "Av de Florissant 28",
+    "postalCode": "1020",
+    "city": "Renens",
+    "country": "",
+    "phone": "+41 21 625 05 22",
+    "phones": [
+      "+41 21 625 05 22"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "auberge-la-mathoulaz",
+    "name": "Auberge La Mathoulaz",
+    "tenant": "M. et Mme Rochat Jacky",
+    "address": "La Mathoulaz",
+    "postalCode": "1439",
+    "city": "Rances",
+    "country": "Suisse",
+    "phone": "+41 24 441 01 14",
+    "phones": [
+      "+41 24 441 01 14"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Chalet avec très belle vue\nMai - Octobre 11h30 - 22h",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-eat-me",
+    "name": "Restaurant Eat Me",
+    "tenant": "",
+    "address": "3 Rue Pépinet",
+    "postalCode": "1003",
+    "city": "Lausanne",
+    "country": "",
+    "phone": "+41 21 311 76 59",
+    "phones": [
+      "+41 21 311 76 59"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "hotel-auberge-inn",
+    "name": "Hotel Auberge Inn",
+    "tenant": "",
+    "address": "1 Rue Fleury\nNeuchâtel, NE 2000",
+    "postalCode": "",
+    "city": "CH",
+    "country": "",
+    "phone": "+41 79 247 40 24",
+    "phones": [
+      "+41 79 247 40 24",
+      "+41 32 721 44 20",
+      "+41792474024"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Auberge\nHôtel",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-chu-garden",
+    "name": "Restaurant Chu Garden",
+    "tenant": "",
+    "address": "47 Seftigenstr",
+    "postalCode": "3007",
+    "city": "Bern",
+    "country": "Suisse",
+    "phone": "+41 31 372 86 86",
+    "phones": [
+      "+41 31 372 86 86"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-lo-spaghetto",
+    "name": "Restaurant Lo Spaghetto",
+    "tenant": "Franco Stelitano",
+    "address": "22 Rue du Pont-Suspendu",
+    "postalCode": "1700",
+    "city": "Fribourg",
+    "country": "Suisse",
+    "phone": "+41 26 675 29 29",
+    "phones": [
+      "+41 26 675 29 29"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "traiteur-lyzamir",
+    "name": "Traiteur Lyzamir",
+    "tenant": "M. Lyzamir",
+    "address": "3 Rue des Corps-Saints",
+    "postalCode": "1201",
+    "city": "Genève",
+    "country": "Suisse",
+    "phone": "+41 22 732 53 80",
+    "phones": [
+      "+41 22 732 53 80"
+    ],
+    "email": "lyzamir@swissonline.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "produits orientaux, épices et traiteur libanais",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-soul",
+    "name": "Restaurant Séoul",
+    "tenant": "",
+    "address": "Rue de Zurich 17",
+    "postalCode": "1201",
+    "city": "Genève",
+    "country": "Suisse",
+    "phone": "+41 22 732 46 05",
+    "phones": [
+      "+41 22 732 46 05"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [
+      "Cuisine coréenne"
+    ],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "jardin-des-iris",
+    "name": "Jardin des Iris",
+    "tenant": "",
+    "address": "Les Jardins du Château",
+    "postalCode": "1115",
+    "city": "Vullierens",
+    "country": "Suisse",
+    "phone": "+41 79 274 79 64",
+    "phones": [
+      "+41 79 274 79 64",
+      "+41792747964"
+    ],
+    "email": "info@jardinsdesiris.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Ouverture du 30 avril au 12 juin, de 9h00 à 18h00.",
+    "source": "VCF"
+  },
+  {
+    "id": "bowling-miami",
+    "name": "Bowling Miami",
+    "tenant": "",
+    "address": "Chemin du Tennis 3",
+    "postalCode": "1026",
+    "city": "Echandens",
+    "country": "",
+    "phone": "+41 21 702 31 43",
+    "phones": [
+      "+41 21 702 31 43"
+    ],
+    "email": "reservation@bowling-miami.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-bap",
+    "name": "Restaurant Bap",
+    "tenant": "",
+    "address": "Rue de Coutance 25\nGenève\nGE",
+    "postalCode": "",
+    "city": "1205",
+    "country": "Suisse",
+    "phone": "+41 22 731 11 33",
+    "phones": [
+      "+41 22 731 11 33"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "traiteur-mikado-sushi",
+    "name": "Traiteur Mikado Sushi",
+    "tenant": "Cheung Sug Min",
+    "address": "9 Rue de l'Ancien-Port",
+    "postalCode": "1201",
+    "city": "Genève",
+    "country": "Suisse",
+    "phone": "+41 22 421 35 01",
+    "phones": [
+      "+41 22 421 35 01",
+      "+41 22 732 47 74"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-la-chaumire",
+    "name": "Restaurant La Chaumière",
+    "tenant": "",
+    "address": "Rte de Moudon 1",
+    "postalCode": "1670",
+    "city": "Ursy",
+    "country": "",
+    "phone": "+41786176321",
+    "phones": [
+      "+41786176321"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "MA + ME fermé",
+    "source": "VCF"
+  },
+  {
+    "id": "auberge-du-raisin",
+    "name": "Auberge du Raisin",
+    "tenant": "",
+    "address": "Pl. de l'Hôtel de Ville 1",
+    "postalCode": "1096",
+    "city": "Cully",
+    "country": "Suisse",
+    "phone": "+41 21 799 21 31",
+    "phones": [
+      "+41 21 799 21 31"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-oasis",
+    "name": "Restaurant Oasis",
+    "tenant": "Gérard Rane, da",
+    "address": "Rue du Quai 6",
+    "postalCode": "1844",
+    "city": "Villeneuve",
+    "country": "Suisse",
+    "phone": "+41 21 960 41 45",
+    "phones": [
+      "+41 21 960 41 45"
+    ],
+    "email": "hotel@duport.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "alimentation-march-orient",
+    "name": "Alimentation Marché Orient",
+    "tenant": "",
+    "address": "",
+    "postalCode": "",
+    "city": "",
+    "country": "",
+    "phone": "+41 21 845 65 44",
+    "phones": [
+      "+41 21 845 65 44"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-la-bourri",
+    "name": "Restaurant La Bourri",
+    "tenant": "",
+    "address": "Rte de Plan-de-Croix-Recon",
+    "postalCode": "1899",
+    "city": "Torgon",
+    "country": "Suisse",
+    "phone": "+41 24 481 55 09",
+    "phones": [
+      "+41 24 481 55 09"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "hotel-handeck-hotel-und-naturresort-restaurant",
+    "name": "Hotel Handeck;Hotel und Naturresort Restaurant",
+    "tenant": "",
+    "address": "19 Grimselpass",
+    "postalCode": "3864",
+    "city": "Guttannen",
+    "country": "Suisse",
+    "phone": "+41339823611",
+    "phones": [
+      "+41339823611"
+    ],
+    "email": "welcome@grimselhotels.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-isshin",
+    "name": "Restaurant Isshin",
+    "tenant": "",
+    "address": "30 Place Chauderon",
+    "postalCode": "1003",
+    "city": "Lausanne",
+    "country": "Suisse",
+    "phone": "+41 21 624 82 21",
+    "phones": [
+      "+41 21 624 82 21"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-izo",
+    "name": "Restaurant Izo",
+    "tenant": "",
+    "address": "7 Rue Butini",
+    "postalCode": "1202",
+    "city": "Genève",
+    "country": "Suisse",
+    "phone": "+41 22 731 41 90",
+    "phones": [
+      "+41 22 731 41 90"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "du lundi au vendredi de 12h00 à 14h00 et de 18h00 à 22h00",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-au-gourmand",
+    "name": "Restaurant Au Gourmand",
+    "tenant": "",
+    "address": "26 Ave Louis-Ruchonnet",
+    "postalCode": "1003",
+    "city": "Lausanne",
+    "country": "Suisse",
+    "phone": "+41 21 311 54 74",
+    "phones": [
+      "+41 21 311 54 74"
+    ],
+    "email": "augourmand@bluewin.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [
+      "Barbecue Coréen"
+    ],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-caf-des-avenues",
+    "name": "Restaurant Café des Avenues",
+    "tenant": "",
+    "address": "20 Ave de Jurigoz",
+    "postalCode": "1006",
+    "city": "Lausanne",
+    "country": "Suisse",
+    "phone": "+41 21 616 11 11",
+    "phones": [
+      "+41 21 616 11 11"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-la-rouvenaz",
+    "name": "Restaurant La Rouvenaz",
+    "tenant": "Vialmin Ezio",
+    "address": "Rue du Marché 1",
+    "postalCode": "1820",
+    "city": "Montreux",
+    "country": "Suisse",
+    "phone": "+41 21 963 27 36",
+    "phones": [
+      "+41 21 963 27 36"
+    ],
+    "email": "rouvenaz@bluewin.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-dlice-d-echallens",
+    "name": "Restaurant Délice d'Echallens",
+    "tenant": "",
+    "address": "Rte de Lausanne 33",
+    "postalCode": "1040",
+    "city": "Echallens",
+    "country": "Suisse",
+    "phone": "+41 21 881 40 30",
+    "phones": [
+      "+41 21 881 40 30"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "auberge-du-cheval-blanc",
+    "name": "Auberge du Cheval-Blanc",
+    "tenant": "M. Bernard Buro",
+    "address": "Rte de Corcelles-le-Jorat 5",
+    "postalCode": "1059",
+    "city": "Peney-le-Jorat",
+    "country": "Suisse",
+    "phone": "+41 21 903 30 08",
+    "phones": [
+      "+41 21 903 30 08"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "fermé Lu et Ma",
+    "source": "VCF"
+  },
+  {
+    "id": "ristorante-pinocchio-da-sandra",
+    "name": "Ristorante Pinocchio Da Sandra",
+    "tenant": "",
+    "address": "via Livurcio 5",
+    "postalCode": "6622",
+    "city": "Ronco s/Ascona",
+    "country": "",
+    "phone": "+41 79 403 57 12",
+    "phones": [
+      "+41 79 403 57 12",
+      "+41 91 743 33 15",
+      "+41 91 796 20 23",
+      "+41 91 791 93 95",
+      "+41794035712"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "pasta-shop",
+    "name": "Pasta-Shop",
+    "tenant": "M. Di Dio Faranna, Paolo",
+    "address": "11 Rue de la Gare",
+    "postalCode": "1820",
+    "city": "Montreux",
+    "country": "Suisse",
+    "phone": "+41 21 963 40 56",
+    "phones": [
+      "+41 21 963 40 56"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "09:30-13:30  15:30-19:3009:00-13:00  dimanche",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-le-vaudois",
+    "name": "Restaurant Le Vaudois",
+    "tenant": "",
+    "address": "Place de la Riponne 1",
+    "postalCode": "1003",
+    "city": "Lausanne",
+    "country": "Suisse",
+    "phone": "+41 21 320 63 71",
+    "phones": [
+      "+41 21 320 63 71"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-mo-si",
+    "name": "Restaurant Mo' Si",
+    "tenant": "",
+    "address": "7B Ch. des Lentillières",
+    "postalCode": "1023",
+    "city": "Crissier",
+    "country": "Suisse",
+    "phone": "+41216342597",
+    "phones": [
+      "+41216342597"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [
+      "Spécialités Italiennes"
+    ],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-la-ferme",
+    "name": "Restaurant à la Ferme",
+    "tenant": "Genoud Dominique",
+    "address": "4 Ch. des Écoliers",
+    "postalCode": "1526",
+    "city": "Cremin",
+    "country": "Suisse",
+    "phone": "+41 21 906 88 27",
+    "phones": [
+      "+41 21 906 88 27"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-la-locanda",
+    "name": "Restaurant La Locanda",
+    "tenant": "",
+    "address": "Ruelle du Trait 44",
+    "postalCode": "1820",
+    "city": "Montreux",
+    "country": "Suisse",
+    "phone": "+41 21 963 29 33",
+    "phones": [
+      "+41 21 963 29 33"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Fermé DI et ME soir",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-ume",
+    "name": "Restaurant Ume",
+    "tenant": "",
+    "address": "Rte de Berne 285",
+    "postalCode": "1066",
+    "city": "Epalinges",
+    "country": "Suisse",
+    "phone": "+41217841880",
+    "phones": [
+      "+41217841880"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-wok-palais-royal",
+    "name": "Restaurant Wok Palais Royal",
+    "tenant": "",
+    "address": "",
+    "postalCode": "",
+    "city": "Rue Albert-Rieter 7 Bulle FR 1630 CH",
+    "country": "",
+    "phone": "+41269121818",
+    "phones": [
+      "+41269121818"
+    ],
+    "email": "info@palaisroyal.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [
+      "Grand Buffet asiatique"
+    ],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-noble-house",
+    "name": "Restaurant Noble House",
+    "tenant": "",
+    "address": "30 Horburgstr\nBasel\nBS",
+    "postalCode": "",
+    "city": "4057",
+    "country": "Suisse",
+    "phone": "+41 61 691 32 88",
+    "phones": [
+      "+41 61 691 32 88"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [
+      "Cuisine coréenne"
+    ],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-le-reposoir",
+    "name": "Restaurant Le Reposoir",
+    "tenant": "Memmo Federico",
+    "address": "2 Rue de l'Eglise",
+    "postalCode": "1670",
+    "city": "Ursy",
+    "country": "Suisse",
+    "phone": "+41 21 909 61 21",
+    "phones": [
+      "+41 21 909 61 21"
+    ],
+    "email": "lereposoirinfo@gmail.com",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-hafez",
+    "name": "Restaurant Hafez",
+    "tenant": "",
+    "address": "22 Adrien-Lachenal\nGenève\nGE",
+    "postalCode": "",
+    "city": "1207",
+    "country": "Suisse",
+    "phone": "+41 22-700-00-81",
+    "phones": [
+      "+41 22-700-00-81"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "terrasoja-srl",
+    "name": "TerraSoja Sàrl",
+    "tenant": "Kim Min Jung",
+    "address": "24 Rue Louis-de-Savoie\nMorges, VD 1110",
+    "postalCode": "",
+    "city": "Suissec",
+    "country": "",
+    "phone": "+41 21 543 64 00",
+    "phones": [
+      "+41 21 543 64 00",
+      "+41 79 654 15 07",
+      "+41796541507"
+    ],
+    "email": "chezmadamekim.morges@gmail.com",
+    "website": "madamekim.ch",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "hotel-bren",
+    "name": "Hotel Bären",
+    "tenant": "Das Gästehaus",
+    "address": "42 Zwislenstr\nGais\nAI",
+    "postalCode": "",
+    "city": "9056",
+    "country": "Suisse",
+    "phone": "+41 71 793 11 77",
+    "phones": [
+      "+41 71 793 11 77"
+    ],
+    "email": "info@baerengais.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-le-soleil-el-segundo",
+    "name": "Restaurant Le Soleil, el Segundo",
+    "tenant": "Santin Carlos",
+    "address": "58 Quartier Pré-Fontaine",
+    "postalCode": "1023",
+    "city": "Crissier",
+    "country": "Suisse",
+    "phone": "+41216360270",
+    "phones": [
+      "+41216360270",
+      "+41768221414"
+    ],
+    "email": "restaurant@soleilcrissier.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Café, Restaurant\nPizzeria",
+    "source": "VCF"
+  },
+  {
+    "id": "htel-city",
+    "name": "Hôtel City",
+    "tenant": "",
+    "address": "1 Rue de Strasbourg\nLuxembourg\n1021",
+    "postalCode": "",
+    "city": "Luxembourg",
+    "country": "",
+    "phone": "+352 (29) 11 22",
+    "phones": [
+      "+352 (29) 11 22"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-korea-town",
+    "name": "Restaurant Korea Town",
+    "tenant": "",
+    "address": "23 Hirschmattstr\nLuzern\nLU",
+    "postalCode": "",
+    "city": "6003",
+    "country": "Suisse",
+    "phone": "+41 41 210 11 77",
+    "phones": [
+      "+41 41 210 11 77"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [
+      "Cuisine coréenne"
+    ],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-acquarello",
+    "name": "Restaurant Acquarello",
+    "tenant": "",
+    "address": "10 Rue du Village\nFroideville\nVD",
+    "postalCode": "",
+    "city": "1055",
+    "country": "Suisse",
+    "phone": "+41 21 881 57 45",
+    "phones": [
+      "+41 21 881 57 45"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "auberge-communale-2",
+    "name": "Auberge Communale",
+    "tenant": "M. & Mme Thierry et Brigitta Bréhonnet",
+    "address": "78 Rte des Deux-VillagesSt-Légier-La Chiésaz\nVD",
+    "postalCode": "",
+    "city": "1806",
+    "country": "Suisse",
+    "phone": "+41 21 943 11 77",
+    "phones": [
+      "+41 21 943 11 77",
+      "+41219431177"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-il-coccodrillo",
+    "name": "Restaurant Il Coccodrillo",
+    "tenant": "",
+    "address": "5 Via della Scala Firenze, Firenze FI I",
+    "postalCode": "",
+    "city": "50123",
+    "country": "Italie",
+    "phone": "+39 (055) 26-18-76",
+    "phones": [
+      "+39 (055) 26-18-76"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-doki-doki",
+    "name": "Restaurant Doki Doki",
+    "tenant": "",
+    "address": "Avenue du Tribunal-Fédéral",
+    "postalCode": "1005",
+    "city": "Lausanne",
+    "country": "Suisse",
+    "phone": "+41 21 219 24 14",
+    "phones": [
+      "+41 21 219 24 14"
+    ],
+    "email": "dokidoki.lausanne@gmail.com",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-les-cluds",
+    "name": "Restaurant Les Cluds",
+    "tenant": "",
+    "address": "Bullet\nVD",
+    "postalCode": "",
+    "city": "1453",
+    "country": "Suisse",
+    "phone": "+41 24 454 25 94",
+    "phones": [
+      "+41 24 454 25 94"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Fonction: Spécialités Filets mignons",
+    "source": "VCF"
+  },
+  {
+    "id": "auberge-de-sonchaux",
+    "name": "Auberge de Sonchaux",
+    "tenant": "M. Dimitri Léchaire",
+    "address": "Rte de Sonchaux",
+    "postalCode": "1820",
+    "city": "Veytaux",
+    "country": "Suisse",
+    "phone": "+41 21 963 44 67",
+    "phones": [
+      "+41 21 963 44 67"
+    ],
+    "email": "aubergesonchaux@gmail.com",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Panorama\nfermé le mardi",
+    "source": "VCF"
+  },
+  {
+    "id": "ristorante-st-paul",
+    "name": "Ristorante St Paul",
+    "tenant": "",
+    "address": "72 Ave d'Echallens",
+    "postalCode": "1004",
+    "city": "Lausanne",
+    "country": "Suisse",
+    "phone": "+41 21 544 73 91",
+    "phones": [
+      "+41 21 544 73 91"
+    ],
+    "email": "ristorante.st.paul@gmail.com",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-k-pub-cuisine-corenne",
+    "name": "Restaurant K-Pub;Cuisine coréenne",
+    "tenant": "",
+    "address": "8 Rue de la Navigation\nGenève\nGE",
+    "postalCode": "",
+    "city": "1201",
+    "country": "Suisse",
+    "phone": "+41 22 732 12 17",
+    "phones": [
+      "+41 22 732 12 17"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "auberge-du-grand-saconnex",
+    "name": "Auberge du Grand-Saconnex",
+    "tenant": "",
+    "address": "175 Rte de Ferney\nGrand-Saconnex\nGE",
+    "postalCode": "",
+    "city": "1218",
+    "country": "Suisse",
+    "phone": "+41 22 798 06 98",
+    "phones": [
+      "+41 22 798 06 98"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-la-bretonne-crperie",
+    "name": "Restaurant La Bretonne;Crêperie",
+    "tenant": "",
+    "address": "19 Rue du Casino\nRue\nFR",
+    "postalCode": "",
+    "city": "1673",
+    "country": "Suisse",
+    "phone": "+41 21 909 03 68",
+    "phones": [
+      "+41 21 909 03 68"
+    ],
+    "email": "",
+    "website": "labretonne.ch",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-le-pont-de-brent",
+    "name": "Restaurant Le Pont de Brent",
+    "tenant": "",
+    "address": "Brent\nVD",
+    "postalCode": "",
+    "city": "1817",
+    "country": "Suisse",
+    "phone": "+41 21 964 52 30",
+    "phones": [
+      "+41 21 964 52 30"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-au-chat-noir",
+    "name": "Restaurant Au Chat Noir",
+    "tenant": "",
+    "address": "27 Rue Beau-Séjour\nLausanne\nVD",
+    "postalCode": "",
+    "city": "1003",
+    "country": "Suisse",
+    "phone": "+41213129585",
+    "phones": [
+      "+41213129585"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "auberge-des-joncs",
+    "name": "Auberge des Joncs",
+    "tenant": "Genoud Christine",
+    "address": "371 Rte des Joncs\nLes Paccots\nFR\n1619",
+    "postalCode": "",
+    "city": "CH",
+    "country": "",
+    "phone": "+41219487123",
+    "phones": [
+      "+41219487123"
+    ],
+    "email": "auberge@lacdesjoncs.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-caf-de-la-gare",
+    "name": "Restaurant Café de la Gare",
+    "tenant": "Mascaro Pier Remo",
+    "address": "192 Rte Principale\nVuadens\nFR",
+    "postalCode": "",
+    "city": "1628",
+    "country": "Suisse",
+    "phone": "+41219095023",
+    "phones": [
+      "+41219095023",
+      "+41 76 632 69 35",
+      "+41766326935"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Fermé lundi",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-kora-garden",
+    "name": "Restaurant Koréa Garden",
+    "tenant": "",
+    "address": "4 Ch. des Cornillons\nChambésy\nGE",
+    "postalCode": "",
+    "city": "1292",
+    "country": "Suisse",
+    "phone": "+41 22 758 08 48",
+    "phones": [
+      "+41 22 758 08 48"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [
+      "Cuisine coréenne"
+    ],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-les-platanes",
+    "name": "Restaurant Les Platanes",
+    "tenant": "",
+    "address": "92 Rte de la Plaine\nLa Plaine\nGE",
+    "postalCode": "",
+    "city": "1283",
+    "country": "Suisse",
+    "phone": "+41 22 754 19 60",
+    "phones": [
+      "+41 22 754 19 60"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "fermé samedi & dimanchejolie très petite terrasse",
+    "source": "VCF"
+  },
+  {
+    "id": "traiteur-le-kimchi",
+    "name": "Traiteur Le Kimchi",
+    "tenant": "Mme Choi",
+    "address": "40 Ave des Alpes\nMontreux\nVD",
+    "postalCode": "",
+    "city": "1820",
+    "country": "Suisse",
+    "phone": "+41 21 964 38 37",
+    "phones": [
+      "+41 21 964 38 37",
+      "+41 77 488 88 78",
+      "+41774888878"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Ouvert tous les jours dès 16h",
+    "source": "VCF"
+  },
+  {
+    "id": "auberge-de-l-abbaye-de-montheron",
+    "name": "Auberge de l'Abbaye de Montheron",
+    "tenant": "",
+    "address": "2 Rte de l'Abbaye\nMontheron\nVD",
+    "postalCode": "",
+    "city": "1053",
+    "country": "Suisse",
+    "phone": "+41 21 731 73 73",
+    "phones": [
+      "+41 21 731 73 73"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "ME - SA 12h-14h 18h30-22h\nDI 12h-22h",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-fai-wong",
+    "name": "Restaurant Fai Wong",
+    "tenant": "",
+    "address": "94 Av. des Alpes\nMontreux\nVD",
+    "postalCode": "",
+    "city": "1820",
+    "country": "Suisse",
+    "phone": "",
+    "phones": [],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Web Page: http://www.faiwong.ch",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-de-la-place",
+    "name": "Restaurant de la Place",
+    "tenant": "",
+    "address": "4 Rte des Deux-Villages\nSt-Légier-La Chiésaz\nVD",
+    "postalCode": "",
+    "city": "1806",
+    "country": "Suisse",
+    "phone": "+41 21 943 10 37",
+    "phones": [
+      "+41 21 943 10 37"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "traiteur-le-kotchi",
+    "name": "Traiteur Le Kotchi",
+    "tenant": "",
+    "address": "17 A Av. de la Harpe\nLausanne\nVD",
+    "postalCode": "",
+    "city": "1007",
+    "country": "Suisse",
+    "phone": "+41 21 601 13 33",
+    "phones": [
+      "+41 21 601 13 33"
+    ],
+    "email": "",
+    "website": "http://www.lekotchi.ch",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "htel-ambassador",
+    "name": "Hôtel Ambassador",
+    "tenant": "",
+    "address": "21 Niklaus-Konrad-Str\nSolothurn\nSO",
+    "postalCode": "",
+    "city": "4500",
+    "country": "Suisse",
+    "phone": "+41 32 621 61 81",
+    "phones": [
+      "+41 32 621 61 81"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-la-lagune",
+    "name": "Restaurant La Lagune",
+    "tenant": "",
+    "address": "Au Vieux-Stand\nRte d'Ouchy\nLutry\nVD",
+    "postalCode": "",
+    "city": "1095",
+    "country": "Suisse",
+    "phone": "+41 21 791 14 49",
+    "phones": [
+      "+41 21 791 14 49"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-caf-du-soleil",
+    "name": "Restaurant Café du Soleil",
+    "tenant": "",
+    "address": "6 Pl. du Petit-Saconnex\nGenève\nGE",
+    "postalCode": "",
+    "city": "1209",
+    "country": "Suisse",
+    "phone": "+41 22 733 34 17",
+    "phones": [
+      "+41 22 733 34 17"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Jolie terrasse en été",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-jet-lag",
+    "name": "Restaurant Jet Lag",
+    "tenant": "",
+    "address": "Pl. de la Riponne\n4 Pl. Auberjonois\nLausanne\nVD",
+    "postalCode": "",
+    "city": "1005",
+    "country": "Suisse",
+    "phone": "+41 21 311 11 33",
+    "phones": [
+      "+41 21 311 11 33"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "auberge-du-tilleul",
+    "name": "Auberge du Tilleul",
+    "tenant": "",
+    "address": "12 Route de l'Eglise\nMatran\nFR",
+    "postalCode": "",
+    "city": "1753",
+    "country": "Suisse",
+    "phone": "+41264021745",
+    "phones": [
+      "+41264021745"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-korea-pavillon",
+    "name": "Restaurant Korea Pavillon",
+    "tenant": "",
+    "address": "457 Badenerstr\nZürich\nZH",
+    "postalCode": "",
+    "city": "8003",
+    "country": "Suisse",
+    "phone": "+41 44 492 33 32",
+    "phones": [
+      "+41 44 492 33 32"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [
+      "Cuisine coréenne"
+    ],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "hotel-shiraz",
+    "name": "Hotel Shiraz",
+    "tenant": "",
+    "address": "Station Road\nBhadohi\nUP\n000000",
+    "postalCode": "",
+    "city": "Inde",
+    "country": "",
+    "phone": "+91 (5414) 2-57-65",
+    "phones": [
+      "+91 (5414) 2-57-65"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "auberge-du-cheval-blanc-2",
+    "name": "Auberge du Cheval blanc",
+    "tenant": "M. Manu Pinheiros",
+    "address": "1 Rte de ThierrensSt-Cierges\nVD",
+    "postalCode": "",
+    "city": "1410",
+    "country": "Suisse",
+    "phone": "+41 21 905 31 26",
+    "phones": [
+      "+41 21 905 31 26"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Spécialité : Cataplana, chasse",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-l-elphant-blanc",
+    "name": "Restaurant l'Eléphant blanc",
+    "tenant": "",
+    "address": "4 Rue Cité-Devant\nLausanne\nVD",
+    "postalCode": "",
+    "city": "1005",
+    "country": "Suisse",
+    "phone": "+41 21 312 71 77",
+    "phones": [
+      "+41 21 312 71 77"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-pinte-des-colombettes",
+    "name": "Restaurant Pinte des Colombettes",
+    "tenant": "Walter Fougère",
+    "address": "480 Rte des Colombettes\nVuadens\nFR",
+    "postalCode": "",
+    "city": "1628",
+    "country": "Suisse",
+    "phone": "+41 26 919 16 16",
+    "phones": [
+      "+41 26 919 16 16"
+    ],
+    "email": "pintedescolombettes@clos-fleuri.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-le-souffleur-vroom-fribourg",
+    "name": "Restaurant Le Souffleur;Vroom Fribourg",
+    "tenant": "",
+    "address": "Rue du Centre 7\nVillars-sur-Glâne\nFR\n1752",
+    "postalCode": "",
+    "city": "CH",
+    "country": "",
+    "phone": "+41264075150",
+    "phones": [
+      "+41264075150"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-kimchi",
+    "name": "Restaurant Kimchi",
+    "tenant": "",
+    "address": "85 Rue de Carouge\nGenève\nGE",
+    "postalCode": "",
+    "city": "1205",
+    "country": "Suisse",
+    "phone": "+41 22 328 05 00",
+    "phones": [
+      "+41 22 328 05 00"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "auberge-de-la-veveyse",
+    "name": "Auberge de la Veveyse",
+    "tenant": "M. Jean-Sébastien Ribette",
+    "address": "212 Rte de Châtel-St-Denis\nSt-Légier-La Chiésaz\nVD",
+    "postalCode": "",
+    "city": "1806",
+    "country": "Suisse",
+    "phone": "+41 21 943 67 60",
+    "phones": [
+      "+41 21 943 67 60"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Menu Surprise",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-maison-de-core",
+    "name": "Restaurant Maison de Corée",
+    "tenant": "Chong-Chul Kim",
+    "address": "4 Rue des Corps-Saints\nGenève\nGE",
+    "postalCode": "",
+    "city": "1201",
+    "country": "Suisse",
+    "phone": "+41 22 741 45 41",
+    "phones": [
+      "+41 22 741 45 41"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [
+      "Cuisine coréenne"
+    ],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-bambushain",
+    "name": "Restaurant Bambushain",
+    "tenant": "Koung Sook",
+    "address": "35 Vogelsangstr\nZürich\nZH",
+    "postalCode": "",
+    "city": "8006",
+    "country": "Suisse",
+    "phone": "+41 44 363 22 28",
+    "phones": [
+      "+41 44 363 22 28"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-club-nautique",
+    "name": "Restaurant Club Nautique",
+    "tenant": "",
+    "address": "1 Pl. de la Navigation\nMorges\nVD",
+    "postalCode": "",
+    "city": "1110",
+    "country": "Suisse",
+    "phone": "+41 21 801 51 51",
+    "phones": [
+      "+41 21 801 51 51"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "hotel-mvenpick-city-centre",
+    "name": "Hotel Mövenpick City Centre",
+    "tenant": "",
+    "address": "11 Piet Heinkade\nAmsterdam\n1019 BR",
+    "postalCode": "",
+    "city": "Pays-Bas",
+    "country": "",
+    "phone": "+31 (20) 519 12 00",
+    "phones": [
+      "+31 (20) 519 12 00"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-le-pavillon",
+    "name": "Restaurant Le Pavillon",
+    "tenant": "",
+    "address": "4 Place de la Gare\nVevey\nVD",
+    "postalCode": "",
+    "city": "1800",
+    "country": "Suisse",
+    "phone": "+41 21 925 04 04",
+    "phones": [
+      "+41 21 925 04 04"
+    ],
+    "email": "reservations@pavillon.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-caf-de-la-poste",
+    "name": "Restaurant Café de la Poste",
+    "tenant": "",
+    "address": "Lutry\nVD",
+    "postalCode": "",
+    "city": "1095",
+    "country": "Suisse",
+    "phone": "+41 21 791 18 72",
+    "phones": [
+      "+41 21 791 18 72"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-copacabana",
+    "name": "Restaurant Copacabana",
+    "tenant": "",
+    "address": "Cugy\nVD",
+    "postalCode": "",
+    "city": "1053",
+    "country": "Suisse",
+    "phone": "+41 21 731 22 08",
+    "phones": [
+      "+41 21 731 22 08"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-caf-du-centre",
+    "name": "Restaurant Café du Centre",
+    "tenant": "",
+    "address": "5 Pl. du Molard\nGenève\nGE",
+    "postalCode": "",
+    "city": "1201",
+    "country": "Suisse",
+    "phone": "+41 22 311 85 86",
+    "phones": [
+      "+41 22 311 85 86"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "spécial fruits de mer",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-karma",
+    "name": "Restaurant Karma",
+    "tenant": "",
+    "address": "22 Rue du Pont\nLausanne\nVD",
+    "postalCode": "",
+    "city": "1003",
+    "country": "Suisse",
+    "phone": "+41 79 263 88 71",
+    "phones": [
+      "+41 79 263 88 71",
+      "+41 21 351 81 81",
+      "+41792638871"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Café, Restaurant, Pizzeria, Italien, cuisine, Chinoise, cuisine",
+    "source": "VCF"
+  },
+  {
+    "id": "caf-l-evch",
+    "name": "Café L'Evêché",
+    "tenant": "",
+    "address": "4 Rue Louis-Curtat\nLausanne\nVD",
+    "postalCode": "",
+    "city": "1005",
+    "country": "",
+    "phone": "+41213239323",
+    "phones": [
+      "+41213239323"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "auberge-du-dfiran",
+    "name": "Auberge du Défiran",
+    "tenant": "Fam. Raymond",
+    "address": "Mont-Pèlerin\nVD",
+    "postalCode": "",
+    "city": "1801",
+    "country": "Suisse",
+    "phone": "+41 21 921 56 07",
+    "phones": [
+      "+41 21 921 56 07"
+    ],
+    "email": "",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "traiteur-chogajib",
+    "name": "Traiteur Chogajib",
+    "tenant": "Sonia Kim",
+    "address": "17 Ave des Alpes\nMontreux\nVD",
+    "postalCode": "",
+    "city": "1820",
+    "country": "Suisse",
+    "phone": "+41 21 963 24 69",
+    "phones": [
+      "+41 21 963 24 69"
+    ],
+    "email": "se.kim@hotmail.com",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Lu - Ve : 11h30 - 20h\nSa : 11h30 - 19h\nFermé le 1er et le 3ème Lu de chaque mois",
+    "source": "VCF"
+  },
+  {
+    "id": "alimentation-bap-urban-korean-food",
+    "name": "Alimentation Bap Urban;Korean Food",
+    "tenant": "",
+    "address": "25 Coutance",
+    "postalCode": "1201",
+    "city": "Genève",
+    "country": "",
+    "phone": "+41 22 731 11 33",
+    "phones": [
+      "+41 22 731 11 33"
+    ],
+    "email": "info@b-a-p.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Lu-ve 11h30-14h30 et 18h00-22h00, sa 18h00-22h00, fermé dim et jf",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-au-coeur-de-la-cte",
+    "name": "Restaurant Au Coeur de la Côte",
+    "tenant": "M. Philip Wolfsteiner",
+    "address": "12 Rte du Vignoble\nVinzel\nVD",
+    "postalCode": "",
+    "city": "1184",
+    "country": "Suisse",
+    "phone": "+41 21 824 11 41",
+    "phones": [
+      "+41 21 824 11 41"
+    ],
+    "email": "info@malakoffvinzel.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-relais-de-la-poste",
+    "name": "Restaurant Relais de la Poste",
+    "tenant": "José Costa",
+    "address": ".",
+    "postalCode": "1091",
+    "city": "Grandvaux",
+    "country": "Suisse",
+    "phone": "+41 21 799 16 33",
+    "phones": [
+      "+41 21 799 16 33"
+    ],
+    "email": "info@relais-de-la-poste.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "htel-lakeview-le-rivage",
+    "name": "Hôtel LakeView Le Rivage",
+    "tenant": "",
+    "address": "",
+    "postalCode": "1095",
+    "city": "Port de Lutry Rue du Rivage Grand-Rue 36 Lutry VD",
+    "country": "",
+    "phone": "+41217967272",
+    "phones": [
+      "+41217967272"
+    ],
+    "email": "info@hotelrivagelutry.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "hotel-auenerhof",
+    "name": "Hotel Auenerhof",
+    "tenant": "Frau Schneider, Gisela",
+    "address": "21 Auen",
+    "postalCode": "",
+    "city": "Sarnthein, BO I-39058",
+    "country": "Italie",
+    "phone": "+39 (471) 62 30 55",
+    "phones": [
+      "+39 (471) 62 30 55"
+    ],
+    "email": "info@auenerhof.it",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-crazy-hotel-company",
+    "name": "Restaurant Crazy Hotel Company",
+    "tenant": "van Gool Harry & Adrian",
+    "address": "Case postale 114",
+    "postalCode": "1562",
+    "city": "Corcelles",
+    "country": "Suisse",
+    "phone": "+41 79 318 40 50",
+    "phones": [
+      "+41 79 318 40 50",
+      "+41793184050"
+    ],
+    "email": "info@crazy-hotel-company.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "miramont-trekking-gmbh",
+    "name": "Miramont-Trekking GmbH",
+    "tenant": "Franco Infantino",
+    "address": "37 Rte de la Scierie\nSaicourt\nBE",
+    "postalCode": "",
+    "city": "2732",
+    "country": "Suisse",
+    "phone": "+41 32 481 22 29",
+    "phones": [
+      "+41 32 481 22 29",
+      "+4178 774 15 54",
+      "+41787741554"
+    ],
+    "email": "info@miramont-trekking.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-la-vieille-auberge",
+    "name": "Restaurant La Vieille Auberge",
+    "tenant": "",
+    "address": "2 Rte Romaine",
+    "postalCode": "1358",
+    "city": "Valeyres-sous-Rances",
+    "country": "Suisse",
+    "phone": "+41 24 441 00 06",
+    "phones": [
+      "+41 24 441 00 06"
+    ],
+    "email": "info@lavieilleauberge.ch",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "fermé DI et LU",
+    "source": "VCF"
+  },
+  {
+    "id": "restaurant-le-coucou",
+    "name": "Restaurant Le Coucou",
+    "tenant": "Bertrand Cruchaud",
+    "address": "Rte du Chasseron 2\nLes Rasses",
+    "postalCode": "1452",
+    "city": "Ste-Croix",
+    "country": "Suisse",
+    "phone": "+41 79 449 36 78",
+    "phones": [
+      "+41 79 449 36 78",
+      "+41 24 454 28 02",
+      "+41794493678"
+    ],
+    "email": "lecoucou@icloud.com",
+    "website": "",
+    "hours": "",
+    "specialties": [],
+    "notes": "Other Phone: +41 79 615 92 24",
+    "source": "VCF"
+  },
+  {
+    "id": "htel-restaurant-et-spa-les-planets-srl",
+    "name": "Hôtel Restaurant et Spa Les Planets Sàrl",
+    "tenant": "",
+    "address": "Rte du Chasseron 12\nLes Rasses\nVD",
+    "postalCode": "",
+    "city": "1452",
+    "country": "Suisse",
+    "phone": "+41 24 454 13 56",
+    "phones": [
+      "+41 24 454 13 56"
+    ],
+    "email": "",
+    "website": "https://hotel-lesplanets.ch/",
+    "hours": "",
+    "specialties": [],
+    "notes": "Horaires ouverture (saisonales, à vérifier)\nDu lundi au jeudi      08h45-22h00\nVendredi et samedi  08h45-23h00\nDimanche                   08h45-21h00",
+    "source": "VCF"
+  }
+]

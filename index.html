@@ -6,21 +6,22 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v251d.css?v=2516">
+  <link rel="stylesheet" href="styles-v26.css?v=2600">
 </head>
 <body>
 <header>
-  <div><h1>Herbier Gourmand</h1><p>v2.5.1d · Confort et planning vivant</p></div>
+  <div><h1>Herbier Gourmand</h1><p>v2.6 · Envie d’une sortie ?</p></div>
   <div class="header-actions"><span id="updateStatus">Planification assistée</span><button id="installBtn" class="ghost hidden">Installer</button></div>
 </header>
 <nav>
-  <button class="active" data-view="home">Accueil</button><button data-view="recipes">Recettes</button><button data-view="planner">Planning</button><button data-view="shopping">Courses</button>
+  <button class="active" data-view="home">Accueil</button><button data-view="recipes">Recettes</button><button data-view="planner">Planning</button><button data-view="shopping">Courses</button><button data-view="restaurants">Sorties</button>
 </nav>
 <main>
 <section id="home" class="view active">
   <div class="notice"><strong>Mission Terrain :</strong> préparer tranquillement le week-end, gagner du temps toute la semaine.</div>
   <div class="hero"><h2>Que faisons-nous aujourd’hui ?</h2><button class="primary" data-go="planner">Préparer la semaine</button><button id="surpriseBtn" class="secondary">Une idée surprise</button></div>
   <div id="surpriseCard"></div>
+  <section class="outing-home-card"><div><h2>Envie d’une sortie ?</h2><p>Retrouver une bonne adresse, explorer par lieu, pays ou spécialité.</p></div><button class="primary" data-go="restaurants">Choisir un restaurant</button></section>
   <section class="panel data-transfer-panel" aria-labelledby="dataTransferTitle">
     <div class="section-title"><div><h2 id="dataTransferTitle">Sauvegarde et transfert</h2><span class="muted">Pour retrouver tes données sur un autre appareil.</span></div></div>
     <p>Exporte toutes les données personnelles d’Herbier Gourmand, puis importe le fichier sur le notebook ou le smartphone.</p>
@@ -68,6 +69,23 @@
   <button id="addShoppingBottom" class="wide secondary">+ Ajouter un article</button>
   <div class="sticky-actions"><button id="clearChecks">Tout décocher</button><button id="removeChecked">Supprimer cochés</button><button id="clearShopping" class="danger">Vider</button><button id="printShopping">Imprimer</button></div>
 </section>
+
+<section id="restaurants" class="view">
+  <div class="section-title"><div><h2>Envie d’une sortie ?</h2><span id="restaurantCount" class="muted"></span></div><button id="newRestaurant" class="primary">+ Nouveau</button></div>
+  <div class="restaurant-search-grid">
+    <label>Nom<input id="restaurantSearch" type="search" placeholder="Nom du restaurant…"></label>
+    <label>Lieu<select id="restaurantCity"><option value="">Tous les lieux</option></select></label>
+    <label>Pays<select id="restaurantCountry"><option value="">Tous les pays</option></select></label>
+    <label>Spécialité<select id="restaurantSpecialty"><option value="">Toutes les spécialités</option></select></label>
+  </div>
+  <div class="button-row restaurant-filter-actions"><button id="clearRestaurantFilters">Vider la recherche</button></div>
+  <div id="restaurantList"></div>
+</section>
+<section id="restaurantView" class="view recipe-screen">
+  <div class="recipe-screen-actions"><button id="backFromRestaurant">← Retour</button><div><button id="editViewedRestaurant">Modifier</button></div></div>
+  <article id="restaurantViewContent"></article>
+</section>
+
 </main>
 <footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse.</footer>
 
@@ -92,5 +110,21 @@
 <p>Le fichier remplacera les données Herbier Gourmand actuellement enregistrées sur cet appareil.</p>
 <div id="dataImportSummary" class="notice subtle"></div>
 <div class="dialog-actions"><button type="button" id="cancelDataImport">Annuler</button><button type="submit" class="primary">Remplacer et importer</button></div></form></dialog>
-<script src="app-v251d.js?v=2516"></script>
+
+<dialog id="restaurantDialog"><form id="restaurantForm" method="dialog"><div class="dialog-head"><h2 id="restaurantDialogTitle">Restaurant</h2><button type="button" id="closeRestaurant">×</button></div>
+<input type="hidden" id="restaurantId">
+<div class="grid restaurant-form-grid">
+<label>Nom<input id="restaurantName" required></label><label>Tenancier<input id="restaurantTenant"></label>
+<label>Adresse<textarea id="restaurantAddress" rows="2"></textarea></label><label>Code postal<input id="restaurantPostal"></label>
+<label>Lieu<input id="restaurantCityField" list="restaurantCitySuggestions"><datalist id="restaurantCitySuggestions"></datalist></label>
+<label>Pays<input id="restaurantCountryField" list="restaurantCountrySuggestions"><datalist id="restaurantCountrySuggestions"></datalist></label>
+<label>Téléphone international<input id="restaurantPhone" type="tel" placeholder="+41 XX XXX XX XX"></label><label>Site internet<input id="restaurantWebsite" type="url" placeholder="https://…"></label>
+</div>
+<label>Heures d’ouverture<textarea id="restaurantHours" rows="5" placeholder="Mémo libre : jours, services, fermetures, exceptions…"></textarea></label>
+<label>Spécialités <span class="muted">(tags séparés par des virgules)</span><input id="restaurantSpecialties"></label>
+<label>Remarques<textarea id="restaurantNotes" rows="6"></textarea></label>
+<div class="dialog-actions"><button type="button" id="deleteRestaurant" class="danger">Supprimer</button><button type="button" id="duplicateRestaurant">Dupliquer</button><button type="submit" class="primary">Enregistrer</button></div>
+</form></dialog>
+
+<script src="app-v26.js?v=2600"></script>
 </body></html>
