@@ -1,0 +1,980 @@
+[
+  {
+    "id": "fromagerie-romontoise-1",
+    "name": "Fromagerie Romontoise",
+    "type": "Fromagerie / laiterie",
+    "region": "Glâne",
+    "city": "Romont",
+    "address": "Impasse de la Maladaire 2, 1680 Romont",
+    "postalCode": "1680",
+    "country": "Suisse",
+    "phone": "+41 26 652 21 12",
+    "website": "",
+    "hours": "Lun–sam 08:00–12:00 et 17:00–19:00; dim 09:00–11:00 et 17:00–19:00",
+    "products": [
+      "Gruyère AOP",
+      "Vacherin fribourgeois AOP",
+      "mélanges à fondue",
+      "produits laitiers"
+    ],
+    "tags": [
+      "Gruyère AOP",
+      "Vacherin fribourgeois AOP",
+      "mélanges à fondue",
+      "produits laitiers",
+      "Vente directe"
+    ],
+    "notes": "",
+    "directSale": "Oui",
+    "source": ""
+  },
+  {
+    "id": "boulangerie-didier-ecoffey-magasin-principal-2",
+    "name": "Boulangerie Didier Ecoffey – magasin principal",
+    "type": "Boulangerie artisanale",
+    "region": "Glâne",
+    "city": "Romont",
+    "address": "Romont (adresse détaillée à confirmer)",
+    "postalCode": "",
+    "country": "Suisse",
+    "phone": "À confirmer",
+    "website": "",
+    "hours": "Lun fermé; mar–ven 05:45–18:30; sam 06:30–14:00; dim 06:30–12:00",
+    "products": [
+      "Pains",
+      "pâtisseries",
+      "Cuchaule AOP",
+      "moutarde de Bénichon maison"
+    ],
+    "tags": [
+      "Pains",
+      "pâtisseries",
+      "Cuchaule AOP",
+      "moutarde de Bénichon maison"
+    ],
+    "notes": "",
+    "directSale": "Non",
+    "source": ""
+  },
+  {
+    "id": "boulangerie-didier-ecoffey-succursale-gare-3",
+    "name": "Boulangerie Didier Ecoffey – succursale gare",
+    "type": "Boulangerie artisanale",
+    "region": "Glâne",
+    "city": "Romont",
+    "address": "Route de la Gare 7, 1680 Romont",
+    "postalCode": "1680",
+    "country": "Suisse",
+    "phone": "+41 26 652 23 07",
+    "website": "",
+    "hours": "Lun–ven 06:00–19:00; sam 07:00–16:00; dim 07:00–12:00",
+    "products": [
+      "Pains",
+      "viennoiseries",
+      "pâtisseries",
+      "spécialités fribourgeoises"
+    ],
+    "tags": [
+      "Pains",
+      "viennoiseries",
+      "pâtisseries",
+      "spécialités fribourgeoises"
+    ],
+    "notes": "",
+    "directSale": "Non",
+    "source": ""
+  },
+  {
+    "id": "boulangerie-dubey-grandjean-4",
+    "name": "Boulangerie Dubey-Grandjean",
+    "type": "Boulangerie artisanale",
+    "region": "Glâne",
+    "city": "Romont",
+    "address": "Grand-Rue 41, 1680 Romont",
+    "postalCode": "1680",
+    "country": "Suisse",
+    "phone": "+41 26 652 21 64",
+    "website": "",
+    "hours": "Lun–ven dès 06:30; horaires complets à confirmer",
+    "products": [
+      "Pains artisanaux",
+      "pâtisseries",
+      "confiserie"
+    ],
+    "tags": [
+      "Pains artisanaux",
+      "pâtisseries",
+      "confiserie"
+    ],
+    "notes": "",
+    "directSale": "Non",
+    "source": ""
+  },
+  {
+    "id": "boulangerie-et-p-tisserie-bessa-5",
+    "name": "Boulangerie et pâtisserie Bessa",
+    "type": "Boulangerie artisanale",
+    "region": "Glâne",
+    "city": "Romont",
+    "address": "Route d'Arruffens 15, 1680 Romont",
+    "postalCode": "1680",
+    "country": "Suisse",
+    "phone": "+41 26 652 80 58",
+    "website": "",
+    "hours": "À confirmer",
+    "products": [
+      "Pains",
+      "viennoiseries",
+      "pâtisseries et spécialités portugaises"
+    ],
+    "tags": [
+      "Pains",
+      "viennoiseries",
+      "pâtisseries et spécialités portugaises"
+    ],
+    "notes": "",
+    "directSale": "Non",
+    "source": ""
+  },
+  {
+    "id": "boucherie-clerc-s-rl-6",
+    "name": "Boucherie Clerc Sàrl",
+    "type": "Boucherie artisanale",
+    "region": "Glâne",
+    "city": "Romont",
+    "address": "Romont, 1680 Romont",
+    "postalCode": "1680",
+    "country": "Suisse",
+    "phone": "À confirmer",
+    "website": "",
+    "hours": "À confirmer",
+    "products": [
+      "Boucherie-charcuterie artisanale",
+      "produits du terroir"
+    ],
+    "tags": [
+      "Boucherie-charcuterie artisanale",
+      "produits du terroir"
+    ],
+    "notes": "",
+    "directSale": "Non",
+    "source": ""
+  },
+  {
+    "id": "fromagerie-de-vuisternens-7",
+    "name": "Fromagerie de Vuisternens",
+    "type": "Fromagerie / laiterie",
+    "region": "Glâne",
+    "city": "Vuisternens-devant-Romont",
+    "address": "1687 Vuisternens-devant-Romont",
+    "postalCode": "1687",
+    "country": "Suisse",
+    "phone": "À confirmer",
+    "website": "",
+    "hours": "À confirmer",
+    "products": [
+      "Fromages et produits laitiers maison",
+      "spécialités du terroir fribourgeois"
+    ],
+    "tags": [
+      "Fromages et produits laitiers maison",
+      "spécialités du terroir fribourgeois",
+      "Vente directe"
+    ],
+    "notes": "",
+    "directSale": "Oui",
+    "source": ""
+  },
+  {
+    "id": "alimentation-chez-marianne-8",
+    "name": "Alimentation chez Marianne",
+    "type": "Boulangerie / alimentation",
+    "region": "Glâne",
+    "city": "Vuisternens-devant-Romont",
+    "address": "Route de Sommentier 2, 1687 Vuisternens-devant-Romont",
+    "postalCode": "1687",
+    "country": "Suisse",
+    "phone": "À confirmer",
+    "website": "",
+    "hours": "À confirmer",
+    "products": [
+      "Pain",
+      "produits d'alimentation et produits de proximité"
+    ],
+    "tags": [
+      "Pain",
+      "produits d'alimentation et produits de proximité"
+    ],
+    "notes": "",
+    "directSale": "Non",
+    "source": ""
+  },
+  {
+    "id": "fromagerie-r-gionale-de-m-zi-res-9",
+    "name": "Fromagerie régionale de Mézières",
+    "type": "Fromagerie / laiterie",
+    "region": "Glâne",
+    "city": "Mézières",
+    "address": "Mézières FR",
+    "postalCode": "",
+    "country": "Suisse",
+    "phone": "À confirmer",
+    "website": "",
+    "hours": "À confirmer",
+    "products": [
+      "Fromages régionaux",
+      "produits laitiers et spécialités fribourgeoises"
+    ],
+    "tags": [
+      "Fromages régionaux",
+      "produits laitiers et spécialités fribourgeoises",
+      "Vente directe"
+    ],
+    "notes": "",
+    "directSale": "Oui",
+    "source": ""
+  },
+  {
+    "id": "la-ferme-des-sens-10",
+    "name": "La Ferme des Sens",
+    "type": "Vente directe à la ferme",
+    "region": "Châtel-Saint-Denis / Veveyse",
+    "city": "Châtel-Saint-Denis",
+    "address": "Chemin de la Gurla 41, 1618 Châtel-Saint-Denis",
+    "postalCode": "1618",
+    "country": "Suisse",
+    "phone": "+41 79 605 31 12",
+    "website": "",
+    "hours": "Vendredi 14:00–19:00",
+    "products": [
+      "Viande de la ferme",
+      "bœuf",
+      "porc de pâturage",
+      "agneau",
+      "viande sèche",
+      "lait cru",
+      "fromages frais",
+      "paniers de légumes bio",
+      "épicerie"
+    ],
+    "tags": [
+      "Viande de la ferme",
+      "bœuf",
+      "porc de pâturage",
+      "agneau",
+      "viande sèche",
+      "lait cru",
+      "fromages frais",
+      "paniers de légumes bio",
+      "épicerie",
+      "Vente directe"
+    ],
+    "notes": "",
+    "directSale": "Oui",
+    "source": ""
+  },
+  {
+    "id": "boucherie-blanc-11",
+    "name": "Boucherie Blanc",
+    "type": "Boucherie artisanale",
+    "region": "Châtel-Saint-Denis / Veveyse",
+    "city": "Châtel-Saint-Denis",
+    "address": "Grand-Rue 64, 1618 Châtel-Saint-Denis",
+    "postalCode": "1618",
+    "country": "Suisse",
+    "phone": "+41 21 948 73 77",
+    "website": "",
+    "hours": "Lun–mer et ven 06:30–12:00, 13:30–18:30; sam 06:30–12:00, 13:30–16:00; jeu fermé",
+    "products": [
+      "Viandes",
+      "charcuterie",
+      "traiteur"
+    ],
+    "tags": [
+      "Viandes",
+      "charcuterie",
+      "traiteur"
+    ],
+    "notes": "",
+    "directSale": "Non",
+    "source": ""
+  },
+  {
+    "id": "fromagerie-de-prayoud-12",
+    "name": "Fromagerie de Prayoud",
+    "type": "Fromagerie / laiterie",
+    "region": "Châtel-Saint-Denis / Veveyse",
+    "city": "Châtel-Saint-Denis",
+    "address": "Route de Prayoud 55, 1618 Châtel-Saint-Denis",
+    "postalCode": "1618",
+    "country": "Suisse",
+    "phone": "+41 21 903 23 13",
+    "website": "",
+    "hours": "Lun–sam 07:30–11:30 et 17:00–19:00; dim 07:30–11:30",
+    "products": [
+      "Gruyère AOP",
+      "Gruyère Bio AOP",
+      "Vacherin fribourgeois AOP/Bio",
+      "tommes",
+      "sérac",
+      "fondue maison",
+      "yogourts bio"
+    ],
+    "tags": [
+      "Gruyère AOP",
+      "Gruyère Bio AOP",
+      "Vacherin fribourgeois AOP/Bio",
+      "tommes",
+      "sérac",
+      "fondue maison",
+      "yogourts bio",
+      "Vente directe"
+    ],
+    "notes": "",
+    "directSale": "Oui",
+    "source": ""
+  },
+  {
+    "id": "laiterie-de-ch-tel-st-denis-fromageries-dumas-13",
+    "name": "Laiterie de Châtel-St-Denis / Fromageries Dumas",
+    "type": "Fromagerie / laiterie",
+    "region": "Châtel-Saint-Denis / Veveyse",
+    "city": "Châtel-Saint-Denis",
+    "address": "Place d'Armes 21, 1618 Châtel-Saint-Denis",
+    "postalCode": "1618",
+    "country": "Suisse",
+    "phone": "+41 21 948 75 22",
+    "website": "",
+    "hours": "À confirmer",
+    "products": [
+      "Grand choix de fromages",
+      "mélanges à fondue",
+      "raclettes aromatisées",
+      "produits laitiers"
+    ],
+    "tags": [
+      "Grand choix de fromages",
+      "mélanges à fondue",
+      "raclettes aromatisées",
+      "produits laitiers"
+    ],
+    "notes": "",
+    "directSale": "Non",
+    "source": ""
+  },
+  {
+    "id": "tea-room-boulangerie-p-tisserie-gilles-14",
+    "name": "Tea-Room Boulangerie-Pâtisserie Gilles",
+    "type": "Boulangerie artisanale",
+    "region": "Châtel-Saint-Denis / Veveyse",
+    "city": "Châtel-Saint-Denis",
+    "address": "Place d'Armes 21, 1618 Châtel-Saint-Denis",
+    "postalCode": "1618",
+    "country": "Suisse",
+    "phone": "+41 21 948 71 87",
+    "website": "",
+    "hours": "À confirmer",
+    "products": [
+      "Pains",
+      "pâtisseries",
+      "chocolats",
+      "truffes",
+      "meringues",
+      "tea-room et plats du jour"
+    ],
+    "tags": [
+      "Pains",
+      "pâtisseries",
+      "chocolats",
+      "truffes",
+      "meringues",
+      "tea-room et plats du jour"
+    ],
+    "notes": "",
+    "directSale": "Non",
+    "source": ""
+  },
+  {
+    "id": "gilles-s-rl-laboratoire-magasin-15",
+    "name": "Gilles Sàrl – laboratoire/magasin",
+    "type": "Boulangerie artisanale",
+    "region": "Châtel-Saint-Denis / Veveyse",
+    "city": "Châtel-Saint-Denis",
+    "address": "Route de Palézieux 124, 1618 Châtel-Saint-Denis",
+    "postalCode": "1618",
+    "country": "Suisse",
+    "phone": "+41 21 948 64 73",
+    "website": "",
+    "hours": "Ouverture principalement le matin; détail à confirmer",
+    "products": [
+      "Pains artisanaux",
+      "chocolats",
+      "panettones",
+      "gâteaux et pâtisseries"
+    ],
+    "tags": [
+      "Pains artisanaux",
+      "chocolats",
+      "panettones",
+      "gâteaux et pâtisseries"
+    ],
+    "notes": "",
+    "directSale": "Non",
+    "source": ""
+  },
+  {
+    "id": "le-comptoir-des-saveurs-16",
+    "name": "Le Comptoir des Saveurs",
+    "type": "Boucherie / traiteur",
+    "region": "Châtel-Saint-Denis / Veveyse",
+    "city": "Châtel-Saint-Denis",
+    "address": "Châtel-Saint-Denis (adresse détaillée à confirmer)",
+    "postalCode": "",
+    "country": "Suisse",
+    "phone": "À confirmer",
+    "website": "",
+    "hours": "Vendredi annoncé 09:00–21:00; autres jours à confirmer",
+    "products": [
+      "Boucherie",
+      "charcuterie",
+      "traiteur",
+      "viandes rassies sur os",
+      "burgers et pizzas artisanales"
+    ],
+    "tags": [
+      "Boucherie",
+      "charcuterie",
+      "traiteur",
+      "viandes rassies sur os",
+      "burgers et pizzas artisanales"
+    ],
+    "notes": "",
+    "directSale": "Non",
+    "source": ""
+  },
+  {
+    "id": "la-rencontre-17",
+    "name": "La Rencontre",
+    "type": "Boulangerie artisanale",
+    "region": "Payerne / Broye",
+    "city": "Payerne",
+    "address": "Payerne (adresse détaillée à confirmer)",
+    "postalCode": "",
+    "country": "Suisse",
+    "phone": "+41 26 660 04 89",
+    "website": "",
+    "hours": "À confirmer",
+    "products": [
+      "Pains",
+      "viennoiseries",
+      "pâtisseries et produits de saison"
+    ],
+    "tags": [
+      "Pains",
+      "viennoiseries",
+      "pâtisseries et produits de saison"
+    ],
+    "notes": "",
+    "directSale": "Non",
+    "source": ""
+  },
+  {
+    "id": "au-cochon-d-or-18",
+    "name": "Au Cochon d'Or",
+    "type": "Boucherie / épicerie / traiteur",
+    "region": "Payerne / Broye",
+    "city": "Payerne",
+    "address": "Route de Grandcour 63B, 1530 Payerne",
+    "postalCode": "1530",
+    "country": "Suisse",
+    "phone": "+41 26 660 62 62",
+    "website": "",
+    "hours": "Lun–ven 07:00–18:30; sam 07:00–16:00; dim fermé",
+    "products": [
+      "Boucherie",
+      "épicerie",
+      "fruits et légumes",
+      "cave",
+      "traiteur à l'emporter"
+    ],
+    "tags": [
+      "Boucherie",
+      "épicerie",
+      "fruits et légumes",
+      "cave",
+      "traiteur à l'emporter"
+    ],
+    "notes": "",
+    "directSale": "Non",
+    "source": ""
+  },
+  {
+    "id": "boucherie-weber-19",
+    "name": "Boucherie Weber",
+    "type": "Boucherie artisanale",
+    "region": "Payerne / Broye",
+    "city": "Payerne",
+    "address": "Payerne, 1530 Payerne",
+    "postalCode": "1530",
+    "country": "Suisse",
+    "phone": "À confirmer",
+    "website": "",
+    "hours": "À confirmer",
+    "products": [
+      "Saucisson de la Reine-Berthe",
+      "boutefas",
+      "rouleau payernois",
+      "charcuterie artisanale"
+    ],
+    "tags": [
+      "Saucisson de la Reine-Berthe",
+      "boutefas",
+      "rouleau payernois",
+      "charcuterie artisanale"
+    ],
+    "notes": "",
+    "directSale": "Non",
+    "source": ""
+  },
+  {
+    "id": "boucherie-de-campagne-20",
+    "name": "Boucherie de Campagne",
+    "type": "Boucherie artisanale / vente directe",
+    "region": "Payerne / Broye",
+    "city": "Corcelles-près-Payerne",
+    "address": "Route du Bornalet 10, 1562 Corcelles-près-Payerne",
+    "postalCode": "1562",
+    "country": "Suisse",
+    "phone": "+41 26 666 00 09 / +41 79 695 32 87",
+    "website": "",
+    "hours": "Lun–mar 07:00–18:00; mer 07:00–12:00; jeu–ven 07:00–18:00; sam 07:30–12:00",
+    "products": [
+      "Viandes et charcuteries artisanales",
+      "produits de campagne"
+    ],
+    "tags": [
+      "Viandes et charcuteries artisanales",
+      "produits de campagne",
+      "Vente directe"
+    ],
+    "notes": "",
+    "directSale": "Oui",
+    "source": ""
+  },
+  {
+    "id": "march-la-ferme-chez-bibi-21",
+    "name": "Marché à la ferme « Chez Bibi »",
+    "type": "Magasin à la ferme",
+    "region": "Payerne / Broye",
+    "city": "Payerne",
+    "address": "Payerne, 1530 Payerne",
+    "postalCode": "1530",
+    "country": "Suisse",
+    "phone": "À confirmer",
+    "website": "",
+    "hours": "À confirmer",
+    "products": [
+      "Viande de la ferme et produits locaux",
+      "vente en libre-service"
+    ],
+    "tags": [
+      "Viande de la ferme et produits locaux",
+      "vente en libre-service",
+      "Vente directe"
+    ],
+    "notes": "",
+    "directSale": "Oui",
+    "source": ""
+  },
+  {
+    "id": "boulangerie-hauser-22",
+    "name": "Boulangerie Hauser",
+    "type": "Boulangerie artisanale",
+    "region": "Payerne / Broye",
+    "city": "Payerne",
+    "address": "Route d'Yverdon 25, 1530 Payerne",
+    "postalCode": "1530",
+    "country": "Suisse",
+    "phone": "À confirmer",
+    "website": "",
+    "hours": "À confirmer",
+    "products": [
+      "Pains",
+      "viennoiseries et pâtisseries"
+    ],
+    "tags": [
+      "Pains",
+      "viennoiseries et pâtisseries"
+    ],
+    "notes": "",
+    "directSale": "Non",
+    "source": ""
+  },
+  {
+    "id": "le-grand-pr-sa-23",
+    "name": "Le Grand Pré SA",
+    "type": "Fromagerie artisanale",
+    "region": "Moudon / Broye vaudoise",
+    "city": "Moudon",
+    "address": "ZI du Grand Pré 4D, 1510 Moudon",
+    "postalCode": "1510",
+    "country": "Suisse",
+    "phone": "+41 21 905 50 22",
+    "website": "",
+    "hours": "À confirmer",
+    "products": [
+      "Fabrication fromagère artisanale et spécialités fromagères"
+    ],
+    "tags": [
+      "Fabrication fromagère artisanale et spécialités fromagères",
+      "Vente directe"
+    ],
+    "notes": "",
+    "directSale": "Oui",
+    "source": ""
+  },
+  {
+    "id": "les-d-lices-du-fromager-s-rl-24",
+    "name": "Les Délices du Fromager Sàrl",
+    "type": "Fromagerie / commerce de fromage",
+    "region": "Moudon / Broye vaudoise",
+    "city": "Moudon",
+    "address": "Place Saint-Etienne 3, 1510 Moudon",
+    "postalCode": "1510",
+    "country": "Suisse",
+    "phone": "+41 21 905 16 92 / +41 79 443 45 89",
+    "website": "",
+    "hours": "À confirmer",
+    "products": [
+      "Fromages suisses et régionaux",
+      "spécialités artisanales"
+    ],
+    "tags": [
+      "Fromages suisses et régionaux",
+      "spécialités artisanales"
+    ],
+    "notes": "",
+    "directSale": "Non",
+    "source": ""
+  },
+  {
+    "id": "boulangerie-p-tisserie-25",
+    "name": "Boulangerie-Pâtisserie",
+    "type": "Boulangerie artisanale",
+    "region": "Moudon / Broye vaudoise",
+    "city": "Moudon",
+    "address": "Chemin de Bronjon 8, 1510 Moudon",
+    "postalCode": "1510",
+    "country": "Suisse",
+    "phone": "+41 21 991 32 39",
+    "website": "",
+    "hours": "À confirmer",
+    "products": [
+      "Pains et pâtisseries"
+    ],
+    "tags": [
+      "Pains et pâtisseries"
+    ],
+    "notes": "",
+    "directSale": "Non",
+    "source": ""
+  },
+  {
+    "id": "ferrer-artisan-boulanger-26",
+    "name": "Ferrer Artisan Boulanger",
+    "type": "Boulangerie artisanale",
+    "region": "Moudon / Broye vaudoise",
+    "city": "Moudon",
+    "address": "Moudon, 1510 Moudon",
+    "postalCode": "1510",
+    "country": "Suisse",
+    "phone": "À confirmer",
+    "website": "",
+    "hours": "À confirmer",
+    "products": [
+      "Pains artisanaux et produits de boulangerie",
+      "offres festives sur commande"
+    ],
+    "tags": [
+      "Pains artisanaux et produits de boulangerie",
+      "offres festives sur commande"
+    ],
+    "notes": "",
+    "directSale": "Non",
+    "source": ""
+  },
+  {
+    "id": "ferme-du-nord-27",
+    "name": "Ferme du Nord",
+    "type": "Vente directe à la ferme",
+    "region": "Moudon / Broye vaudoise",
+    "city": "Ferlens",
+    "address": "Ferlens VD",
+    "postalCode": "",
+    "country": "Suisse",
+    "phone": "À confirmer",
+    "website": "",
+    "hours": "Tous les jours 09:00–19:00, self-service",
+    "products": [
+      "Viande",
+      "œufs",
+      "sauces",
+      "conserves et produits transformés de la ferme"
+    ],
+    "tags": [
+      "Viande",
+      "œufs",
+      "sauces",
+      "conserves et produits transformés de la ferme",
+      "Vente directe"
+    ],
+    "notes": "",
+    "directSale": "Oui",
+    "source": ""
+  },
+  {
+    "id": "ferme-le-bochet-28",
+    "name": "Ferme Le Bochet",
+    "type": "Vente directe à la ferme",
+    "region": "Moudon / Broye vaudoise",
+    "city": "Granges-près-Marnand",
+    "address": "Granges-près-Marnand",
+    "postalCode": "",
+    "country": "Suisse",
+    "phone": "À confirmer",
+    "website": "",
+    "hours": "À confirmer",
+    "products": [
+      "Produits de la ferme",
+      "vente directe et activités à la ferme"
+    ],
+    "tags": [
+      "Produits de la ferme",
+      "vente directe et activités à la ferme",
+      "Vente directe"
+    ],
+    "notes": "",
+    "directSale": "Oui",
+    "source": ""
+  },
+  {
+    "id": "domaine-du-gallien-29",
+    "name": "Domaine du Gallien",
+    "type": "Vente directe / domaine agricole",
+    "region": "Moudon / Broye vaudoise",
+    "city": "Carrouge VD",
+    "address": "Carrouge VD",
+    "postalCode": "",
+    "country": "Suisse",
+    "phone": "À confirmer",
+    "website": "",
+    "hours": "À confirmer",
+    "products": [
+      "Produits de la ferme",
+      "viande et boulangerie"
+    ],
+    "tags": [
+      "Produits de la ferme",
+      "viande et boulangerie",
+      "Vente directe"
+    ],
+    "notes": "",
+    "directSale": "Oui",
+    "source": ""
+  },
+  {
+    "id": "ferme-de-belflori-30",
+    "name": "Ferme de Belflori",
+    "type": "Vente directe à la ferme",
+    "region": "Moudon / Broye vaudoise",
+    "city": "Moudon",
+    "address": "Moudon, 1510 Moudon",
+    "postalCode": "1510",
+    "country": "Suisse",
+    "phone": "À confirmer",
+    "website": "",
+    "hours": "Marché à la ferme vendredi 16:00–19:00 (à confirmer selon saison)",
+    "products": [
+      "Légumes",
+      "fruits",
+      "œufs",
+      "paniers et produits de la ferme"
+    ],
+    "tags": [
+      "Légumes",
+      "fruits",
+      "œufs",
+      "paniers et produits de la ferme",
+      "Vente directe"
+    ],
+    "notes": "",
+    "directSale": "Oui",
+    "source": ""
+  },
+  {
+    "id": "march-hebdomadaire-de-romont-31",
+    "name": "Marché hebdomadaire de Romont",
+    "type": "Marché / foire",
+    "region": "Glâne",
+    "city": "Romont",
+    "address": "Place Saint-Jacques, 1680 Romont",
+    "postalCode": "1680",
+    "country": "Suisse",
+    "phone": "",
+    "website": "https://www.romont.ch/_rte/anlass/6017224",
+    "hours": "Tous les mardis 07:00–11:00",
+    "products": [
+      "Boulangerie",
+      "fromagerie",
+      "viande fumée",
+      "fruits et légumes",
+      "miel",
+      "œufs de la ferme"
+    ],
+    "tags": [
+      "Boulangerie",
+      "fromagerie",
+      "viande fumée",
+      "fruits et légumes",
+      "miel",
+      "œufs de la ferme",
+      "Marché"
+    ],
+    "notes": "Horaire 2026 vérifié",
+    "directSale": "Oui",
+    "source": "https://www.romont.ch/_rte/anlass/6017224"
+  },
+  {
+    "id": "march-hebdomadaire-de-payerne-32",
+    "name": "Marché hebdomadaire de Payerne",
+    "type": "Marché / foire",
+    "region": "Payerne / Broye",
+    "city": "Payerne",
+    "address": "Place de Paray-le-Monial / centre-ville, 1530 Payerne",
+    "postalCode": "1530",
+    "country": "Suisse",
+    "phone": "",
+    "website": "https://fribourg.ch/fr/estavayer-payerne/marches/marches-de-payerne/",
+    "hours": "Jeudi 08:00–12:00, du 6 février au 31 décembre 2026",
+    "products": [
+      "Légumes frais",
+      "fromages de chèvre",
+      "produits fermiers",
+      "pains artisanaux",
+      "douceurs et spécialités"
+    ],
+    "tags": [
+      "Légumes frais",
+      "fromages de chèvre",
+      "produits fermiers",
+      "pains artisanaux",
+      "douceurs et spécialités",
+      "Marché"
+    ],
+    "notes": "Horaire 2026 vérifié",
+    "directSale": "Oui",
+    "source": "https://fribourg.ch/fr/estavayer-payerne/marches/marches-de-payerne/"
+  },
+  {
+    "id": "foire-mensuelle-de-moudon-33",
+    "name": "Foire mensuelle de Moudon",
+    "type": "Marché / foire",
+    "region": "Moudon / Broye vaudoise",
+    "city": "Moudon",
+    "address": "Centre-ville, 1510 Moudon",
+    "postalCode": "1510",
+    "country": "Suisse",
+    "phone": "",
+    "website": "https://www.moudon-tourisme.ch/fr/P184737/foire-mensuelle",
+    "hours": "Premier mardi du mois, 09:00–16:30",
+    "products": [
+      "Artisans",
+      "producteurs locaux et divers stands"
+    ],
+    "tags": [
+      "Artisans",
+      "producteurs locaux et divers stands",
+      "Marché"
+    ],
+    "notes": "Horaire 2026 vérifié",
+    "directSale": "Oui",
+    "source": "https://www.moudon-tourisme.ch/fr/P184737/foire-mensuelle"
+  },
+  {
+    "id": "march-d-t-34",
+    "name": "Marché d'été",
+    "type": "Marché / foire",
+    "region": "Châtel-Saint-Denis / Veveyse",
+    "city": "Châtel-Saint-Denis",
+    "address": "Place d'Armes, Route de la Coula et Grand-Rue, 1618 Châtel-Saint-Denis",
+    "postalCode": "1618",
+    "country": "Suisse",
+    "phone": "",
+    "website": "https://fribourg.ch/fr/les-paccots/evenements/marches-artisanaux/",
+    "hours": "27 juin 2026",
+    "products": [
+      "Produits du terroir",
+      "artisanat et restauration"
+    ],
+    "tags": [
+      "Produits du terroir",
+      "artisanat et restauration",
+      "Marché"
+    ],
+    "notes": "Événement 2026",
+    "directSale": "Oui",
+    "source": "https://fribourg.ch/fr/les-paccots/evenements/marches-artisanaux/"
+  },
+  {
+    "id": "march-de-la-mi-t-35",
+    "name": "Marché de la mi-été",
+    "type": "Marché / foire",
+    "region": "Châtel-Saint-Denis / Veveyse",
+    "city": "Les Paccots",
+    "address": "Patinoire des Paccots, 1619 Les Paccots",
+    "postalCode": "1619",
+    "country": "Suisse",
+    "phone": "",
+    "website": "https://fribourg.ch/fr/les-paccots/evenements/marches-artisanaux/",
+    "hours": "25 juillet 2026",
+    "products": [
+      "Artisanat local",
+      "produits régionaux et animations"
+    ],
+    "tags": [
+      "Artisanat local",
+      "produits régionaux et animations",
+      "Marché"
+    ],
+    "notes": "Événement 2026",
+    "directSale": "Oui",
+    "source": "https://fribourg.ch/fr/les-paccots/evenements/marches-artisanaux/"
+  },
+  {
+    "id": "march-de-la-b-nichon-36",
+    "name": "Marché de la Bénichon",
+    "type": "Marché / foire",
+    "region": "Châtel-Saint-Denis / Veveyse",
+    "city": "Châtel-Saint-Denis",
+    "address": "Place d'Armes, Route de la Coula et Grand-Rue, 1618 Châtel-Saint-Denis",
+    "postalCode": "1618",
+    "country": "Suisse",
+    "phone": "",
+    "website": "https://fribourg.ch/fr/les-paccots/evenements/marches-artisanaux/",
+    "hours": "17 octobre 2026",
+    "products": [
+      "Produits du terroir",
+      "artisans",
+      "restauration et spécialités de la Bénichon"
+    ],
+    "tags": [
+      "Produits du terroir",
+      "artisans",
+      "restauration et spécialités de la Bénichon",
+      "Marché"
+    ],
+    "notes": "Événement 2026",
+    "directSale": "Oui",
+    "source": "https://fribourg.ch/fr/les-paccots/evenements/marches-artisanaux/"
+  }
+]

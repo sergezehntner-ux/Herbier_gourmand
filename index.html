@@ -6,15 +6,15 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v26.css?v=2601">
+  <link rel="stylesheet" href="styles-v27.css?v=2700">
 </head>
 <body>
 <header>
-  <div><h1>Herbier Gourmand</h1><p>v2.6 stable · Envie d’une sortie ?</p></div>
+  <div><h1>Herbier Gourmand</h1><p>v2.7 · Partage, sécurité et producteurs locaux</p></div>
   <div class="header-actions"><span id="updateStatus">Planification assistée</span><button id="installBtn" class="ghost hidden">Installer</button></div>
 </header>
 <nav>
-  <button class="active" data-view="home">Accueil</button><button data-view="recipes">Recettes</button><button data-view="planner">Planning</button><button data-view="shopping">Courses</button><button data-view="restaurants">Sorties</button>
+  <button class="active" data-view="home">Accueil</button><button data-view="recipes">Recettes</button><button data-view="planner">Planning</button><button data-view="shopping">Courses</button><button data-view="restaurants">Sorties</button><button data-view="producers">Producteurs</button>
 </nav>
 <main>
 <section id="home" class="view active">
@@ -22,6 +22,13 @@
   <div class="hero"><h2>Que faisons-nous aujourd’hui ?</h2><button class="primary" data-go="planner">Préparer la semaine</button><button id="surpriseBtn" class="secondary">Une idée surprise</button></div>
   <div id="surpriseCard"></div>
   <section class="outing-home-card"><div><h2>Envie d’une sortie ?</h2><p>Retrouver une bonne adresse, explorer par lieu, pays ou spécialité.</p></div><button class="primary" data-go="restaurants">Choisir un restaurant</button></section>
+  <section class="outing-home-card producer-home-card"><div><h2>Producteurs locaux</h2><p>Marchés, artisans et vente directe près de chez toi.</p></div><button class="primary" data-go="producers">Découvrir les producteurs</button></section>
+  <section class="panel github-panel" aria-labelledby="githubTitle">
+    <div class="section-title"><div><h2 id="githubTitle">Partage et sauvegarde GitHub</h2><span class="muted">Un éditeur, plusieurs lecteurs.</span></div><span id="saveState" class="save-state">À jour</span></div>
+    <p>Le bouton ci-dessous met à jour <code>herbier-latest.hgbak</code> dans ce dépôt. Le mode lecture seule charge automatiquement ce fichier.</p>
+    <div class="button-row"><button id="saveToGithub" class="primary">Sauvegarder sur GitHub</button><button id="openReadonly">Ouvrir en lecture seule</button><button id="githubSettings">Configurer</button></div>
+    <p id="githubStatus" class="muted" aria-live="polite"></p>
+  </section>
   <section class="panel data-transfer-panel" aria-labelledby="dataTransferTitle">
     <div class="section-title"><div><h2 id="dataTransferTitle">Sauvegarde et transfert</h2><span class="muted">Pour retrouver tes données sur un autre appareil.</span></div></div>
     <p>Exporte toutes les données personnelles d’Herbier Gourmand, puis importe le fichier sur le notebook ou le smartphone.</p>
@@ -86,6 +93,23 @@
   <article id="restaurantViewContent"></article>
 </section>
 
+<section id="producers" class="view">
+  <div class="section-title"><div><h2>Producteurs locaux</h2><span id="producerCount" class="muted"></span></div><button id="newProducer" class="primary">+ Nouveau</button></div>
+  <div class="producer-search-grid">
+    <label>Nom<input id="producerSearch" type="search" placeholder="Nom du producteur ou marché…"></label>
+    <label>Région<select id="producerRegion"><option value="">Toutes les régions</option></select></label>
+    <label>Commune<select id="producerCity"><option value="">Toutes les communes</option></select></label>
+    <label>Type<select id="producerType"><option value="">Tous les types</option></select></label>
+    <label>Produit / tag<select id="producerTag"><option value="">Tous les produits</option></select></label>
+  </div>
+  <div class="button-row producer-filter-actions"><button id="clearProducerFilters">Vider la recherche</button></div>
+  <div id="producerList"></div>
+</section>
+<section id="producerView" class="view recipe-screen">
+  <div class="recipe-screen-actions"><button id="backFromProducer">← Retour</button><div><button id="editViewedProducer">Modifier</button></div></div>
+  <article id="producerViewContent"></article>
+</section>
+
 </main>
 <footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse.</footer>
 
@@ -126,5 +150,22 @@
 <div class="dialog-actions"><button type="button" id="deleteRestaurant" class="danger">Supprimer</button><button type="button" id="duplicateRestaurant">Dupliquer</button><button type="submit" class="primary">Enregistrer</button></div>
 </form></dialog>
 
-<script src="app-v26.js?v=2601"></script>
+<dialog id="producerDialog"><form id="producerForm" method="dialog"><div class="dialog-head"><h2 id="producerDialogTitle">Producteur local</h2><button type="button" id="closeProducer">×</button></div>
+<input type="hidden" id="producerId"><div class="grid producer-form-grid">
+<label>Nom<input id="producerName" required></label><label>Type<input id="producerTypeField" list="producerTypeSuggestions"><datalist id="producerTypeSuggestions"></datalist></label>
+<label>Région<input id="producerRegionField" list="producerRegionSuggestions"><datalist id="producerRegionSuggestions"></datalist></label><label>Commune<input id="producerCityField" list="producerCitySuggestions"><datalist id="producerCitySuggestions"></datalist></label>
+<label>Adresse<textarea id="producerAddress" rows="2"></textarea></label><label>Code postal<input id="producerPostal"></label>
+<label>Pays<input id="producerCountry" value="Suisse"></label><label>Téléphone<input id="producerPhone" type="tel" placeholder="+41 XX XXX XX XX"></label>
+<label>Site internet<input id="producerWebsite" type="url" placeholder="https://…"></label><label>Vente directe<input id="producerDirectSale" placeholder="Oui / Non"></label>
+</div><label>Horaires<textarea id="producerHours" rows="4"></textarea></label>
+<label>Produits proposés / tags<input id="producerProducts" placeholder="Gruyère AOP, miel, légumes…"></label>
+<label>Remarques<textarea id="producerNotes" rows="5"></textarea></label>
+<div class="dialog-actions"><button type="button" id="deleteProducer" class="danger">Supprimer</button><button type="button" id="duplicateProducer">Dupliquer</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
+<dialog id="githubDialog"><form id="githubForm" method="dialog"><div class="dialog-head"><h2>Configurer GitHub</h2><button type="button" id="closeGithub">×</button></div>
+<p class="muted">Utilise un jeton finement limité au dépôt. Il est conservé seulement pour cette session du navigateur.</p>
+<div class="grid"><label>Propriétaire<input id="githubOwner" required></label><label>Dépôt<input id="githubRepo" required></label><label>Branche<input id="githubBranch" value="main" required></label><label>Chemin du fichier<input id="githubPath" value="herbier-latest.hgbak" required></label></div>
+<label>Jeton GitHub<input id="githubToken" type="password" autocomplete="off" placeholder="github_pat_…"></label>
+<div class="dialog-actions"><button type="button" id="cancelGithub">Annuler</button><button type="submit" class="primary">Enregistrer la configuration</button></div></form></dialog>
+
+<script src="app-v27.js?v=2700"></script>
 </body></html>
