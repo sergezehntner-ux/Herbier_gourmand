@@ -6,11 +6,11 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v27.css?v=2700">
+  <link rel="stylesheet" href="styles-v271.css?v=2710">
 </head>
 <body>
 <header>
-  <div><h1>Herbier Gourmand</h1><p>v2.7 · Partage, sécurité et producteurs locaux</p></div>
+  <div><h1>Herbier Gourmand</h1><p>v2.7.1 · Corrections terrain prioritaires</p></div>
   <div class="header-actions"><span id="updateStatus">Planification assistée</span><button id="installBtn" class="ghost hidden">Installer</button></div>
 </header>
 <nav>
@@ -54,7 +54,7 @@
 <section id="planner" class="view">
   <h2>Planning assisté</h2>
   <p class="lead">Herbier propose une première semaine. Tu restes libre de changer chaque repas selon ta vraie vie.</p>
-  <div class="panel"><div class="grid"><label>Personnes<input id="people" type="number" min="1" max="12" value="4"></label><label>Temps maximum<select id="planTime"><option value="">Varié</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></label></div>
+  <div class="panel"><div class="grid"><label>Personnes<input id="people" type="number" min="0" max="12" value="4"></label><label>Temps maximum<select id="planTime"><option value="">Varié</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></label></div>
   <div class="section-title"><h3>Repas à planifier</h3><strong id="selectedSlotsStatus"></strong></div><div class="day-tools"><button id="allDaySlots">Tout</button><button id="clearDaySlots">Aucun</button><button id="weekEvenings">Soirs seulement</button></div><div id="daySlotChoices"></div></div>
   <div class="button-row"><button id="generatePlan" class="primary">Proposer une semaine</button><button id="clearPlan">Vider</button></div>
   <div id="planFreshness" class="notice subtle hidden"></div><div id="weekPlan"></div>
@@ -153,7 +153,7 @@
 <dialog id="producerDialog"><form id="producerForm" method="dialog"><div class="dialog-head"><h2 id="producerDialogTitle">Producteur local</h2><button type="button" id="closeProducer">×</button></div>
 <input type="hidden" id="producerId"><div class="grid producer-form-grid">
 <label>Nom<input id="producerName" required></label><label>Type<input id="producerTypeField" list="producerTypeSuggestions"><datalist id="producerTypeSuggestions"></datalist></label>
-<label>Région<input id="producerRegionField" list="producerRegionSuggestions"><datalist id="producerRegionSuggestions"></datalist></label><label>Commune<input id="producerCityField" list="producerCitySuggestions"><datalist id="producerCitySuggestions"></datalist></label>
+<label>Région<input id="producerRegionField" list="producerRegionSuggestions"><datalist id="producerRegionSuggestions"></datalist></label><label>Lieu<input id="producerCityField" list="producerCitySuggestions"><datalist id="producerCitySuggestions"></datalist></label>
 <label>Adresse<textarea id="producerAddress" rows="2"></textarea></label><label>Code postal<input id="producerPostal"></label>
 <label>Pays<input id="producerCountry" value="Suisse"></label><label>Téléphone<input id="producerPhone" type="tel" placeholder="+41 XX XXX XX XX"></label>
 <label>Site internet<input id="producerWebsite" type="url" placeholder="https://…"></label><label>Vente directe<input id="producerDirectSale" placeholder="Oui / Non"></label>
@@ -167,5 +167,5 @@
 <label>Jeton GitHub<input id="githubToken" type="password" autocomplete="off" placeholder="github_pat_…"></label>
 <div class="dialog-actions"><button type="button" id="cancelGithub">Annuler</button><button type="submit" class="primary">Enregistrer la configuration</button></div></form></dialog>
 
-<script src="app-v27.js?v=2700"></script>
+<script src="app-v271.js?v=2710"></script>
 </body></html>
