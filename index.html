@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v272.css?v=2720">
+  <link rel="stylesheet" href="styles-v28.css?v=2800">
 </head>
 <body>
 <header>
@@ -55,7 +55,7 @@
   <h2>Planning assisté</h2>
   <p class="lead">Herbier propose une première semaine. Tu restes libre de changer chaque repas selon ta vraie vie.</p>
   <div class="week-nav"><button id="prevWeek">← Semaine précédente</button><strong id="weekLabel"></strong><button id="nextWeek">Semaine suivante →</button><button id="currentWeek">Cette semaine</button></div><div class="panel"><div class="grid"><label>Temps maximum<select id="planTime"><option value="">Varié</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></label></div>
-  <div class="section-title"><h3>Repas à planifier</h3><strong id="selectedSlotsStatus"></strong></div><div class="day-tools"><button id="allDaySlots">Tout</button><button id="clearDaySlots">Aucun</button><button id="weekEvenings">Soirs seulement</button></div><div id="daySlotChoices"></div></div>
+  <div class="section-title"><h3>Repas à planifier</h3><strong id="selectedSlotsStatus"></strong></div><div id="daySlotChoices"></div></div>
   <div class="button-row"><button id="generatePlan" class="primary">Proposer une semaine</button><button id="clearPlan">Vider</button></div>
   <div id="planFreshness" class="notice subtle hidden"></div><div id="weekPlan"></div>
   <div class="sticky-actions"><button id="savePlan">Enregistrer le calendrier</button><button id="printPlan">Imprimer la semaine</button></div>
@@ -69,7 +69,7 @@
       <button data-shop-group="aisle">Rayon</button>
       <button data-shop-group="alpha">A–Z</button>
     </div>
-    <span id="shoppingSummary" class="muted"></span>
+    <span id="shoppingSummary" class="muted"></span><button id="manageAisles" type="button">Organiser le parcours</button>
   </div>
   <div class="notice subtle shopping-help"><strong>Astuce :</strong> touche un article pour modifier sa quantité, son magasin ou son rayon. Ces affectations seront mémorisées pour les prochaines listes.</div>
   <div id="shoppingList"></div>
@@ -130,6 +130,8 @@
 <div class="grid"><label>Article<input id="shoppingName" required></label><label>Quantité<input id="shoppingQty" placeholder="Ex. 2 ou 0,5"></label><label>Unité<input id="shoppingUnit" placeholder="Ex. kg, L, pièces"></label><label>Magasin<select id="shoppingStore"><option value="">À définir</option><option>Supermarché</option><option>Marché</option><option>Boulangerie</option><option>Boucherie</option><option>Pharmacie</option><option value="__other__">Autre…</option></select></label><label>Rayon<select id="shoppingAisle"><option value="">À définir</option><option>Fruits et légumes</option><option>Boulangerie</option><option>Boucherie</option><option>Poissonnerie</option><option>Produits laitiers</option><option>Épicerie</option><option>Surgelés</option><option>Boissons</option><option>Hygiène</option><option>Ménage</option><option value="__other__">Autre…</option></select></label></div>
 <div id="shoppingOrigins" class="notice subtle hidden"></div>
 <div class="dialog-actions"><button type="button" id="deleteShopping" class="danger">Supprimer</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
+
+<dialog id="aisleOrderDialog"><div class="dialog-head"><h2>Organiser le parcours d’achat</h2><button type="button" id="closeAisleOrder">×</button></div><p class="muted">Choisis un magasin ou un marché, puis place ses rayons ou stands dans l’ordre réel de ton parcours.</p><label>Magasin / marché<select id="aisleOrderStore"></select></label><div id="aisleOrderList" class="aisle-order-list"></div><div class="dialog-actions"><button type="button" id="doneAisleOrder" class="primary">Terminé</button></div></dialog>
 <dialog id="dataImportDialog"><form id="dataImportForm" method="dialog"><div class="dialog-head"><h2>Importer les données</h2><button type="button" id="closeDataImport">×</button></div>
 <p>Le fichier remplacera les données Herbier Gourmand actuellement enregistrées sur cet appareil.</p>
 <div id="dataImportSummary" class="notice subtle"></div>
@@ -167,5 +169,5 @@
 <label>Jeton GitHub<input id="githubToken" type="password" autocomplete="off" placeholder="github_pat_…"></label>
 <div class="dialog-actions"><button type="button" id="cancelGithub">Annuler</button><button type="submit" class="primary">Enregistrer la configuration</button></div></form></dialog>
 
-<script src="app-v272.js?v=2720"></script>
+<script src="app-v28.js?v=2800"></script>
 </body></html>

@@ -1,5 +1,5 @@
-const CACHE='herbier-v2-7-1';
-const ASSETS=['./','index.html','styles-v272.css?v=2720','app-v272.js?v=2720','recipes.json','manifest.webmanifest','icon.svg','version.json','restaurants.json','producers.json','herbier-latest.hgbak'];
+const CACHE='herbier-v2-8-0';
+const ASSETS=['./','index.html','styles-v28.css?v=2800','app-v28.js?v=2800','recipes.json','manifest.webmanifest','icon.svg','version.json','restaurants.json','producers.json','herbier-latest.hgbak'];
 self.addEventListener('install',event=>{self.skipWaiting();event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)))});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',event=>{const request=event.request,url=new URL(request.url);if(request.mode==='navigate'||/\.(?:js|css|json)$/.test(url.pathname)){event.respondWith(fetch(request,{cache:'no-store'}).then(response=>{if(response.ok)caches.open(CACHE).then(cache=>cache.put(request,response.clone()));return response}).catch(()=>caches.match(request,{ignoreSearch:true}).then(cached=>cached||caches.match('index.html'))));return}event.respondWith(caches.match(request).then(cached=>cached||fetch(request).then(response=>{if(response.ok)caches.open(CACHE).then(cache=>cache.put(request,response.clone()));return response})))});
