@@ -1,7 +1,7 @@
 let recipes = [], plan = [], shopping = [], pendingImport = [];
 let currentWeekStart = mondayISO(new Date()), viewedPlanItemId = null;
 let selectionContext = null, viewedRecipeId = null, previousView = 'recipes', shoppingGroupMode = 'store';
-const viewScrollPositions={home:0,recipes:0,planner:0,shopping:0,recipeView:0,restaurants:0,restaurantView:0,producers:0,producerView:0};
+const viewScrollPositions={home:0,recipes:0,planner:0,shopping:0,recipeView:0,restaurants:0,restaurantView:0,producers:0,producerView:0,herbs:0,herbView:0};
 const days = ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
 const slots = ["Matin","Midi","Soir"];
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLo
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.8.0';
+const APP_VERSION='2.8.1';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const BACKUP_META_KEY='hg-backup-meta-v26';
@@ -39,7 +39,7 @@ async function init(){
   const stored=JSON.parse(localStorage.getItem(recipeStore)||'null');
   if(stored) recipes=stored; else recipes=await fetch(`recipes.json?_=${Date.now()}`,{cache:'no-store'}).then(r=>r.json());
   recipes=recipes.map(normalizeRecipe);
-  fillCategories(); renderRecipes(); loadSaved(); await initRestaurants(); await initProducers(); applyReadonlyMode(); checkForUpdate();
+  fillCategories(); renderRecipes(); loadSaved(); await initRestaurants(); await initProducers(); await initHerbs(); applyReadonlyMode(); checkForUpdate();
 }
 function saveRecipes(){localStorage.setItem(recipeStore,JSON.stringify(recipes));registerProtectedChange();markDirty();}
 function activeViewId(){return document.querySelector('.view.active')?.id||'home'}
@@ -223,6 +223,7 @@ function herbierStorageSnapshot(){
   data[recipeStore]=JSON.stringify(recipes);
   if(typeof restaurants!=='undefined' && Array.isArray(restaurants)) data[restaurantStore]=JSON.stringify(restaurants);
   if(typeof producers!=='undefined' && Array.isArray(producers)) data[producerStore]=JSON.stringify(producers);
+  if(typeof herbs!=='undefined' && Array.isArray(herbs)) data[herbStore]=JSON.stringify(herbs);
   return {format:'HerbierGourmandBackup',formatVersion:1,appVersion:APP_VERSION,exportedAt:new Date().toISOString(),data};
 }
 function downloadTextFile(filename,text){
@@ -373,3 +374,35 @@ $('#restaurantForm').onsubmit=e=>{e.preventDefault();const r=restaurantFromForm(
 $('#deleteRestaurant').onclick=()=>{const id=$('#restaurantId').value;if(id&&confirm('Supprimer définitivement ce restaurant ?')){restaurants=restaurants.filter(r=>r.id!==id);saveRestaurants();renderRestaurantFilters();renderRestaurants();$('#restaurantDialog').close();switchView('restaurants')}};
 $('#duplicateRestaurant').onclick=()=>{const r=restaurantFromForm(`${slug($('#restaurantName').value)}-${Date.now()}`);r.name+=' (copie)';restaurants.unshift(r);saveRestaurants();renderRestaurantFilters();renderRestaurants();$('#restaurantDialog').close();};
 updateBackupReminder();
+
+
+// v2.8 Bloc B — Grand Herbier : Plantes & Épices
+const herbStore='hg-herbs-spices-v28';
+let herbs=[], herbKnowledge={accords:[],melanges:[],substitutions:[],techniques:[]}, viewedHerbId=null;
+function herbUnique(field){return [...new Set(herbs.map(h=>String(h[field]||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));}
+function fillHerbSelect(id,values,label){const e=$(id),v=e.value;e.innerHTML=`<option value="">${label}</option>`+values.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');if(values.includes(v))e.value=v;}
+function normalizeHerb(h={}){return {...h,id:String(h.id||slug(h.name||'plante')),name:String(h.name||'Plante sans nom')};}
+async function initHerbs(){
+ try{
+  const res=await fetch(`herbs-spices.json?_=${Date.now()}`,{cache:'no-store'}),payload=res.ok?await res.json():{herbs:[]};
+  herbKnowledge={accords:payload.accords||[],melanges:payload.melanges||[],substitutions:payload.substitutions||[],techniques:payload.techniques||[]};
+  const stored=JSON.parse(localStorage.getItem(herbStore)||'null');
+  herbs=(stored&&stored.length?stored:payload.herbs||[]).map(normalizeHerb);
+  if(!stored)localStorage.setItem(herbStore,JSON.stringify(herbs));
+  fillHerbSelect('#herbFamily',herbUnique('family'),'Toutes les familles');fillHerbSelect('#herbSeason',herbUnique('season'),'Toutes les saisons');fillHerbSelect('#herbIntensity',herbUnique('intensity'),'Toutes les intensités');renderHerbs();
+ }catch(e){console.error('Grand Herbier',e);herbs=[];renderHerbs();}
+}
+function herbFiltered(){const q=norm($('#herbSearch')?.value),family=$('#herbFamily')?.value||'',season=$('#herbSeason')?.value||'',intensity=$('#herbIntensity')?.value||'';return herbs.filter(h=>(!family||h.family===family)&&(!season||h.season===season)&&(!intensity||h.intensity===intensity)&&(!q||norm(Object.values(h).join(' ')).includes(q))).sort((a,b)=>a.name.localeCompare(b.name,'fr',{sensitivity:'base'}));}
+function herbCard(h){return `<article class="herb-card"><button data-view-herb="${esc(h.id)}"><div class="herb-card-title"><h3>${esc(h.name)}</h3><span class="meta">${esc([h.family,h.intensity].filter(Boolean).join(' · '))}</span></div><p>${esc(h.flavor||h.uses||'')}</p><div class="badges">${[h.season,h.origin,h.dishTypes].filter(Boolean).slice(0,3).map(x=>`<span>${esc(x)}</span>`).join('')}</div></button></article>`;}
+function renderHerbs(){const found=herbFiltered(),count=$('#herbCount'),list=$('#herbList');if(!count||!list)return;count.textContent=`${found.length} plante${found.length>1?'s':''} et épice${found.length>1?'s':''}`;list.innerHTML=found.map(herbCard).join('')||'<p>Aucune plante ou épice trouvée.</p>';$$('[data-view-herb]').forEach(b=>b.onclick=()=>showHerb(b.dataset.viewHerb));}
+['#herbSearch','#herbFamily','#herbSeason','#herbIntensity'].forEach(id=>{const e=$(id);if(e)e.addEventListener(e.tagName==='INPUT'?'input':'change',renderHerbs)});
+if($('#clearHerbFilters'))$('#clearHerbFilters').onclick=()=>{$('#herbSearch').value='';$('#herbFamily').value='';$('#herbSeason').value='';$('#herbIntensity').value='';renderHerbs();};
+if($('#randomHerb'))$('#randomHerb').onclick=()=>{if(herbs.length)showHerb(herbs[Math.floor(Math.random()*herbs.length)].id)};
+function terms(s){return String(s||'').split(/[,;+]|\bou\b/gi).map(x=>norm(x)).filter(x=>x.length>2)}
+function linkedRecipes(h){const ts=[h.name,...terms(h.name),...terms(h.idealFoods),...terms(h.uses)].filter(Boolean);return recipes.filter(r=>r.ingredients.some(i=>ts.some(t=>norm(i[0]).includes(t)||t.includes(norm(i[0]))))).slice(0,30);}
+function matchingMixes(h){const n=norm(h.name).split(' ')[0];return herbKnowledge.melanges.filter(m=>norm(m['Proportions en volumes']).includes(n));}
+function matchingSubstitutions(h){const n=norm(h.name).split(' ')[0];return herbKnowledge.substitutions.filter(s=>norm(s['Ingrédient manquant']).includes(n)||norm(s['Remplacement']).includes(n));}
+function matchingAccords(h){const n=norm(h.name).split(' ')[0];return herbKnowledge.accords.filter(a=>norm(a['Herbes / épices conseillées']).includes(n));}
+function fieldBlock(title,value){return value?`<section><h3>${title}</h3><p>${esc(value).replace(/\n/g,'<br>')}</p></section>`:'';}
+function showHerb(id){const h=herbs.find(x=>x.id===id);if(!h)return;rememberScroll('herbs');viewedHerbId=id;const rec=linkedRecipes(h),mix=matchingMixes(h),sub=matchingSubstitutions(h),acc=matchingAccords(h);$('#herbViewContent').innerHTML=`<div class="herb-detail-head"><div class="meta">${esc([h.family,h.origin,h.season].filter(Boolean).join(' · '))}</div><h2>${esc(h.name)}</h2><p class="herb-flavor">${esc(h.flavor||'')}</p><div class="badges">${[h.intensity,h.forms,h.worldCuisines].filter(Boolean).map(x=>`<span>${esc(x)}</span>`).join('')}</div></div><div class="herb-detail-grid">${fieldBlock('Usages principaux',h.uses)}${fieldBlock('Aliments idéaux',h.idealFoods)}${fieldBlock('Associations recommandées',h.recommendedPairings)}${fieldBlock('À la cuisson',h.cookingBehavior)}${fieldBlock('Préparation conseillée',h.preparation)}${fieldBlock('Quantité indicative',h.quantity)}${fieldBlock('Substitution possible',h.substitution)}${fieldBlock('Erreur à éviter',h.avoid)}${fieldBlock('Conservation',h.conservation)}${fieldBlock('Où l’acheter en Suisse',h.whereToBuy)}${fieldBlock('Idées de recettes',h.recipeIdeas)}${fieldBlock('Astuce du chef',h.chefTip)}</div><section class="knowledge-links"><h3>Recettes de ton Herbier</h3><div class="link-list">${rec.length?rec.map(r=>`<button data-herb-recipe="${esc(r.id)}">${esc(r.title)}</button>`).join(''):'<p class="muted">Aucune correspondance automatique trouvée pour l’instant.</p>'}</div></section><section class="knowledge-links"><h3>Accords par aliment</h3>${acc.length?acc.map(a=>`<article><strong>${esc(a['Aliment principal'])}</strong><p>${esc(a['Techniques idéales'])} · ${esc(a['Association signature'])}</p></article>`).join(''):'<p class="muted">Aucun accord spécifique.</p>'}</section><section class="knowledge-links"><h3>Mélanges maison</h3>${mix.length?mix.map(m=>`<article><strong>${esc(m['Nom du mélange'])}</strong><p>${esc(m['Proportions en volumes'])}</p><small>${esc(m['Utilisations'])}</small></article>`).join(''):'<p class="muted">Aucun mélange référencé.</p>'}</section><section class="knowledge-links"><h3>Substitutions</h3>${sub.length?sub.map(s=>`<article><strong>${esc(s['Ingrédient manquant'])} → ${esc(s['Remplacement'])}</strong><p>${esc(s['Résultat attendu'])}</p></article>`).join(''):'<p class="muted">Voir aussi la substitution indiquée dans la fiche.</p>'}</section><section class="knowledge-links"><h3>Techniques utiles</h3>${herbKnowledge.techniques.map(t=>`<article><strong>${esc(t['Technique'])}</strong><p>${esc(t['Méthode'])}</p><small>${esc(t['Point de vigilance'])}</small></article>`).join('')}</section>`;$$('[data-herb-recipe]').forEach(b=>b.onclick=()=>showRecipe(b.dataset.herbRecipe,'herbView'));switchView('herbView',{top:true});}
+if($('#backFromHerb'))$('#backFromHerb').onclick=()=>switchView('herbs');

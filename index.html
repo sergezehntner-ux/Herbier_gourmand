@@ -6,15 +6,15 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v28.css?v=2800">
+  <link rel="stylesheet" href="styles-v28.css?v=2801">
 </head>
 <body>
 <header>
-  <div><h1>Herbier Gourmand</h1><p>v2.7.1 · Corrections terrain prioritaires</p></div>
+  <div><h1>Herbier Gourmand</h1><p>v2.8 · Plantes & Épices</p></div>
   <div class="header-actions"><span id="updateStatus">Planification assistée</span><button id="installBtn" class="ghost hidden">Installer</button></div>
 </header>
 <nav>
-  <button class="active" data-view="home">Accueil</button><button data-view="recipes">Recettes</button><button data-view="planner">Planning</button><button data-view="shopping">Courses</button><button data-view="restaurants">Sorties</button><button data-view="producers">Producteurs</button>
+  <button class="active" data-view="home">Accueil</button><button data-view="recipes">Recettes</button><button data-view="planner">Planning</button><button data-view="shopping">Courses</button><button data-view="restaurants">Sorties</button><button data-view="producers">Producteurs</button><button data-view="herbs">Plantes & Épices</button>
 </nav>
 <main>
 <section id="home" class="view active">
@@ -23,6 +23,7 @@
   <div id="surpriseCard"></div>
   <section class="outing-home-card"><div><h2>Envie d’une sortie ?</h2><p>Retrouver une bonne adresse, explorer par lieu, pays ou spécialité.</p></div><button class="primary" data-go="restaurants">Choisir un restaurant</button></section>
   <section class="outing-home-card producer-home-card"><div><h2>Producteurs locaux</h2><p>Marchés, artisans et vente directe près de chez toi.</p></div><button class="primary" data-go="producers">Découvrir les producteurs</button></section>
+  <section class="outing-home-card herb-home-card"><div><h2>Plantes & Épices</h2><p>Accords, usages, substitutions, mélanges et techniques pour éveiller la curiosité.</p></div><button class="primary" data-go="herbs">Ouvrir le Grand Herbier</button></section>
   <section class="panel github-panel" aria-labelledby="githubTitle">
     <div class="section-title"><div><h2 id="githubTitle">Partage et sauvegarde GitHub</h2><span class="muted">Un éditeur, plusieurs lecteurs.</span></div><span id="saveState" class="save-state">À jour</span></div>
     <p>Le bouton ci-dessous met à jour <code>herbier-latest.hgbak</code> dans ce dépôt. Le mode lecture seule charge automatiquement ce fichier.</p>
@@ -110,6 +111,23 @@
   <article id="producerViewContent"></article>
 </section>
 
+<section id="herbs" class="view">
+  <div class="section-title"><div><h2>Plantes & Épices</h2><span id="herbCount" class="muted"></span></div><button id="randomHerb" class="secondary">Découverte surprise</button></div>
+  <p class="lead">Chercher une plante, une saveur, un aliment, une cuisine ou une utilisation.</p>
+  <div class="herb-search-grid">
+    <label>Recherche<input id="herbSearch" type="search" placeholder="Basilic, poisson, citron, curry…"></label>
+    <label>Famille<select id="herbFamily"><option value="">Toutes les familles</option></select></label>
+    <label>Saison<select id="herbSeason"><option value="">Toutes les saisons</option></select></label>
+    <label>Intensité<select id="herbIntensity"><option value="">Toutes les intensités</option></select></label>
+  </div>
+  <div class="button-row"><button id="clearHerbFilters">Vider la recherche</button></div>
+  <div id="herbList" class="herb-list"></div>
+</section>
+<section id="herbView" class="view recipe-screen">
+  <div class="recipe-screen-actions"><button id="backFromHerb">← Retour</button></div>
+  <article id="herbViewContent"></article>
+</section>
+
 </main>
 <footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse.</footer>
 
@@ -169,5 +187,5 @@
 <label>Jeton GitHub<input id="githubToken" type="password" autocomplete="off" placeholder="github_pat_…"></label>
 <div class="dialog-actions"><button type="button" id="cancelGithub">Annuler</button><button type="submit" class="primary">Enregistrer la configuration</button></div></form></dialog>
 
-<script src="app-v28.js?v=2800"></script>
+<script src="app-v28.js?v=2801"></script>
 </body></html>

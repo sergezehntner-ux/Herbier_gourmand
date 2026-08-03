@@ -136,3 +136,18 @@ code{background:#eee8dc;padding:.12rem .3rem;border-radius:5px}
 .aisle-order-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.65rem .8rem;border:1px solid var(--line,#d8dfd8);border-radius:.7rem;background:var(--card,#fff)}
 .aisle-order-row div{display:flex;gap:.35rem}
 #manageAisles{white-space:nowrap}
+
+
+/* v2.8 Bloc B — Plantes & Épices */
+.herb-home-card{background:linear-gradient(135deg,#eef7e8,#f8f3df)}
+.herb-search-grid{display:grid;grid-template-columns:2fr repeat(3,1fr);gap:.65rem;margin:1rem 0}
+.herb-search-grid label{display:grid;gap:.25rem}
+.herb-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.65rem}
+.herb-card{padding:0;overflow:hidden}
+.herb-card>button{width:100%;height:100%;text-align:left;border:0;background:transparent;padding:1rem;color:inherit}
+.herb-card-title{display:flex;justify-content:space-between;gap:.75rem;align-items:baseline}.herb-card h3{margin:0}.herb-card p{margin:.45rem 0;line-height:1.35}
+.herb-detail-head{padding:1rem 0;border-bottom:1px solid var(--line,#ddd)}.herb-detail-head h2{font-size:2rem;margin:.25rem 0}.herb-flavor{font-size:1.1rem}
+.herb-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem;margin:1rem 0}.herb-detail-grid section,.knowledge-links{padding:1rem;border:1px solid var(--line,#ddd);border-radius:14px;background:var(--card,#fff)}
+.herb-detail-grid h3,.knowledge-links h3{margin-top:0}.knowledge-links{margin:.75rem 0}.knowledge-links article{padding:.55rem 0;border-bottom:1px solid var(--line,#eee)}.knowledge-links article:last-child{border-bottom:0}.knowledge-links p{margin:.25rem 0}.link-list{display:flex;flex-wrap:wrap;gap:.45rem}.link-list button{text-align:left}
+@media(max-width:800px){.herb-search-grid{grid-template-columns:1fr 1fr}.herb-detail-grid{grid-template-columns:1fr}}
+@media(max-width:520px){.herb-search-grid{grid-template-columns:1fr}.herb-list{grid-template-columns:1fr}}
