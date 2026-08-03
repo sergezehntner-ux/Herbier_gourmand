@@ -1,6 +1,5 @@
 {
-  "version": "2.7.1",
-  "build": 2710,
-  "label": "Corrections terrain prioritaires",
-  "published": "2026-08-02"
+  "version": "2.7.2",
+  "build": "2026-08-03",
+  "notes": "Calendrier culinaire multi-semaines, portions et transfert par repas."
 }

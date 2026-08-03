@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v271.css?v=2710">
+  <link rel="stylesheet" href="styles-v272.css?v=2720">
 </head>
 <body>
 <header>
@@ -54,11 +54,11 @@
 <section id="planner" class="view">
   <h2>Planning assisté</h2>
   <p class="lead">Herbier propose une première semaine. Tu restes libre de changer chaque repas selon ta vraie vie.</p>
-  <div class="panel"><div class="grid"><label>Personnes<input id="people" type="number" min="0" max="12" value="4"></label><label>Temps maximum<select id="planTime"><option value="">Varié</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></label></div>
+  <div class="week-nav"><button id="prevWeek">← Semaine précédente</button><strong id="weekLabel"></strong><button id="nextWeek">Semaine suivante →</button><button id="currentWeek">Cette semaine</button></div><div class="panel"><div class="grid"><label>Temps maximum<select id="planTime"><option value="">Varié</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></label></div>
   <div class="section-title"><h3>Repas à planifier</h3><strong id="selectedSlotsStatus"></strong></div><div class="day-tools"><button id="allDaySlots">Tout</button><button id="clearDaySlots">Aucun</button><button id="weekEvenings">Soirs seulement</button></div><div id="daySlotChoices"></div></div>
   <div class="button-row"><button id="generatePlan" class="primary">Proposer une semaine</button><button id="clearPlan">Vider</button></div>
   <div id="planFreshness" class="notice subtle hidden"></div><div id="weekPlan"></div>
-  <div class="sticky-actions"><button id="savePlan">Enregistrer</button><button id="buildShopping" class="primary">Créer les courses</button><button id="printPlan">Imprimer</button></div>
+  <div class="sticky-actions"><button id="savePlan">Enregistrer le calendrier</button><button id="printPlan">Imprimer la semaine</button></div>
 </section>
 
 <section id="shopping" class="view">
@@ -167,5 +167,5 @@
 <label>Jeton GitHub<input id="githubToken" type="password" autocomplete="off" placeholder="github_pat_…"></label>
 <div class="dialog-actions"><button type="button" id="cancelGithub">Annuler</button><button type="submit" class="primary">Enregistrer la configuration</button></div></form></dialog>
 
-<script src="app-v271.js?v=2710"></script>
+<script src="app-v272.js?v=2720"></script>
 </body></html>
