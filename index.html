@@ -6,15 +6,15 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v28.css?v=2801">
+  <link rel="stylesheet" href="styles-v282.css?v=2820">
 </head>
 <body>
 <header>
-  <div><h1>Herbier Gourmand</h1><p>v2.8 · Plantes & Épices</p></div>
+  <div><h1>Herbier Gourmand</h1><p>v2.8.2 A · Fruits & Légumes</p></div>
   <div class="header-actions"><span id="updateStatus">Planification assistée</span><button id="installBtn" class="ghost hidden">Installer</button></div>
 </header>
 <nav>
-  <button class="active" data-view="home">Accueil</button><button data-view="recipes">Recettes</button><button data-view="planner">Planning</button><button data-view="shopping">Courses</button><button data-view="restaurants">Sorties</button><button data-view="producers">Producteurs</button><button data-view="herbs">Plantes & Épices</button>
+  <button class="active" data-view="home">Accueil</button><button data-view="recipes">Recettes</button><button data-view="planner">Planning</button><button data-view="shopping">Courses</button><button data-view="restaurants">Sorties</button><button data-view="producers">Producteurs</button><button data-view="herbs">Plantes & Épices</button><button data-view="produce">Fruits & Légumes</button>
 </nav>
 <main>
 <section id="home" class="view active">
@@ -24,6 +24,7 @@
   <section class="outing-home-card"><div><h2>Envie d’une sortie ?</h2><p>Retrouver une bonne adresse, explorer par lieu, pays ou spécialité.</p></div><button class="primary" data-go="restaurants">Choisir un restaurant</button></section>
   <section class="outing-home-card producer-home-card"><div><h2>Producteurs locaux</h2><p>Marchés, artisans et vente directe près de chez toi.</p></div><button class="primary" data-go="producers">Découvrir les producteurs</button></section>
   <section class="outing-home-card herb-home-card"><div><h2>Plantes & Épices</h2><p>Accords, usages, substitutions, mélanges et techniques pour éveiller la curiosité.</p></div><button class="primary" data-go="herbs">Ouvrir le Grand Herbier</button></section>
+  <section class="outing-home-card produce-home-card"><div><h2>Fruits & Légumes</h2><p>Saisons, conservation, préparation, accords et recettes autour de 120 produits.</p></div><button class="primary" data-go="produce">Explorer la récolte</button></section>
   <section class="panel github-panel" aria-labelledby="githubTitle">
     <div class="section-title"><div><h2 id="githubTitle">Partage et sauvegarde GitHub</h2><span class="muted">Un éditeur, plusieurs lecteurs.</span></div><span id="saveState" class="save-state">À jour</span></div>
     <p>Le bouton ci-dessous met à jour <code>herbier-latest.hgbak</code> dans ce dépôt. Le mode lecture seule charge automatiquement ce fichier.</p>
@@ -128,6 +129,24 @@
   <article id="herbViewContent"></article>
 </section>
 
+
+<section id="produce" class="view">
+  <div class="section-title"><div><h2>Fruits & Légumes</h2><span id="produceCount" class="muted"></span></div><button id="randomProduce" class="secondary">Découverte surprise</button></div>
+  <p class="lead">Chercher un produit, une saison, une préparation, un accord ou une utilisation culinaire.</p>
+  <div class="produce-search-grid">
+    <label>Recherche<input id="produceSearch" type="search" placeholder="Tomate, hiver, rôti, salade…"></label>
+    <label>Catégorie<select id="produceCategory"><option value="">Toutes les catégories</option></select></label>
+    <label>Saison<select id="produceSeason"><option value="">Toutes les saisons</option></select></label>
+    <label>Disponibilité<select id="produceAvailability"><option value="">Toutes les disponibilités</option></select></label>
+  </div>
+  <div class="button-row"><button id="clearProduceFilters">Vider la recherche</button></div>
+  <div id="produceList" class="produce-list"></div>
+</section>
+<section id="produceView" class="view recipe-screen">
+  <div class="recipe-screen-actions"><button id="backFromProduce">← Retour</button></div>
+  <article id="produceViewContent"></article>
+</section>
+
 </main>
 <footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse.</footer>
 
@@ -187,5 +206,5 @@
 <label>Jeton GitHub<input id="githubToken" type="password" autocomplete="off" placeholder="github_pat_…"></label>
 <div class="dialog-actions"><button type="button" id="cancelGithub">Annuler</button><button type="submit" class="primary">Enregistrer la configuration</button></div></form></dialog>
 
-<script src="app-v28.js?v=2801"></script>
+<script src="app-v282.js?v=2820"></script>
 </body></html>

@@ -1,5 +1,5 @@
 {
-  "name": "Herbier Gourmand v2.7",
+  "name": "Herbier Gourmand v2.8.2 A",
   "short_name": "Herbier",
   "start_url": "./",
   "display": "standalone",
@@ -12,5 +12,5 @@
       "type": "image/svg+xml"
     }
   ],
-  "description": "Recettes, planning, courses, sorties et producteurs locaux"
+  "description": "Recettes, calendrier, courses, sorties, producteurs, plantes, épices, fruits et légumes"
 }
