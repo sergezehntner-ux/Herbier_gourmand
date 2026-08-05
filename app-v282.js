@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLo
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.8.2 A';
+const APP_VERSION='2.9.1';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const BACKUP_META_KEY='hg-backup-meta-v26';
@@ -35,7 +35,7 @@ async function init(){
   await autoLoadSharedBackup();
   migrateLegacyWeekSlots();
   renderDaySlotChoices();
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=2911', {updateViaCache:'none'});
   const stored=JSON.parse(localStorage.getItem(recipeStore)||'null');
   if(stored) recipes=stored; else recipes=await fetch(`recipes.json?_=${Date.now()}`,{cache:'no-store'}).then(r=>r.json());
   recipes=recipes.map(normalizeRecipe);
@@ -408,7 +408,7 @@ function showHerb(id){const h=herbs.find(x=>x.id===id);if(!h)return;rememberScro
 if($('#backFromHerb'))$('#backFromHerb').onclick=()=>switchView('herbs');
 
 
-// v2.8.2 A — Grand Herbier : Fruits & Légumes
+// v2.9.1 — Producteurs consolidés
 const produceStore='hg-fruits-vegetables-v282';
 let produceItems=[], viewedProduceId=null;
 function normalizeProduce(p={}){return {...p,id:String(p.id||slug(p.name||'produit')),name:String(p.name||'Produit sans nom')};}
