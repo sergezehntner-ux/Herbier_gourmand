@@ -1,4 +1,4 @@
-const CACHE='herbier-v2-9-4';
+const CACHE='herbier-v2-9-4-1';
 const ASSETS=['./','index.html','styles-v282.css?v=2940','app-v282.js?v=2940','recipes.json','manifest.webmanifest','icon.svg','version.json','restaurants.json','producers.json','herbs-spices.json','fruits-vegetables.json','herbier-latest.hgbak'];
 self.addEventListener('install',event=>{self.skipWaiting();event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)))});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()))});

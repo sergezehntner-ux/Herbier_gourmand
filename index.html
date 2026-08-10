@@ -6,18 +6,23 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v282.css?v=2940">
+  <link rel="stylesheet" href="styles-v282.css?v=2941">
 
   <style>
     .recipe[data-recipe-open]{cursor:pointer}
     .recipe[data-recipe-open]:hover{box-shadow:0 2px 10px rgba(0,0,0,.08)}
     .meal-free-note{display:block;margin:.55rem 0 .25rem}
     .meal-free-note input{width:100%;box-sizing:border-box}
+    .producer-city-autocomplete{position:relative}
+    .producer-city-matches{display:none;position:absolute;left:0;right:0;top:100%;z-index:50;max-height:13rem;overflow:auto;background:#fff;border:1px solid #c9c9c9;border-radius:.45rem;box-shadow:0 6px 18px rgba(0,0,0,.14);margin-top:.15rem;padding:.2rem}
+    .producer-city-matches.open{display:block}
+    .producer-city-matches button{display:block;width:100%;text-align:left;border:0;background:#fff;padding:.55rem .7rem;border-radius:.3rem}
+    .producer-city-matches button:hover,.producer-city-matches button:focus{background:#eef5f0}
   </style>
 </head>
 <body>
 <header>
-  <div><h1>Herbier Gourmand</h1><p>v2.9.4 · Ergonomie terrain</p></div>
+  <div><h1>Herbier Gourmand</h1><p>v2.9.4.1 · Correctifs Producteurs & Ajouts</p></div>
   <div class="header-actions"><span id="updateStatus">Planification assistée</span><button id="installBtn" class="ghost hidden">Installer</button></div>
 </header>
 <nav>
@@ -121,7 +126,7 @@
 </section>
 
 <section id="herbs" class="view">
-  <div class="section-title"><div><h2>Plantes & Épices</h2><span id="herbCount" class="muted"></span></div><button id="randomHerb" class="secondary">Découverte surprise</button></div>
+  <div class="section-title"><div><h2>Plantes & Épices</h2><span id="herbCount" class="muted"></span></div><div class="button-row"><button id="newHerb" class="primary">Ajouter</button><button id="randomHerb" class="secondary">Découverte surprise</button></div></div>
   <p class="lead">Chercher une plante, une saveur, un aliment, une cuisine ou une utilisation.</p>
   <div class="herb-search-grid">
     <label>Recherche<input id="herbSearch" type="search" placeholder="Basilic, poisson, citron, curry…"></label>
@@ -139,7 +144,7 @@
 
 
 <section id="produce" class="view">
-  <div class="section-title"><div><h2>Fruits & Légumes</h2><span id="produceCount" class="muted"></span></div><button id="randomProduce" class="secondary">Découverte surprise</button></div>
+  <div class="section-title"><div><h2>Fruits & Légumes</h2><span id="produceCount" class="muted"></span></div><div class="button-row"><button id="newProduce" class="primary">Ajouter</button><button id="randomProduce" class="secondary">Découverte surprise</button></div></div>
   <p class="lead">Chercher un produit, une saison, une préparation, un accord ou une utilisation culinaire.</p>
   <div class="produce-search-grid">
     <label>Recherche<input id="produceSearch" type="search" placeholder="Tomate, hiver, rôti, salade…"></label>
@@ -203,7 +208,7 @@
 <dialog id="producerDialog"><form id="producerForm" method="dialog"><div class="dialog-head"><h2 id="producerDialogTitle">Producteur local</h2><button type="button" id="closeProducer">×</button></div>
 <input type="hidden" id="producerId"><div class="grid producer-form-grid">
 <label>Nom<input id="producerName" required></label><label>Type<select id="producerTypeField"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label>
-<label>Région<select id="producerRegionField"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label><label>Lieu<input id="producerCityField" list="producerCitySuggestions" placeholder="Commencer à taper…"><datalist id="producerCitySuggestions"></datalist></label>
+<label>Région<select id="producerRegionField"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label><label>Lieu<div class="producer-city-autocomplete"><input id="producerCityField" autocomplete="off" placeholder="Commencer à taper…"><div id="producerCityMatches" class="producer-city-matches" role="listbox" aria-label="Lieux existants"></div></div></label>
 <label>Adresse<textarea id="producerAddress" rows="2"></textarea></label><label>Code postal<input id="producerPostal"></label>
 <label>Pays<input id="producerCountry" value="Suisse"></label><label>Téléphone<input id="producerPhone" type="tel" placeholder="+41 XX XXX XX XX"></label>
 <label>Site internet<input id="producerWebsite" type="url" placeholder="https://…"></label><label>Vente directe<input id="producerDirectSale" placeholder="Oui / Non"></label>
@@ -212,8 +217,8 @@
 <label>Remarques<textarea id="producerNotes" rows="5"></textarea></label>
 <div class="dialog-actions"><button type="button" id="deleteProducer" class="danger">Supprimer</button><button type="button" id="duplicateProducer">Dupliquer</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 
-<dialog id="herbDialog"><form id="herbForm" method="dialog"><div class="dialog-head"><h2>Modifier Plante & Épice</h2><button type="button" id="closeHerbDialog">×</button></div><input type="hidden" id="herbEditId"><div class="grid"><label>Nom<input id="herbEditName" required></label><label>Famille<select id="herbEditFamily"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label><label>Origine<input id="herbEditOrigin"></label><label>Saison<select id="herbEditSeason"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label><label>Intensité<select id="herbEditIntensity"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label><label>Formes<select id="herbEditForms"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label></div><label>Profil gustatif<textarea id="herbEditFlavor" rows="3"></textarea></label><label>Usages principaux<textarea id="herbEditUses" rows="3"></textarea></label><label>Aliments idéaux<textarea id="herbEditIdealFoods" rows="3"></textarea></label><label>Associations recommandées<textarea id="herbEditPairings" rows="3"></textarea></label><label>Cuisson<textarea id="herbEditCooking" rows="3"></textarea></label><label>Préparation<textarea id="herbEditPreparation" rows="3"></textarea></label><label>Quantité indicative<input id="herbEditQuantity"></label><label>Substitution<textarea id="herbEditSubstitution" rows="2"></textarea></label><label>Erreur à éviter<textarea id="herbEditAvoid" rows="2"></textarea></label><label>Conservation<textarea id="herbEditConservation" rows="2"></textarea></label><label>Où acheter<textarea id="herbEditWhere" rows="2"></textarea></label><label>Idées de recettes<textarea id="herbEditRecipeIdeas" rows="2"></textarea></label><label>Astuce du chef<textarea id="herbEditChefTip" rows="2"></textarea></label><div class="dialog-actions"><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
-<dialog id="produceDialog"><form id="produceForm" method="dialog"><div class="dialog-head"><h2>Modifier Fruit & Légume</h2><button type="button" id="closeProduceDialog">×</button></div><input type="hidden" id="produceEditId"><div class="grid"><label>Nom<input id="produceEditName" required></label><label>Catégorie<select id="produceEditCategory"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label><label>Nom latin<input id="produceEditLatin"></label><label>Disponibilité<input id="produceEditAvailability"></label><label>Saison<select id="produceEditSeason"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label></div><label>Description<textarea id="produceEditDescription" rows="3"></textarea></label><label>Bienfaits<textarea id="produceEditBenefits" rows="3"></textarea></label><label>À associer avec<textarea id="produceEditPairings" rows="3"></textarea></label><label>Associations renforçant les bienfaits<textarea id="produceEditBenefitPairings" rows="3"></textarea></label><label>Modes de préparation<textarea id="produceEditPreparation" rows="3"></textarea></label><label>Conservation<textarea id="produceEditConservation" rows="3"></textarea></label><label>Utilisations culinaires<textarea id="produceEditUses" rows="3"></textarea></label><label>Remarques<textarea id="produceEditNotes" rows="3"></textarea></label><div class="dialog-actions"><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
+<dialog id="herbDialog"><form id="herbForm" method="dialog"><div class="dialog-head"><h2 id="herbDialogTitle">Modifier Plante & Épice</h2><button type="button" id="closeHerbDialog">×</button></div><input type="hidden" id="herbEditId"><div class="grid"><label>Nom<input id="herbEditName" required></label><label>Famille<select id="herbEditFamily"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label><label>Origine<input id="herbEditOrigin"></label><label>Saison<select id="herbEditSeason"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label><label>Intensité<select id="herbEditIntensity"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label><label>Formes<select id="herbEditForms"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label></div><label>Profil gustatif<textarea id="herbEditFlavor" rows="3"></textarea></label><label>Usages principaux<textarea id="herbEditUses" rows="3"></textarea></label><label>Aliments idéaux<textarea id="herbEditIdealFoods" rows="3"></textarea></label><label>Associations recommandées<textarea id="herbEditPairings" rows="3"></textarea></label><label>Cuisson<textarea id="herbEditCooking" rows="3"></textarea></label><label>Préparation<textarea id="herbEditPreparation" rows="3"></textarea></label><label>Quantité indicative<input id="herbEditQuantity"></label><label>Substitution<textarea id="herbEditSubstitution" rows="2"></textarea></label><label>Erreur à éviter<textarea id="herbEditAvoid" rows="2"></textarea></label><label>Conservation<textarea id="herbEditConservation" rows="2"></textarea></label><label>Où acheter<textarea id="herbEditWhere" rows="2"></textarea></label><label>Idées de recettes<textarea id="herbEditRecipeIdeas" rows="2"></textarea></label><label>Astuce du chef<textarea id="herbEditChefTip" rows="2"></textarea></label><div class="dialog-actions"><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
+<dialog id="produceDialog"><form id="produceForm" method="dialog"><div class="dialog-head"><h2 id="produceDialogTitle">Modifier Fruit & Légume</h2><button type="button" id="closeProduceDialog">×</button></div><input type="hidden" id="produceEditId"><div class="grid"><label>Nom<input id="produceEditName" required></label><label>Catégorie<select id="produceEditCategory"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label><label>Nom latin<input id="produceEditLatin"></label><label>Disponibilité<input id="produceEditAvailability"></label><label>Saison<select id="produceEditSeason"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label></div><label>Description<textarea id="produceEditDescription" rows="3"></textarea></label><label>Bienfaits<textarea id="produceEditBenefits" rows="3"></textarea></label><label>À associer avec<textarea id="produceEditPairings" rows="3"></textarea></label><label>Associations renforçant les bienfaits<textarea id="produceEditBenefitPairings" rows="3"></textarea></label><label>Modes de préparation<textarea id="produceEditPreparation" rows="3"></textarea></label><label>Conservation<textarea id="produceEditConservation" rows="3"></textarea></label><label>Utilisations culinaires<textarea id="produceEditUses" rows="3"></textarea></label><label>Remarques<textarea id="produceEditNotes" rows="3"></textarea></label><div class="dialog-actions"><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 <dialog id="githubDialog"><form id="githubForm" method="dialog"><div class="dialog-head"><h2>Configurer GitHub</h2><button type="button" id="closeGithub">×</button></div>
 <p class="muted">Utilise un jeton finement limité au dépôt. Il est conservé seulement pour cette session du navigateur.</p>
 <div class="grid"><label>Propriétaire<input id="githubOwner" required></label><label>Dépôt<input id="githubRepo" required></label><label>Branche<input id="githubBranch" value="main" required></label><label>Chemin du fichier<input id="githubPath" value="herbier-latest.hgbak" required></label></div>
