@@ -6,11 +6,18 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v282.css?v=2911">
+  <link rel="stylesheet" href="styles-v282.css?v=2940">
+
+  <style>
+    .recipe[data-recipe-open]{cursor:pointer}
+    .recipe[data-recipe-open]:hover{box-shadow:0 2px 10px rgba(0,0,0,.08)}
+    .meal-free-note{display:block;margin:.55rem 0 .25rem}
+    .meal-free-note input{width:100%;box-sizing:border-box}
+  </style>
 </head>
 <body>
 <header>
-  <div><h1>Herbier Gourmand</h1><p>v2.9.2 · Corrections terrain</p></div>
+  <div><h1>Herbier Gourmand</h1><p>v2.9.4 · Ergonomie terrain</p></div>
   <div class="header-actions"><span id="updateStatus">Planification assistée</span><button id="installBtn" class="ghost hidden">Installer</button></div>
 </header>
 <nav>
@@ -83,6 +90,7 @@
   <div class="section-title"><div><h2>Envie d’une sortie ?</h2><span id="restaurantCount" class="muted"></span></div><button id="newRestaurant" class="primary">+ Nouveau</button></div>
   <div class="restaurant-search-grid">
     <label>Nom<input id="restaurantSearch" type="search" placeholder="Nom du restaurant…"></label>
+    <label>Région<select id="restaurantRegion"><option value="">Toutes les régions</option></select></label>
     <label>Lieu<select id="restaurantCity"><option value="">Tous les lieux</option></select></label>
     <label>Pays<select id="restaurantCountry"><option value="">Tous les pays</option></select></label>
     <label>Spécialité<select id="restaurantSpecialty"><option value="">Toutes les spécialités</option></select></label>
@@ -100,7 +108,7 @@
   <div class="producer-search-grid">
     <label>Nom<input id="producerSearch" type="search" placeholder="Nom du producteur ou marché…"></label>
     <label>Région<select id="producerRegion"><option value="">Toutes les régions</option></select></label>
-    <label>Commune<select id="producerCity"><option value="">Toutes les communes</option></select></label>
+    <label>Lieu<select id="producerCity"><option value="">Tous les lieux</option></select></label>
     <label>Type<select id="producerType"><option value="">Tous les types</option></select></label>
     <label>Produit / tag<select id="producerTag"><option value="">Tous les produits</option></select></label>
   </div>
@@ -162,9 +170,11 @@
 <label class="check"><input id="replaceDuplicates" type="checkbox"> Remplacer les recettes portant le même identifiant ou le même titre</label>
 <div class="dialog-actions"><button type="button" id="cancelImport">Annuler</button><button type="submit" id="confirmImport" class="primary" disabled>Importer</button></div></form></dialog>
 
+<dialog id="movePlanDialog"><form id="movePlanForm" method="dialog"><div class="dialog-head"><h2>Déplacer dans le planning</h2><button type="button" id="closeMovePlan">×</button></div><div class="grid"><label>Date<input id="movePlanDate" type="date" required></label><label>Repas<select id="movePlanSlot" required><option value="Matin">Matin</option><option value="Midi">Midi</option><option value="Soir">Soir</option></select></label></div><div class="dialog-actions"><button type="button" id="cancelMovePlan">Annuler</button><button type="submit" class="primary">Déplacer</button></div></form></dialog>
+
 <dialog id="shoppingDialog"><form id="shoppingForm" method="dialog"><div class="dialog-head"><h2 id="shoppingDialogTitle">Article</h2><button type="button" id="closeShopping">×</button></div>
 <input type="hidden" id="shoppingId">
-<div class="grid"><label>Article<input id="shoppingName" required></label><label>Quantité<input id="shoppingQty" placeholder="Ex. 2 ou 0,5"></label><label>Unité<input id="shoppingUnit" placeholder="Ex. kg, L, pièces"></label><label>Magasin<select id="shoppingStore"><option value="">À définir</option><option>Supermarché</option><option>Marché</option><option>Boulangerie</option><option>Boucherie</option><option>Pharmacie</option><option value="__other__">Autre…</option></select></label><label>Rayon<select id="shoppingAisle"><option value="">À définir</option><option>Fruits et légumes</option><option>Boulangerie</option><option>Boucherie</option><option>Poissonnerie</option><option>Produits laitiers</option><option>Épicerie</option><option>Surgelés</option><option>Boissons</option><option>Hygiène</option><option>Ménage</option><option value="__other__">Autre…</option></select></label></div>
+<div class="grid"><label>Article<input id="shoppingName" required></label><label>Quantité<input id="shoppingQty" placeholder="Ex. 2 ou 0,5"></label><label>Unité<input id="shoppingUnit" placeholder="Ex. kg, L, pièces"></label><label>Magasin<select id="shoppingStore"><option value="">À définir</option><option>Boucherie</option><option>Boulangerie</option><option>Marché</option><option>Pharmacie</option><option>Supermarché</option><option value="__other__">Autre…</option></select></label><label>Rayon<select id="shoppingAisle"><option value="">À définir</option><option>Boissons</option><option>Boucherie</option><option>Boulangerie</option><option>Épicerie</option><option>Fruits et légumes</option><option>Hygiène</option><option>Ménage</option><option>Poissonnerie</option><option>Produits laitiers</option><option>Surgelés</option><option value="__other__">Autre…</option></select></label></div>
 <div id="shoppingOrigins" class="notice subtle hidden"></div>
 <div class="dialog-actions"><button type="button" id="deleteShopping" class="danger">Supprimer</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 
@@ -179,6 +189,7 @@
 <div class="grid restaurant-form-grid">
 <label>Nom<input id="restaurantName" required></label><label>Tenancier<input id="restaurantTenant"></label>
 <label>Adresse<textarea id="restaurantAddress" rows="2"></textarea></label><label>Code postal<input id="restaurantPostal"></label>
+<label>Région<select id="restaurantRegionField"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label>
 <label>Lieu<select id="restaurantCityField"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label>
 <label>Pays<select id="restaurantCountryField"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label>
 <label>Téléphone international<input id="restaurantPhone" type="tel" placeholder="+41 XX XXX XX XX"></label><label>Site internet<input id="restaurantWebsite" type="url" placeholder="https://…"></label>
@@ -192,7 +203,7 @@
 <dialog id="producerDialog"><form id="producerForm" method="dialog"><div class="dialog-head"><h2 id="producerDialogTitle">Producteur local</h2><button type="button" id="closeProducer">×</button></div>
 <input type="hidden" id="producerId"><div class="grid producer-form-grid">
 <label>Nom<input id="producerName" required></label><label>Type<select id="producerTypeField"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label>
-<label>Région<select id="producerRegionField"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label><label>Lieu<select id="producerCityField"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label>
+<label>Région<select id="producerRegionField"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label><label>Lieu<input id="producerCityField" list="producerCitySuggestions" placeholder="Commencer à taper…"><datalist id="producerCitySuggestions"></datalist></label>
 <label>Adresse<textarea id="producerAddress" rows="2"></textarea></label><label>Code postal<input id="producerPostal"></label>
 <label>Pays<input id="producerCountry" value="Suisse"></label><label>Téléphone<input id="producerPhone" type="tel" placeholder="+41 XX XXX XX XX"></label>
 <label>Site internet<input id="producerWebsite" type="url" placeholder="https://…"></label><label>Vente directe<input id="producerDirectSale" placeholder="Oui / Non"></label>
@@ -201,13 +212,13 @@
 <label>Remarques<textarea id="producerNotes" rows="5"></textarea></label>
 <div class="dialog-actions"><button type="button" id="deleteProducer" class="danger">Supprimer</button><button type="button" id="duplicateProducer">Dupliquer</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 
-<dialog id="herbDialog"><form id="herbForm" method="dialog"><div class="dialog-head"><h2>Modifier Plante & Épice</h2><button type="button" id="closeHerbDialog">×</button></div><input type="hidden" id="herbEditId"><div class="grid"><label>Nom<input id="herbEditName" required></label><label>Famille<input id="herbEditFamily"></label><label>Origine<input id="herbEditOrigin"></label><label>Saison<input id="herbEditSeason"></label><label>Intensité<input id="herbEditIntensity"></label><label>Formes<input id="herbEditForms"></label></div><label>Profil gustatif<textarea id="herbEditFlavor" rows="3"></textarea></label><label>Usages principaux<textarea id="herbEditUses" rows="3"></textarea></label><label>Aliments idéaux<textarea id="herbEditIdealFoods" rows="3"></textarea></label><label>Associations recommandées<textarea id="herbEditPairings" rows="3"></textarea></label><label>Cuisson<textarea id="herbEditCooking" rows="3"></textarea></label><label>Préparation<textarea id="herbEditPreparation" rows="3"></textarea></label><label>Quantité indicative<input id="herbEditQuantity"></label><label>Substitution<textarea id="herbEditSubstitution" rows="2"></textarea></label><label>Erreur à éviter<textarea id="herbEditAvoid" rows="2"></textarea></label><label>Conservation<textarea id="herbEditConservation" rows="2"></textarea></label><label>Où acheter<textarea id="herbEditWhere" rows="2"></textarea></label><label>Idées de recettes<textarea id="herbEditRecipeIdeas" rows="2"></textarea></label><label>Astuce du chef<textarea id="herbEditChefTip" rows="2"></textarea></label><div class="dialog-actions"><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
-<dialog id="produceDialog"><form id="produceForm" method="dialog"><div class="dialog-head"><h2>Modifier Fruit & Légume</h2><button type="button" id="closeProduceDialog">×</button></div><input type="hidden" id="produceEditId"><div class="grid"><label>Nom<input id="produceEditName" required></label><label>Catégorie<input id="produceEditCategory"></label><label>Nom latin<input id="produceEditLatin"></label><label>Disponibilité<input id="produceEditAvailability"></label><label>Saison<input id="produceEditSeason"></label></div><label>Description<textarea id="produceEditDescription" rows="3"></textarea></label><label>Bienfaits<textarea id="produceEditBenefits" rows="3"></textarea></label><label>À associer avec<textarea id="produceEditPairings" rows="3"></textarea></label><label>Associations renforçant les bienfaits<textarea id="produceEditBenefitPairings" rows="3"></textarea></label><label>Modes de préparation<textarea id="produceEditPreparation" rows="3"></textarea></label><label>Conservation<textarea id="produceEditConservation" rows="3"></textarea></label><label>Utilisations culinaires<textarea id="produceEditUses" rows="3"></textarea></label><label>Remarques<textarea id="produceEditNotes" rows="3"></textarea></label><div class="dialog-actions"><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
+<dialog id="herbDialog"><form id="herbForm" method="dialog"><div class="dialog-head"><h2>Modifier Plante & Épice</h2><button type="button" id="closeHerbDialog">×</button></div><input type="hidden" id="herbEditId"><div class="grid"><label>Nom<input id="herbEditName" required></label><label>Famille<select id="herbEditFamily"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label><label>Origine<input id="herbEditOrigin"></label><label>Saison<select id="herbEditSeason"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label><label>Intensité<select id="herbEditIntensity"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label><label>Formes<select id="herbEditForms"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label></div><label>Profil gustatif<textarea id="herbEditFlavor" rows="3"></textarea></label><label>Usages principaux<textarea id="herbEditUses" rows="3"></textarea></label><label>Aliments idéaux<textarea id="herbEditIdealFoods" rows="3"></textarea></label><label>Associations recommandées<textarea id="herbEditPairings" rows="3"></textarea></label><label>Cuisson<textarea id="herbEditCooking" rows="3"></textarea></label><label>Préparation<textarea id="herbEditPreparation" rows="3"></textarea></label><label>Quantité indicative<input id="herbEditQuantity"></label><label>Substitution<textarea id="herbEditSubstitution" rows="2"></textarea></label><label>Erreur à éviter<textarea id="herbEditAvoid" rows="2"></textarea></label><label>Conservation<textarea id="herbEditConservation" rows="2"></textarea></label><label>Où acheter<textarea id="herbEditWhere" rows="2"></textarea></label><label>Idées de recettes<textarea id="herbEditRecipeIdeas" rows="2"></textarea></label><label>Astuce du chef<textarea id="herbEditChefTip" rows="2"></textarea></label><div class="dialog-actions"><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
+<dialog id="produceDialog"><form id="produceForm" method="dialog"><div class="dialog-head"><h2>Modifier Fruit & Légume</h2><button type="button" id="closeProduceDialog">×</button></div><input type="hidden" id="produceEditId"><div class="grid"><label>Nom<input id="produceEditName" required></label><label>Catégorie<select id="produceEditCategory"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label><label>Nom latin<input id="produceEditLatin"></label><label>Disponibilité<input id="produceEditAvailability"></label><label>Saison<select id="produceEditSeason"><option value="">Choisir…</option><option value="__other__">Autre…</option></select></label></div><label>Description<textarea id="produceEditDescription" rows="3"></textarea></label><label>Bienfaits<textarea id="produceEditBenefits" rows="3"></textarea></label><label>À associer avec<textarea id="produceEditPairings" rows="3"></textarea></label><label>Associations renforçant les bienfaits<textarea id="produceEditBenefitPairings" rows="3"></textarea></label><label>Modes de préparation<textarea id="produceEditPreparation" rows="3"></textarea></label><label>Conservation<textarea id="produceEditConservation" rows="3"></textarea></label><label>Utilisations culinaires<textarea id="produceEditUses" rows="3"></textarea></label><label>Remarques<textarea id="produceEditNotes" rows="3"></textarea></label><div class="dialog-actions"><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 <dialog id="githubDialog"><form id="githubForm" method="dialog"><div class="dialog-head"><h2>Configurer GitHub</h2><button type="button" id="closeGithub">×</button></div>
 <p class="muted">Utilise un jeton finement limité au dépôt. Il est conservé seulement pour cette session du navigateur.</p>
 <div class="grid"><label>Propriétaire<input id="githubOwner" required></label><label>Dépôt<input id="githubRepo" required></label><label>Branche<input id="githubBranch" value="main" required></label><label>Chemin du fichier<input id="githubPath" value="herbier-latest.hgbak" required></label></div>
 <label>Jeton GitHub<input id="githubToken" type="password" autocomplete="off" placeholder="github_pat_…"></label>
 <div class="dialog-actions"><button type="button" id="cancelGithub">Annuler</button><button type="submit" class="primary">Enregistrer la configuration</button></div></form></dialog>
 
-<script src="app-v282.js?v=2931"></script>
+<script src="app-v282.js?v=2940"></script>
 </body></html>
