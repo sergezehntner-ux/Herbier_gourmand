@@ -9,13 +9,14 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLo
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.4.1';
+const APP_VERSION='2.9.5.2';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294';
 const BACKUP_META_KEY='hg-backup-meta-v26';
 const EMERGENCY_BACKUP_KEY='hg-emergency-before-import-v26';
 const CHANGE_COUNTER_KEY='hg-changes-since-backup-v26';
+const LAST_DEVICE_ACTION_KEY='hg-last-device-action-v2952';
 const uid=()=>globalThis.crypto?.randomUUID?.()||`${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
 function isoDate(d){return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)}
@@ -255,10 +256,28 @@ function downloadTextFile(filename,text){
   a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
-function backupFilename(){
-  const d=new Date(),pad=n=>String(n).padStart(2,'0');
-  return `Herbier_Gourmand_${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}.hgbak`;
+function backupStamp(d=new Date()){
+  const pad=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}`;
 }
+function backupFilename(){return `Herbier-Gourmand_${backupStamp()}.hgbak`;}
+function backupDeviceLabel(){
+  const ua=navigator.userAgent||'';
+  if(/Android|iPhone|iPad|Mobile/i.test(ua))return 'Smartphone';
+  if(/Windows|Macintosh|Linux x86_64/i.test(ua))return 'Notebook';
+  return 'Appareil';
+}
+function renderLastDeviceAction(){
+  const el=$('#lastDeviceAction');if(!el)return;
+  const value=localStorage.getItem(LAST_DEVICE_ACTION_KEY);
+  el.textContent=value?`Dernière action : ${value}`:'';
+}
+function rememberLastDeviceAction(kind,filename){
+  if(!filename)return;
+  localStorage.setItem(LAST_DEVICE_ACTION_KEY,`${kind} ${filename}`);
+  renderLastDeviceAction();
+}
+renderLastDeviceAction();
 function backupMeta(){try{return JSON.parse(localStorage.getItem(BACKUP_META_KEY)||'null')}catch{return null}}
 function updateBackupReminder(){
   const el=$('#backupReminder');if(!el)return;
@@ -281,14 +300,36 @@ function createEmergencyCheckpoint(reason='opération sensible'){
   localStorage.setItem(EMERGENCY_BACKUP_KEY,JSON.stringify(record));
   return snapshot;
 }
-$('#exportData').onclick=()=>{
+$('#exportData').onclick=async()=>{
   try{
-    const backup=herbierStorageSnapshot(),filename=backupFilename();
-    downloadTextFile(filename,JSON.stringify(backup,null,2));markBackupCreated(filename);
-    $('#dataTransferStatus').textContent=`Sauvegarde créée : ${Object.keys(backup.data).length} ensemble(s) de données. Range le fichier dans OneDrive/Herbier Gourmand/Sauvegardes.`;
+    const backup=herbierStorageSnapshot(),filename=backupFilename(),text=JSON.stringify(backup,null,2);
+    if(typeof window.showSaveFilePicker==='function'){
+      try{
+        const handle=await window.showSaveFilePicker({
+          suggestedName:filename,
+          types:[{description:'Sauvegarde Herbier Gourmand',accept:{'application/json':['.hgbak']}}]
+        });
+        const writable=await handle.createWritable();
+        await writable.write(text);
+        await writable.close();
+        markBackupCreated(filename);
+        $('#dataTransferStatus').textContent=`Sauvegarde exportée : ${filename} · ${backupDeviceLabel()} · ${new Date().toLocaleString('fr-CH')}`;
+        rememberLastDeviceAction('Export',filename);
+        return;
+      }catch(e){
+        if(e?.name==='AbortError'){
+          $('#dataTransferStatus').textContent='Export annulé.';
+          return;
+        }
+        console.warn('Enregistrer sous indisponible, repli sur téléchargement',e);
+      }
+    }
+    downloadTextFile(filename,text);
+    markBackupCreated(filename);
+    $('#dataTransferStatus').textContent=`Sauvegarde exportée dans les téléchargements : ${filename} · ${backupDeviceLabel()} · ${new Date().toLocaleString('fr-CH')}`;
+    rememberLastDeviceAction('Export',filename);
   }catch(err){console.error(err);alert('Impossible de créer la sauvegarde.');}
 };
-$('#importData').onclick=()=>{$('#dataImportFile').value='';$('#dataImportFile').click()};
 $('#dataImportFile').onchange=async e=>{
   const file=e.target.files?.[0];if(!file)return;
   try{
@@ -296,31 +337,33 @@ $('#dataImportFile').onchange=async e=>{
     if(parsed?.format!=='HerbierGourmandBackup'||parsed?.formatVersion!==1||!parsed.data||typeof parsed.data!=='object')throw new Error('format de sauvegarde non reconnu');
     const keys=Object.keys(parsed.data).filter(k=>k.startsWith('hg-')&&typeof parsed.data[k]==='string');
     if(!keys.length)throw new Error('aucune donnée Herbier Gourmand trouvée');
-    pendingDataImport={...parsed,data:Object.fromEntries(keys.map(k=>[k,parsed.data[k]]))};
+    pendingDataImport={...parsed,data:Object.fromEntries(keys.map(k=>[k,parsed.data[k]])),_filename:file.name};
     let recipeCount='inconnu',shoppingCount='inconnu',planCount='inconnu';
     try{recipeCount=JSON.parse(pendingDataImport.data[recipeStore]||'[]').length}catch{}
     try{shoppingCount=JSON.parse(pendingDataImport.data[shoppingStore]||'[]').length}catch{}
     try{planCount=(JSON.parse(pendingDataImport.data[planStore]||'{}').items||[]).length}catch{}
-    const when=parsed.exportedAt?new Date(parsed.exportedAt).toLocaleString('fr-FR'):'date inconnue';
-    $('#dataImportSummary').innerHTML=`<strong>Sauvegarde du ${esc(when)}</strong><br>${recipeCount} recette(s) · ${planCount} repas planifié(s) · ${shoppingCount} article(s) de courses.<br><span class="muted">Les données actuelles de cet appareil seront remplacées.</span>`;
+    const when=parsed.exportedAt?new Date(parsed.exportedAt).toLocaleString('fr-CH'):'date inconnue';
+    $('#dataImportSummary').innerHTML=`<strong>${esc(file.name)}</strong><br>Sauvegarde du ${esc(when)}<br>${recipeCount} recette(s) · ${planCount} repas planifié(s) · ${shoppingCount} article(s) de courses.<br><span class="muted">Les données actuelles de cet appareil seront remplacées après confirmation.</span>`;
     $('#dataImportDialog').showModal();
   }catch(err){console.error(err);pendingDataImport=null;alert(`Import impossible : ${err.message}`);}
+  finally{e.target.value='';}
 };
+if($('#importPaprikaBackup'))$('#importPaprikaBackup').onclick=()=>$('#importPaprika')?.click();
 $('#closeDataImport').onclick=$('#cancelDataImport').onclick=()=>{$('#dataImportDialog').close();pendingDataImport=null};
 $('#dataImportForm').onsubmit=e=>{
   e.preventDefault();if(!pendingDataImport)return;
   try{
-    // Double protection : point de restauration local + téléchargement avant remplacement.
-    const safety=createEmergencyCheckpoint('avant import'),safetyName=backupFilename().replace('.hgbak','_avant-import.hgbak');
-    downloadTextFile(safetyName,JSON.stringify(safety,null,2));
+    createEmergencyCheckpoint('avant import');
     const currentHgKeys=[];
     for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key?.startsWith('hg-')&&key!==EMERGENCY_BACKUP_KEY)currentHgKeys.push(key)}
     currentHgKeys.forEach(key=>localStorage.removeItem(key));
     Object.entries(pendingDataImport.data).forEach(([key,value])=>localStorage.setItem(key,value));
-    localStorage.setItem(BACKUP_META_KEY,JSON.stringify({at:pendingDataImport.exportedAt||new Date().toISOString(),filename:'sauvegarde importée'}));
+    const importedName=pendingDataImport._filename||'sauvegarde importée';
+    localStorage.setItem(BACKUP_META_KEY,JSON.stringify({at:pendingDataImport.exportedAt||new Date().toISOString(),filename:importedName}));
     localStorage.setItem(CHANGE_COUNTER_KEY,'0');
+    localStorage.setItem(LAST_DEVICE_ACTION_KEY,`Import ${importedName}`);
     $('#dataImportDialog').close();
-    alert('Import terminé. Une sauvegarde « avant import » a aussi été téléchargée. Herbier Gourmand va maintenant recharger les données.');
+    alert('Import terminé avec succès. Herbier Gourmand va recharger les données.');
     location.reload();
   }catch(err){console.error(err);alert('Impossible d’importer les données. Le point de restauration local a été conservé lorsque sa création a réussi.');}
 };
@@ -373,7 +416,7 @@ if($('#producerCityField')){
 document.addEventListener('click',e=>{if(!e.target.closest('.producer-city-autocomplete'))closeProducerCityMatches()});
 
 
-async function checkForUpdate(){const status=$('#updateStatus');try{const remote=await fetch(`version.json?_=${Date.now()}`,{cache:'no-store'}).then(r=>r.json());status.textContent=`À jour · v${remote.version}`}catch{status.textContent=`Hors connexion · v${APP_VERSION}`}}
+async function checkForUpdate(){try{await fetch(`version.json?_=${Date.now()}`,{cache:'no-store'}).then(r=>r.json())}catch{}}
 let deferredPrompt;addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;$('#installBtn').classList.remove('hidden')});$('#installBtn').onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;$('#installBtn').classList.add('hidden')}};
 init().catch(e=>{console.error(e);alert('Impossible de démarrer Herbier Gourmand.')});
 

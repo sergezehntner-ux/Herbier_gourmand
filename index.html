@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v282.css?v=2951">
+  <link rel="stylesheet" href="styles-v282.css?v=2952">
 
   <style>
     .recipe[data-recipe-open]{cursor:pointer}
@@ -29,8 +29,8 @@
 </head>
 <body>
 <header>
-  <div><h1>Herbier Gourmand</h1><p>v2.9.5.1 · Lisibilité des rayons</p></div>
-  <div class="header-actions"><span id="updateStatus">Planification assistée</span><button id="installBtn" class="ghost hidden">Installer</button></div>
+  <div><h1>Herbier Gourmand</h1><p>v2.9.5.2 · Sauvegarde & transfert</p></div>
+  <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span><button id="installBtn" class="ghost hidden">Installer</button></div>
 </header>
 <nav>
   <button class="active" data-view="home">Accueil</button><button data-view="recipes">Recettes</button><button data-view="planner">Planning</button><button data-view="shopping">Courses</button><button data-view="restaurants">Sorties</button><button data-view="producers">Producteurs</button><button data-view="herbs">Plantes & Épices</button><button data-view="produce">Fruits & Légumes</button>
@@ -52,10 +52,14 @@
   </section>
   <section class="panel data-transfer-panel" aria-labelledby="dataTransferTitle">
     <div class="section-title"><div><h2 id="dataTransferTitle">Sauvegarde et transfert</h2><span class="muted">Pour retrouver tes données sur un autre appareil.</span></div></div>
-    <p>Exporte toutes les données personnelles d’Herbier Gourmand, puis importe le fichier sur le notebook ou le smartphone.</p>
-    <div class="button-row"><button id="exportData" class="primary">Exporter mes données</button><button id="importData">Importer mes données</button></div>
-    <p id="dataTransferStatus" class="muted" aria-live="polite"></p><p id="backupReminder" class="backup-reminder muted" aria-live="polite"></p>
-    <input id="dataImportFile" class="hidden" type="file" accept=".json,.hgbak,application/json">
+    <p class="muted">Dossier conseillé : OneDrive → Apps → Herbier Gourmand → Sauvegardes</p>
+    <div class="button-row data-transfer-actions">
+      <button id="exportData" class="primary">Exporter une sauvegarde</button>
+      <label class="secondary import-label">Importer une sauvegarde<input id="dataImportFile" type="file" accept=".hgbak,.json,application/json,application/octet-stream,*/*" hidden></label>
+      <button id="importPaprikaBackup" class="secondary" type="button">Importer historique Paprika</button>
+    </div>
+    <div id="dataTransferStatus" class="notice subtle" aria-live="polite">Les sauvegardes sont horodatées. « Exporter une sauvegarde » essaie d’abord d’ouvrir « Enregistrer sous… » afin de choisir l’emplacement du fichier. Si le navigateur ne le permet pas, Herbier Gourmand utilise automatiquement le téléchargement classique.</div>
+    <p id="backupReminder" class="backup-reminder muted" aria-live="polite"></p>
   </section>
 </section>
 
@@ -232,5 +236,5 @@
 <label>Jeton GitHub<input id="githubToken" type="password" autocomplete="off" placeholder="github_pat_…"></label>
 <div class="dialog-actions"><button type="button" id="cancelGithub">Annuler</button><button type="submit" class="primary">Enregistrer la configuration</button></div></form></dialog>
 
-<script src="app-v282.js?v=2940"></script>
+<script src="app-v282.js?v=2952"></script>
 </body></html>
