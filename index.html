@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v282.css?v=2952">
+  <link rel="stylesheet" href="styles-v282.css?v=2960">
 
   <style>
     .recipe[data-recipe-open]{cursor:pointer}
@@ -19,7 +19,7 @@
     .producer-city-matches button{display:block;width:100%;text-align:left;border:0;background:#fff;padding:.55rem .7rem;border-radius:.3rem}
     .producer-city-matches button:hover,.producer-city-matches button:focus{background:#eef5f0}
 
-    /* v2.9.5.1 — rayon lisible à droite de chaque article */
+    /* v2.9.6 — rayon unique à droite de chaque article */
     .shop-item .shop-text{display:flex;align-items:center;gap:.65rem;width:100%;min-width:0;text-align:left}
     .shop-item .shop-main{min-width:0;flex:1}
     .shop-aisle-badge{margin-left:auto;flex:0 0 auto;padding:.28rem .65rem;border-radius:999px;background:#dcecdf;color:#294d39;font-size:1.02rem;font-weight:700;line-height:1.2;white-space:nowrap}
@@ -29,7 +29,7 @@
 </head>
 <body>
 <header>
-  <div><h1>Herbier Gourmand</h1><p>v2.9.5.2 · Sauvegarde & transfert</p></div>
+  <div class="brand"><img src="icon-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.6 · Ergonomie terrain III</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span><button id="installBtn" class="ghost hidden">Installer</button></div>
 </header>
 <nav>
@@ -236,5 +236,5 @@
 <label>Jeton GitHub<input id="githubToken" type="password" autocomplete="off" placeholder="github_pat_…"></label>
 <div class="dialog-actions"><button type="button" id="cancelGithub">Annuler</button><button type="submit" class="primary">Enregistrer la configuration</button></div></form></dialog>
 
-<script src="app-v282.js?v=2952"></script>
+<script src="app-v282.js?v=2960"></script>
 </body></html>

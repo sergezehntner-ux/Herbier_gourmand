@@ -177,3 +177,9 @@ nav{grid-template-columns:repeat(7,1fr)}
 .import-label{display:inline-flex;align-items:center;justify-content:center;margin:0;cursor:pointer;font-weight:650;border:1px solid var(--line);border-radius:11px;padding:10px;background:var(--g2);color:var(--ink)}
 .data-transfer-panel #dataTransferStatus{margin-top:12px;min-height:1.3em}
 @media(max-width:620px){.last-device-action{max-width:44vw;font-size:.72rem}.header-actions{display:flex;align-items:center;justify-content:flex-end;gap:6px}.data-transfer-actions>*{flex:1 1 100%;text-align:center}}
+
+/* v2.9.6 — harmonisation terrain */
+.brand{display:flex;align-items:center;gap:12px}.brand-icon{width:58px;height:58px;border-radius:13px;object-fit:cover;box-shadow:0 1px 5px #0003}
+select{padding-top:7px;padding-bottom:7px;line-height:1.15}
+.shop-group{padding:10px 12px}.shop-group>h3{margin:0 0 5px}.shop-item{padding:3px 2px}.shop-text{padding:4px}.shop-subgroup{margin:0;padding:0}.shop-subgroup h4{display:none}
+@media(max-width:620px){.brand-icon{width:48px;height:48px;border-radius:11px}.brand h1{font-size:1.55rem}.brand p{font-size:.78rem}}
