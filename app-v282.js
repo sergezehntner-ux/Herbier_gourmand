@@ -555,6 +555,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
 
 // v2.9.6.1 — sélecteurs Herbier Gourmand compacts, triés et cohérents sur PC/mobile.
 const hgSelectPreserveOrder=new Set(['maxTime','planTime','recipeServings','recipeTemperature','movePlanSlot']);
+const hgSelectNativeOnly=new Set(['shoppingStore','shoppingAisle','aisleOrderStore']);
 let hgSelectPopup=null,hgSelectActive=null;
 function hgSortedSelectOptions(select){
   const all=Array.from(select.options).map(o=>({value:o.value,text:o.textContent,disabled:o.disabled}));
@@ -583,7 +584,7 @@ function hgOpenSelectPopup(select,button){
   hgPositionSelectPopup(button);hgSelectPopup.classList.add('open');
 }
 function hgEnhanceSelect(select){
-  if(!select||select.dataset.hgEnhanced)return;select.dataset.hgEnhanced='1';
+  if(!select||select.dataset.hgEnhanced||hgSelectNativeOnly.has(select.id))return;select.dataset.hgEnhanced='1';
   const shell=document.createElement('div');shell.className='hg-select-shell';select.parentNode.insertBefore(shell,select);shell.appendChild(select);select.classList.add('hg-native-select');
   const button=document.createElement('button');button.type='button';button.className='hg-select-button';button.setAttribute('aria-haspopup','listbox');button.setAttribute('aria-expanded','false');button.textContent=hgSelectText(select);shell.appendChild(button);
   button.onclick=e=>{e.stopPropagation();button.textContent=hgSelectText(select);hgOpenSelectPopup(select,button)};
