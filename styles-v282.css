@@ -183,18 +183,3 @@ nav{grid-template-columns:repeat(7,1fr)}
 select{padding-top:7px;padding-bottom:7px;line-height:1.15}
 .shop-group{padding:10px 12px}.shop-group>h3{margin:0 0 5px}.shop-item{padding:3px 2px}.shop-text{padding:4px}.shop-subgroup{margin:0;padding:0}.shop-subgroup h4{display:none}
 @media(max-width:620px){.brand-icon{width:48px;height:48px;border-radius:11px}.brand h1{font-size:1.55rem}.brand p{font-size:.78rem}}
-
-/* v2.9.7 — mémoire & liens culinaires */
-.recipe-extra-fields{margin-top:1rem;padding:1rem;border:1px solid var(--line,#d8d8d0);border-radius:16px}
-.recipe-extra-fields legend{font-weight:700;padding:0 .35rem}
-.inline-picker{display:flex;gap:.5rem;align-items:center}.inline-picker select{flex:1}
-.complement-list{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.55rem}
-.complement-chip{display:inline-flex;align-items:center;gap:.35rem;padding:.35rem .55rem;border-radius:999px;background:#e7f1e9}
-.complement-chip button{padding:0 .25rem;border:0;background:transparent;font-size:1.15em}
-.recipe-memory-block{margin-top:1rem;padding:1rem;border-radius:16px;background:#f3f8f2;border:1px solid #d7e6d8}
-.recipe-memory-block h3{margin-top:0}.cooking-comments p{margin:.35rem 0}
-.shop-item{grid-template-columns:auto minmax(0,1fr) auto;align-items:center}
-.shop-edit-button{margin-left:.45rem;white-space:nowrap}
-.source-hint{font-weight:600;opacity:.65}
-#shoppingSourceList{display:grid;gap:.5rem;margin:1rem 0}
-@media(max-width:700px){.shop-edit-button{font-size:.9rem;padding:.45rem .55rem}.inline-picker{align-items:stretch}.inline-picker button{white-space:nowrap}}
