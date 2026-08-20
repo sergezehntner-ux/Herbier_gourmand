@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLo
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.7';
+const APP_VERSION='2.9.7.1';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294';
@@ -18,6 +18,10 @@ const EMERGENCY_BACKUP_KEY='hg-emergency-before-import-v26';
 const CHANGE_COUNTER_KEY='hg-changes-since-backup-v26';
 const LAST_DEVICE_ACTION_KEY='hg-last-device-action-v2952';
 const uid=()=>globalThis.crypto?.randomUUID?.()||`${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+function setStartupStatus(message){const el=$('#startupStatus');if(el)el.textContent=message}
+function finishStartup(){const overlay=$('#startupOverlay');if(!overlay)return;overlay.setAttribute('aria-busy','false');overlay.classList.add('ready')}
+function failStartup(error){console.error(error);const overlay=$('#startupOverlay');if(!overlay)return alert('Impossible de démarrer Herbier Gourmand.');overlay.setAttribute('aria-busy','false');overlay.classList.add('error');setStartupStatus('Le chargement des données n’a pas pu se terminer. Rien n’a été modifié.');const retry=$('#startupRetry');if(retry)retry.onclick=()=>location.reload()}
 
 function isoDate(d){return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)}
 function mondayISO(value){const d=new Date(value);d.setHours(12,0,0,0);const day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);return isoDate(d)}
@@ -33,16 +37,27 @@ function savePlanData(){localStorage.setItem(planStore,JSON.stringify({version:3
 function mealTransfers(){try{return JSON.parse(localStorage.getItem(mealTransferStore)||'{}')}catch{return{}}}
 function saveMealTransfers(x){localStorage.setItem(mealTransferStore,JSON.stringify(x));markDirty()}
 async function init(){
+  setStartupStatus('Préparation de l’application…');
   currentWeekStart=mondayISO(new Date());
   localStorage.setItem(weekStore,currentWeekStart);
+  setStartupStatus('Chargement de vos données partagées…');
   await autoLoadSharedBackup();
   migrateLegacyWeekSlots();
   renderDaySlotChoices();
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=2970', {updateViaCache:'none'});
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=2971', {updateViaCache:'none'});
+  setStartupStatus('Chargement de vos recettes…');
   const stored=JSON.parse(localStorage.getItem(recipeStore)||'null');
   if(stored) recipes=stored; else recipes=await fetch(`recipes.json?_=${Date.now()}`,{cache:'no-store'}).then(r=>r.json());
   recipes=recipes.map(normalizeRecipe);
-  fillCategories(); renderRecipes(); loadSaved(); await initRestaurants(); await initProducers(); await initHerbs(); await initProduce(); applyReadonlyMode(); checkForUpdate();
+  fillCategories(); renderRecipes();
+  setStartupStatus('Chargement du planning et des courses…');
+  loadSaved();
+  setStartupStatus('Chargement des sorties et producteurs…');
+  await initRestaurants(); await initProducers();
+  setStartupStatus('Chargement du Grand Herbier…');
+  await initHerbs(); await initProduce();
+  applyReadonlyMode(); checkForUpdate();
+  finishStartup();
 }
 function saveRecipes(){localStorage.setItem(recipeStore,JSON.stringify(recipes));registerProtectedChange();markDirty();}
 function activeViewId(){return document.querySelector('.view.active')?.id||'home'}
@@ -436,7 +451,7 @@ document.addEventListener('click',e=>{if(!e.target.closest('.producer-city-autoc
 
 async function checkForUpdate(){try{await fetch(`version.json?_=${Date.now()}`,{cache:'no-store'}).then(r=>r.json())}catch{}}
 let deferredPrompt;addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;$('#installBtn').classList.remove('hidden')});$('#installBtn').onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;$('#installBtn').classList.add('hidden')}};
-init().catch(e=>{console.error(e);alert('Impossible de démarrer Herbier Gourmand.')});
+init().catch(failStartup);
 
 
 function fillEditableSelect(el,values,current='',empty='Choisir…'){if(!el)return;const list=[...new Set(values.map(x=>String(x||'').trim()).filter(Boolean))];if(current&&!list.includes(current))list.push(current);list.sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));el.innerHTML=`<option value="">${empty}</option>`+list.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('')+'<option value="__other__">Autre…</option>';el.value=current||'';}
