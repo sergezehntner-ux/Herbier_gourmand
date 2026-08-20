@@ -551,3 +551,51 @@ if($('#backFromProduce'))$('#backFromProduce').onclick=()=>switchView(previousPr
 
 function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)return;el.addEventListener('change',()=>{if(el.value==='__other__'){const value=prompt(`Nouveau ${label} :`);if(value?.trim()){addSelectOption(el,value.trim());el.value=value.trim()}else el.value=''}})}
 ['#recipeCategory','#restaurantRegionField','#restaurantCityField','#restaurantCountryField','#producerTypeField','#producerRegionField','#herbEditFamily','#herbEditSeason','#herbEditIntensity','#herbEditForms','#produceEditCategory','#produceEditSeason'].forEach((id,i)=>bindEditableOtherSelect(id,['catégorie','région','lieu','pays','type','région','famille','saison','intensité','forme','catégorie','saison'][i]));
+
+
+// v2.9.6.1 — sélecteurs Herbier Gourmand compacts, triés et cohérents sur PC/mobile.
+const hgSelectPreserveOrder=new Set(['maxTime','planTime','recipeServings','recipeTemperature','movePlanSlot']);
+let hgSelectPopup=null,hgSelectActive=null;
+function hgSortedSelectOptions(select){
+  const all=Array.from(select.options).map(o=>({value:o.value,text:o.textContent,disabled:o.disabled}));
+  if(hgSelectPreserveOrder.has(select.id))return all;
+  const first=all.filter(o=>o.value==='');
+  const other=all.filter(o=>o.value==='__other__');
+  const normal=all.filter(o=>o.value!==''&&o.value!=='__other__').sort((a,b)=>a.text.localeCompare(b.text,'fr',{sensitivity:'base',numeric:true}));
+  return [...first,...normal,...other];
+}
+function hgSelectText(select){const o=select.options[select.selectedIndex];return o?o.textContent:'Choisir…'}
+function hgCloseSelectPopup(){if(hgSelectPopup)hgSelectPopup.classList.remove('open');if(hgSelectActive?.button)hgSelectActive.button.setAttribute('aria-expanded','false');hgSelectActive=null}
+function hgPositionSelectPopup(button){
+  const r=button.getBoundingClientRect(),gap=4,margin=8;
+  const width=Math.max(r.width,180),maxH=Math.min(window.innerHeight*.44,340);
+  let top=r.bottom+gap;if(top+maxH>window.innerHeight-margin&&r.top>maxH)top=Math.max(margin,r.top-maxH-gap);
+  hgSelectPopup.style.left=`${Math.min(r.left,window.innerWidth-width-margin)}px`;
+  hgSelectPopup.style.top=`${top}px`;hgSelectPopup.style.width=`${Math.min(width,window.innerWidth-margin*2)}px`;hgSelectPopup.style.maxHeight=`${maxH}px`;
+}
+function hgOpenSelectPopup(select,button){
+  if(!hgSelectPopup){hgSelectPopup=document.createElement('div');hgSelectPopup.className='hg-select-popup';hgSelectPopup.setAttribute('role','listbox');document.body.appendChild(hgSelectPopup)}
+  if(hgSelectActive?.select===select&&hgSelectPopup.classList.contains('open')){hgCloseSelectPopup();return}
+  hgSelectActive={select,button};button.setAttribute('aria-expanded','true');
+  const opts=hgSortedSelectOptions(select);
+  hgSelectPopup.innerHTML=opts.map(o=>`<button type="button" class="hg-select-option${o.value===select.value?' selected':''}${o.value===''||o.value==='__other__'?' special':''}" data-hg-select-value="${esc(o.value)}"${o.disabled?' disabled':''}>${esc(o.text)}</button>`).join('');
+  hgSelectPopup.querySelectorAll('[data-hg-select-value]').forEach(opt=>opt.onclick=()=>{select.value=opt.dataset.hgSelectValue;select.dispatchEvent(new Event('input',{bubbles:true}));select.dispatchEvent(new Event('change',{bubbles:true}));button.textContent=hgSelectText(select);hgCloseSelectPopup()});
+  hgPositionSelectPopup(button);hgSelectPopup.classList.add('open');
+}
+function hgEnhanceSelect(select){
+  if(!select||select.dataset.hgEnhanced)return;select.dataset.hgEnhanced='1';
+  const shell=document.createElement('div');shell.className='hg-select-shell';select.parentNode.insertBefore(shell,select);shell.appendChild(select);select.classList.add('hg-native-select');
+  const button=document.createElement('button');button.type='button';button.className='hg-select-button';button.setAttribute('aria-haspopup','listbox');button.setAttribute('aria-expanded','false');button.textContent=hgSelectText(select);shell.appendChild(button);
+  button.onclick=e=>{e.stopPropagation();button.textContent=hgSelectText(select);hgOpenSelectPopup(select,button)};
+  select.addEventListener('change',()=>button.textContent=hgSelectText(select));
+  const mo=new MutationObserver(()=>button.textContent=hgSelectText(select));mo.observe(select,{childList:true,subtree:true});
+  select._hgButton=button;
+}
+function hgEnhanceAllSelects(){document.querySelectorAll('select').forEach(hgEnhanceSelect)}
+function hgSyncSelectButtons(){document.querySelectorAll('select[data-hg-enhanced]').forEach(s=>{if(s._hgButton)s._hgButton.textContent=hgSelectText(s)})}
+document.addEventListener('click',e=>{if(!e.target.closest('.hg-select-popup')&&!e.target.closest('.hg-select-button'))hgCloseSelectPopup()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')hgCloseSelectPopup()});
+window.addEventListener('resize',()=>hgSelectActive&&hgPositionSelectPopup(hgSelectActive.button));
+window.addEventListener('scroll',()=>hgSelectActive&&hgPositionSelectPopup(hgSelectActive.button),true);
+setTimeout(()=>{hgEnhanceAllSelects();hgSyncSelectButtons()},0);
+setInterval(hgSyncSelectButtons,600);
