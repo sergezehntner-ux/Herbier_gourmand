@@ -197,3 +197,7 @@ select{padding-top:7px;padding-bottom:7px;line-height:1.15}
 .hg-select-option.selected{background:#dcecdf!important;font-weight:700!important}
 .hg-select-option.special{color:var(--muted)!important}
 @media(max-width:620px){.hg-select-button{min-height:36px;padding:6px 9px}.hg-select-option{padding:5px 8px!important;font-size:.98rem!important}.hg-select-popup{max-height:42vh}}
+
+/* v2.9.6.3 — Courses : sélecteurs natifs toujours visibles, même après une ancienne amélioration HG */
+#shoppingStore,#shoppingAisle,#aisleOrderStore{position:static!important;opacity:1!important;pointer-events:auto!important;width:100%!important;height:auto!important;margin:0!important;padding:7px 9px!important;border:1px solid var(--line)!important}
+#shoppingStore.hg-native-select,#shoppingAisle.hg-native-select,#aisleOrderStore.hg-native-select{position:static!important;opacity:1!important;pointer-events:auto!important;width:100%!important;height:auto!important}
