@@ -203,7 +203,7 @@ function renderShopping(){
   $$('[data-shop-check]').forEach(c=>c.onchange=()=>{const x=shopping.find(i=>i.id===c.dataset.shopCheck);if(x){x.checked=c.checked;saveShopping();renderShopping()}});
   $$('[data-edit-shopping]').forEach(b=>b.onclick=()=>openShopping(b.dataset.editShopping));refreshShoppingSuggestions();
 }
-function addSelectOption(select,value){if(value&&!Array.from(select.options).some(o=>o.value===value)){const option=document.createElement('option');option.value=value;option.textContent=value;select.insertBefore(option,select.querySelector('option[value="__other__"]'))}}function rememberedShoppingStores(){try{return JSON.parse(localStorage.getItem(shoppingStoreMemory)||'[]')||[]}catch{return[]}}function rememberShoppingStore(value){const v=String(value||'').trim();if(!v)return;const list=[...new Set([...rememberedShoppingStores(),v])].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));localStorage.setItem(shoppingStoreMemory,JSON.stringify(list))}function refreshShoppingSuggestions(){const assignmentStores=Object.values(shoppingAssignments()).map(x=>x.store).filter(Boolean),stores=[...new Set([...rememberedShoppingStores(),...assignmentStores,...shopping.map(x=>x.store).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'})),aisles=[...new Set(shopping.map(x=>x.aisle).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));stores.forEach(x=>addSelectOption($('#shoppingStore'),x));aisles.forEach(x=>addSelectOption($('#shoppingAisle'),x))}function handleOtherSelect(select,label){if(select.value==='__other__'){const value=prompt(`Nouveau ${label} :`);if(value?.trim()){addSelectOption(select,value.trim());select.value=value.trim();if(label==='magasin')rememberShoppingStore(value.trim())}else select.value=''}}$('#shoppingStore').onchange=()=>handleOtherSelect($('#shoppingStore'),'magasin');$('#shoppingAisle').onchange=()=>handleOtherSelect($('#shoppingAisle'),'rayon');
+function sortTextSelect(select){if(!select)return;const fixed=Array.from(select.options).filter(o=>o.value===''||o.value==='__other__');const text=Array.from(select.options).filter(o=>o.value!==''&&o.value!=='__other__').sort((a,b)=>a.textContent.localeCompare(b.textContent,'fr',{sensitivity:'base'}));select.replaceChildren(...fixed.filter(o=>o.value===''),...text,...fixed.filter(o=>o.value==='__other__'))}function addSelectOption(select,value){if(value&&!Array.from(select.options).some(o=>o.value===value)){const option=document.createElement('option');option.value=value;option.textContent=value;select.insertBefore(option,select.querySelector('option[value="__other__"]'))}sortTextSelect(select)}function rememberedShoppingStores(){try{return JSON.parse(localStorage.getItem(shoppingStoreMemory)||'[]')||[]}catch{return[]}}function rememberShoppingStore(value){const v=String(value||'').trim();if(!v)return;const list=[...new Set([...rememberedShoppingStores(),v])].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));localStorage.setItem(shoppingStoreMemory,JSON.stringify(list))}function refreshShoppingSuggestions(){const assignmentStores=Object.values(shoppingAssignments()).map(x=>x.store).filter(Boolean),stores=[...new Set([...rememberedShoppingStores(),...assignmentStores,...shopping.map(x=>x.store).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'})),aisles=[...new Set(shopping.map(x=>x.aisle).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));stores.forEach(x=>addSelectOption($('#shoppingStore'),x));aisles.forEach(x=>addSelectOption($('#shoppingAisle'),x));sortTextSelect($('#shoppingStore'));sortTextSelect($('#shoppingAisle'))}function handleOtherSelect(select,label){if(select.value==='__other__'){const value=prompt(`Nouveau ${label} :`);if(value?.trim()){addSelectOption(select,value.trim());select.value=value.trim();if(label==='magasin')rememberShoppingStore(value.trim())}else select.value=''}}$('#shoppingStore').onchange=()=>handleOtherSelect($('#shoppingStore'),'magasin');$('#shoppingAisle').onchange=()=>handleOtherSelect($('#shoppingAisle'),'rayon');
 function openShopping(id=''){const x=shopping.find(i=>i.id===id);$('#shoppingDialogTitle').textContent=x?'Modifier l’article':'Ajouter un article';$('#shoppingId').value=x?.id||'';$('#shoppingName').value=x?.name||'';$('#shoppingQty').value=x?.qty||x?.text||'';$('#shoppingUnit').value=x?.unit||'';addSelectOption($('#shoppingStore'),x?.store||'');addSelectOption($('#shoppingAisle'),x?.aisle||'');$('#shoppingStore').value=x?.store||'';$('#shoppingAisle').value=x?.aisle||'';$('#deleteShopping').classList.toggle('hidden',!x);$('#shoppingOrigins').classList.toggle('hidden',!x?.origins?.length);$('#shoppingOrigins').innerHTML=x?.origins?.length?`<strong>Origine :</strong><br>${x.origins.map(esc).join('<br>')}`:'';refreshShoppingSuggestions();$('#shoppingDialog').showModal()}
 function addShopping(){openShopping()}
 $('#shoppingForm').onsubmit=e=>{e.preventDefault();const id=$('#shoppingId').value,x=shopping.find(i=>i.id===id),raw=$('#shoppingQty').value.trim(),parsed=parseNumber(raw),item=normalizeShoppingItem({...(x||{}),id:id||uid(),name:$('#shoppingName').value.trim(),qty:typeof parsed==='number'?parsed:0,text:typeof parsed==='number'?'':raw,unit:$('#shoppingUnit').value.trim(),store:$('#shoppingStore').value.trim(),aisle:$('#shoppingAisle').value.trim(),manual:x?.manual??true,origins:x?.origins||['Ajout manuel']});if(x)Object.assign(x,item);else shopping.push(item);rememberShoppingStore(item.store);saveShopping();renderShopping();$('#shoppingDialog').close()};
@@ -551,66 +551,3 @@ if($('#backFromProduce'))$('#backFromProduce').onclick=()=>switchView(previousPr
 
 function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)return;el.addEventListener('change',()=>{if(el.value==='__other__'){const value=prompt(`Nouveau ${label} :`);if(value?.trim()){addSelectOption(el,value.trim());el.value=value.trim()}else el.value=''}})}
 ['#recipeCategory','#restaurantRegionField','#restaurantCityField','#restaurantCountryField','#producerTypeField','#producerRegionField','#herbEditFamily','#herbEditSeason','#herbEditIntensity','#herbEditForms','#produceEditCategory','#produceEditSeason'].forEach((id,i)=>bindEditableOtherSelect(id,['catégorie','région','lieu','pays','type','région','famille','saison','intensité','forme','catégorie','saison'][i]));
-
-
-// v2.9.6.3 — sélecteurs HG compacts; Courses restent des sélecteurs natifs robustes.
-const hgSelectPreserveOrder=new Set(['maxTime','planTime','recipeServings','recipeTemperature','movePlanSlot']);
-let hgSelectPopup=null,hgSelectActive=null;
-function hgSortedSelectOptions(select){
-  const all=Array.from(select.options).map(o=>({value:o.value,text:o.textContent,disabled:o.disabled}));
-  if(hgSelectPreserveOrder.has(select.id))return all;
-  const first=all.filter(o=>o.value==='');
-  const other=all.filter(o=>o.value==='__other__');
-  const normal=all.filter(o=>o.value!==''&&o.value!=='__other__').sort((a,b)=>a.text.localeCompare(b.text,'fr',{sensitivity:'base',numeric:true}));
-  return [...first,...normal,...other];
-}
-function hgSelectText(select){const o=select.options[select.selectedIndex];return o?o.textContent:'Choisir…'}
-function hgCloseSelectPopup(){if(hgSelectPopup)hgSelectPopup.classList.remove('open');if(hgSelectActive?.button)hgSelectActive.button.setAttribute('aria-expanded','false');hgSelectActive=null}
-function hgPositionSelectPopup(button){
-  const r=button.getBoundingClientRect(),gap=4,margin=8;
-  const width=Math.max(r.width,180),maxH=Math.min(window.innerHeight*.44,340);
-  let top=r.bottom+gap;if(top+maxH>window.innerHeight-margin&&r.top>maxH)top=Math.max(margin,r.top-maxH-gap);
-  hgSelectPopup.style.left=`${Math.min(r.left,window.innerWidth-width-margin)}px`;
-  hgSelectPopup.style.top=`${top}px`;hgSelectPopup.style.width=`${Math.min(width,window.innerWidth-margin*2)}px`;hgSelectPopup.style.maxHeight=`${maxH}px`;
-}
-function hgOpenSelectPopup(select,button){
-  if(!hgSelectPopup){hgSelectPopup=document.createElement('div');hgSelectPopup.className='hg-select-popup';hgSelectPopup.setAttribute('role','listbox');document.body.appendChild(hgSelectPopup)}
-  if(hgSelectActive?.select===select&&hgSelectPopup.classList.contains('open')){hgCloseSelectPopup();return}
-  hgSelectActive={select,button};button.setAttribute('aria-expanded','true');
-  const opts=hgSortedSelectOptions(select);
-  hgSelectPopup.innerHTML=opts.map(o=>`<button type="button" class="hg-select-option${o.value===select.value?' selected':''}${o.value===''||o.value==='__other__'?' special':''}" data-hg-select-value="${esc(o.value)}"${o.disabled?' disabled':''}>${esc(o.text)}</button>`).join('');
-  hgSelectPopup.querySelectorAll('[data-hg-select-value]').forEach(opt=>opt.onclick=()=>{select.value=opt.dataset.hgSelectValue;select.dispatchEvent(new Event('input',{bubbles:true}));select.dispatchEvent(new Event('change',{bubbles:true}));button.textContent=hgSelectText(select);hgCloseSelectPopup()});
-  hgPositionSelectPopup(button);hgSelectPopup.classList.add('open');
-}
-function hgEnhanceSelect(select){
-  if(!select||select.dataset.hgEnhanced)return;select.dataset.hgEnhanced='1';
-  const shell=document.createElement('div');shell.className='hg-select-shell';select.parentNode.insertBefore(shell,select);shell.appendChild(select);select.classList.add('hg-native-select');
-  const button=document.createElement('button');button.type='button';button.className='hg-select-button';button.setAttribute('aria-haspopup','listbox');button.setAttribute('aria-expanded','false');button.textContent=hgSelectText(select);shell.appendChild(button);
-  button.onclick=e=>{e.stopPropagation();button.textContent=hgSelectText(select);hgOpenSelectPopup(select,button)};
-  select.addEventListener('change',()=>button.textContent=hgSelectText(select));
-  const mo=new MutationObserver(()=>button.textContent=hgSelectText(select));mo.observe(select,{childList:true,subtree:true});
-  select._hgButton=button;
-}
-function hgRestoreNativeSelect(select){
-  if(!select)return;
-  const shell=select.closest('.hg-select-shell');
-  if(shell){
-    const parent=shell.parentNode;
-    parent.insertBefore(select,shell);
-    shell.remove();
-  }
-  select.classList.remove('hg-native-select');
-  delete select.dataset.hgEnhanced;
-  if(select._hgButton)delete select._hgButton;
-}
-function hgRestoreShoppingSelects(){
-  ['shoppingStore','shoppingAisle','aisleOrderStore'].forEach(id=>hgRestoreNativeSelect(document.getElementById(id)));
-}
-function hgEnhanceAllSelects(){hgRestoreShoppingSelects();document.querySelectorAll('select').forEach(hgEnhanceSelect)}
-function hgSyncSelectButtons(){document.querySelectorAll('select[data-hg-enhanced]').forEach(s=>{if(s._hgButton)s._hgButton.textContent=hgSelectText(s)})}
-document.addEventListener('click',e=>{if(!e.target.closest('.hg-select-popup')&&!e.target.closest('.hg-select-button'))hgCloseSelectPopup()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')hgCloseSelectPopup()});
-window.addEventListener('resize',()=>hgSelectActive&&hgPositionSelectPopup(hgSelectActive.button));
-window.addEventListener('scroll',()=>hgSelectActive&&hgPositionSelectPopup(hgSelectActive.button),true);
-setTimeout(()=>{hgEnhanceAllSelects();hgSyncSelectButtons()},0);
-setInterval(hgSyncSelectButtons,600);

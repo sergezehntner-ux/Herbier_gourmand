@@ -183,21 +183,3 @@ nav{grid-template-columns:repeat(7,1fr)}
 select{padding-top:7px;padding-bottom:7px;line-height:1.15}
 .shop-group{padding:10px 12px}.shop-group>h3{margin:0 0 5px}.shop-item{padding:3px 2px}.shop-text{padding:4px}.shop-subgroup{margin:0;padding:0}.shop-subgroup h4{display:none}
 @media(max-width:620px){.brand-icon{width:48px;height:48px;border-radius:11px}.brand h1{font-size:1.55rem}.brand p{font-size:.78rem}}
-
-/* v2.9.6.1 — listes HG compactes et homogènes */
-.hg-native-select{position:absolute!important;opacity:0!important;pointer-events:none!important;width:1px!important;height:1px!important;margin:0!important;padding:0!important;border:0!important}
-.hg-select-shell{position:relative;width:100%}
-.hg-select-button{width:100%;min-height:38px;display:flex;align-items:center;justify-content:space-between;gap:.7rem;padding:7px 10px;background:#fff;border:1px solid var(--line);border-radius:9px;text-align:left;font-weight:400;color:var(--ink)}
-.hg-select-button::after{content:'⌄';font-size:1rem;line-height:1;color:var(--muted);margin-left:auto}
-.hg-select-button:focus{outline:2px solid #9bb8a5;outline-offset:1px}
-.hg-select-popup{position:fixed;z-index:10000;display:none;overflow:auto;max-height:min(44vh,340px);background:#fff;border:1px solid #c9d1cb;border-radius:12px;box-shadow:0 10px 30px #0003;padding:4px}
-.hg-select-popup.open{display:block}
-.hg-select-option{display:block;width:100%;border:0!important;border-radius:7px!important;background:#fff!important;color:var(--ink)!important;text-align:left!important;padding:6px 9px!important;min-height:0!important;font-weight:400!important;line-height:1.2!important}
-.hg-select-option:hover,.hg-select-option:focus{background:var(--g2)!important;outline:none}
-.hg-select-option.selected{background:#dcecdf!important;font-weight:700!important}
-.hg-select-option.special{color:var(--muted)!important}
-@media(max-width:620px){.hg-select-button{min-height:36px;padding:6px 9px}.hg-select-option{padding:5px 8px!important;font-size:.98rem!important}.hg-select-popup{max-height:42vh}}
-
-/* v2.9.6.3 — Courses : sélecteurs natifs toujours visibles, même après une ancienne amélioration HG */
-#shoppingStore,#shoppingAisle,#aisleOrderStore{position:static!important;opacity:1!important;pointer-events:auto!important;width:100%!important;height:auto!important;margin:0!important;padding:7px 9px!important;border:1px solid var(--line)!important}
-#shoppingStore.hg-native-select,#shoppingAisle.hg-native-select,#aisleOrderStore.hg-native-select{position:static!important;opacity:1!important;pointer-events:auto!important;width:100%!important;height:auto!important}
