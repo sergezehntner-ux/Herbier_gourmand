@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v282.css?v=2976">
+  <link rel="stylesheet" href="styles-v282.css?v=2979">
 
   <style>
     .recipe[data-recipe-open]{cursor:pointer}
@@ -77,6 +77,12 @@
     .hg-touch-choice-list button:hover,.hg-touch-choice-list button:focus{background:#eaf4ea;outline:none}
     @media(max-width:700px){.hg-touch-choice-list button{padding:11px 12px;font-size:16px}}
 
+
+    /* v2.9.7.9 — recherche flottante globale */
+    #floatingSearchBtn{position:fixed;right:max(1rem,env(safe-area-inset-right));bottom:calc(1rem + env(safe-area-inset-bottom));z-index:9000;display:none;align-items:center;gap:.4rem;padding:.7rem .95rem;border:0;border-radius:999px;background:#355e48;color:#fff;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.22)}
+    #floatingSearchBtn.visible{display:flex}
+    #floatingSearchBtn:focus-visible{outline:3px solid #fff;outline-offset:2px}
+    @media(max-width:520px){#floatingSearchBtn{padding:.65rem .8rem;font-size:.95rem}}
   </style>
 </head>
 <body>
@@ -303,5 +309,6 @@
 <dialog id="leftoverChoiceDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2 id="leftoverChoiceTitle">Utiliser des restes</h2><p id="leftoverChoiceMessage"></p><div id="leftoverChoiceButtons" class="leftover-choice-buttons"></div><div class="leftover-choice-actions"><button id="leftoverChoiceCancel" type="button">Annuler</button></div></div></dialog>
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
-<script src="app-v282.js?v=2976"></script>
+<button id="floatingSearchBtn" type="button" aria-label="Aller à la recherche">🔍 Rechercher</button>
+<script src="app-v282.js?v=2979"></script>
 </body></html>

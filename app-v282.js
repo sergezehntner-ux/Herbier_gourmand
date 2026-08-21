@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLo
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.7.8';
+const APP_VERSION='2.9.7.9';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -756,3 +756,30 @@ if($('#backFromProduce'))$('#backFromProduce').onclick=()=>switchView(previousPr
 
 function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)return;el.addEventListener('change',()=>{if(el.value==='__other__'){const value=prompt(`Nouveau ${label} :`);if(value?.trim()){addSelectOption(el,value.trim());el.value=value.trim()}else el.value=''}})}
 ['#recipeCategory','#restaurantRegionField','#restaurantCityField','#restaurantCountryField','#producerTypeField','#producerRegionField','#herbEditFamily','#herbEditSeason','#herbEditIntensity','#herbEditForms','#produceEditCategory','#produceEditSeason'].forEach((id,i)=>bindEditableOtherSelect(id,['catégorie','région','lieu','pays','type','région','famille','saison','intensité','forme','catégorie','saison'][i]));
+
+
+// v2.9.7.9 — bouton Rechercher flottant commun aux vues qui disposent d'une recherche
+(()=>{
+  const targets={recipes:'#search',restaurants:'#restaurantSearch',producers:'#producerSearch',herbs:'#herbSearch',produce:'#produceSearch'};
+  const btn=document.querySelector('#floatingSearchBtn');
+  if(!btn)return;
+  function target(){const sel=targets[activeViewId()];return sel?document.querySelector(sel):null}
+  function update(){
+    const el=target();
+    if(!el){btn.classList.remove('visible');return}
+    const r=el.getBoundingClientRect();
+    // Le bouton apparaît uniquement quand la zone de recherche n'est plus visible.
+    btn.classList.toggle('visible',r.bottom<0 || r.top>innerHeight);
+  }
+  btn.addEventListener('click',()=>{
+    const el=target();if(!el)return;
+    el.scrollIntoView({behavior:'smooth',block:'center'});
+    setTimeout(()=>{try{el.focus({preventScroll:true})}catch(_){el.focus()}},280);
+  });
+  addEventListener('scroll',update,{passive:true});
+  addEventListener('resize',update,{passive:true});
+  document.addEventListener('click',()=>requestAnimationFrame(update));
+  const oldSwitch=switchView;
+  switchView=function(id,opts={}){oldSwitch(id,opts);requestAnimationFrame(update)};
+  requestAnimationFrame(update);
+})();
