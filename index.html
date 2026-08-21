@@ -67,6 +67,16 @@
     .leftover-notice-entry .leftover-notice-message{margin:0;font-size:.98rem}
     .leftover-notice-actions{display:flex;gap:.55rem;flex-wrap:wrap;justify-content:flex-end}
     @media(max-width:720px){.leftover-notice-entry{grid-template-columns:1fr}.leftover-notice-actions{justify-content:flex-start}}
+  
+    /* v2.9.7.8 — suggestions tactiles pour les champs à choix */
+    .hg-touch-choice-wrap{position:relative;min-width:0}
+    .hg-touch-choice-wrap>input{width:100%}
+    .hg-touch-choice-list{display:none;position:absolute;z-index:120;left:0;right:0;top:calc(100% + 3px);max-height:220px;overflow:auto;background:#fff;border:1px solid #b9cbbd;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.14);padding:4px}
+    .hg-touch-choice-list.open{display:block}
+    .hg-touch-choice-list button{display:block;width:100%;border:0;background:#fff;text-align:left;padding:9px 10px;border-radius:7px;font:inherit;color:inherit;cursor:pointer}
+    .hg-touch-choice-list button:hover,.hg-touch-choice-list button:focus{background:#eaf4ea;outline:none}
+    @media(max-width:700px){.hg-touch-choice-list button{padding:11px 12px;font-size:16px}}
+
   </style>
 </head>
 <body>
@@ -80,7 +90,7 @@
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.7 · Vérification des restes</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.8 · Choix tactiles</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span><button id="installBtn" class="ghost hidden">Installer</button></div>
 </header>
 <nav>

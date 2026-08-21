@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLo
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.7.7';
+const APP_VERSION='2.9.7.8';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -550,6 +550,78 @@ if($('#producerCityField')){
   $('#producerCityField').addEventListener('keydown',e=>{if(e.key==='Escape')closeProducerCityMatches()});
 }
 document.addEventListener('click',e=>{if(!e.target.closest('.producer-city-autocomplete'))closeProducerCityMatches()});
+
+
+// v2.9.7.8 — suggestions tactiles : alternative explicite à Tab sur smartphone
+function datalistValuesForInput(input){
+  const listId=input?.getAttribute('list');
+  if(!listId)return [];
+  const dl=document.getElementById(listId);
+  if(!dl)return [];
+  return [...dl.querySelectorAll('option')].map(o=>String(o.value||'').trim()).filter(Boolean);
+}
+function suggestionTokenInfo(input){
+  const raw=String(input.value||'');
+  // Les tags acceptent plusieurs valeurs séparées par des virgules : on complète le dernier terme.
+  if(input.id==='recipeTags'){
+    const parts=raw.split(',');
+    return {prefix:parts.slice(0,-1).join(',').trim(),query:(parts.at(-1)||'').trim()};
+  }
+  return {prefix:'',query:raw.trim()};
+}
+function applyTouchSuggestion(input,value){
+  if(input.id==='recipeTags'){
+    const raw=String(input.value||''), parts=raw.split(',');
+    parts[parts.length-1]=' '+value;
+    input.value=parts.join(',').replace(/^\s+/, '');
+  }else input.value=value;
+  input.dispatchEvent(new Event('input',{bubbles:true}));
+  input.dispatchEvent(new Event('change',{bubbles:true}));
+  closeTouchSuggestions(input);
+  input.focus();
+}
+function closeTouchSuggestions(input){
+  const box=input?._hgSuggestionBox;
+  if(box){box.classList.remove('open');box.innerHTML=''}
+}
+function renderTouchSuggestions(input){
+  if(!input)return;
+  const values=datalistValuesForInput(input);
+  if(!values.length){closeTouchSuggestions(input);return}
+  const {query}=suggestionTokenInfo(input), q=norm(query);
+  if(!q){closeTouchSuggestions(input);return}
+  const matches=values.filter(v=>norm(v).startsWith(q)||norm(v).includes(q)).slice(0,8);
+  if(!matches.length){closeTouchSuggestions(input);return}
+  let box=input._hgSuggestionBox;
+  if(!box){
+    const wrap=document.createElement('div');wrap.className='hg-touch-choice-wrap';
+    input.parentNode.insertBefore(wrap,input);wrap.appendChild(input);
+    box=document.createElement('div');box.className='hg-touch-choice-list';box.setAttribute('role','listbox');
+    wrap.appendChild(box);input._hgSuggestionBox=box;
+  }
+  box.innerHTML=matches.map(v=>`<button type="button" role="option" data-hg-touch-choice="${esc(v)}">${esc(v)}</button>`).join('');
+  box.classList.add('open');
+  box.querySelectorAll('[data-hg-touch-choice]').forEach(btn=>btn.onclick=()=>applyTouchSuggestion(input,btn.dataset.hgTouchChoice));
+}
+function initTouchChoiceFields(){
+  document.querySelectorAll('input[list]').forEach(input=>{
+    if(input.dataset.hgTouchChoiceReady==='1')return;
+    input.dataset.hgTouchChoiceReady='1';
+    input.addEventListener('input',()=>renderTouchSuggestions(input));
+    input.addEventListener('focus',()=>renderTouchSuggestions(input));
+    input.addEventListener('keydown',e=>{
+      const box=input._hgSuggestionBox, first=box?.querySelector('[data-hg-touch-choice]');
+      if((e.key==='Enter'||e.key==='Tab')&&first&&box.classList.contains('open')){
+        // Tab reste disponible sur notebook ; Entrée sert d'équivalent clavier/tactile.
+        e.preventDefault();applyTouchSuggestion(input,first.dataset.hgTouchChoice);
+      }else if(e.key==='Escape')closeTouchSuggestions(input);
+    });
+  });
+}
+document.addEventListener('pointerdown',e=>{
+  document.querySelectorAll('input[list]').forEach(input=>{if(!e.target.closest('.hg-touch-choice-wrap')&&e.target!==input)closeTouchSuggestions(input)});
+});
+initTouchChoiceFields();
 
 
 async function checkForUpdate(){try{await fetch(`version.json?_=${Date.now()}`,{cache:'no-store'}).then(r=>r.json())}catch{}}
