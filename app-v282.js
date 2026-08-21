@@ -9,10 +9,10 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLo
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.7.6';
+const APP_VERSION='2.9.7.7';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
-const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294';
+const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
 const BACKUP_META_KEY='hg-backup-meta-v26';
 const EMERGENCY_BACKUP_KEY='hg-emergency-before-import-v26';
 const CHANGE_COUNTER_KEY='hg-changes-since-backup-v26';
@@ -156,6 +156,12 @@ function addLeftoverShoppingNotice(sourceDate,targetDate,slot,title){
   if(!shopping.some(x=>x.manual&&x.leftoverNoticeKey===notice.key))shopping.push(normalizeShoppingItem({id:uid(),name:'À vérifier — utilisation de restes',text:notice.msg,unit:'',store:'',aisle:'À vérifier',manual:true,origins:[`Restes de ${title}`],leftoverNoticeKey:notice.key}));
   saveShopping();
 }
+function leftoverNoticeAcks(){try{return new Set(JSON.parse(localStorage.getItem(leftoverAckStore)||'[]')||[])}catch{return new Set()}}
+function saveLeftoverNoticeAcks(set){localStorage.setItem(leftoverAckStore,JSON.stringify([...set]));markDirty()}
+function acknowledgeLeftoverNotice(key){
+  const acks=leftoverNoticeAcks();acks.add(key);saveLeftoverNoticeAcks(acks);
+  shopping=shopping.filter(x=>x.leftoverNoticeKey!==key);saveShopping();renderShopping();
+}
 function syncLeftoverShoppingNotices(){
   const active=new Map();
   plan.filter(x=>x.isLeftover).forEach(item=>{
@@ -164,11 +170,16 @@ function syncLeftoverShoppingNotices(){
     const notice=leftoverNoticeData(sourceDate,item.date,item.slot,title);
     active.set(notice.key,{...notice,title});
   });
+  const acks=leftoverNoticeAcks();
+  let ackChanged=false;
+  for(const key of [...acks])if(!active.has(key)){acks.delete(key);ackChanged=true}
+  if(ackChanged)saveLeftoverNoticeAcks(acks);
   let changed=false;
   const before=shopping.length;
-  shopping=shopping.filter(x=>!x.leftoverNoticeKey||active.has(x.leftoverNoticeKey));
+  shopping=shopping.filter(x=>!x.leftoverNoticeKey||(active.has(x.leftoverNoticeKey)&&!acks.has(x.leftoverNoticeKey)));
   if(shopping.length!==before)changed=true;
   for(const notice of active.values()){
+    if(acks.has(notice.key))continue;
     const existing=shopping.find(x=>x.leftoverNoticeKey===notice.key);
     if(existing){
       if(existing.text!==notice.msg){existing.text=notice.msg;changed=true}
@@ -305,18 +316,25 @@ function sortedShopping(){return [...shopping].sort((a,b)=>{
   else if(shoppingGroupMode==='aisle')grouped=(a.aisle||'zzz').localeCompare(b.aisle||'zzz','fr',{sensitivity:'base'});
   return grouped||a.name.localeCompare(b.name,'fr',{sensitivity:'base'});
 })}
-function shoppingRow(x){const amount=x.qty?`${Math.round(Number(x.qty)*100)/100} ${esc(x.unit)}`:x.text?`${esc(x.text)} ${esc(x.unit)}`:'';const aisle=x.aisle||'Rayon à définir',hasSource=sourceRecipeIdsForShopping(x).length>0;if(x.leftoverNoticeKey)return `<div class="shop-item leftover-notice-row ${x.checked?'checked':''}" data-shopping-id="${esc(x.id)}"><input type="checkbox" data-shop-check="${esc(x.id)}" ${x.checked?'checked':''}><button class="shop-text leftover-notice-text" data-shopping-source="${esc(x.id)}"><span class="shop-main"><strong>${esc(x.name)}</strong><small class="leftover-notice-message">${esc(x.text)}</small></span></button><span class="shop-aisle-badge leftover-notice-badge">À vérifier</span><button class="shop-edit-button" data-edit-shopping="${esc(x.id)}" aria-label="Modifier l’article">Modifier</button></div>`;return `<div class="shop-item ${x.checked?'checked':''}" data-shopping-id="${esc(x.id)}"><input type="checkbox" data-shop-check="${esc(x.id)}" ${x.checked?'checked':''}><button class="shop-text" data-shopping-source="${esc(x.id)}"><span class="shop-main"><strong>${esc(x.name)}</strong>${amount?` <span>— ${amount}</span>`:''}${hasSource?' <small class="source-hint">· recette</small>':''}</span><span class="shop-aisle-badge">${esc(aisle)}</span></button><button class="shop-edit-button" data-edit-shopping="${esc(x.id)}" aria-label="Modifier l’article">Modifier</button></div>`}
+function shoppingRow(x){const amount=x.qty?`${Math.round(Number(x.qty)*100)/100} ${esc(x.unit)}`:x.text?`${esc(x.text)} ${esc(x.unit)}`:'';const aisle=x.aisle||'Rayon à définir',hasSource=sourceRecipeIdsForShopping(x).length>0;return `<div class="shop-item ${x.checked?'checked':''}" data-shopping-id="${esc(x.id)}"><input type="checkbox" data-shop-check="${esc(x.id)}" ${x.checked?'checked':''}><button class="shop-text" data-shopping-source="${esc(x.id)}"><span class="shop-main"><strong>${esc(x.name)}</strong>${amount?` <span>— ${amount}</span>`:''}${hasSource?' <small class="source-hint">· recette</small>':''}</span><span class="shop-aisle-badge">${esc(aisle)}</span></button><button class="shop-edit-button" data-edit-shopping="${esc(x.id)}" aria-label="Modifier l’article">Modifier</button></div>`}
+function leftoverNoticeRow(x){return `<div class="leftover-notice-entry"><div class="leftover-notice-message">${esc(x.text)}</div><div class="leftover-notice-actions"><button type="button" data-leftover-add="${esc(x.leftoverNoticeKey)}">+ Ajouter un article</button><button type="button" class="primary" data-leftover-ack="${esc(x.leftoverNoticeKey)}">✓ Vu / Vérifié</button></div></div>`}
 function renderStoreSubgroups(items){const store=items[0]?.store||'';return [...items].sort((a,b)=>(aisleRank(store,a.aisle||'Rayon à définir')-aisleRank(store,b.aisle||'Rayon à définir'))||(a.aisle||'zzz').localeCompare(b.aisle||'zzz','fr',{sensitivity:'base'})||a.name.localeCompare(b.name,'fr',{sensitivity:'base'})).map(shoppingRow).join('')}
 function renderShopping(){
   shopping=shopping.map(normalizeShoppingItem);
   syncLeftoverShoppingNotices();
-  const remaining=shopping.filter(x=>!x.checked).length;$('#shoppingSummary').textContent=`${remaining} à acheter · ${shopping.length} au total`;
-  if(!shopping.length){$('#shoppingList').innerHTML='<p class="muted">La liste est vide.</p>';refreshShoppingSuggestions();return}
-  const groups={};sortedShopping().forEach(x=>(groups[shoppingGroupKey(x)]??=[]).push(x));
-  $('#shoppingList').innerHTML=Object.entries(groups).map(([name,items])=>`<section class="shop-group"><h3>${esc(name)}</h3>${shoppingGroupMode==='store'?renderStoreSubgroups(items):items.map(shoppingRow).join('')}</section>`).join('');
+  const notices=shopping.filter(x=>x.leftoverNoticeKey), articles=shopping.filter(x=>!x.leftoverNoticeKey);
+  const remaining=articles.filter(x=>!x.checked).length;$('#shoppingSummary').textContent=`${remaining} à acheter · ${articles.length} au total`;
+  if(!articles.length&&!notices.length){$('#shoppingList').innerHTML='<p class="muted">La liste est vide.</p>';refreshShoppingSuggestions();return}
+  const groups={};sortedShopping().filter(x=>!x.leftoverNoticeKey).forEach(x=>(groups[shoppingGroupKey(x)]??=[]).push(x));
+  const normalHtml=Object.entries(groups).map(([name,items])=>`<section class="shop-group"><h3>${esc(name)}</h3>${shoppingGroupMode==='store'?renderStoreSubgroups(items):items.map(shoppingRow).join('')}</section>`).join('');
+  const noticeHtml=notices.length?`<section class="shop-group leftover-notice-group"><h3>À vérifier — utilisation de restes</h3>${notices.map(leftoverNoticeRow).join('')}</section>`:'';
+  $('#shoppingList').innerHTML=normalHtml+noticeHtml;
   $$('[data-shop-check]').forEach(c=>c.onchange=()=>{const x=shopping.find(i=>i.id===c.dataset.shopCheck);if(x){x.checked=c.checked;saveShopping();renderShopping()}});
   $$('[data-shopping-source]').forEach(b=>b.onclick=()=>openShoppingSources(b.dataset.shoppingSource));
-  $$('[data-edit-shopping]').forEach(b=>b.onclick=()=>openShopping(b.dataset.editShopping));refreshShoppingSuggestions();
+  $$('[data-edit-shopping]').forEach(b=>b.onclick=()=>openShopping(b.dataset.editShopping));
+  $$('[data-leftover-add]').forEach(b=>b.onclick=()=>openShopping());
+  $$('[data-leftover-ack]').forEach(b=>b.onclick=()=>acknowledgeLeftoverNotice(b.dataset.leftoverAck));
+  refreshShoppingSuggestions();
 }
 function sortTextSelect(select){if(!select)return;const selected=select.value;const fixed=Array.from(select.options).filter(o=>o.value===''||o.value==='__other__');const text=Array.from(select.options).filter(o=>o.value!==''&&o.value!=='__other__').sort((a,b)=>a.textContent.localeCompare(b.textContent,'fr',{sensitivity:'base'}));select.replaceChildren(...fixed.filter(o=>o.value===''),...text,...fixed.filter(o=>o.value==='__other__'));if(Array.from(select.options).some(o=>o.value===selected))select.value=selected}function addSelectOption(select,value){if(value&&!Array.from(select.options).some(o=>o.value===value)){const option=document.createElement('option');option.value=value;option.textContent=value;select.insertBefore(option,select.querySelector('option[value="__other__"]'))}sortTextSelect(select)}function rememberedShoppingStores(){try{return JSON.parse(localStorage.getItem(shoppingStoreMemory)||'[]')||[]}catch{return[]}}function rememberShoppingStore(value){const v=String(value||'').trim();if(!v)return;const list=[...new Set([...rememberedShoppingStores(),v])].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));localStorage.setItem(shoppingStoreMemory,JSON.stringify(list))}function refreshShoppingSuggestions(){const assignmentStores=Object.values(shoppingAssignments()).map(x=>x.store).filter(Boolean),stores=[...new Set([...rememberedShoppingStores(),...assignmentStores,...shopping.map(x=>x.store).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'})),aisles=[...new Set(shopping.map(x=>x.aisle).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));stores.forEach(x=>addSelectOption($('#shoppingStore'),x));aisles.forEach(x=>addSelectOption($('#shoppingAisle'),x));sortTextSelect($('#shoppingStore'));sortTextSelect($('#shoppingAisle'))}function handleOtherSelect(select,label){if(select.value==='__other__'){const value=prompt(`Nouveau ${label} :`);if(value?.trim()){addSelectOption(select,value.trim());select.value=value.trim();if(label==='magasin')rememberShoppingStore(value.trim())}else select.value=''}}$('#shoppingStore').onchange=()=>handleOtherSelect($('#shoppingStore'),'magasin');$('#shoppingAisle').onchange=()=>handleOtherSelect($('#shoppingAisle'),'rayon');
 function openShopping(id=''){const x=shopping.find(i=>i.id===id);$('#shoppingDialogTitle').textContent=x?'Modifier l’article':'Ajouter un article';$('#shoppingId').value=x?.id||'';$('#shoppingName').value=x?.name||'';$('#shoppingQty').value=x?.qty||x?.text||'';$('#shoppingUnit').value=x?.unit||'';addSelectOption($('#shoppingStore'),x?.store||'');addSelectOption($('#shoppingAisle'),x?.aisle||'');refreshShoppingSuggestions();$('#shoppingStore').value=x?.store||'';$('#shoppingAisle').value=x?.aisle||'';$('#deleteShopping').classList.toggle('hidden',!x);$('#shoppingOrigins').classList.toggle('hidden',!x?.origins?.length);$('#shoppingOrigins').innerHTML=x?.origins?.length?`<strong>Origine :</strong><br>${x.origins.map(esc).join('<br>')}`:'';$('#shoppingDialog').showModal()}
