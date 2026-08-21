@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v282.css?v=2975">
+  <link rel="stylesheet" href="styles-v282.css?v=2976">
 
   <style>
     .recipe[data-recipe-open]{cursor:pointer}
@@ -26,7 +26,7 @@
     .shop-item.checked .shop-aisle-badge{opacity:.65}
     @media(max-width:520px){.shop-aisle-badge{font-size:.96rem;padding:.25rem .5rem;max-width:42%;overflow:hidden;text-overflow:ellipsis}}
 
-    /* v2.9.7.5 — liens Courses ↔ Recettes */
+    /* v2.9.7.6 — notifications restes lisibles et synchronisées */
     .startup-overlay{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:#f4efe3;color:#20382a;padding:1.5rem}
     .startup-card{width:min(520px,92vw);background:#fffdf7;border:1px solid #d9d0bd;border-radius:1rem;box-shadow:0 12px 36px rgba(24,49,35,.16);padding:1.5rem;text-align:center}
     .startup-card img{width:84px;height:84px;border-radius:18px;margin-bottom:.7rem}
@@ -48,6 +48,17 @@
     .leftover-choice-buttons button{min-height:3.1rem;font-size:1.05rem;font-weight:700}
     .leftover-choice-actions{display:flex;justify-content:flex-end;margin-top:1rem}
     .leftover-date-input{width:100%;box-sizing:border-box;font-size:1.2rem;padding:.8rem;margin:.5rem 0 1rem}
+
+    /* Notifications Courses liées aux restes : texte lisible, jamais masqué */
+    .shop-item.leftover-notice-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:.65rem}
+    .shop-item.leftover-notice-row .leftover-notice-text{display:block;width:100%;min-width:0;text-align:left;white-space:normal;overflow:visible}
+    .shop-item.leftover-notice-row .shop-main{display:block;min-width:0}
+    .leftover-notice-message{display:block;margin-top:.18rem;color:#5f6a62;font-size:.9rem;font-weight:400;line-height:1.3;white-space:normal;overflow-wrap:anywhere}
+    .leftover-notice-row .leftover-notice-badge{align-self:center;max-width:none}
+    @media(max-width:620px){
+      .shop-item.leftover-notice-row{grid-template-columns:auto minmax(0,1fr) auto}
+      .shop-item.leftover-notice-row .shop-edit-button{grid-column:2/4;justify-self:end}
+    }
   </style>
 </head>
 <body>
@@ -61,7 +72,7 @@
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.5 · Liens Courses ↔ Recettes</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.6 · Notifications restes</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span><button id="installBtn" class="ghost hidden">Installer</button></div>
 </header>
 <nav>
@@ -274,5 +285,5 @@
 <dialog id="leftoverChoiceDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2 id="leftoverChoiceTitle">Utiliser des restes</h2><p id="leftoverChoiceMessage"></p><div id="leftoverChoiceButtons" class="leftover-choice-buttons"></div><div class="leftover-choice-actions"><button id="leftoverChoiceCancel" type="button">Annuler</button></div></div></dialog>
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
-<script src="app-v282.js?v=2975"></script>
+<script src="app-v282.js?v=2976"></script>
 </body></html>

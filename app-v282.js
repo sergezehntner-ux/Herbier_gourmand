@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLo
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.7.5';
+const APP_VERSION='2.9.7.6';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294';
@@ -147,11 +147,39 @@ function removeMealTransferFromShopping(date,slot){
   previous.forEach(old=>{const x=shopping.find(s=>!s.manual&&norm(s.name)===norm(old.name)&&norm(s.unit)===norm(old.unit));if(x&&typeof x.qty==='number')x.qty=Math.max(0,Math.round((x.qty-Number(old.qty||0))*100)/100)});
   shopping=shopping.filter(x=>x.manual||Number(x.qty)>0||x.text);delete transfers[key];saveMealTransfers(transfers);saveShopping();
 }
+function leftoverNoticeKey(sourceDate,targetDate,slot,title){return `restes|${sourceDate}|${targetDate}|${slot}|${title}`}
+function leftoverNoticeData(sourceDate,targetDate,slot,title){
+  return {key:leftoverNoticeKey(sourceDate,targetDate,slot,title),msg:`Restes du repas du ${dateLabel(sourceDate)} → ${dateLabel(targetDate)} ${slot.toLowerCase()}. Vérifiez si vous devez compléter votre liste des courses.`};
+}
 function addLeftoverShoppingNotice(sourceDate,targetDate,slot,title){
-  const msg=`Vous voulez utiliser les restes du repas du ${dateLabel(sourceDate)} pour ${dateLabel(targetDate)} ${slot.toLowerCase()}. Vérifiez si vous devez compléter votre liste des courses.`;
-  const key=`restes|${sourceDate}|${targetDate}|${slot}|${title}`;
-  if(!shopping.some(x=>x.manual&&x.leftoverNoticeKey===key))shopping.push(normalizeShoppingItem({id:uid(),name:'À vérifier — utilisation de restes',text:msg,unit:'',store:'',aisle:'À vérifier',manual:true,origins:[`Restes de ${title}`],leftoverNoticeKey:key}));
+  const notice=leftoverNoticeData(sourceDate,targetDate,slot,title);
+  if(!shopping.some(x=>x.manual&&x.leftoverNoticeKey===notice.key))shopping.push(normalizeShoppingItem({id:uid(),name:'À vérifier — utilisation de restes',text:notice.msg,unit:'',store:'',aisle:'À vérifier',manual:true,origins:[`Restes de ${title}`],leftoverNoticeKey:notice.key}));
   saveShopping();
+}
+function syncLeftoverShoppingNotices(){
+  const active=new Map();
+  plan.filter(x=>x.isLeftover).forEach(item=>{
+    const title=item.recipe?.title||'Recette';
+    const sourceDate=item.leftoverSourceDate||item.date;
+    const notice=leftoverNoticeData(sourceDate,item.date,item.slot,title);
+    active.set(notice.key,{...notice,title});
+  });
+  let changed=false;
+  const before=shopping.length;
+  shopping=shopping.filter(x=>!x.leftoverNoticeKey||active.has(x.leftoverNoticeKey));
+  if(shopping.length!==before)changed=true;
+  for(const notice of active.values()){
+    const existing=shopping.find(x=>x.leftoverNoticeKey===notice.key);
+    if(existing){
+      if(existing.text!==notice.msg){existing.text=notice.msg;changed=true}
+      if(existing.name!=='À vérifier — utilisation de restes'){existing.name='À vérifier — utilisation de restes';changed=true}
+      if(existing.aisle!=='À vérifier'){existing.aisle='À vérifier';changed=true}
+    }else{
+      shopping.push(normalizeShoppingItem({id:uid(),name:'À vérifier — utilisation de restes',text:notice.msg,unit:'',store:'',aisle:'À vérifier',manual:true,origins:[`Restes de ${notice.title}`],leftoverNoticeKey:notice.key}));
+      changed=true;
+    }
+  }
+  if(changed){shopping=shopping.map(normalizeShoppingItem);localStorage.setItem(shoppingStore,JSON.stringify(shopping));}
 }
 function leftoverChoice(title,message,choices){
   return new Promise(resolve=>{
@@ -277,10 +305,11 @@ function sortedShopping(){return [...shopping].sort((a,b)=>{
   else if(shoppingGroupMode==='aisle')grouped=(a.aisle||'zzz').localeCompare(b.aisle||'zzz','fr',{sensitivity:'base'});
   return grouped||a.name.localeCompare(b.name,'fr',{sensitivity:'base'});
 })}
-function shoppingRow(x){const amount=x.qty?`${Math.round(Number(x.qty)*100)/100} ${esc(x.unit)}`:x.text?`${esc(x.text)} ${esc(x.unit)}`:'';const aisle=x.aisle||'Rayon à définir',hasSource=sourceRecipeIdsForShopping(x).length>0;return `<div class="shop-item ${x.checked?'checked':''}" data-shopping-id="${esc(x.id)}"><input type="checkbox" data-shop-check="${esc(x.id)}" ${x.checked?'checked':''}><button class="shop-text" data-shopping-source="${esc(x.id)}"><span class="shop-main"><strong>${esc(x.name)}</strong>${amount?` <span>— ${amount}</span>`:''}${hasSource?' <small class="source-hint">· recette</small>':''}</span><span class="shop-aisle-badge">${esc(aisle)}</span></button><button class="shop-edit-button" data-edit-shopping="${esc(x.id)}" aria-label="Modifier l’article">Modifier</button></div>`}
+function shoppingRow(x){const amount=x.qty?`${Math.round(Number(x.qty)*100)/100} ${esc(x.unit)}`:x.text?`${esc(x.text)} ${esc(x.unit)}`:'';const aisle=x.aisle||'Rayon à définir',hasSource=sourceRecipeIdsForShopping(x).length>0;if(x.leftoverNoticeKey)return `<div class="shop-item leftover-notice-row ${x.checked?'checked':''}" data-shopping-id="${esc(x.id)}"><input type="checkbox" data-shop-check="${esc(x.id)}" ${x.checked?'checked':''}><button class="shop-text leftover-notice-text" data-shopping-source="${esc(x.id)}"><span class="shop-main"><strong>${esc(x.name)}</strong><small class="leftover-notice-message">${esc(x.text)}</small></span></button><span class="shop-aisle-badge leftover-notice-badge">À vérifier</span><button class="shop-edit-button" data-edit-shopping="${esc(x.id)}" aria-label="Modifier l’article">Modifier</button></div>`;return `<div class="shop-item ${x.checked?'checked':''}" data-shopping-id="${esc(x.id)}"><input type="checkbox" data-shop-check="${esc(x.id)}" ${x.checked?'checked':''}><button class="shop-text" data-shopping-source="${esc(x.id)}"><span class="shop-main"><strong>${esc(x.name)}</strong>${amount?` <span>— ${amount}</span>`:''}${hasSource?' <small class="source-hint">· recette</small>':''}</span><span class="shop-aisle-badge">${esc(aisle)}</span></button><button class="shop-edit-button" data-edit-shopping="${esc(x.id)}" aria-label="Modifier l’article">Modifier</button></div>`}
 function renderStoreSubgroups(items){const store=items[0]?.store||'';return [...items].sort((a,b)=>(aisleRank(store,a.aisle||'Rayon à définir')-aisleRank(store,b.aisle||'Rayon à définir'))||(a.aisle||'zzz').localeCompare(b.aisle||'zzz','fr',{sensitivity:'base'})||a.name.localeCompare(b.name,'fr',{sensitivity:'base'})).map(shoppingRow).join('')}
 function renderShopping(){
   shopping=shopping.map(normalizeShoppingItem);
+  syncLeftoverShoppingNotices();
   const remaining=shopping.filter(x=>!x.checked).length;$('#shoppingSummary').textContent=`${remaining} à acheter · ${shopping.length} au total`;
   if(!shopping.length){$('#shoppingList').innerHTML='<p class="muted">La liste est vide.</p>';refreshShoppingSuggestions();return}
   const groups={};sortedShopping().forEach(x=>(groups[shoppingGroupKey(x)]??=[]).push(x));
