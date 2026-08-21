@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v282.css?v=2974">
+  <link rel="stylesheet" href="styles-v282.css?v=2975">
 
   <style>
     .recipe[data-recipe-open]{cursor:pointer}
@@ -26,7 +26,7 @@
     .shop-item.checked .shop-aisle-badge{opacity:.65}
     @media(max-width:520px){.shop-aisle-badge{font-size:.96rem;padding:.25rem .5rem;max-width:42%;overflow:hidden;text-overflow:ellipsis}}
 
-    /* v2.9.7.4 — ergonomie Restes */
+    /* v2.9.7.5 — liens Courses ↔ Recettes */
     .startup-overlay{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:#f4efe3;color:#20382a;padding:1.5rem}
     .startup-card{width:min(520px,92vw);background:#fffdf7;border:1px solid #d9d0bd;border-radius:1rem;box-shadow:0 12px 36px rgba(24,49,35,.16);padding:1.5rem;text-align:center}
     .startup-card img{width:84px;height:84px;border-radius:18px;margin-bottom:.7rem}
@@ -61,7 +61,7 @@
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.4 · Ergonomie Restes</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.5 · Liens Courses ↔ Recettes</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span><button id="installBtn" class="ghost hidden">Installer</button></div>
 </header>
 <nav>
@@ -274,5 +274,5 @@
 <dialog id="leftoverChoiceDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2 id="leftoverChoiceTitle">Utiliser des restes</h2><p id="leftoverChoiceMessage"></p><div id="leftoverChoiceButtons" class="leftover-choice-buttons"></div><div class="leftover-choice-actions"><button id="leftoverChoiceCancel" type="button">Annuler</button></div></div></dialog>
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
-<script src="app-v282.js?v=2974"></script>
+<script src="app-v282.js?v=2975"></script>
 </body></html>
