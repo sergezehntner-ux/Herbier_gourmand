@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v282.css?v=2973">
+  <link rel="stylesheet" href="styles-v282.css?v=2974">
 
   <style>
     .recipe[data-recipe-open]{cursor:pointer}
@@ -26,7 +26,7 @@
     .shop-item.checked .shop-aisle-badge{opacity:.65}
     @media(max-width:520px){.shop-aisle-badge{font-size:.96rem;padding:.25rem .5rem;max-width:42%;overflow:hidden;text-overflow:ellipsis}}
 
-    /* v2.9.7.3 — restes anti-gaspillage */
+    /* v2.9.7.4 — ergonomie Restes */
     .startup-overlay{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:#f4efe3;color:#20382a;padding:1.5rem}
     .startup-card{width:min(520px,92vw);background:#fffdf7;border:1px solid #d9d0bd;border-radius:1rem;box-shadow:0 12px 36px rgba(24,49,35,.16);padding:1.5rem;text-align:center}
     .startup-card img{width:84px;height:84px;border-radius:18px;margin-bottom:.7rem}
@@ -38,6 +38,16 @@
     .startup-retry{display:none;margin:.9rem auto 0}
     .startup-overlay.error .startup-retry{display:inline-block}
     @keyframes hg-spin{to{transform:rotate(360deg)}}
+
+    .leftover-choice-dialog{width:min(560px,92vw);border:0;border-radius:1rem;padding:0;background:#fffdf7;color:#20382a;box-shadow:0 16px 50px rgba(0,0,0,.25)}
+    .leftover-choice-dialog::backdrop{background:rgba(20,45,32,.68)}
+    .leftover-choice-card{padding:1.25rem}
+    .leftover-choice-card h2{margin:.1rem 0 .45rem}
+    .leftover-choice-card p{margin:.2rem 0 1rem;color:#657067}
+    .leftover-choice-buttons{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.65rem}
+    .leftover-choice-buttons button{min-height:3.1rem;font-size:1.05rem;font-weight:700}
+    .leftover-choice-actions{display:flex;justify-content:flex-end;margin-top:1rem}
+    .leftover-date-input{width:100%;box-sizing:border-box;font-size:1.2rem;padding:.8rem;margin:.5rem 0 1rem}
   </style>
 </head>
 <body>
@@ -51,7 +61,7 @@
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.3 · Restes anti-gaspillage</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.4 · Ergonomie Restes</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span><button id="installBtn" class="ghost hidden">Installer</button></div>
 </header>
 <nav>
@@ -261,5 +271,8 @@
 <label>Jeton GitHub<input id="githubToken" type="password" autocomplete="off" placeholder="github_pat_…"></label>
 <div class="dialog-actions"><button type="button" id="cancelGithub">Annuler</button><button type="submit" class="primary">Enregistrer la configuration</button></div></form></dialog>
 
-<script src="app-v282.js?v=2973"></script>
+<dialog id="leftoverChoiceDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2 id="leftoverChoiceTitle">Utiliser des restes</h2><p id="leftoverChoiceMessage"></p><div id="leftoverChoiceButtons" class="leftover-choice-buttons"></div><div class="leftover-choice-actions"><button id="leftoverChoiceCancel" type="button">Annuler</button></div></div></dialog>
+<dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
+
+<script src="app-v282.js?v=2974"></script>
 </body></html>

@@ -153,19 +153,46 @@ function addLeftoverShoppingNotice(sourceDate,targetDate,slot,title){
   if(!shopping.some(x=>x.manual&&x.leftoverNoticeKey===key))shopping.push(normalizeShoppingItem({id:uid(),name:'À vérifier — utilisation de restes',text:msg,unit:'',store:'',aisle:'À vérifier',manual:true,origins:[`Restes de ${title}`],leftoverNoticeKey:key}));
   saveShopping();
 }
-function chooseLeftoverIdea(r){const ideas=String(r.leftoverIdeas||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);if(!ideas.length)return `Restes de ${r.title}`;if(ideas.length===1)return ideas[0];const answer=prompt(`Utiliser des restes de « ${r.title} » :\n${ideas.map((x,i)=>`${i+1}. ${x}`).join('\n')}\n\nNuméro du choix :`,'1');if(answer===null)return null;const i=Number(answer)-1;return ideas[i]||ideas[0]}
-function planLeftovers(index){
+function leftoverChoice(title,message,choices){
+  return new Promise(resolve=>{
+    const d=$('#leftoverChoiceDialog'),t=$('#leftoverChoiceTitle'),m=$('#leftoverChoiceMessage'),box=$('#leftoverChoiceButtons');
+    t.textContent=title||'Utiliser des restes';m.textContent=message||'';box.innerHTML='';
+    choices.forEach(c=>{const b=document.createElement('button');b.type='button';b.textContent=c.label;b.className=c.primary?'primary':'';b.disabled=!!c.disabled;b.onclick=()=>{d.close();resolve(c.value)};box.appendChild(b)});
+    const cancel=()=>{if(d.open)d.close();resolve(null)};$('#leftoverChoiceCancel').onclick=cancel;d.oncancel=e=>{e.preventDefault();cancel()};d.showModal();
+  });
+}
+async function chooseLeftoverIdea(r){
+  const ideas=String(r.leftoverIdeas||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  if(!ideas.length)return `Restes de ${r.title}`;if(ideas.length===1)return ideas[0];
+  return await leftoverChoice('Utiliser des restes','Que veux-tu faire avec ces restes ?',ideas.map(x=>({label:x,value:x})));
+}
+function leftoverDateChoice(sourceDate){
+  return new Promise(resolve=>{
+    const d=$('#leftoverDateDialog'),input=$('#leftoverDateInput');
+    input.min=addDaysISO(sourceDate,1);input.value=addDaysISO(sourceDate,1);
+    const done=v=>{if(d.open)d.close();resolve(v)};
+    $('#leftoverDateOk').onclick=()=>done(input.value||null);$('#leftoverDateCancel').onclick=()=>done(null);d.oncancel=e=>{e.preventDefault();done(null)};d.showModal();
+  });
+}
+async function planLeftovers(index){
   const source=plan[index];if(!source)return;const r=recipeById(source.recipe.id);if(!r)return;
   if(!(r.cookedDates||[]).includes(source.date))return alert('Marque d’abord ce repas comme « Cuisiné ».');
-  const raw=prompt('Combien de portions de restes sont disponibles ?','1');if(raw===null)return;const portions=Number(String(raw).replace(',','.'));if(!Number.isFinite(portions)||portions<=0)return alert('Indique un nombre de portions supérieur à 0.');
-  const kind=prompt('Ces restes serviront comme :\nC = complément d’une recette planifiée\nR = repas\n\nTape C ou R :','R');if(kind===null)return;const mode=String(kind).trim().toUpperCase();if(!['C','R'].includes(mode))return alert('Choisis C pour complément ou R pour repas.');
-  const idea=chooseLeftoverIdea(r);if(idea===null)return;
-  const tomorrow=addDaysISO(isoDate(new Date()),1);const date=prompt('Date d’utilisation (AAAA-MM-JJ) :',tomorrow);if(date===null)return;if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return alert('Date invalide.');if(date<=source.date)return alert('Choisis une date ultérieure au repas d’origine.');
-  const slotRaw=prompt('Repas : Matin, Midi ou Soir','Midi');if(slotRaw===null)return;const slot=slots.find(x=>norm(x)===norm(slotRaw));if(!slot)return alert('Choisis Matin, Midi ou Soir.');
+  const portions=await leftoverChoice('Quantité de restes','Combien de portions de restes sont disponibles ?',Array.from({length:10},(_,i)=>({label:String(i+1),value:i+1,primary:i===0})));if(portions===null)return;
+  const mode=await leftoverChoice('Utilisation des restes','Comment veux-tu utiliser ces restes ?',[{label:'Comme complément',value:'C'},{label:'Comme repas',value:'R',primary:true}]);if(!mode)return;
+  const idea=await chooseLeftoverIdea(r);if(idea===null)return;
+  const date=await leftoverDateChoice(source.date);if(!date)return;if(date<=source.date)return alert('Choisis une date ultérieure au repas d’origine.');
+  const slot=await leftoverChoice('Repas','À quel repas veux-tu utiliser ces restes ?',slots.map(x=>({label:x,value:x,primary:x==='Midi'})));if(!slot)return;
   const existing=mealItems(date,slot);
-  if(mode==='C'&&!existing.length)return alert('Pour un complément, choisis un repas où une recette est déjà planifiée.');
-  if(mode==='R'&&existing.length){const action=prompt('Il y a déjà quelque chose de planifié.\nR = remplacer le choix existant\nA = ajouter les restes au choix existant\n\nTape R ou A :','A');if(action===null)return;const a=String(action).trim().toUpperCase();if(!['R','A'].includes(a))return alert('Choisis R ou A.');if(a==='R'){removeMealTransferFromShopping(date,slot);plan=plan.filter(x=>!(x.date===date&&x.slot===slot));}}
-  const role=mode==='C'?'Complément (restes)':'Restes';
+  if(mode==='C'&&!existing.length){
+    const switchMode=await leftoverChoice('Repas encore vide',`${dateLabel(date)} ${slot.toLowerCase()} n’a encore rien de planifié. Un complément doit accompagner un repas.`,[{label:'Planifier ces restes comme repas',value:'R',primary:true},{label:'Choisir un autre créneau',value:'BACK'}]);
+    if(switchMode==='BACK')return planLeftovers(index);if(switchMode!=='R')return;
+  }
+  let finalMode=(mode==='C'&&existing.length)?'C':'R';
+  if(finalMode==='R'&&existing.length){
+    const action=await leftoverChoice('Repas déjà planifié',`Il y a déjà ${existing.length>1?'des éléments':'un élément'} prévu(s) pour ${dateLabel(date)} ${slot.toLowerCase()}.`,[{label:'Ajouter les restes',value:'A',primary:true},{label:'Remplacer le choix existant',value:'R'}]);if(!action)return;
+    if(action==='R'){removeMealTransferFromShopping(date,slot);plan=plan.filter(x=>!(x.date===date&&x.slot===slot));}
+  }
+  const role=finalMode==='C'?'Complément (restes)':'Restes';
   plan.push({uid:uid(),date,slot,recipe:r,people:portions,role,notes:`${idea} — restes du ${dateLabel(source.date)}`,preparePreviousDay:false,isLeftover:true,leftoverSourceDate:source.date,leftoverPortions:portions,leftoverIdea:idea});
   savePlanData();addLeftoverShoppingNotice(source.date,date,slot,r.title);currentWeekStart=mondayISO(new Date(`${date}T12:00:00`));localStorage.setItem(weekStore,currentWeekStart);renderDaySlotChoices();renderPlan();
   $('#planFreshness').textContent=`Restes planifiés pour ${dateLabel(date)} ${slot.toLowerCase()}. Vérifie la liste des courses si un complément est nécessaire.`;$('#planFreshness').classList.remove('hidden');switchView('planner');
