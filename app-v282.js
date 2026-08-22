@@ -797,34 +797,43 @@ if($('#backFromProduce'))$('#backFromProduce').onclick=()=>switchView(previousPr
 function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)return;el.addEventListener('change',()=>{if(el.value==='__other__'){const value=prompt(`Nouveau ${label} :`);if(value?.trim()){addSelectOption(el,value.trim());el.value=value.trim()}else el.value=''}})}
 ['#recipeCategory','#restaurantRegionField','#restaurantCityField','#restaurantCountryField','#producerTypeField','#producerRegionField','#herbEditFamily','#herbEditSeason','#herbEditIntensity','#herbEditForms','#produceEditCategory','#produceEditSeason'].forEach((id,i)=>bindEditableOtherSelect(id,['catégorie','région','lieu','pays','type','région','famille','saison','intensité','forme','catégorie','saison'][i]));
 
-/* v2.9.7.15.4 — bouton flottant minimal, uniquement dans Recettes.
-   Aucune interception de switchView/navigation : on observe seulement le scroll. */
+/* v2.9.7.15.5 — recherche flottante, extension prudente du mécanisme validé.
+   Aucun remplacement de switchView/navigation : chaque bouton observe seulement le scroll. */
 (()=>{
-  const button=document.getElementById('recipeFloatingSearch');
-  const recipesView=document.getElementById('recipes');
-  const search=document.getElementById('search');
-  if(!button||!recipesView||!search)return;
+  const configs=[
+    ['recipeFloatingSearch','recipes','search'],
+    ['restaurantFloatingSearch','restaurants','restaurantSearch'],
+    ['producerFloatingSearch','producers','producerSearch'],
+    ['herbFloatingSearch','herbs','herbSearch'],
+    ['produceFloatingSearch','produce','produceSearch']
+  ];
+  const items=configs.map(([buttonId,viewId,searchId])=>({
+    button:document.getElementById(buttonId),
+    view:document.getElementById(viewId),
+    search:document.getElementById(searchId)
+  })).filter(x=>x.button&&x.view&&x.search);
+  if(!items.length)return;
   let scheduled=false;
   const refresh=()=>{
     scheduled=false;
-    const inRecipes=recipesView.classList.contains('active');
-    if(!inRecipes){button.classList.remove('visible');return;}
-    const rect=search.getBoundingClientRect();
-    const searchAbove=rect.bottom<12;
-    button.classList.toggle('visible',searchAbove);
+    items.forEach(({button,view,search})=>{
+      const active=view.classList.contains('active');
+      if(!active){button.classList.remove('visible');return;}
+      const rect=search.getBoundingClientRect();
+      button.classList.toggle('visible',rect.bottom<12);
+    });
   };
   const requestRefresh=()=>{
     if(scheduled)return;
     scheduled=true;
     requestAnimationFrame(refresh);
   };
-  button.addEventListener('click',()=>{
+  items.forEach(({button,search})=>button.addEventListener('click',()=>{
     search.scrollIntoView({behavior:'smooth',block:'center'});
     setTimeout(()=>{try{search.focus({preventScroll:true})}catch{search.focus()}},280);
-  });
+  }));
   window.addEventListener('scroll',requestRefresh,{passive:true});
   window.addEventListener('resize',requestRefresh,{passive:true});
   document.addEventListener('click',requestRefresh);
   requestRefresh();
 })();
-
