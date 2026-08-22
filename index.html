@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v282.css?v=29713">
+  <link rel="stylesheet" href="styles-v282.css?v=29714">
 
   <style>
     .recipe[data-recipe-open]{cursor:pointer}
@@ -90,7 +90,7 @@
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.13 · Sortie sécurisée Planning & Courses</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.14 · Vider la recherche</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span><button id="installBtn" class="ghost hidden">Installer</button></div>
 </header>
 <nav>
@@ -129,6 +129,7 @@
   <div class="section-title"><div><h2>Recettes</h2><span id="recipeCount" class="muted"></span></div><div class="button-row"><button id="importPaprika">Importer Paprika</button><button id="newRecipe" class="primary">+ Nouvelle</button></div></div>
   <input id="search" type="search" placeholder="Rechercher une recette ou un ingrédient…">
   <div class="filters"><select id="category"><option value="">Toutes catégories</option></select><select id="maxTime"><option value="">Tous les temps</option><option value="25">25 min max</option><option value="45">45 min max</option><option value="60">60 min max</option><option value="90">90 min max</option></select></div>
+  <div class="button-row"><button id="clearRecipeFilters" type="button">Vider la recherche</button></div>
   <div id="recipeList"></div>
 </section>
 
@@ -303,5 +304,5 @@
 <dialog id="leftoverChoiceDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2 id="leftoverChoiceTitle">Utiliser des restes</h2><p id="leftoverChoiceMessage"></p><div id="leftoverChoiceButtons" class="leftover-choice-buttons"></div><div class="leftover-choice-actions"><button id="leftoverChoiceCancel" type="button">Annuler</button></div></div></dialog>
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
-<script src="app-v282.js?v=29713"></script>
+<script src="app-v282.js?v=29714"></script>
 </body></html>
