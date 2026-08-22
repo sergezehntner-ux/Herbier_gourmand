@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v282.css?v=297151">
+  <link rel="stylesheet" href="styles-v282.css?v=297153">
 
   <style>
     .recipe[data-recipe-open]{cursor:pointer}
@@ -77,6 +77,21 @@
     .hg-touch-choice-list button:hover,.hg-touch-choice-list button:focus{background:#eaf4ea;outline:none}
     @media(max-width:700px){.hg-touch-choice-list button{padding:11px 12px;font-size:16px}}
 
+    /* v2.9.7.15.3 — bandeau compact : priorité au nom de l’app */
+    header .brand{min-width:0;flex:1 1 auto}
+    header .brand>div{min-width:0}
+    header .brand h1{white-space:nowrap}
+    header .header-actions{flex:0 1 42%;min-width:0;justify-content:flex-end}
+    header .last-device-action{display:block;max-width:100%;font-size:.9rem;line-height:1.15;text-align:right;white-space:normal;overflow-wrap:anywhere}
+    @media(max-width:700px){
+      header{gap:.55rem}
+      header .brand-icon{flex:0 0 auto}
+      header .brand h1{font-size:clamp(1.65rem,7vw,2.25rem)}
+      header .brand p{font-size:.92rem}
+      header .header-actions{flex-basis:38%;align-self:center}
+      header .last-device-action{font-size:.76rem;line-height:1.1}
+    }
+
   </style>
 </head>
 <body>
@@ -90,8 +105,8 @@
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.15.2 · Temps libre dans Recettes</p></div></div>
-  <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span><button id="installBtn" class="ghost hidden">Installer</button></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.15.3 · Bandeau compact</p></div></div>
+  <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
   <button class="active" data-view="home">Accueil</button><button data-view="recipes">Recettes</button><button data-view="planner">Planning</button><button data-view="shopping">Courses</button><button data-view="restaurants">Sorties</button><button data-view="producers">Producteurs</button><button data-view="herbs">Plantes & Épices</button><button data-view="produce">Fruits & Légumes</button>
