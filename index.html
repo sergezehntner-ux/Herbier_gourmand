@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v282.css?v=297155">
+  <link rel="stylesheet" href="styles-v282.css?v=297156">
 
   <style>
     .recipe[data-recipe-open]{cursor:pointer}
@@ -110,7 +110,7 @@
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.15.5 · Recherche flottante globale</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.15.6 · Type, effort et difficulté</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -148,7 +148,7 @@
   <div id="recipeReturnBar" class="return-bar hidden"><span id="selectionHint"></span><button id="returnPlanner">Reprendre au planning</button></div>
   <div class="section-title"><div><h2>Recettes</h2><span id="recipeCount" class="muted"></span></div><div class="button-row"><button id="importPaprika">Importer Paprika</button><button id="newRecipe" class="primary">+ Nouvelle</button></div></div>
   <input id="search" type="search" placeholder="Rechercher une recette ou un ingrédient…">
-  <div class="filters"><select id="category"><option value="">Toutes catégories</option></select><select id="maxTime"><option value="">Tous les temps</option><option value="25">25 min max</option><option value="45">45 min max</option><option value="60">60 min max</option><option value="90">90 min max</option></select></div>
+  <div class="filters"><select id="category"><option value="">Toutes catégories</option></select></div>
   <div class="button-row"><button id="clearRecipeFilters" type="button">Vider la recherche</button></div>
   <div id="recipeList"></div>
 </section>
@@ -161,7 +161,7 @@
 <section id="planner" class="view">
   <h2>Planning assisté</h2>
   <p class="lead">Herbier propose une première semaine. Tu restes libre de changer chaque repas selon ta vraie vie.</p>
-  <div class="week-nav"><button id="prevWeek">← Semaine précédente</button><strong id="weekLabel"></strong><button id="nextWeek">Semaine suivante →</button><button id="currentWeek">Cette semaine</button></div><div class="panel"><div class="grid"><label>Temps maximum<select id="planTime"><option value="">Varié</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></label></div>
+  <div class="week-nav"><button id="prevWeek">← Semaine précédente</button><strong id="weekLabel"></strong><button id="nextWeek">Semaine suivante →</button><button id="currentWeek">Cette semaine</button></div><div class="panel">
   <div class="section-title"><h3>Repas à planifier</h3><strong id="selectedSlotsStatus"></strong></div><div id="daySlotChoices"></div></div>
   <div class="button-row"><button id="generatePlan" class="primary">Proposer une semaine</button><button id="clearPlan">Vider</button></div>
   <div id="planFreshness" class="notice subtle hidden"></div><div id="weekPlan"></div>
@@ -262,7 +262,7 @@
 <button id="produceFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des fruits et légumes">🔍 Rechercher</button>
 
 <dialog id="recipeDialog"><form id="recipeForm" method="dialog"><div class="dialog-head"><h2 id="recipeDialogTitle">Recette</h2><button type="button" id="closeRecipe">×</button></div><input type="hidden" id="recipeId">
-<div class="grid"><label>Titre<input id="recipeTitle" required></label><label>Catégorie<select id="recipeCategory" required><option value="">Choisir…</option></select></label><label>Tags (texte libre ou choix existant)<input id="recipeTags" list="tagSuggestions" placeholder="Ex. Italie, rapide, été"><datalist id="tagSuggestions"></datalist></label><label>Temps (min)<input id="recipeTime" type="number" min="1" inputmode="numeric" placeholder="Ex. 35" required></label><label>Portions<select id="recipeServings" required><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option></select></label><label>Température<select id="recipeTemperature"><option value="chaud">Chaud</option><option value="froid">Froid</option><option value="les-deux">Les deux</option></select></label><label class="check"><input id="recipeMeat" type="checkbox"> Avec viande</label></div>
+<div class="grid"><label>Titre<input id="recipeTitle" required></label><label>Catégorie<select id="recipeCategory" required><option value="">Choisir…</option></select></label><label>Tags (texte libre ou choix existant)<input id="recipeTags" list="tagSuggestions" placeholder="Ex. Italie, été"><datalist id="tagSuggestions"></datalist></label><label>Type<select id="recipeType"><option value="">Non défini</option><option value="viande">Viande</option><option value="poisson">Poisson</option><option value="vegetarien">Végétarien</option><option value="vegane">Végane</option></select></label><label>Effort<select id="recipeEffort"><option value="">Non défini</option><option value="faible">Faible</option><option value="moyen">Moyen</option><option value="important">Important</option></select></label><label>Difficulté<select id="recipeDifficulty"><option value="">Non définie</option><option value="facile">Facile</option><option value="moyenne">Moyenne</option><option value="difficile">Difficile</option><option value="expert">Expert</option></select></label><label>Portions<select id="recipeServings" required><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option></select></label><label>Température<select id="recipeTemperature"><option value="chaud">Chaud</option><option value="froid">Froid</option><option value="les-deux">Les deux</option></select></label></div>
 <label>Ingrédients <span class="muted">(un par ligne : nom / quantité / unité)</span><textarea id="recipeIngredients" rows="7" required></textarea></label><label>Préparation <span class="muted">(une étape par ligne)</span><textarea id="recipeSteps" rows="7" required></textarea></label>
 <div class="dialog-actions"><button type="button" id="deleteRecipe" class="danger">Supprimer</button><button type="button" id="duplicateRecipe">Dupliquer</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 
@@ -329,5 +329,5 @@
 <dialog id="leftoverChoiceDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2 id="leftoverChoiceTitle">Utiliser des restes</h2><p id="leftoverChoiceMessage"></p><div id="leftoverChoiceButtons" class="leftover-choice-buttons"></div><div class="leftover-choice-actions"><button id="leftoverChoiceCancel" type="button">Annuler</button></div></div></dialog>
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
-<script src="app-v282.js?v=297155"></script>
+<script src="app-v282.js?v=297156"></script>
 </body></html>
