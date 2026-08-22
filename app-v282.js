@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLo
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.7.12';
+const APP_VERSION='2.9.7.13';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -33,7 +33,7 @@ function sameMeal(a,b){return a.date===b.date&&a.slot===b.slot}
 function mealItems(date,slot){return plan.filter(x=>x.date===date&&x.slot===slot)}
 function mealPeople(date,slot){const value=Number(mealItems(date,slot)[0]?.people);return value>=1&&value<=10?value:''}
 function setMealPeople(date,slot,value){const n=Number(value),p=n>=1&&n<=10?n:null;mealItems(date,slot).forEach(x=>x.people=p);savePlanData();renderPlan();}
-function savePlanData(){localStorage.setItem(planStore,JSON.stringify({version:4,weekStart:currentWeekStart,time:$('#planTime')?.value||'',items:plan.map(x=>({uid:x.uid||uid(),date:x.date,slot:x.slot,id:x.recipe.id,people:(Number(x.people)>=1&&Number(x.people)<=10?Number(x.people):null),role:x.role||'',notes:x.notes||'',preparePreviousDay:Boolean(x.preparePreviousDay),isLeftover:Boolean(x.isLeftover),leftoverSourceDate:x.leftoverSourceDate||'',leftoverPortions:Number(x.leftoverPortions)||0,leftoverIdea:x.leftoverIdea||''}))}));markDirty();}
+function savePlanData(){localStorage.setItem(planStore,JSON.stringify({version:4,weekStart:currentWeekStart,time:$('#planTime')?.value||'',items:plan.map(x=>({uid:x.uid||uid(),date:x.date,slot:x.slot,id:x.recipe.id,people:(Number(x.people)>=1&&Number(x.people)<=10?Number(x.people):null),role:x.role||'',notes:x.notes||'',preparePreviousDay:Boolean(x.preparePreviousDay),isLeftover:Boolean(x.isLeftover),leftoverSourceDate:x.leftoverSourceDate||'',leftoverPortions:Number(x.leftoverPortions)||0,leftoverIdea:x.leftoverIdea||''}))}));markDirty();if(activeViewId()==='planner')markSessionDirty('planner');}
 function mealTransfers(){try{return JSON.parse(localStorage.getItem(mealTransferStore)||'{}')}catch{return{}}}
 function saveMealTransfers(x){localStorage.setItem(mealTransferStore,JSON.stringify(x));markDirty()}
 async function init(){
@@ -44,7 +44,7 @@ async function init(){
   await autoLoadSharedBackup();
   migrateLegacyWeekSlots();
   renderDaySlotChoices();
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=2973', {updateViaCache:'none'});
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=29713', {updateViaCache:'none'});
   setStartupStatus('Chargement de vos recettes…');
   const stored=JSON.parse(localStorage.getItem(recipeStore)||'null');
   if(stored) recipes=stored; else recipes=await fetch(`recipes.json?_=${Date.now()}`,{cache:'no-store'}).then(r=>r.json());
@@ -65,6 +65,20 @@ function rememberScroll(view=activeViewId()){viewScrollPositions[view]=scrollY}
 function restoreScroll(view){requestAnimationFrame(()=>scrollTo(0,viewScrollPositions[view]||0))}
 function keepScroll(action,view=activeViewId()){const y=scrollY;action();requestAnimationFrame(()=>scrollTo(0,y));viewScrollPositions[view]=y}
 function switchView(id,{top=false}={}){const from=activeViewId();if(from!==id)rememberScroll(from);$$('.view').forEach(v=>v.classList.toggle('active',v.id===id));$$('nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===id));if(top)viewScrollPositions[id]=0;restoreScroll(id);updateWakeLock(id);}
+let plannerSessionDirty=false,shoppingSessionDirty=false,leaveGuardTarget=null;
+function markSessionDirty(view=activeViewId()){if(view==='planner')plannerSessionDirty=true;if(view==='shopping')shoppingSessionDirty=true}
+function resetSessionDirty(view){if(view==='planner')plannerSessionDirty=false;if(view==='shopping')shoppingSessionDirty=false}
+function sessionNeedsBackup(view){return Boolean(dirty&&((view==='planner'&&plannerSessionDirty)||(view==='shopping'&&shoppingSessionDirty)))}
+function requestMainView(id){
+  const from=activeViewId();
+  if(from===id){openMainView(id);return}
+  if(!sessionNeedsBackup(from)){selectionContext=null;updateSelectionBar();openMainView(id);return}
+  leaveGuardTarget=id;
+  const label=from==='planner'?'Planning':'Courses';
+  $('#leaveGuardMessage').textContent=`Des modifications ont été faites dans ${label}. Elles sont déjà enregistrées sur cet appareil, mais pas encore dans une sauvegarde .hgbak.`;
+  $('#leaveGuardDialog').showModal();
+}
+function finishGuardedLeave(saveDone=false){const from=activeViewId();resetSessionDirty(from);const target=leaveGuardTarget;leaveGuardTarget=null;$('#leaveGuardDialog').close();if(target){selectionContext=null;updateSelectionBar();openMainView(target)}}
 let wakeLock=null;
 async function updateWakeLock(view=activeViewId()){
   const shouldStayAwake=['shopping','recipeView'].includes(view)&&document.visibilityState==='visible';
@@ -74,8 +88,8 @@ async function updateWakeLock(view=activeViewId()){
   }catch(e){console.warn('Maintien de l’écran indisponible',e)}
 }
 document.addEventListener('visibilitychange',()=>updateWakeLock());
-function openMainView(id){if(id==='planner'){currentWeekStart=mondayISO(new Date());localStorage.setItem(weekStore,currentWeekStart);renderDaySlotChoices();renderPlan()}switchView(id)}
-$$('nav button').forEach(b=>b.onclick=()=>{selectionContext=null;updateSelectionBar();openMainView(b.dataset.view)});
+function openMainView(id){if(id==='planner'){currentWeekStart=mondayISO(new Date());localStorage.setItem(weekStore,currentWeekStart);renderDaySlotChoices();renderPlan()}switchView(id);if(id==='planner'||id==='shopping')resetSessionDirty(id)}
+$$('nav button').forEach(b=>b.onclick=()=>requestMainView(b.dataset.view));
 $$('[data-go]').forEach(b=>b.onclick=()=>openMainView(b.dataset.go));
 function slug(s){return (norm(s).replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')||'recette')+'-'+Date.now().toString(36)+Math.random().toString(36).slice(2,5)}
 function normalizeRecipe(r){return {id:String(r.id||r.uid||slug(r.title||r.name||'recette')),title:r.title||r.name||'Recette sans titre',category:r.category||'Importée',time:Number(r.time)||0,servings:Number(r.servings)||4,ingredients:Array.isArray(r.ingredients)?r.ingredients:[],steps:Array.isArray(r.steps)?r.steps:[],avecViande:!!r.avecViande,temperature:r.temperature||'les-deux',tags:Array.isArray(r.tags)?r.tags:[],source:r.source||'',notes:r.notes||'',paprikaUid:r.paprikaUid||r.uid||'',complementRecipeIds:Array.isArray(r.complementRecipeIds)?r.complementRecipeIds.map(String):[],complementText:r.complementText||'',leftoverIdeas:r.leftoverIdeas||'',cookedDates:Array.isArray(r.cookedDates)?[...new Set(r.cookedDates.filter(Boolean))]:[],favorite:Boolean(r.favorite),cookingComments:Array.isArray(r.cookingComments)?r.cookingComments.filter(x=>x&&x.text).map(x=>({date:x.date||'',text:String(x.text)})):[]};}
@@ -146,7 +160,7 @@ function migrateLegacyWeekSlots(){
 }
 function readDaySlots(){const map=readWeekSlots();return map[currentWeekStart]?{...defaultDaySlots(),...map[currentWeekStart]}:defaultDaySlots()}
 function renderDaySlotChoices(){const state=readDaySlots();$('#daySlotChoices').innerHTML=days.map((day,i)=>`<div class="day-slot-row"><strong>${day}</strong>${slots.map(slot=>`<label class="mini-slot ${state[i]?.[slot]?'selected':''}"><input type="checkbox" data-day-slot="${i}" data-slot="${slot}" ${state[i]?.[slot]?'checked':''}><span>${slot}</span></label>`).join('')}</div>`).join('');$$('[data-day-slot]').forEach(c=>c.onchange=()=>{c.parentElement.classList.toggle('selected',c.checked);saveDaySlots();updateSlotStatus();renderPlan()});updateSlotStatus();}
-function saveDaySlots(){const state=defaultDaySlots();$$('[data-day-slot]').forEach(c=>state[c.dataset.daySlot][c.dataset.slot]=c.checked);const map=readWeekSlots();map[currentWeekStart]=state;localStorage.setItem(weekSlotStore,JSON.stringify(map));markDirty();}
+function saveDaySlots(){const state=defaultDaySlots();$$('[data-day-slot]').forEach(c=>state[c.dataset.daySlot][c.dataset.slot]=c.checked);const map=readWeekSlots();map[currentWeekStart]=state;localStorage.setItem(weekSlotStore,JSON.stringify(map));markDirty();if(activeViewId()==='planner')markSessionDirty('planner');}
 function selectedDaySlots(){return $$('[data-day-slot]:checked').map(c=>({date:addDaysISO(currentWeekStart,+c.dataset.daySlot),dayIndex:+c.dataset.daySlot,slot:c.dataset.slot}))}
 function updateSlotStatus(){const n=selectedDaySlots().length;$('#selectedSlotsStatus').textContent=`${n} repas`;}
 function choices(exclude=[]){const max=+$('#planTime').value||999;let pool=recipes.filter(r=>(!r.time||r.time<=max)&&!exclude.includes(r.id));return pool.length?pool:recipes.filter(r=>!exclude.includes(r.id));}
@@ -156,7 +170,7 @@ function scaledIngredientRows(r,people=r.servings,overrides={}){const f=(Number(
 function scaledIngredients(r,people=null,overrides={}){const p=people||Number($('#people')?.value)||r.servings;return scaledIngredientRows(r,p,overrides).map(x=>x.text)}
 function mealNotes(){try{return JSON.parse(localStorage.getItem(mealNoteStore)||'{}')||{}}catch{return{}}}
 function mealNote(date,slot){return mealNotes()[mealKey(date,slot)]||''}
-function setMealNote(date,slot,value){const all=mealNotes(),key=mealKey(date,slot),v=String(value||'').trim();if(v)all[key]=v;else delete all[key];localStorage.setItem(mealNoteStore,JSON.stringify(all));markDirty()}
+function setMealNote(date,slot,value){const all=mealNotes(),key=mealKey(date,slot),v=String(value||'').trim();if(v)all[key]=v;else delete all[key];localStorage.setItem(mealNoteStore,JSON.stringify(all));markDirty();if(activeViewId()==='planner')markSessionDirty('planner')}
 let movingPlanIndex=null;
 function movePlanItem(index){const item=plan[index];if(!item)return;movingPlanIndex=index;$('#movePlanDate').value=item.date;$('#movePlanSlot').value=item.slot;$('#movePlanDialog').showModal();}
 $('#closeMovePlan').onclick=$('#cancelMovePlan').onclick=()=>{$('#movePlanDialog').close();movingPlanIndex=null};
@@ -297,19 +311,19 @@ $('#prevWeek').onclick=()=>{currentWeekStart=addDaysISO(currentWeekStart,-7);loc
 $('#nextWeek').onclick=()=>{currentWeekStart=addDaysISO(currentWeekStart,7);localStorage.setItem(weekStore,currentWeekStart);renderDaySlotChoices();renderPlan()};
 $('#currentWeek').onclick=()=>{currentWeekStart=mondayISO(new Date());localStorage.setItem(weekStore,currentWeekStart);renderDaySlotChoices();renderPlan()};
 $('#clearPlan').onclick=()=>{if(confirm(`Vider uniquement le planning de la semaine ${weekLabel(currentWeekStart)} et remettre ses sélections à zéro ?`)){const dates=new Set(days.map((_,i)=>addDaysISO(currentWeekStart,i)));plan=plan.filter(x=>!dates.has(x.date));$$('[data-day-slot]').forEach(c=>{c.checked=false;c.parentElement.classList.remove('selected')});saveDaySlots();$('#planTime').value='';savePlanData();updateSlotStatus();renderPlan()}};
-$('#savePlan').onclick=()=>{savePlanData();$('#planFreshness').textContent='Calendrier culinaire enregistré sur cet appareil.';$('#planFreshness').classList.remove('hidden')};
+$('#savePlan').onclick=()=>{savePlanData();$('#planFreshness').textContent='Calendrier enregistré sur cet appareil. Pense à exporter une sauvegarde pour le transférer ou le protéger.';$('#planFreshness').classList.remove('hidden')};
 function invalidateShopping(message){$('#planFreshness').textContent=message;$('#planFreshness').classList.remove('hidden')}
 function shoppingAssignments(){try{return JSON.parse(localStorage.getItem(shoppingAssignmentStore)||'{}')}catch{return{}}}
 function normalizeShoppingItem(x={}){const pref=shoppingAssignments()[norm(x.name||x.ingredient)]||{};return{id:x.id||uid(),name:x.name||x.ingredient||'',qty:x.qty??x.quantite??0,text:x.text||'',unit:x.unit||x.unite||'',store:x.store||x.magasin||pref.store||'',aisle:x.aisle||x.rayon||pref.aisle||'',checked:Boolean(x.checked??x.coche),manual:Boolean(x.manual),origins:Array.isArray(x.origins)?x.origins:Array.isArray(x.sources)?x.sources:Array.isArray(x.origine)?x.origine:[],originRefs:Array.isArray(x.originRefs)?x.originRefs:[],leftoverNoticeKey:x.leftoverNoticeKey||''}}
 function rememberShoppingAssignments(){const saved=shoppingAssignments();shopping.forEach(x=>{if(x.name&&(x.store||x.aisle))saved[norm(x.name)]={store:x.store||'',aisle:x.aisle||''}});localStorage.setItem(shoppingAssignmentStore,JSON.stringify(saved))}
 function consolidateShopping(){const out=[];shopping.map(normalizeShoppingItem).forEach(x=>{if(x.manual){out.push(x);return}const hit=out.find(y=>!y.manual&&norm(y.name)===norm(x.name)&&norm(y.unit)===norm(x.unit));if(!hit){out.push(x);return}hit.qty=Math.round((Number(hit.qty||0)+Number(x.qty||0))*100)/100;hit.origins=[...new Set([...(hit.origins||[]),...(x.origins||[])])];hit.originRefs=[...(hit.originRefs||[]),...(x.originRefs||[])].filter((v,i,a)=>a.findIndex(z=>z.recipeId===v.recipeId&&z.date===v.date&&z.slot===v.slot)===i);if(!hit.store&&x.store)hit.store=x.store;if(!hit.aisle&&x.aisle)hit.aisle=x.aisle});shopping=out}
-function saveShopping(){shopping=shopping.map(normalizeShoppingItem);consolidateShopping();localStorage.setItem(shoppingStore,JSON.stringify(shopping));rememberShoppingAssignments();markDirty()}
+function saveShopping(){shopping=shopping.map(normalizeShoppingItem);consolidateShopping();localStorage.setItem(shoppingStore,JSON.stringify(shopping));rememberShoppingAssignments();markDirty();if(activeViewId()==='shopping')markSessionDirty('shopping')}
 function transferMealToShopping(date,slot){const items=mealItems(date,slot);if(!items.length)return alert('Ajoute d’abord une recette à ce repas.');if(!mealPeople(date,slot))return alert('Indique d’abord le nombre de personnes pour ce repas.');const key=mealKey(date,slot),transfers=mealTransfers(),previous=transfers[key]||[];
   previous.forEach(old=>{const x=shopping.find(s=>norm(s.name)===norm(old.name)&&norm(s.unit)===norm(old.unit));if(x&&typeof x.qty==='number')x.qty=Math.max(0,Math.round((x.qty-Number(old.qty||0))*100)/100)});
   shopping=shopping.filter(x=>x.manual||Number(x.qty)>0||x.text);
   const added=[];const prefs=shoppingAssignments();
   items.filter(m=>!m.isLeftover).forEach(m=>{const rows=scaledIngredientRows(m.recipe,m.people,m.qtyOverrides||{});rows.forEach(row=>{const q=Number(row.qty);if(!Number.isFinite(q)||q===0)return;let x=shopping.find(s=>!s.manual&&norm(s.name)===norm(row.name)&&norm(s.unit)===norm(row.unit));const pref=prefs[norm(row.name)]||{};if(!x){x=normalizeShoppingItem({name:row.name,qty:0,unit:row.unit,store:pref.store||'',aisle:pref.aisle||'',origins:[],originRefs:[]});shopping.push(x)}x.qty=Math.round((Number(x.qty||0)+q)*100)/100;const origin=`${dateLabel(date)} ${slot} · ${m.recipe.title}`;if(!x.origins.includes(origin))x.origins.push(origin);x.originRefs=x.originRefs||[];if(!x.originRefs.some(o=>o.recipeId===m.recipe.id&&o.date===date&&o.slot===slot))x.originRefs.push({recipeId:m.recipe.id,title:m.recipe.title,date,slot});added.push({name:row.name,unit:row.unit,qty:q})})});
-  transfers[key]=added;saveMealTransfers(transfers);saveShopping();renderShopping();$('#planFreshness').textContent=`${dateLabel(date)} ${slot.toLowerCase()} transféré dans la liste des courses.`;$('#planFreshness').classList.remove('hidden');switchView('shopping');
+  transfers[key]=added;saveMealTransfers(transfers);saveShopping();renderShopping();$('#planFreshness').textContent=`${dateLabel(date)} ${slot.toLowerCase()} transféré dans la liste des courses.`;$('#planFreshness').classList.remove('hidden');shoppingSessionDirty=true;switchView('shopping');
 }
 function aisleOrders(){try{return JSON.parse(localStorage.getItem(aisleOrderStore)||'{}')||{}}catch{return{}}}
 function saveAisleOrders(value){localStorage.setItem(aisleOrderStore,JSON.stringify(value));markDirty()}
@@ -455,7 +469,7 @@ function createEmergencyCheckpoint(reason='opération sensible'){
   localStorage.setItem(EMERGENCY_BACKUP_KEY,JSON.stringify(record));
   return snapshot;
 }
-$('#exportData').onclick=async()=>{
+async function exportBackupNow(){
   try{
     const backup=herbierStorageSnapshot(),filename=backupFilename(),text=JSON.stringify(backup,null,2);
     if(typeof window.showSaveFilePicker==='function'){
@@ -470,11 +484,11 @@ $('#exportData').onclick=async()=>{
         markBackupCreated(filename);
         $('#dataTransferStatus').textContent=`Sauvegarde exportée : ${filename} · ${backupDeviceLabel()} · ${new Date().toLocaleString('fr-CH')}`;
         rememberLastDeviceAction('Export',filename);
-        return;
+        return true;
       }catch(e){
         if(e?.name==='AbortError'){
           $('#dataTransferStatus').textContent='Export annulé.';
-          return;
+          return false;
         }
         console.warn('Enregistrer sous indisponible, repli sur téléchargement',e);
       }
@@ -483,8 +497,13 @@ $('#exportData').onclick=async()=>{
     markBackupCreated(filename);
     $('#dataTransferStatus').textContent=`Sauvegarde exportée dans les téléchargements : ${filename} · ${backupDeviceLabel()} · ${new Date().toLocaleString('fr-CH')}`;
     rememberLastDeviceAction('Export',filename);
-  }catch(err){console.error(err);alert('Impossible de créer la sauvegarde.');}
-};
+    return true;
+  }catch(err){console.error(err);alert('Impossible de créer la sauvegarde.');return false;}
+}
+$('#exportData').onclick=()=>exportBackupNow();
+$('#leaveGuardStay').onclick=()=>{leaveGuardTarget=null;$('#leaveGuardDialog').close()};
+$('#leaveGuardLeave').onclick=()=>finishGuardedLeave(false);
+$('#leaveGuardSave').onclick=async()=>{const btn=$('#leaveGuardSave');btn.disabled=true;const ok=await exportBackupNow();btn.disabled=false;if(ok)finishGuardedLeave(true)};
 $('#dataImportFile').onchange=async e=>{
   const file=e.target.files?.[0];if(!file)return;
   try{

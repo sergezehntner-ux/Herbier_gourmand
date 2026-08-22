@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v282.css?v=29711">
+  <link rel="stylesheet" href="styles-v282.css?v=29713">
 
   <style>
     .recipe[data-recipe-open]{cursor:pointer}
@@ -90,7 +90,7 @@
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.12 · Recettes épurées & Tags hybrides</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.13 · Sortie sécurisée Planning & Courses</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span><button id="installBtn" class="ghost hidden">Installer</button></div>
 </header>
 <nav>
@@ -299,8 +299,9 @@
 <label>Jeton GitHub<input id="githubToken" type="password" autocomplete="off" placeholder="github_pat_…"></label>
 <div class="dialog-actions"><button type="button" id="cancelGithub">Annuler</button><button type="submit" class="primary">Enregistrer la configuration</button></div></form></dialog>
 
+<dialog id="leaveGuardDialog"><div class="leftover-choice-card"><h2>Modifications à sauvegarder</h2><p id="leaveGuardMessage">Les modifications sont enregistrées sur cet appareil, mais pas encore dans une sauvegarde .hgbak.</p><div class="dialog-actions"><button id="leaveGuardStay" type="button">Continuer</button><button id="leaveGuardLeave" type="button">Sortir sans sauvegarder</button><button id="leaveGuardSave" type="button" class="primary">Sauvegarder et sortir</button></div></div></dialog>
 <dialog id="leftoverChoiceDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2 id="leftoverChoiceTitle">Utiliser des restes</h2><p id="leftoverChoiceMessage"></p><div id="leftoverChoiceButtons" class="leftover-choice-buttons"></div><div class="leftover-choice-actions"><button id="leftoverChoiceCancel" type="button">Annuler</button></div></div></dialog>
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
-<script src="app-v282.js?v=29711"></script>
+<script src="app-v282.js?v=29713"></script>
 </body></html>
