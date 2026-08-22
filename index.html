@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v282.css?v=297158">
+  <link rel="stylesheet" href="styles-v282.css?v=297159">
 
   <style>
     .recipe[data-recipe-open]{cursor:pointer}
@@ -123,7 +123,7 @@
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.15.8 · Retour Planning & Courses</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.15.9 · Sauvegarde locale & retour</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -182,7 +182,7 @@
 </section>
 
 <section id="shopping" class="view">
-  <div class="section-title"><div><h2>Courses</h2><span class="muted">organisées selon ton parcours</span></div><div class="button-row"><button id="returnToPlannerFromShopping" type="button" class="hidden">← Retour au planning</button><button id="addShopping" class="primary">+ Ajouter</button></div></div>
+  <div class="section-title"><div><h2>Courses</h2><span class="muted">organisées selon ton parcours</span></div><div class="button-row"><button id="returnToPlannerFromShopping" type="button">← Retour au planning</button><button id="addShopping" class="primary">+ Ajouter</button></div></div>
   <div class="shopping-toolbar">
     <div class="segmented" aria-label="Regroupement de la liste">
       <button data-shop-group="store" class="active">Magasin</button>
@@ -194,7 +194,7 @@
   <div class="notice subtle shopping-help"><strong>Astuce :</strong> touche un article pour modifier sa quantité, son magasin ou son rayon. Ces affectations seront mémorisées pour les prochaines listes.</div>
   <div id="shoppingList"></div>
   <button id="addShoppingBottom" class="wide secondary">+ Ajouter un article</button>
-  <div class="sticky-actions"><button id="clearChecks">Tout décocher</button><button id="removeChecked">Supprimer cochés</button><button id="clearShopping" class="danger">Vider</button><button id="printShopping">Imprimer</button></div>
+  <div class="sticky-actions"><button id="saveShoppingLocal" class="primary">Enregistrer la liste</button><button id="clearChecks">Tout décocher</button><button id="removeChecked">Supprimer cochés</button><button id="clearShopping" class="danger">Vider</button><button id="printShopping">Imprimer</button></div>
 </section>
 
 <section id="restaurants" class="view">
@@ -352,5 +352,5 @@
 <dialog id="leftoverChoiceDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2 id="leftoverChoiceTitle">Utiliser des restes</h2><p id="leftoverChoiceMessage"></p><div id="leftoverChoiceButtons" class="leftover-choice-buttons"></div><div class="leftover-choice-actions"><button id="leftoverChoiceCancel" type="button">Annuler</button></div></div></dialog>
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
-<script src="app-v282.js?v=297158"></script>
+<script src="app-v282.js?v=297159"></script>
 </body></html>

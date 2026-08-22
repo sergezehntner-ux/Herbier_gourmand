@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLo
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.7.15.8';
+const APP_VERSION='2.9.7.15.9';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -44,7 +44,7 @@ async function init(){
   await autoLoadSharedBackup();
   migrateLegacyWeekSlots();
   renderDaySlotChoices();
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=297158', {updateViaCache:'none'});
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=297159', {updateViaCache:'none'});
   setStartupStatus('Chargement de vos recettes…');
   const stored=JSON.parse(localStorage.getItem(recipeStore)||'null');
   if(stored) recipes=stored; else recipes=await fetch(`recipes.json?_=${Date.now()}`,{cache:'no-store'}).then(r=>r.json());
@@ -85,19 +85,16 @@ function returnToPlannerContext(){
   selectionContext=null;updateSelectionBar();resetSessionDirty('shopping');switchView('planner');
 }
 function requestShoppingReturn(){
-  if(!shoppingReturnContext){requestMainView('planner');return}
-  if(sessionNeedsBackup('shopping')){showLeaveGuard('__plannerReturn');return}
-  returnToPlannerContext();
+  /* Navigation interne : aucune sauvegarde .hgbak n'est requise. */
+  if(shoppingReturnContext){returnToPlannerContext();return}
+  selectionContext=null;updateSelectionBar();openMainView('planner');
 }
 function requestMainView(id){
   const from=activeViewId();
   if(from===id){openMainView(id);return}
-  if(from==='shopping'&&id==='planner'&&shoppingReturnContext){requestShoppingReturn();return}
-  if(!sessionNeedsBackup(from)){
-    if(from==='shopping'&&id!=='planner'){shoppingReturnContext=null;updateShoppingReturnButton()}
-    selectionContext=null;updateSelectionBar();openMainView(id);return
-  }
-  showLeaveGuard(id);
+  if(from==='shopping'&&id==='planner'){requestShoppingReturn();return}
+  if(from==='shopping'&&id!=='planner'){shoppingReturnContext=null;updateShoppingReturnButton()}
+  selectionContext=null;updateSelectionBar();openMainView(id);
 }
 function finishGuardedLeave(saveDone=false){
   const from=activeViewId();resetSessionDirty(from);const target=leaveGuardTarget;leaveGuardTarget=null;$('#leaveGuardDialog').close();
@@ -338,7 +335,7 @@ $('#prevWeek').onclick=()=>{currentWeekStart=addDaysISO(currentWeekStart,-7);loc
 $('#nextWeek').onclick=()=>{currentWeekStart=addDaysISO(currentWeekStart,7);localStorage.setItem(weekStore,currentWeekStart);renderDaySlotChoices();renderPlan()};
 $('#currentWeek').onclick=()=>{currentWeekStart=mondayISO(new Date());localStorage.setItem(weekStore,currentWeekStart);renderDaySlotChoices();renderPlan()};
 $('#clearPlan').onclick=()=>{if(confirm(`Vider uniquement le planning de la semaine ${weekLabel(currentWeekStart)} et remettre ses sélections à zéro ?`)){const dates=new Set(days.map((_,i)=>addDaysISO(currentWeekStart,i)));plan=plan.filter(x=>!dates.has(x.date));$$('[data-day-slot]').forEach(c=>{c.checked=false;c.parentElement.classList.remove('selected')});saveDaySlots();savePlanData();updateSlotStatus();renderPlan()}};
-$('#savePlan').onclick=()=>{savePlanData();$('#planFreshness').textContent='Calendrier enregistré sur cet appareil. Pense à exporter une sauvegarde pour le transférer ou le protéger.';$('#planFreshness').classList.remove('hidden')};
+$('#savePlan').onclick=()=>{savePlanData();resetSessionDirty('planner');$('#planFreshness').textContent='Calendrier enregistré sur cet appareil.';$('#planFreshness').classList.remove('hidden')};
 function invalidateShopping(message){$('#planFreshness').textContent=message;$('#planFreshness').classList.remove('hidden')}
 function shoppingAssignments(){try{return JSON.parse(localStorage.getItem(shoppingAssignmentStore)||'{}')}catch{return{}}}
 function normalizeShoppingItem(x={}){const pref=shoppingAssignments()[norm(x.name||x.ingredient)]||{};return{id:x.id||uid(),name:x.name||x.ingredient||'',qty:x.qty??x.quantite??0,text:x.text||'',unit:x.unit||x.unite||'',store:x.store||x.magasin||pref.store||'',aisle:x.aisle||x.rayon||pref.aisle||'',checked:Boolean(x.checked??x.coche),manual:Boolean(x.manual),origins:Array.isArray(x.origins)?x.origins:Array.isArray(x.sources)?x.sources:Array.isArray(x.origine)?x.origine:[],originRefs:Array.isArray(x.originRefs)?x.originRefs:[],leftoverNoticeKey:x.leftoverNoticeKey||''}}
@@ -404,7 +401,7 @@ function openShopping(id=''){const x=shopping.find(i=>i.id===id);$('#shoppingDia
 function addShopping(){openShopping()}
 $('#shoppingForm').onsubmit=e=>{e.preventDefault();const id=$('#shoppingId').value,x=shopping.find(i=>i.id===id),raw=$('#shoppingQty').value.trim(),parsed=parseNumber(raw),item=normalizeShoppingItem({...(x||{}),id:id||uid(),name:$('#shoppingName').value.trim(),qty:typeof parsed==='number'?parsed:0,text:typeof parsed==='number'?'':raw,unit:$('#shoppingUnit').value.trim(),store:$('#shoppingStore').value.trim(),aisle:$('#shoppingAisle').value.trim(),manual:x?.manual??true,origins:x?.origins||['Ajout manuel']});if(x)Object.assign(x,item);else shopping.push(item);rememberShoppingStore(item.store);saveShopping();renderShopping();$('#shoppingDialog').close()};
 $('#closeShopping').onclick=()=>$('#shoppingDialog').close();$('#closeShoppingSource').onclick=()=>$('#shoppingSourceDialog').close();$('#deleteShopping').onclick=()=>{const id=$('#shoppingId').value;if(id&&confirm('Supprimer cet article ?')){shopping=shopping.filter(x=>x.id!==id);saveShopping();renderShopping();$('#shoppingDialog').close()}};
-$('#addShopping').onclick=addShopping;$('#addShoppingBottom').onclick=addShopping;if($('#returnToPlannerFromShopping'))$('#returnToPlannerFromShopping').onclick=requestShoppingReturn;$('#clearChecks').onclick=()=>{shopping.forEach(x=>x.checked=false);saveShopping();renderShopping()};$('#removeChecked').onclick=()=>{const n=shopping.filter(x=>x.checked).length;if(!n)return alert('Aucun article coché.');if(confirm(`Supprimer ${n} article${n>1?'s':''} acheté${n>1?'s':''} ?`)){shopping=shopping.filter(x=>!x.checked);saveShopping();renderShopping()}};$('#clearShopping').onclick=()=>{if(confirm('Vider toute la liste ?')){shopping=[];saveShopping();renderShopping()}};
+$('#addShopping').onclick=addShopping;$('#addShoppingBottom').onclick=addShopping;if($('#returnToPlannerFromShopping'))$('#returnToPlannerFromShopping').onclick=requestShoppingReturn;if($('#saveShoppingLocal'))$('#saveShoppingLocal').onclick=()=>{saveShopping();resetSessionDirty('shopping');const b=$('#saveShoppingLocal');if(b){const old=b.textContent;b.textContent='Enregistré ✓';setTimeout(()=>{b.textContent=old},1400)}};$('#clearChecks').onclick=()=>{shopping.forEach(x=>x.checked=false);saveShopping();renderShopping()};$('#removeChecked').onclick=()=>{const n=shopping.filter(x=>x.checked).length;if(!n)return alert('Aucun article coché.');if(confirm(`Supprimer ${n} article${n>1?'s':''} acheté${n>1?'s':''} ?`)){shopping=shopping.filter(x=>!x.checked);saveShopping();renderShopping()}};$('#clearShopping').onclick=()=>{if(confirm('Vider toute la liste ?')){shopping=[];saveShopping();renderShopping()}};
 $$('[data-shop-group]').forEach(b=>b.onclick=()=>{shoppingGroupMode=b.dataset.shopGroup;$$('[data-shop-group]').forEach(x=>x.classList.toggle('active',x===b));renderShopping()});
 
 // Import Paprika : .paprikarecipe (gzip JSON), .paprikarecipes (archive ZIP), JSON, HTML ou texte.
