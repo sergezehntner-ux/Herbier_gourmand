@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v282.css?v=297156">
+  <link rel="stylesheet" href="styles-v282.css?v=297157">
 
   <style>
     .recipe[data-recipe-open]{cursor:pointer}
@@ -97,6 +97,19 @@
     .floating-search-btn.visible{display:inline-flex}
     @media(max-width:700px){.floating-search-btn{right:12px;bottom:14px;padding:.7rem .9rem;font-size:.98rem}}
 
+    /* v2.9.7.15.7 — formulaire Recette compact */
+    #recipeForm .recipe-form-fields{display:grid;gap:.72rem;margin-bottom:.8rem}
+    #recipeForm .recipe-field-wide{display:block}
+    #recipeForm .recipe-field-wide>input{width:100%;box-sizing:border-box}
+    #recipeForm .recipe-compact-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem .9rem}
+    #recipeForm .recipe-field-inline{display:grid;grid-template-columns:minmax(5.6rem,.72fr) minmax(8.2rem,1.28fr);align-items:center;gap:.55rem;margin:0}
+    #recipeForm .recipe-field-inline>span{font-weight:600;line-height:1.15}
+    #recipeForm .recipe-field-inline>select{width:100%;min-width:0;margin:0}
+    @media(max-width:620px){
+      #recipeForm .recipe-compact-fields{grid-template-columns:1fr;gap:.42rem}
+      #recipeForm .recipe-field-inline{grid-template-columns:minmax(5.8rem,.78fr) minmax(0,1.22fr);gap:.5rem}
+    }
+
   </style>
 </head>
 <body>
@@ -110,7 +123,7 @@
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.15.6 · Type, effort et difficulté</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.15.7 · Formulaire Recette compact</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -262,7 +275,17 @@
 <button id="produceFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des fruits et légumes">🔍 Rechercher</button>
 
 <dialog id="recipeDialog"><form id="recipeForm" method="dialog"><div class="dialog-head"><h2 id="recipeDialogTitle">Recette</h2><button type="button" id="closeRecipe">×</button></div><input type="hidden" id="recipeId">
-<div class="grid"><label>Titre<input id="recipeTitle" required></label><label>Catégorie<select id="recipeCategory" required><option value="">Choisir…</option></select></label><label>Tags (texte libre ou choix existant)<input id="recipeTags" list="tagSuggestions" placeholder="Ex. Italie, été"><datalist id="tagSuggestions"></datalist></label><label>Type<select id="recipeType"><option value="">Non défini</option><option value="viande">Viande</option><option value="poisson">Poisson</option><option value="vegetarien">Végétarien</option><option value="vegane">Végane</option></select></label><label>Effort<select id="recipeEffort"><option value="">Non défini</option><option value="faible">Faible</option><option value="moyen">Moyen</option><option value="important">Important</option></select></label><label>Difficulté<select id="recipeDifficulty"><option value="">Non définie</option><option value="facile">Facile</option><option value="moyenne">Moyenne</option><option value="difficile">Difficile</option><option value="expert">Expert</option></select></label><label>Portions<select id="recipeServings" required><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option></select></label><label>Température<select id="recipeTemperature"><option value="chaud">Chaud</option><option value="froid">Froid</option><option value="les-deux">Les deux</option></select></label></div>
+<div class="recipe-form-fields">
+<label class="recipe-field-wide">Titre<input id="recipeTitle" required></label>
+<label class="recipe-field-wide">Tags (texte libre ou choix existant)<input id="recipeTags" list="tagSuggestions" placeholder="Ex. Italie, été"><datalist id="tagSuggestions"></datalist></label>
+<div class="recipe-compact-fields">
+<label class="recipe-field-inline"><span>Catégorie</span><select id="recipeCategory" required><option value="">Choisir…</option></select></label>
+<label class="recipe-field-inline"><span>Type</span><select id="recipeType"><option value="">Non défini</option><option value="viande">Viande</option><option value="poisson">Poisson</option><option value="vegetarien">Végétarien</option><option value="vegane">Végane</option></select></label>
+<label class="recipe-field-inline"><span>Effort</span><select id="recipeEffort"><option value="">Non défini</option><option value="faible">Faible</option><option value="moyen">Moyen</option><option value="important">Important</option></select></label>
+<label class="recipe-field-inline"><span>Difficulté</span><select id="recipeDifficulty"><option value="">Non définie</option><option value="facile">Facile</option><option value="moyenne">Moyenne</option><option value="difficile">Difficile</option><option value="expert">Expert</option></select></label>
+<label class="recipe-field-inline"><span>Portions</span><select id="recipeServings" required><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option></select></label>
+<label class="recipe-field-inline"><span>Température</span><select id="recipeTemperature"><option value="chaud">Chaud</option><option value="froid">Froid</option><option value="les-deux">Les deux</option></select></label>
+</div></div>
 <label>Ingrédients <span class="muted">(un par ligne : nom / quantité / unité)</span><textarea id="recipeIngredients" rows="7" required></textarea></label><label>Préparation <span class="muted">(une étape par ligne)</span><textarea id="recipeSteps" rows="7" required></textarea></label>
 <div class="dialog-actions"><button type="button" id="deleteRecipe" class="danger">Supprimer</button><button type="button" id="duplicateRecipe">Dupliquer</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 
@@ -329,5 +352,5 @@
 <dialog id="leftoverChoiceDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2 id="leftoverChoiceTitle">Utiliser des restes</h2><p id="leftoverChoiceMessage"></p><div id="leftoverChoiceButtons" class="leftover-choice-buttons"></div><div class="leftover-choice-actions"><button id="leftoverChoiceCancel" type="button">Annuler</button></div></div></dialog>
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
-<script src="app-v282.js?v=297156"></script>
+<script src="app-v282.js?v=297157"></script>
 </body></html>
