@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v282.css?v=297153">
+  <link rel="stylesheet" href="styles-v282.css?v=297154">
 
   <style>
     .recipe[data-recipe-open]{cursor:pointer}
@@ -92,6 +92,11 @@
       header .last-device-action{font-size:.76rem;line-height:1.1}
     }
 
+    /* v2.9.7.15.4 — recherche flottante, Recettes uniquement */
+    #recipeFloatingSearch{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:300;display:none;align-items:center;gap:.4rem;padding:.72rem 1rem;border-radius:999px;box-shadow:0 6px 22px rgba(0,0,0,.18);font-weight:700}
+    #recipeFloatingSearch.visible{display:inline-flex}
+    @media(max-width:700px){#recipeFloatingSearch{right:12px;bottom:14px;padding:.7rem .9rem;font-size:.98rem}}
+
   </style>
 </head>
 <body>
@@ -105,7 +110,7 @@
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.15.3 · Bandeau compact</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.15.4 · Recherche flottante Recettes</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -250,6 +255,7 @@
 
 </main>
 <footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse.</footer>
+<button id="recipeFloatingSearch" class="primary" type="button" aria-label="Revenir à la recherche des recettes">🔍 Rechercher</button>
 
 <dialog id="recipeDialog"><form id="recipeForm" method="dialog"><div class="dialog-head"><h2 id="recipeDialogTitle">Recette</h2><button type="button" id="closeRecipe">×</button></div><input type="hidden" id="recipeId">
 <div class="grid"><label>Titre<input id="recipeTitle" required></label><label>Catégorie<select id="recipeCategory" required><option value="">Choisir…</option></select></label><label>Tags (texte libre ou choix existant)<input id="recipeTags" list="tagSuggestions" placeholder="Ex. Italie, rapide, été"><datalist id="tagSuggestions"></datalist></label><label>Temps (min)<input id="recipeTime" type="number" min="1" inputmode="numeric" placeholder="Ex. 35" required></label><label>Portions<select id="recipeServings" required><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option></select></label><label>Température<select id="recipeTemperature"><option value="chaud">Chaud</option><option value="froid">Froid</option><option value="les-deux">Les deux</option></select></label><label class="check"><input id="recipeMeat" type="checkbox"> Avec viande</label></div>
@@ -319,5 +325,5 @@
 <dialog id="leftoverChoiceDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2 id="leftoverChoiceTitle">Utiliser des restes</h2><p id="leftoverChoiceMessage"></p><div id="leftoverChoiceButtons" class="leftover-choice-buttons"></div><div class="leftover-choice-actions"><button id="leftoverChoiceCancel" type="button">Annuler</button></div></div></dialog>
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
-<script src="app-v282.js?v=297151"></script>
+<script src="app-v282.js?v=297154"></script>
 </body></html>
