@@ -107,6 +107,13 @@
     #recipeForm .recipe-field-inline>select{width:100%;min-width:0;margin:0}
     .recipe-meta-line{display:flex;flex-wrap:wrap;gap:.18rem .35rem;align-items:center}
     .recipe-meta-line span{white-space:nowrap}
+
+    .recipe-tag-meta-row{display:flex;align-items:flex-start;justify-content:space-between;gap:.65rem;flex-wrap:wrap}
+    .recipe-tag-meta-row .badges{flex:1 1 12rem;min-width:0}
+    .recipe-meta-tail{margin-left:auto;text-align:right;white-space:nowrap}
+    .recipe-intertitle{list-style:none;font-weight:700;margin-top:.75rem;margin-left:-1.1rem}
+    ol .recipe-intertitle{counter-increment:none}
+    @media(max-width:600px){.recipe-tag-meta-row{gap:.35rem}.recipe-meta-tail{font-size:.9em}}
     @media(max-width:620px){
       #recipeForm .recipe-compact-fields{grid-template-columns:1fr;gap:.42rem}
       #recipeForm .recipe-field-inline{grid-template-columns:minmax(5.8rem,.78fr) minmax(0,1.22fr);gap:.5rem}
@@ -125,7 +132,7 @@
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.16 · Recettes · critères harmonisés</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.16.1 · Intertitres & lisibilité</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -289,7 +296,7 @@
 <label class="recipe-field-inline"><span>Portions</span><select id="recipeServings" required><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option></select></label>
 <label class="recipe-field-inline"><span>Température</span><select id="recipeTemperature"><option value="chaud">Chaud</option><option value="froid">Froid</option><option value="les-deux">Les deux</option></select></label>
 </div></div>
-<label>Ingrédients <span class="muted">(un par ligne : nom / quantité / unité)</span><textarea id="recipeIngredients" rows="7" required></textarea></label><label>Préparation <span class="muted">(une étape par ligne)</span><textarea id="recipeSteps" rows="7" required></textarea></label>
+<label>Ingrédients <span class="muted">(un par ligne : nom / quantité / unité · une ligne finissant par « : » = intertitre)</span><textarea id="recipeIngredients" rows="7" required></textarea></label><label>Préparation <span class="muted">(une étape par ligne · une ligne finissant par « : » = intertitre)</span><textarea id="recipeSteps" rows="7" required></textarea></label>
 <div class="dialog-actions"><button type="button" id="deleteRecipe" class="danger">Supprimer</button><button type="button" id="duplicateRecipe">Dupliquer</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 
 <dialog id="importDialog"><form method="dialog" id="importForm"><div class="dialog-head"><h2>Importer depuis Paprika</h2><button type="button" id="closeImport">×</button></div>
@@ -355,5 +362,5 @@
 <dialog id="leftoverChoiceDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2 id="leftoverChoiceTitle">Utiliser des restes</h2><p id="leftoverChoiceMessage"></p><div id="leftoverChoiceButtons" class="leftover-choice-buttons"></div><div class="leftover-choice-actions"><button id="leftoverChoiceCancel" type="button">Annuler</button></div></div></dialog>
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
-<script src="app-v282.js?v=29716"></script>
+<script src="app-v282.js?v=297161"></script>
 </body></html>
