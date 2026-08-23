@@ -132,7 +132,7 @@
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.16.1 · Intertitres & lisibilité</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.7.16.2 · Critères harmonisés</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -289,12 +289,12 @@
 <label class="recipe-field-wide">Tags (texte libre ou choix existant)<input id="recipeTags" list="tagSuggestions" placeholder="Ex. Italie, été"><datalist id="tagSuggestions"></datalist></label>
 <div class="recipe-compact-fields">
 <label class="recipe-field-inline"><span>Catégorie</span><select id="recipeCategory" required><option value="">Choisir…</option></select></label>
-<label class="recipe-field-inline"><span>Type</span><select id="recipeType"><option value="">Non défini</option><option value="viande">Viande</option><option value="poisson">Poisson</option><option value="vegetarien">Végétarien</option><option value="vegane">Végane</option></select></label>
-<label class="recipe-field-inline"><span>Effort</span><select id="recipeEffort"><option value="">Non défini</option><option value="faible">Faible</option><option value="moyen">Moyen</option><option value="important">Important</option></select></label>
-<label class="recipe-field-inline"><span>Difficulté</span><select id="recipeDifficulty"><option value="">Non définie</option><option value="facile">Facile</option><option value="moyenne">Moyenne</option><option value="difficile">Difficile</option><option value="expert">Expert</option></select></label>
-<label class="recipe-field-inline"><span>Spécial</span><select id="recipeSpecial"><option value="">Non défini</option><option value="veille">À préparer la veille</option></select></label>
+<label class="recipe-field-inline"><span>Type</span><select id="recipeType"><option value="">non défini</option><option value="viande">viande</option><option value="poisson">poisson</option><option value="vegetarien">végétarien</option><option value="vegane">végane</option></select></label>
+<label class="recipe-field-inline"><span>Effort</span><select id="recipeEffort"><option value="">non défini</option><option value="faible">faible</option><option value="moyen">moyen</option><option value="important">important</option></select></label>
+<label class="recipe-field-inline"><span>Difficulté</span><select id="recipeDifficulty"><option value="">non définie</option><option value="facile">facile</option><option value="moyenne">moyenne</option><option value="difficile">difficile</option><option value="expert">expert</option></select></label>
+<label class="recipe-field-inline"><span>Spécial</span><select id="recipeSpecial"><option value="">non défini</option><option value="veille">à préparer la veille</option></select></label>
 <label class="recipe-field-inline"><span>Portions</span><select id="recipeServings" required><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option></select></label>
-<label class="recipe-field-inline"><span>Température</span><select id="recipeTemperature"><option value="chaud">Chaud</option><option value="froid">Froid</option><option value="les-deux">Les deux</option></select></label>
+<label class="recipe-field-inline"><span>Température</span><select id="recipeTemperature"><option value="chaud">chaud</option><option value="froid">froid</option><option value="les-deux">les deux</option></select></label>
 </div></div>
 <label>Ingrédients <span class="muted">(un par ligne : nom / quantité / unité · une ligne finissant par « : » = intertitre)</span><textarea id="recipeIngredients" rows="7" required></textarea></label><label>Préparation <span class="muted">(une étape par ligne · une ligne finissant par « : » = intertitre)</span><textarea id="recipeSteps" rows="7" required></textarea></label>
 <div class="dialog-actions"><button type="button" id="deleteRecipe" class="danger">Supprimer</button><button type="button" id="duplicateRecipe">Dupliquer</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
@@ -362,5 +362,5 @@
 <dialog id="leftoverChoiceDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2 id="leftoverChoiceTitle">Utiliser des restes</h2><p id="leftoverChoiceMessage"></p><div id="leftoverChoiceButtons" class="leftover-choice-buttons"></div><div class="leftover-choice-actions"><button id="leftoverChoiceCancel" type="button">Annuler</button></div></div></dialog>
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
-<script src="app-v282.js?v=297161"></script>
+<script src="app-v282.js?v=297162"></script>
 </body></html>
