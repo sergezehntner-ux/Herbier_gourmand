@@ -119,6 +119,25 @@
       #recipeForm .recipe-field-inline{grid-template-columns:minmax(5.8rem,.78fr) minmax(0,1.22fr);gap:.5rem}
     }
 
+  
+    /* v2.9.7.16.4 — photos */
+    .recipe,.herb-card,.produce-card,.recipe-title,.herb-detail-head,.produce-detail-head{position:relative}
+    .recipe>.hg-photo-slot,.herb-card>.hg-photo-slot,.produce-card>.hg-photo-slot{position:absolute;right:.75rem;top:50%;transform:translateY(-50%);z-index:3}
+    .recipe{padding-right:5.7rem}.herb-card,.produce-card{padding-right:5.7rem}
+    .recipe-title,.herb-detail-head,.produce-detail-head{padding-right:min(24vw,11rem)}
+    .recipe-title>.hg-photo-slot,.herb-detail-head>.hg-photo-slot,.produce-detail-head>.hg-photo-slot{position:absolute;right:0;top:0}
+    .hg-photo-button{overflow:hidden;border:1px solid #b9cbbd;background:#f8fbf8;padding:0;border-radius:.7rem;display:flex;align-items:center;justify-content:center;color:#52665a;font:inherit;font-size:.72rem;font-weight:700;line-height:1.05;text-align:center}
+    .hg-photo-small .hg-photo-button{width:4.25rem;height:4.25rem}.hg-photo-detail .hg-photo-button{width:9rem;height:9rem}
+    .hg-photo-button img,.hg-shop-photo-check img{width:100%;height:100%;object-fit:cover;display:block}
+    .hg-photo-button.empty{border-style:dashed}.hg-photo-actions{display:flex;gap:.3rem;justify-content:center;margin-top:.35rem}.hg-photo-actions button{font-size:.75rem;padding:.3rem .45rem}
+    .hg-photo-choice{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}.hg-photo-choice button{min-height:3.2rem}
+    .hg-photo-full{width:min(96vw,1100px);height:min(94vh,900px);padding:3rem .6rem .6rem;border:0;border-radius:1rem;background:#111}.hg-photo-full::backdrop{background:rgba(0,0,0,.82)}
+    .hg-photo-full img{width:100%;height:100%;object-fit:contain}.hg-photo-full-close{position:absolute;right:.8rem;top:.6rem;z-index:2}
+    .hg-shop-photo-check{width:2.65rem;height:2.65rem;flex:0 0 2.65rem;padding:0;overflow:hidden;border:1px solid #9fb1a4;border-radius:.45rem;background:#fff}
+    .shop-item.checked .hg-shop-photo-check img{filter:grayscale(1);opacity:.42}.shop-item.checked .hg-shop-photo-check{position:relative}
+    .shop-item.checked .hg-shop-photo-check:after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.65rem;font-weight:900;color:#20382a}
+    .hg-shopping-photo-panel{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1rem;align-items:start;margin:.8rem 0;padding:.8rem;border:1px solid #d8e2da;border-radius:.8rem;background:#f8fbf8}.hg-shopping-photo-panel p{margin:.25rem 0}.hg-shopping-photo-panel+.notice{font-size:.9rem}
+    @media(max-width:600px){.recipe,.herb-card,.produce-card{padding-right:4.8rem}.hg-photo-small .hg-photo-button{width:3.65rem;height:3.65rem}.recipe-title,.herb-detail-head,.produce-detail-head{padding-right:7.2rem}.hg-photo-detail .hg-photo-button{width:6.5rem;height:6.5rem}.hg-photo-actions{flex-direction:column}.hg-shopping-photo-panel{grid-template-columns:1fr auto}}
   </style>
 </head>
 <body>
@@ -362,5 +381,6 @@
 <dialog id="leftoverChoiceDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2 id="leftoverChoiceTitle">Utiliser des restes</h2><p id="leftoverChoiceMessage"></p><div id="leftoverChoiceButtons" class="leftover-choice-buttons"></div><div class="leftover-choice-actions"><button id="leftoverChoiceCancel" type="button">Annuler</button></div></div></dialog>
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
-<script src="app-v282.js?v=297163"></script>
+<script src="app-v282.js?v=297164"></script>
+<script src="media-v1.js?v=297164"></script>
 </body></html>
