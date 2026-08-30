@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLo
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.5';
+const APP_VERSION='2.9.8.6';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -836,11 +836,12 @@ function openHerbEditor(id=viewedHerbId){
  $('#herbDialogTitle').textContent=isNew?'Ajouter une plante ou une épice':'Modifier Plante & Épice';
  $('#herbEditId').value=isNew?'':h.id;refreshHerbEditorSelects(h);
  const map={Name:'name',Family:'family',Origin:'origin',Season:'season',Intensity:'intensity',Forms:'forms',Flavor:'flavor',Uses:'uses',Benefits:'benefits',IdealFoods:'idealFoods',Pairings:'recommendedPairings',Cooking:'cookingBehavior',Preparation:'preparation',Quantity:'quantity',Substitution:'substitution',Avoid:'avoid',Conservation:'conservation',Where:'whereToBuy',RecipeIdeas:'recipeIdeas',ChefTip:'chefTip'};
- Object.entries(map).forEach(([suffix,key])=>{$(`#herbEdit${suffix}`).value=h[key]||''});$('#herbDialog').showModal()
+ Object.entries(map).forEach(([suffix,key])=>{$(`#herbEdit${suffix}`).value=h[key]||''});$('#deleteHerb')?.classList.toggle('hidden',isNew);$('#herbDialog').showModal()
 }
 if($('#newHerb'))$('#newHerb').onclick=()=>openHerbEditor('');
 if($('#editViewedHerb'))$('#editViewedHerb').onclick=()=>openHerbEditor();
 if($('#closeHerbDialog'))$('#closeHerbDialog').onclick=()=>$('#herbDialog').close();
+if($('#deleteHerb'))$('#deleteHerb').onclick=async()=>{const id=$('#herbEditId').value,h=herbs.find(x=>x.id===id);if(!h)return;if(!confirm(`Supprimer définitivement « ${h.name} » ?`))return;const photoId=h.photoId||'';herbs=herbs.filter(x=>x.id!==id);localStorage.setItem(herbStore,JSON.stringify(herbs));if(photoId&&window.hgMediaDeletePhoto)try{await window.hgMediaDeletePhoto(photoId)}catch(err){console.warn('Suppression photo',err)}registerProtectedChange();markDirty();viewedHerbId=null;renderHerbFilters();renderHerbs();$('#herbDialog').close();switchView('herbs')};
 if($('#herbForm'))$('#herbForm').onsubmit=e=>{e.preventDefault();const oldId=$('#herbEditId').value;let h=oldId?herbs.find(x=>x.id===oldId):null;const map={Name:'name',Family:'family',Origin:'origin',Season:'season',Intensity:'intensity',Forms:'forms',Flavor:'flavor',Uses:'uses',Benefits:'benefits',IdealFoods:'idealFoods',Pairings:'recommendedPairings',Cooking:'cookingBehavior',Preparation:'preparation',Quantity:'quantity',Substitution:'substitution',Avoid:'avoid',Conservation:'conservation',Where:'whereToBuy',RecipeIdeas:'recipeIdeas',ChefTip:'chefTip'};if(!h){const name=$('#herbEditName').value.trim();let id=slug(name||`plante-${Date.now()}`);if(herbs.some(x=>x.id===id))id=`${id}-${Date.now()}`;h=normalizeHerb({id,name});herbs.push(h)}Object.entries(map).forEach(([suffix,key])=>h[key]=$(`#herbEdit${suffix}`).value.trim());localStorage.setItem(herbStore,JSON.stringify(herbs));registerProtectedChange();markDirty();renderHerbFilters();renderHerbs();$('#herbDialog').close();showHerb(h.id)};
 if($('#backFromHerb'))$('#backFromHerb').onclick=()=>switchView(previousHerbView);
 
@@ -892,11 +893,12 @@ function openProduceEditor(id=viewedProduceId){
  $('#produceDialogTitle').textContent=isNew?'Ajouter un fruit ou un légume':'Modifier Fruit & Légume';
  $('#produceEditId').value=isNew?'':p.id;refreshProduceEditorSelects(p);
  const map={Name:'name',Category:'category',Latin:'latinName',Availability:'availability',Season:'season',Description:'description',Benefits:'benefits',Pairings:'pairings',BenefitPairings:'benefitPairings',Preparation:'preparation',Conservation:'conservation',Uses:'uses',Notes:'notes'};
- Object.entries(map).forEach(([suffix,key])=>{$(`#produceEdit${suffix}`).value=p[key]||''});$('#produceDialog').showModal()
+ Object.entries(map).forEach(([suffix,key])=>{$(`#produceEdit${suffix}`).value=p[key]||''});$('#deleteProduce')?.classList.toggle('hidden',isNew);$('#produceDialog').showModal()
 }
 if($('#newProduce'))$('#newProduce').onclick=()=>openProduceEditor('');
 if($('#editViewedProduce'))$('#editViewedProduce').onclick=()=>openProduceEditor();
 if($('#closeProduceDialog'))$('#closeProduceDialog').onclick=()=>$('#produceDialog').close();
+if($('#deleteProduce'))$('#deleteProduce').onclick=async()=>{const id=$('#produceEditId').value,p=produceItems.find(x=>x.id===id);if(!p)return;if(!confirm(`Supprimer définitivement « ${p.name} » ?`))return;const photoId=p.photoId||'';produceItems=produceItems.filter(x=>x.id!==id);localStorage.setItem(produceStore,JSON.stringify(produceItems));if(photoId&&window.hgMediaDeletePhoto)try{await window.hgMediaDeletePhoto(photoId)}catch(err){console.warn('Suppression photo',err)}registerProtectedChange();markDirty();viewedProduceId=null;renderProduceFilters();renderProduce();$('#produceDialog').close();switchView('produce')};
 if($('#produceForm'))$('#produceForm').onsubmit=e=>{e.preventDefault();const oldId=$('#produceEditId').value;let p=oldId?produceItems.find(x=>x.id===oldId):null;const map={Name:'name',Category:'category',Latin:'latinName',Availability:'availability',Season:'season',Description:'description',Benefits:'benefits',Pairings:'pairings',BenefitPairings:'benefitPairings',Preparation:'preparation',Conservation:'conservation',Uses:'uses',Notes:'notes'};if(!p){const name=$('#produceEditName').value.trim();let id=slug(name||`produit-${Date.now()}`);if(produceItems.some(x=>x.id===id))id=`${id}-${Date.now()}`;p=normalizeProduce({id,name});produceItems.push(p)}Object.entries(map).forEach(([suffix,key])=>p[key]=$(`#produceEdit${suffix}`).value.trim());localStorage.setItem(produceStore,JSON.stringify(produceItems));registerProtectedChange();markDirty();renderProduceFilters();renderProduce();$('#produceDialog').close();showProduce(p.id)};
 if($('#backFromProduce'))$('#backFromProduce').onclick=()=>switchView(previousProduceView);
 

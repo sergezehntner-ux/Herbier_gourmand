@@ -1,4 +1,4 @@
-/* Herbier Gourmand v2.9.8.1 — moteur photo commun + photos Paprika */
+/* Herbier Gourmand v2.9.8.6 — moteur photo commun */
 (()=>{
 'use strict';
 const DB_NAME='hg-media-v1', STORE='photos', SHOP_PHOTO_MAP='hg-shopping-photo-map-v1';
@@ -51,6 +51,7 @@ const oldNormalizeShoppingItem=normalizeShoppingItem;normalizeShoppingItem=funct
 // Sauvegarde .hgbak : embarque les photos compressées avec les autres données.
 async function blobToDataURL(blob){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(r.error);r.readAsDataURL(blob)})}
 async function dataURLToBlob(s){const r=await fetch(s);return r.blob()}
+window.hgMediaDeletePhoto=deletePhoto;
 window.hgMediaExport=async()=>{const rows=await allPhotos();return Promise.all(rows.map(async r=>({...r,blob:await blobToDataURL(r.blob)})))};
 window.hgMediaImport=async rows=>{if(!Array.isArray(rows))return;for(const r of rows){if(!r?.id||!r.blob)continue;await putPhoto({...r,blob:await dataURLToBlob(r.blob)})}};
 window.hgMediaImportPaprikaPhoto=async(recipeId,b64)=>{if(!recipeId||!b64)throw new Error('Photo Paprika absente');const raw=atob(b64.replace(/\s/g,'')),bytes=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);const blob=new Blob([bytes],{type:'image/jpeg'}),idp=photoId();let width=0,height=0;try{const bm=await createImageBitmap(blob);width=bm.width;height=bm.height;bm.close?.()}catch{}await putPhoto({id:idp,blob,mime:'image/jpeg',width,height,createdAt:new Date().toISOString(),source:'paprika'});return idp};
