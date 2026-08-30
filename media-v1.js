@@ -1,4 +1,4 @@
-/* Herbier Gourmand v2.9.7.16.4 — moteur photo commun */
+/* Herbier Gourmand v2.9.8 — moteur photo commun */
 (()=>{
 'use strict';
 const DB_NAME='hg-media-v1', STORE='photos', SHOP_PHOTO_MAP='hg-shopping-photo-map-v1';
