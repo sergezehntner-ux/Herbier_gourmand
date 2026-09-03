@@ -151,7 +151,7 @@
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.6 · Suppression des fiches</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.7 · Planning saisonnier & impressions</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -260,7 +260,7 @@
 </section>
 
 <section id="herbs" class="view">
-  <div class="section-title"><div><h2>Plantes & Épices</h2><span id="herbCount" class="muted"></span></div><div class="button-row"><button id="newHerb" class="primary">Ajouter</button><button id="randomHerb" class="secondary">Découverte surprise</button></div></div>
+  <div class="section-title"><div><h2>Plantes & Épices</h2><span id="herbCount" class="muted"></span></div><div class="button-row"><button id="newHerb" class="primary">Ajouter</button><button id="printHerbList">Imprimer la liste</button><button id="randomHerb" class="secondary">Découverte surprise</button></div></div>
   <p class="lead">Chercher une plante, une saveur, un aliment, une cuisine ou une utilisation.</p>
   <div class="herb-search-grid">
     <label>Recherche<input id="herbSearch" type="search" placeholder="Basilic, poisson, citron, curry…"></label>
@@ -272,13 +272,13 @@
   <div id="herbList" class="herb-list"></div>
 </section>
 <section id="herbView" class="view recipe-screen">
-  <div class="recipe-screen-actions"><button id="backFromHerb">← Retour</button><div><button id="editViewedHerb">Modifier</button></div></div>
+  <div class="recipe-screen-actions"><button id="backFromHerb">← Retour</button><div><button id="printViewedHerb">Imprimer</button><button id="editViewedHerb">Modifier</button></div></div>
   <article id="herbViewContent"></article>
 </section>
 
 
 <section id="produce" class="view">
-  <div class="section-title"><div><h2>Fruits & Légumes</h2><span id="produceCount" class="muted"></span></div><div class="button-row"><button id="newProduce" class="primary">Ajouter</button><button id="randomProduce" class="secondary">Découverte surprise</button></div></div>
+  <div class="section-title"><div><h2>Fruits & Légumes</h2><span id="produceCount" class="muted"></span></div><div class="button-row"><button id="newProduce" class="primary">Ajouter</button><button id="printProduceList">Imprimer la liste</button><button id="randomProduce" class="secondary">Découverte surprise</button></div></div>
   <p class="lead">Chercher un produit, une saison, une préparation, un accord ou une utilisation culinaire.</p>
   <div class="produce-search-grid">
     <label>Recherche<input id="produceSearch" type="search" placeholder="Tomate, hiver, rôti, salade…"></label>
@@ -290,7 +290,7 @@
   <div id="produceList" class="produce-list"></div>
 </section>
 <section id="produceView" class="view recipe-screen">
-  <div class="recipe-screen-actions"><button id="backFromProduce">← Retour</button><div><button id="editViewedProduce">Modifier</button></div></div>
+  <div class="recipe-screen-actions"><button id="backFromProduce">← Retour</button><div><button id="printViewedProduce">Imprimer</button><button id="editViewedProduce">Modifier</button></div></div>
   <article id="produceViewContent"></article>
 </section>
 
@@ -314,6 +314,7 @@
 <label class="recipe-field-inline"><span>Spécial</span><select id="recipeSpecial"><option value="">non défini</option><option value="veille">à préparer la veille</option></select></label>
 <label class="recipe-field-inline"><span>Portions</span><select id="recipeServings" required><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option></select></label>
 <label class="recipe-field-inline"><span>Température</span><select id="recipeTemperature"><option value="chaud">chaud</option><option value="froid">froid</option><option value="les-deux">les deux</option></select></label>
+<label class="recipe-field-inline"><span>Saison</span><select id="recipeSeason"><option value="toute-annee">Toute l’année</option><option value="printemps">Printemps</option><option value="ete">Été</option><option value="automne">Automne</option><option value="hiver">Hiver</option></select></label>
 </div></div>
 <label>Ingrédients <span class="muted">(un par ligne : nom / quantité / unité · une ligne finissant par « : » = intertitre)</span><textarea id="recipeIngredients" rows="7" required></textarea></label><label>Préparation <span class="muted">(une étape par ligne · une ligne finissant par « : » = intertitre)</span><textarea id="recipeSteps" rows="7" required></textarea></label>
 <div class="dialog-actions"><button type="button" id="deleteRecipe" class="danger">Supprimer</button><button type="button" id="duplicateRecipe">Dupliquer</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
@@ -381,6 +382,6 @@
 <dialog id="leftoverChoiceDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2 id="leftoverChoiceTitle">Utiliser des restes</h2><p id="leftoverChoiceMessage"></p><div id="leftoverChoiceButtons" class="leftover-choice-buttons"></div><div class="leftover-choice-actions"><button id="leftoverChoiceCancel" type="button">Annuler</button></div></div></dialog>
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
-<script src="app-v282.js?v=2984"></script>
-<script src="media-v1.js?v=2984"></script>
+<script src="app-v282.js?v=2987"></script>
+<script src="media-v1.js?v=2987"></script>
 </body></html>
