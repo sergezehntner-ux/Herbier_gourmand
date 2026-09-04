@@ -151,7 +151,7 @@
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.9 · Catégories partielles</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.10 · Recherche partielle des catégories</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -189,7 +189,7 @@
   <div id="recipeReturnBar" class="return-bar hidden"><span id="selectionHint"></span><button id="returnPlanner">Reprendre au planning</button></div>
   <div class="section-title"><div><h2>Recettes</h2><span id="recipeCount" class="muted"></span></div><div class="button-row"><button id="exportRecipeTable">Exporter tableau Excel</button><label class="secondary import-label">Importer modifications Excel<input id="recipeTableFile" type="file" accept=".csv,text/csv,.txt,text/plain" hidden></label><button id="importPaprika">Importer Paprika</button><button id="newRecipe" class="primary">+ Nouvelle</button></div></div><div id="recipeTableStatus" class="notice subtle hidden" aria-live="polite"></div>
   <input id="search" type="search" placeholder="Rechercher une recette ou un ingrédient…">
-  <div class="filters"><select id="category"><option value="">Toutes catégories</option></select></div>
+  <div class="filters"><input id="category" type="search" placeholder="Filtrer par catégorie… (ex. Soupe, Plat principal)"></div>
   <div class="button-row"><button id="clearRecipeFilters" type="button">Vider la recherche</button></div>
   <div id="recipeList"></div>
 </section>
