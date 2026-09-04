@@ -151,7 +151,7 @@
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.7 · Planning saisonnier & impressions</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.8 · Tableau Excel des recettes</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -187,7 +187,7 @@
 
 <section id="recipes" class="view">
   <div id="recipeReturnBar" class="return-bar hidden"><span id="selectionHint"></span><button id="returnPlanner">Reprendre au planning</button></div>
-  <div class="section-title"><div><h2>Recettes</h2><span id="recipeCount" class="muted"></span></div><div class="button-row"><button id="importPaprika">Importer Paprika</button><button id="newRecipe" class="primary">+ Nouvelle</button></div></div>
+  <div class="section-title"><div><h2>Recettes</h2><span id="recipeCount" class="muted"></span></div><div class="button-row"><button id="exportRecipeTable">Exporter tableau Excel</button><label class="secondary import-label">Importer modifications Excel<input id="recipeTableFile" type="file" accept=".csv,text/csv,.txt,text/plain" hidden></label><button id="importPaprika">Importer Paprika</button><button id="newRecipe" class="primary">+ Nouvelle</button></div></div><div id="recipeTableStatus" class="notice subtle hidden" aria-live="polite"></div>
   <input id="search" type="search" placeholder="Rechercher une recette ou un ingrédient…">
   <div class="filters"><select id="category"><option value="">Toutes catégories</option></select></div>
   <div class="button-row"><button id="clearRecipeFilters" type="button">Vider la recherche</button></div>
@@ -319,6 +319,11 @@
 <label>Ingrédients <span class="muted">(un par ligne : nom / quantité / unité · une ligne finissant par « : » = intertitre)</span><textarea id="recipeIngredients" rows="7" required></textarea></label><label>Préparation <span class="muted">(une étape par ligne · une ligne finissant par « : » = intertitre)</span><textarea id="recipeSteps" rows="7" required></textarea></label>
 <div class="dialog-actions"><button type="button" id="deleteRecipe" class="danger">Supprimer</button><button type="button" id="duplicateRecipe">Dupliquer</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 
+<dialog id="recipeTableImportDialog"><form id="recipeTableImportForm" method="dialog"><div class="dialog-head"><h2>Importer les modifications du tableau</h2><button type="button" id="closeRecipeTableImport">×</button></div>
+<p>Herbier reconnaît chaque recette grâce à son identifiant interne et ne modifie que les colonnes prévues pour l’édition en tableau. Les ingrédients, la préparation, les photos et la mémoire culinaire restent intacts.</p>
+<div id="recipeTableImportSummary" class="notice subtle"></div>
+<div class="dialog-actions"><button type="button" id="cancelRecipeTableImport">Annuler</button><button type="submit" id="confirmRecipeTableImport" class="primary">Appliquer les modifications</button></div></form></dialog>
+
 <dialog id="importDialog"><form method="dialog" id="importForm"><div class="dialog-head"><h2>Importer depuis Paprika</h2><button type="button" id="closeImport">×</button></div>
 <p>Choisis un export <strong>.paprikarecipes</strong> ou <strong>.paprikarecipe</strong>. Les exports JSON et HTML sont également acceptés pour les essais.</p>
 <input id="paprikaFile" type="file" accept=".paprikarecipes,.paprikarecipe,.json,.html,.htm,.txt,application/json,application/zip,application/gzip">
@@ -382,6 +387,6 @@
 <dialog id="leftoverChoiceDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2 id="leftoverChoiceTitle">Utiliser des restes</h2><p id="leftoverChoiceMessage"></p><div id="leftoverChoiceButtons" class="leftover-choice-buttons"></div><div class="leftover-choice-actions"><button id="leftoverChoiceCancel" type="button">Annuler</button></div></div></dialog>
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
-<script src="app-v282.js?v=2987"></script>
-<script src="media-v1.js?v=2987"></script>
+<script src="app-v282.js?v=2988"></script>
+<script src="media-v1.js?v=2988"></script>
 </body></html>
