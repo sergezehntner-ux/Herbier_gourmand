@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLo
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.10';
+const APP_VERSION='2.9.8.11';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -204,7 +204,7 @@ function restoreRecipeListState(){
 function openRecipe(id){if(id)captureRecipeListState();const r=recipes.find(x=>x.id===id);$('#recipeDialogTitle').textContent=r?'Modifier la recette':'Nouvelle recette';$('#recipeId').value=r?.id||'';$('#recipeTitle').value=r?.title||'';$('#recipeCategory').value=r?.category||'';fillRecipeTagSuggestions();$('#recipeTags').value=(r?.tags||[]).join(', ');$('#recipeType').value=r?.type||(r?.avecViande?'viande':'');$('#recipeEffort').value=r?.effort||'';$('#recipeDifficulty').value=r?.difficulty||'';$('#recipeSpecial').value=r?.special||'';$('#recipeServings').value=r?.servings||4;$('#recipeTemperature').value=r?.temperature||'chaud';$('#recipeSeason').value=r?.season||'toute-annee';$('#recipeIngredients').value=(r?.ingredients||[]).map(i=>i.join(' / ')).join('\n');$('#recipeSteps').value=(r?.steps||[]).join('\n');$('#deleteRecipe').classList.toggle('hidden',!r);$('#duplicateRecipe').classList.toggle('hidden',!r);$('#recipeDialog').showModal();}
 $('#newRecipe').onclick=()=>openRecipe();$('#closeRecipe').onclick=()=>$('#recipeDialog').close();
 
-// v2.9.8.8 — édition en tableau compatible Excel (CSV UTF-8, séparateur ;)
+// v2.9.8.11 — import/export direct Excel .xlsx avec filtres intégrés
 const RECIPE_TABLE_COLUMNS=[
   ['ID','id'],['Titre','title'],['Catégorie','category'],['Saison','season'],['Type','type'],
   ['Effort','effort'],['Difficulté','difficulty'],['Spécial','special'],['Température','temperature'],
@@ -221,28 +221,51 @@ const RECIPE_TABLE_ALLOWED={
   servings:null,
   tags:null
 };
-function csvCell(v){const x=String(v??'').replace(/\r?\n/g,' ');return `"${x.replace(/"/g,'""')}"`}
-function downloadTextFile(name,text,type='text/csv;charset=utf-8'){const blob=new Blob(['\ufeff',text],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
-function recipeTableValue(r,key){if(key==='tags')return (r.tags||[]).join(', ');if(key==='season')return r.season||'toute-annee';return r[key]??''}
-function exportRecipeTable(){
-  const header=RECIPE_TABLE_COLUMNS.map(([label])=>csvCell(label)).join(';');
-  const rows=recipes.slice().sort((a,b)=>a.title.localeCompare(b.title,'fr',{sensitivity:'base'})).map(r=>RECIPE_TABLE_COLUMNS.map(([,key])=>csvCell(recipeTableValue(r,key))).join(';'));
-  const guide=[
-    '',
-    csvCell('MODE D’EMPLOI — ne pas supprimer ni modifier la colonne ID'),
-    csvCell('Colonnes modifiables : Catégorie, Saison, Type, Effort, Difficulté, Spécial, Température, Portions, Tags.'),
-    csvCell('Valeurs Saison : toute-annee | printemps | ete | automne | hiver'),
-    csvCell('Type : vide | viande | poisson | vegetarien | vegane   —   Effort : vide | faible | moyen | important'),
-    csvCell('Difficulté : vide | facile | moyenne | difficile | expert   —   Spécial : vide | veille   —   Température : chaud | froid | les-deux')
-  ];
-  const stamp=new Date().toISOString().slice(0,10);
-  downloadTextFile(`Herbier_Gourmand_Recettes_${stamp}.csv`,[header,...rows,...guide].join('\r\n'));
-  const st=$('#recipeTableStatus');if(st){st.textContent=`Tableau exporté : ${recipes.length} recettes. Ouvre le fichier .csv directement dans Excel, modifie les colonnes souhaitées, puis enregistre-le de nouveau en CSV UTF-8.`;st.classList.remove('hidden')}
+const XLSX_CDN='https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js';
+let xlsxLoader=null;
+function ensureXlsxLib(){
+  if(globalThis.XLSX)return Promise.resolve(globalThis.XLSX);
+  if(xlsxLoader)return xlsxLoader;
+  xlsxLoader=new Promise((resolve,reject)=>{
+    const script=document.createElement('script');
+    script.src=XLSX_CDN;
+    script.async=true;
+    script.onload=()=>globalThis.XLSX?resolve(globalThis.XLSX):reject(new Error('Le module Excel n’a pas pu être initialisé.'));
+    script.onerror=()=>reject(new Error('Le module Excel n’a pas pu être chargé. Vérifie la connexion Internet puis réessaie.'));
+    document.head.appendChild(script);
+  }).catch(err=>{xlsxLoader=null;throw err});
+  return xlsxLoader;
 }
-function parseSemicolonCsv(text){
-  text=String(text||'').replace(/^\ufeff/,'');const rows=[];let row=[],cell='',quoted=false;
-  for(let i=0;i<text.length;i++){const c=text[i];if(quoted){if(c==='"'&&text[i+1]==='"'){cell+='"';i++}else if(c==='"')quoted=false;else cell+=c}else{if(c==='"')quoted=true;else if(c===';'){row.push(cell);cell=''}else if(c==='\n'){row.push(cell.replace(/\r$/,''));rows.push(row);row=[];cell=''}else cell+=c}}
-  if(cell||row.length){row.push(cell.replace(/\r$/,''));rows.push(row)}return rows;
+function recipeTableValue(r,key){if(key==='tags')return (r.tags||[]).join(', ');if(key==='season')return r.season||'toute-annee';return r[key]??''}
+const RECIPE_TABLE_DISPLAY={
+  season:{'toute-annee':'Toute l’année',printemps:'Printemps',ete:'Été',automne:'Automne',hiver:'Hiver'},
+  type:{'':'',viande:'viande',poisson:'poisson',vegetarien:'végétarien',vegane:'végane'},
+  effort:{'':'',faible:'faible',moyen:'moyen',important:'important'},
+  difficulty:{'':'',facile:'facile',moyenne:'moyenne',difficile:'difficile',expert:'expert'},
+  special:{'':'',veille:'à préparer la veille'},
+  temperature:{chaud:'chaud',froid:'froid','les-deux':'les deux'}
+};
+function recipeTableDisplayValue(r,key){const value=recipeTableValue(r,key);return RECIPE_TABLE_DISPLAY[key]?.[value]??value}
+async function exportRecipeTable(){
+  const st=$('#recipeTableStatus');
+  try{
+    if(st){st.textContent='Préparation du classeur Excel…';st.classList.remove('hidden')}
+    const XLSX=await ensureXlsxLib();
+    const sorted=recipes.slice().sort((a,b)=>a.title.localeCompare(b.title,'fr',{sensitivity:'base'}));
+    const rows=[RECIPE_TABLE_COLUMNS.map(([label])=>label),...sorted.map(r=>RECIPE_TABLE_COLUMNS.map(([,key])=>recipeTableDisplayValue(r,key)))];
+    const ws=XLSX.utils.aoa_to_sheet(rows);
+    ws['!autofilter']={ref:`A1:K${Math.max(1,rows.length)}`};
+    ws['!cols']=[{wch:26},{wch:42},{wch:28},{wch:18},{wch:16},{wch:14},{wch:16},{wch:24},{wch:18},{wch:10},{wch:32}];
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,ws,'Recettes');
+    wb.Props={Title:'Herbier Gourmand — Recettes',Subject:'Tableau de modification des critères de recettes',Author:'Herbier Gourmand'};
+    const stamp=new Date().toISOString().slice(0,10);
+    XLSX.writeFile(wb,`Herbier_Gourmand_Recettes_${stamp}.xlsx`,{bookType:'xlsx',compression:true});
+    if(st)st.textContent=`Classeur Excel exporté : ${recipes.length} recettes. Les titres de colonnes sont filtrables. Modifie le fichier .xlsx, enregistre-le normalement dans Excel, puis réimporte-le ici.`;
+  }catch(err){
+    if(st)st.textContent=`Export Excel impossible : ${err.message}`;
+    else alert(`Export Excel impossible : ${err.message}`);
+  }
 }
 function normTableValue(v){return String(v??'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
 function canonicalTableValue(key,v){
@@ -251,18 +274,18 @@ function canonicalTableValue(key,v){
   if(key==='type'){const m={'vegetarien':'vegetarien','vegane':'vegane','viande':'viande','poisson':'poisson','non-defini':'','':'','non-definie':''};return m[n]??raw}
   if(key==='difficulty'){const m={'non-definie':'','non-defini':'','facile':'facile','moyenne':'moyenne','difficile':'difficile','expert':'expert','':''};return m[n]??raw}
   if(key==='special'){const m={'a-preparer-la-veille':'veille','veille':'veille','non-defini':'','non-definie':'','':''};return m[n]??raw}
-  if(key==='temperature'){const m={'chaud':'chaud','froid':'froid','les-deux':'les-deux','les-2':'les-deux'};return m[n]??raw}
+  if(key==='temperature'){const m={'chaud':'chaud','froid':'froid','les-deux':'les-deux','les-2':'les-deux','les-deux':'les-deux'};return m[n]??raw}
   if(key==='effort'){const m={'non-defini':'','non-definie':'','faible':'faible','moyen':'moyen','important':'important','':''};return m[n]??raw}
   return raw;
 }
 let pendingRecipeTableImport=null;
-async function analyzeRecipeTableFile(file){
-  const text=await file.text();const rows=parseSemicolonCsv(text);if(!rows.length)throw new Error('Tableau vide.');
-  const header=rows[0].map(x=>x.trim());const index=Object.fromEntries(RECIPE_TABLE_COLUMNS.map(([label,key])=>[key,header.indexOf(label)]));
-  if(index.id<0)throw new Error('Colonne ID introuvable. Utilise un tableau exporté par Herbier Gourmand.');
+function analyzeRecipeTableRows(rows){
+  if(!rows.length)throw new Error('Tableau vide.');
+  const header=rows[0].map(x=>String(x??'').trim());const index=Object.fromEntries(RECIPE_TABLE_COLUMNS.map(([label,key])=>[key,header.indexOf(label)]));
+  if(index.id<0)throw new Error('Colonne ID introuvable. Utilise un classeur Excel exporté par Herbier Gourmand.');
   const changes=[];let recognized=0,unknown=0,invalid=0,unchanged=0;const counts={};
   for(const row of rows.slice(1)){
-    const id=String(row[index.id]??'').trim();if(!id||id.startsWith('MODE D’EMPLOI'))continue;const r=recipes.find(x=>x.id===id);if(!r){unknown++;continue}recognized++;
+    const id=String(row[index.id]??'').trim();if(!id)continue;const r=recipes.find(x=>x.id===id);if(!r){unknown++;continue}recognized++;
     const patch={};let bad=false;
     for(const key of Object.keys(RECIPE_TABLE_ALLOWED)){
       if(index[key]<0)continue;let value=canonicalTableValue(key,row[index[key]]??'');
@@ -276,11 +299,21 @@ async function analyzeRecipeTableFile(file){
   }
   pendingRecipeTableImport={changes,recognized,unknown,invalid,unchanged,counts};return pendingRecipeTableImport;
 }
+async function analyzeRecipeTableFile(file){
+  const XLSX=await ensureXlsxLib();
+  const data=await file.arrayBuffer();
+  let wb;
+  try{wb=XLSX.read(data,{type:'array',cellDates:false})}catch{throw new Error('Le fichier Excel est illisible ou endommagé.')}
+  const sheetName=wb.SheetNames.includes('Recettes')?'Recettes':wb.SheetNames[0];
+  if(!sheetName)throw new Error('Aucune feuille trouvée dans le classeur.');
+  const rows=XLSX.utils.sheet_to_json(wb.Sheets[sheetName],{header:1,defval:'',raw:true,blankrows:false});
+  return analyzeRecipeTableRows(rows);
+}
 function recipeTableSummary(a){const labels={category:'catégorie',season:'saison',type:'type',effort:'effort',difficulty:'difficulté',special:'spécial',temperature:'température',servings:'portions',tags:'tags'};const details=Object.entries(a.counts).map(([k,n])=>`${n} ${labels[k]||k}`).join(' · ')||'aucun champ modifié';return `<strong>${a.recognized} recettes reconnues</strong><br>${a.changes.length} recettes à mettre à jour · ${details}<br>${a.unchanged} sans changement · ${a.unknown} identifiants inconnus · ${a.invalid} lignes avec valeur invalide`}
 if($('#exportRecipeTable'))$('#exportRecipeTable').onclick=exportRecipeTable;
-if($('#recipeTableFile'))$('#recipeTableFile').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const a=await analyzeRecipeTableFile(f);$('#recipeTableImportSummary').innerHTML=recipeTableSummary(a);$('#confirmRecipeTableImport').disabled=!a.changes.length;$('#recipeTableImportDialog').showModal()}catch(err){alert(`Import impossible : ${err.message}`)}finally{e.target.value=''}};
+if($('#recipeTableFile'))$('#recipeTableFile').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{if(!/\.xlsx$/i.test(f.name))throw new Error('Choisis un fichier Excel .xlsx.');const a=await analyzeRecipeTableFile(f);$('#recipeTableImportSummary').innerHTML=recipeTableSummary(a);$('#confirmRecipeTableImport').disabled=!a.changes.length;$('#recipeTableImportDialog').showModal()}catch(err){alert(`Import impossible : ${err.message}`)}finally{e.target.value=''}};
 if($('#closeRecipeTableImport'))$('#closeRecipeTableImport').onclick=$('#cancelRecipeTableImport').onclick=()=>{$('#recipeTableImportDialog').close();pendingRecipeTableImport=null};
-if($('#recipeTableImportForm'))$('#recipeTableImportForm').onsubmit=e=>{e.preventDefault();const a=pendingRecipeTableImport;if(!a?.changes?.length)return;for(const c of a.changes){const i=recipes.findIndex(r=>r.id===c.id);if(i>=0)recipes[i]=normalizeRecipe({...recipes[i],...c.patch})}plan.forEach(item=>{const fresh=recipes.find(r=>r.id===item.recipe?.id);if(fresh)item.recipe=fresh});saveRecipes();savePlanData();fillCategories();renderRecipes();renderPlan();invalidateShopping('Des critères de recettes ont été modifiés par le tableau. Les ingrédients n’ont pas changé.');markDirty();$('#recipeTableImportDialog').close();const st=$('#recipeTableStatus');if(st){st.textContent=`Import terminé : ${a.changes.length} recettes mises à jour. Ingrédients, préparation, photos et mémoire culinaire conservés.`;st.classList.remove('hidden')}pendingRecipeTableImport=null};
+if($('#recipeTableImportForm'))$('#recipeTableImportForm').onsubmit=e=>{e.preventDefault();const a=pendingRecipeTableImport;if(!a?.changes?.length)return;for(const c of a.changes){const i=recipes.findIndex(r=>r.id===c.id);if(i>=0)recipes[i]=normalizeRecipe({...recipes[i],...c.patch})}plan.forEach(item=>{const fresh=recipes.find(r=>r.id===item.recipe?.id);if(fresh)item.recipe=fresh});saveRecipes();savePlanData();fillCategories();renderRecipes();renderPlan();invalidateShopping('Des critères de recettes ont été modifiés par le tableau Excel. Les ingrédients n’ont pas changé.');markDirty();$('#recipeTableImportDialog').close();const st=$('#recipeTableStatus');if(st){st.textContent=`Import Excel terminé : ${a.changes.length} recettes mises à jour. Ingrédients, préparation, photos et mémoire culinaire conservés.`;st.classList.remove('hidden')}pendingRecipeTableImport=null};
 
 function parseNumber(v){const s=String(v??'').trim().replace(',','.').replace('½','.5').replace('¼','.25').replace('¾','.75');if(/^\d+\s+\d+\/\d+$/.test(s)){const [a,f]=s.split(/\s+/),[n,d]=f.split('/').map(Number);return Number(a)+n/d;}if(/^\d+\/\d+$/.test(s)){const [n,d]=s.split('/').map(Number);return n/d;}const n=Number(s);return Number.isFinite(n)?n:v;}
 function formRecipe(newId=false){const ingredients=$('#recipeIngredients').value.split('\n').map(x=>x.trim()).filter(Boolean).map(line=>{const [n,q='',u='']=line.split('/').map(x=>x.trim());return[n,parseNumber(q),u]});const existing=recipes.find(x=>x.id===$('#recipeId').value);return normalizeRecipe({id:newId||$('#recipeId').value||slug($('#recipeTitle').value),title:$('#recipeTitle').value.trim(),category:$('#recipeCategory').value.trim(),time:existing?.time||0,servings:+$('#recipeServings').value,temperature:$('#recipeTemperature').value,season:$('#recipeSeason').value||'toute-annee',avecViande:$('#recipeType').value==='viande',type:$('#recipeType').value,effort:$('#recipeEffort').value,difficulty:$('#recipeDifficulty').value,special:$('#recipeSpecial').value,ingredients,steps:$('#recipeSteps').value.split('\n').map(x=>x.trim()).filter(Boolean),tags:$('#recipeTags').value.split(',').map(x=>x.trim()).filter(Boolean),source:existing?.source||'',notes:existing?.notes||'',paprikaUid:existing?.paprikaUid||'',complementRecipeIds:existing?.complementRecipeIds||[],complementText:existing?.complementText||'',leftoverIdeas:existing?.leftoverIdeas||'',cookedDates:existing?.cookedDates||[],favorite:existing?.favorite||false,cookingComments:existing?.cookingComments||[],photoId:existing?.photoId||''});}
