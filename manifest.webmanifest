@@ -1,6 +1,6 @@
 {
-  "name": "Herbier Gourmand v2.9.7.15.1",
-  "short_name": "Herbier",
+  "name": "Herbier Gourmand",
+  "short_name": "Herbier Gourmand",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f4efe3",
