@@ -498,7 +498,8 @@ function transferMealToShopping(date,slot){const items=mealItems(date,slot);if(!
   const added=[];const prefs=shoppingAssignments();
   items.filter(m=>!m.isLeftover).forEach(m=>{const rows=scaledIngredientRows(m.recipe,m.people,m.qtyOverrides||{});rows.forEach(row=>{if(isIntertitleText(row.name))return;const q=Number(row.qty);if(!Number.isFinite(q)||q===0)return;let x=shopping.find(s=>!s.manual&&sameShoppingArticle(s,row));const pref=prefs[norm(row.name)]||{};if(!x){x=normalizeShoppingItem({name:row.name,qty:0,unit:row.unit,store:pref.store||'',aisle:pref.aisle||'',origins:[],originRefs:[]});shopping.push(x)}x.qty=Math.round((Number(x.qty||0)+q)*100)/100;const origin=`${dateLabel(date)} ${slot} · ${m.recipe.title}`;if(!x.origins.includes(origin))x.origins.push(origin);x.originRefs=x.originRefs||[];if(!x.originRefs.some(o=>o.recipeId===m.recipe.id&&o.date===date&&o.slot===slot))x.originRefs.push({recipeId:m.recipe.id,title:m.recipe.title,date,slot});added.push({name:row.name,unit:row.unit,qty:q})})});
   transfers[key]=added;saveMealTransfers(transfers);saveShopping();renderShopping();$('#planFreshness').textContent=`${dateLabel(date)} ${slot.toLowerCase()} transféré dans la liste des courses.`;$('#planFreshness').classList.remove('hidden');
-  captureShoppingReturnContext('planner',{weekStart:currentWeekStart,scrollY:scrollY,date,slot});shoppingSessionDirty=false;switchView('shopping');
+  // Rester dans le Planning après le transfert : la semaine affichée et la position restent inchangées.
+  shoppingSessionDirty=false;
 }
 function aisleOrders(){try{return JSON.parse(localStorage.getItem(aisleOrderStore)||'{}')||{}}catch{return{}}}
 function saveAisleOrders(value){localStorage.setItem(aisleOrderStore,JSON.stringify(value));markDirty()}
