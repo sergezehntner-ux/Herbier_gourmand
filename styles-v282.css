@@ -207,3 +207,16 @@ select{padding-top:7px;padding-bottom:7px;line-height:1.15}
 
 /* Séparation optique des rayons — alternance discrète, sans titre ni hauteur supplémentaire */
 #shoppingList .shop-item.shop-aisle-alt{background-color:#dcebdd!important}
+
+/* v2.9.8.11.9 — séparation visuelle des rayons */
+#shoppingList .shop-item.shop-aisle-alt{
+  background:#e7f1e9 !important;
+}
+#shoppingList .aisle-separator{
+  display:block !important;
+  height:0 !important;
+  border:0 !important;
+  border-top:4px solid #355e48 !important;
+  margin:0 10px !important;
+  padding:0 !important;
+}
