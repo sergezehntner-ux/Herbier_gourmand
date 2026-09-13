@@ -31,6 +31,8 @@ const oldShowPlanRecipe=showPlanRecipe;showPlanRecipe=function(index,opts={}){ol
 
 // Réhydrate les listes après chaque filtre/recherche/rendu.
 const baseRenderRecipes=renderRecipes;renderRecipes=function(){baseRenderRecipes();setTimeout(()=>hydrate($('#recipeList')),0)};
+// Les gestionnaires avaient été liés avant l'ajout des photos : on les relie au rendu enrichi.
+if($('#search'))$('#search').oninput=renderRecipes;if($('#category'))$('#category').onchange=renderRecipes;if($('#recipePeriodFilter'))$('#recipePeriodFilter').onchange=renderRecipes;
 const baseRenderHerbs=renderHerbs;renderHerbs=function(){baseRenderHerbs();setTimeout(()=>hydrate($('#herbList')),0)};
 const baseRenderProduce=renderProduce;renderProduce=function(){baseRenderProduce();setTimeout(()=>hydrate($('#produceList')),0)};
 
