@@ -220,3 +220,21 @@ select{padding-top:7px;padding-bottom:7px;line-height:1.15}
   margin:0 10px !important;
   padding:0 !important;
 }
+
+
+/* v2.9.8.11.11 — recherche recettes compacte à 6 critères */
+#recipes>.section-title{margin-top:-8px;margin-bottom:2px;align-items:center}
+#recipes>.section-title h2{margin:.15rem 0 .05rem}
+#recipes>.section-title .button-row{gap:6px}
+#recipes>.section-title .button-row button,#recipes>.section-title .import-label{padding:8px 10px}
+#recipes .recipe-search-label{display:block;margin:2px 2px 3px;font-size:.76rem;line-height:1.2;color:var(--muted);font-weight:650;white-space:normal}
+#recipes .recipe-search-input{padding:8px 10px;margin:0 0 6px}
+#recipes .recipe-search-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px 8px;margin:0 0 6px}
+#recipes .recipe-search-grid select{padding:8px 10px;min-height:40px}
+#recipes .recipe-search-clear{display:flex;justify-content:flex-end;align-items:stretch}
+#recipes .recipe-search-clear button{min-height:40px;padding:8px 12px;white-space:nowrap}
+@media(max-width:520px){
+  #recipes .recipe-search-grid{grid-template-columns:1fr}
+  #recipes .recipe-search-clear{justify-content:stretch}
+  #recipes .recipe-search-clear button{width:100%}
+}

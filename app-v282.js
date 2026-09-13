@@ -44,7 +44,7 @@ async function init(){
   await autoLoadSharedBackup();
   migrateLegacyWeekSlots();
   renderDaySlotChoices();
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=2981110', {updateViaCache:'none'});
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=2981111', {updateViaCache:'none'});
   setStartupStatus('Chargement de vos recettes…');
   const stored=JSON.parse(localStorage.getItem(recipeStore)||'null');
   if(stored) recipes=stored; else recipes=await fetch(`recipes.json?_=${Date.now()}`,{cache:'no-store'}).then(r=>r.json());
@@ -172,10 +172,15 @@ function parseComplementShoppingLine(line){const parts=String(line||'').split('/
 function sourceRecipeIdsForShopping(x){const ids=new Set((x.originRefs||[]).map(o=>o.recipeId).filter(Boolean));if(!ids.size){(x.origins||[]).forEach(origin=>recipes.forEach(r=>{if(String(origin).includes(`· ${r.title}`))ids.add(r.id)}))}return [...ids].filter(id=>recipeById(id))}
 function openShoppingSources(id){const x=shopping.find(i=>i.id===id);if(!x)return;const ids=sourceRecipeIdsForShopping(x);if(!ids.length)return openShopping(id);if(ids.length===1){showRecipe(ids[0],'shopping');return}const list=$('#shoppingSourceList');list.innerHTML=ids.map(rid=>{const r=recipeById(rid);return `<button type="button" data-shopping-source-recipe="${esc(r.id)}">${esc(r.title)}</button>`}).join('');$$('[data-shopping-source-recipe]').forEach(b=>b.onclick=()=>{$('#shoppingSourceDialog').close();showRecipe(b.dataset.shoppingSourceRecipe,'shopping')});$('#shoppingSourceDialog').showModal()}
 function recipeCard(r){const choose=selectionContext?`<button class="primary" data-choose="${esc(r.id)}">Choisir pour ${esc(dateLabel(selectionContext.date))} ${esc(selectionContext.slot.toLowerCase())}</button>`:'';return `<article class="recipe" data-recipe-open="${esc(r.id)}"><div class="recipe-head"><div class="meta recipe-meta-line">${recipeMetaMarkup(r)}</div><h3>${esc(r.title)}</h3><div class="recipe-tag-meta-row"><div class="badges">${(r.tags||[]).slice(0,5).map(t=>`<span>${esc(t)}</span>`).join('')}</div><div class="meta recipe-meta-tail">${recipeMetaTailMarkup(r)}</div></div></div><div class="recipe-actions">${choose}<button data-edit="${esc(r.id)}">Modifier</button><button data-print-recipe="${esc(r.id)}">Imprimer</button></div></article>`;}
-function renderRecipes(){const q=norm($('#search').value),cat=$('#category').value,period=$('#recipePeriodFilter')?.value||'';const found=recipes.filter(r=>(!cat||norm(r.category)===norm(cat))&&(!period||(r.period||'indifferente')===period)&&(!q||norm(JSON.stringify(r)).includes(q))).sort((a,b)=>a.title.localeCompare(b.title,'fr',{sensitivity:'base'}));$('#recipeCount').textContent=`${found.length} recette${found.length>1?'s':''}`;$('#recipeList').innerHTML=found.map(recipeCard).join('')||'<p>Aucune recette trouvée.</p>';bindRecipeCards($('#recipeList'));}
+let recipeZeroResultAlerted=false;
+function recipeSearchTerms(){return String($('#search')?.value||'').split(',').map(norm).filter(Boolean)}
+function recipeSearchCorpus(r){return norm([r.title,(r.tags||[]).join(' '),(r.ingredients||[]).flat().join(' '),(r.steps||[]).join(' ')].join(' '))}
+function recipeFieldMatches(value,filter){if(!filter)return true;if(filter==='__undefined__')return !String(value||'').trim();const compact=v=>norm(v).replace(/[^a-z0-9]+/g,'');return compact(value)===compact(filter)}
+function recipeFiltersActive(){return recipeSearchTerms().length>0||!!($('#category')?.value||'')||!!($('#recipeTypeFilter')?.value||'')||!!($('#recipeTemperatureFilter')?.value||'')||!!($('#recipeSeasonFilter')?.value||'')||!!($('#recipePeriodFilter')?.value||'')}
+function renderRecipes(){const terms=recipeSearchTerms(),cat=$('#category')?.value||'',type=$('#recipeTypeFilter')?.value||'',temperature=$('#recipeTemperatureFilter')?.value||'',season=$('#recipeSeasonFilter')?.value||'',period=$('#recipePeriodFilter')?.value||'';const found=recipes.filter(r=>{const corpus=recipeSearchCorpus(r);return (!cat||norm(r.category)===norm(cat))&&recipeFieldMatches(r.type,type)&&recipeFieldMatches(r.temperature,temperature)&&recipeFieldMatches(r.season,season)&&recipeFieldMatches(r.period||'indifferente',period)&&terms.every(term=>corpus.includes(term))}).sort((a,b)=>a.title.localeCompare(b.title,'fr',{sensitivity:'base'}));$('#recipeCount').textContent=`${found.length} recette${found.length>1?'s':''}`;$('#recipeList').innerHTML=found.map(recipeCard).join('')||'<p>Aucune recette trouvée.</p>';bindRecipeCards($('#recipeList'));const active=recipeFiltersActive();if(found.length===0&&active&&!recipeZeroResultAlerted){recipeZeroResultAlerted=true;setTimeout(()=>alert('Pas de résultat. Réduisez les critères.'),0)}else if(found.length>0||!active)recipeZeroResultAlerted=false;}
 function bindRecipeCards(root=document){root.querySelectorAll('[data-recipe-open]').forEach(card=>card.onclick=e=>{if(e.target.closest('button'))return;showRecipe(card.dataset.recipeOpen,'recipes')});root.querySelectorAll('[data-edit]').forEach(b=>b.onclick=e=>{e.stopPropagation();openRecipe(b.dataset.edit)});root.querySelectorAll('[data-print-recipe]').forEach(b=>b.onclick=e=>{e.stopPropagation();printRecipe(recipes.find(r=>r.id===b.dataset.printRecipe))});root.querySelectorAll('[data-choose]').forEach(b=>b.onclick=e=>{e.stopPropagation();chooseRecipeForPlan(b.dataset.choose)});}
-$('#search').oninput=renderRecipes;$('#category').onchange=renderRecipes;if($('#recipePeriodFilter'))$('#recipePeriodFilter').onchange=renderRecipes;
-if($('#clearRecipeFilters'))$('#clearRecipeFilters').onclick=()=>{$('#search').value='';$('#category').value='';if($('#recipePeriodFilter'))$('#recipePeriodFilter').value='';renderRecipes();};
+let recipeSearchTimer=null;if($('#search'))$('#search').oninput=()=>{clearTimeout(recipeSearchTimer);recipeSearchTimer=setTimeout(()=>renderRecipes(),220)};['#category','#recipeTypeFilter','#recipeTemperatureFilter','#recipeSeasonFilter','#recipePeriodFilter'].forEach(sel=>{if($(sel))$(sel).onchange=()=>renderRecipes()});
+if($('#clearRecipeFilters'))$('#clearRecipeFilters').onclick=()=>{clearTimeout(recipeSearchTimer);$('#search').value='';['#category','#recipeTypeFilter','#recipeTemperatureFilter','#recipeSeasonFilter','#recipePeriodFilter'].forEach(sel=>{if($(sel))$(sel).value=''});recipeZeroResultAlerted=false;renderRecipes();};
 $('#surpriseBtn').onclick=()=>{if(!recipes.length)return;const r=recipes[Math.floor(Math.random()*recipes.length)];$('#surpriseCard').innerHTML=recipeCard(r);bindRecipeCards($('#surpriseCard'));};
 function updateSelectionBar(){const active=!!selectionContext;$('#recipeReturnBar').classList.toggle('hidden',!active);$('#selectionHint').textContent=active?`Choix pour ${dateLabel(selectionContext.date)} ${selectionContext.slot.toLowerCase()}`:'';renderRecipes();}
 $('#returnPlanner').onclick=()=>{selectionContext=null;updateSelectionBar();switchView('planner')};
@@ -194,6 +199,9 @@ function captureRecipeListState(){
   recipeListState={
     search:$('#search')?.value||'',
     category:$('#category')?.value||'',
+    type:$('#recipeTypeFilter')?.value||'',
+    temperature:$('#recipeTemperatureFilter')?.value||'',
+    season:$('#recipeSeasonFilter')?.value||'',
     period:$('#recipePeriodFilter')?.value||'',
     scroll:viewScrollPositions.recipes||scrollY||0
   };
@@ -202,6 +210,9 @@ function restoreRecipeListState(){
   if(!recipeListState)return;
   if($('#search'))$('#search').value=recipeListState.search;
   if($('#category'))$('#category').value=recipeListState.category;
+  if($('#recipeTypeFilter'))$('#recipeTypeFilter').value=recipeListState.type||'';
+  if($('#recipeTemperatureFilter'))$('#recipeTemperatureFilter').value=recipeListState.temperature||'';
+  if($('#recipeSeasonFilter'))$('#recipeSeasonFilter').value=recipeListState.season||'';
   if($('#recipePeriodFilter'))$('#recipePeriodFilter').value=recipeListState.period||'';
   viewScrollPositions.recipes=recipeListState.scroll||0;
 }
