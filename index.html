@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v282.css?v=2981111">
+  <link rel="stylesheet" href="styles-v282.css?v=2981112">
 
   <style>
     .recipe[data-recipe-open]{cursor:pointer}
@@ -151,7 +151,7 @@
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.11 · Périodes culinaires & planning compact</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.12 · Périodes culinaires & planning compact</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -344,6 +344,8 @@
 
 <dialog id="movePlanDialog"><form id="movePlanForm" method="dialog"><div class="dialog-head"><h2>Déplacer dans le planning</h2><button type="button" id="closeMovePlan">×</button></div><div class="grid"><label>Date<input id="movePlanDate" type="date" required></label><label>Repas<select id="movePlanSlot" required><option value="Matin">Matin</option><option value="Midi">Midi</option><option value="Soir">Soir</option></select></label></div><div class="dialog-actions"><button type="button" id="cancelMovePlan">Annuler</button><button type="submit" class="primary">Déplacer</button></div></form></dialog>
 
+
+<dialog id="mealTransferDialog"><div class="leftover-choice-card"><div class="dialog-head"><h2>Transférer dans les courses</h2><button type="button" id="closeMealTransfer">×</button></div><p class="muted">Décoche les ingrédients que tu as encore.</p><div id="mealTransferList" class="transfer-preview-list"></div><div class="dialog-actions"><button type="button" id="cancelMealTransfer">Annuler</button><button type="button" id="confirmMealTransfer" class="primary">Ajouter aux courses</button></div></div></dialog>
 <dialog id="shoppingDialog"><form id="shoppingForm" method="dialog"><div class="dialog-head"><h2 id="shoppingDialogTitle">Article</h2><button type="button" id="closeShopping">×</button></div>
 <input type="hidden" id="shoppingId">
 <div class="grid"><label>Article<input id="shoppingName" required></label><label>Quantité<input id="shoppingQty" placeholder="Ex. 2 ou 0,5"></label><label>Unité<input id="shoppingUnit" placeholder="Ex. kg, L, pièces"></label><label>Magasin<select id="shoppingStore"><option value="">À définir</option><option>Boucherie</option><option>Boulangerie</option><option>Marché</option><option>Pharmacie</option><option>Supermarché</option><option value="__other__">Autre…</option></select></label><label>Rayon<select id="shoppingAisle"><option value="">À définir</option><option>Boissons</option><option>Boucherie</option><option>Boulangerie</option><option>Épicerie</option><option>Fruits et légumes</option><option>Hygiène</option><option>Ménage</option><option>Poissonnerie</option><option>Produits laitiers</option><option>Surgelés</option><option value="__other__">Autre…</option></select></label></div>
@@ -398,6 +400,6 @@
 <dialog id="leftoverChoiceDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2 id="leftoverChoiceTitle">Utiliser des restes</h2><p id="leftoverChoiceMessage"></p><div id="leftoverChoiceButtons" class="leftover-choice-buttons"></div><div class="leftover-choice-actions"><button id="leftoverChoiceCancel" type="button">Annuler</button></div></div></dialog>
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
-<script src="app-v282.js?v=2981111"></script>
-<script src="media-v1.js?v=2981111"></script>
+<script src="app-v282.js?v=2981112"></script>
+<script src="media-v1.js?v=2981112"></script>
 </body></html>

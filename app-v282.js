@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLo
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.11.10';
+const APP_VERSION='2.9.8.11.12';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -44,7 +44,7 @@ async function init(){
   await autoLoadSharedBackup();
   migrateLegacyWeekSlots();
   renderDaySlotChoices();
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=2981111', {updateViaCache:'none'});
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=2981112', {updateViaCache:'none'});
   setStartupStatus('Chargement de vos recettes…');
   const stored=JSON.parse(localStorage.getItem(recipeStore)||'null');
   if(stored) recipes=stored; else recipes=await fetch(`recipes.json?_=${Date.now()}`,{cache:'no-store'}).then(r=>r.json());
@@ -504,6 +504,9 @@ function renderPlan(){
   $$('[data-meal-people]').forEach(i=>i.onchange=()=>{const [date,slot]=i.dataset.mealPeople.split('|');setMealPeople(date,slot,i.value)});
   $$('[data-meal-note]').forEach(i=>i.onchange=()=>{const [date,slot]=i.dataset.mealNote.split('|');setMealNote(date,slot,i.value)});
   $$('[data-transfer-meal]').forEach(b=>b.onclick=()=>{const [date,slot]=b.dataset.transferMeal.split('|');transferMealToShopping(date,slot)});
+  if($('#confirmMealTransfer'))$('#confirmMealTransfer').onclick=confirmMealTransfer;
+  if($('#closeMealTransfer'))$('#closeMealTransfer').onclick=()=>{$('#mealTransferDialog').close();pendingMealTransfer=null};
+  if($('#cancelMealTransfer'))$('#cancelMealTransfer').onclick=()=>{$('#mealTransferDialog').close();pendingMealTransfer=null};
 }
 $('#prevWeek').onclick=()=>{currentWeekStart=addDaysISO(currentWeekStart,-7);localStorage.setItem(weekStore,currentWeekStart);renderDaySlotChoices();renderPlan()};
 $('#nextWeek').onclick=()=>{currentWeekStart=addDaysISO(currentWeekStart,7);localStorage.setItem(weekStore,currentWeekStart);renderDaySlotChoices();renderPlan()};
@@ -512,7 +515,8 @@ $('#clearPlan').onclick=()=>{if(confirm(`Vider uniquement le planning de la sema
 $('#savePlan').onclick=()=>{savePlanData();resetSessionDirty('planner');$('#planFreshness').textContent='Calendrier enregistré sur cet appareil.';$('#planFreshness').classList.remove('hidden')};
 function invalidateShopping(message){$('#planFreshness').textContent=message;$('#planFreshness').classList.remove('hidden')}
 function shoppingAssignments(){try{return JSON.parse(localStorage.getItem(shoppingAssignmentStore)||'{}')}catch{return{}}}
-function shoppingAssignmentKey(value){return shoppingMatchKey(value)}
+function shoppingAssignmentKey(value){return shoppingMatchKey(String(value||'').replace(/\([^)]*\)/g,' ').replace(/\b\d+(?:[.,]\d+)?\s*(?:g|kg|mg|ml|cl|dl|l|pcs?|pi[eè]ces?)\b/gi,' '))}
+function rememberShoppingAssignment(name,store,aisle){if(!name||(!store&&!aisle))return;const saved=shoppingAssignments(),value={store:store||'',aisle:aisle||''};saved[shoppingAssignmentKey(name)]=value;saved[norm(name)]=value;localStorage.setItem(shoppingAssignmentStore,JSON.stringify(saved))}
 function shoppingAssignmentFor(value){const saved=shoppingAssignments(),key=shoppingAssignmentKey(value),legacy=norm(value);return saved[key]||saved[legacy]||{}}
 function normalizeShoppingItem(x={}){const pref=shoppingAssignmentFor(x.name||x.ingredient);return{id:x.id||uid(),name:x.name||x.ingredient||'',qty:x.qty??x.quantite??0,text:x.text||'',unit:x.unit||x.unite||'',store:x.store||x.magasin||pref.store||'',aisle:x.aisle||x.rayon||pref.aisle||'',checked:Boolean(x.checked??x.coche),manual:Boolean(x.manual),origins:Array.isArray(x.origins)?x.origins:Array.isArray(x.sources)?x.sources:Array.isArray(x.origine)?x.origine:[],originRefs:Array.isArray(x.originRefs)?x.originRefs:[],leftoverNoticeKey:x.leftoverNoticeKey||'',photoId:String(x.photoId||'')}}
 function rememberShoppingAssignments(){const saved=shoppingAssignments();shopping.forEach(x=>{if(x.name&&(x.store||x.aisle)){const value={store:x.store||'',aisle:x.aisle||''};saved[shoppingAssignmentKey(x.name)]=value;saved[norm(x.name)]=value}});localStorage.setItem(shoppingAssignmentStore,JSON.stringify(saved))}
@@ -520,15 +524,49 @@ function shoppingMatchKey(value){return norm(String(value||'')).replace(/[\u00a0
 function sameShoppingArticle(a,b){return shoppingMatchKey(a?.name)===shoppingMatchKey(b?.name)&&shoppingMatchKey(a?.unit)===shoppingMatchKey(b?.unit)}
 function consolidateShopping(){const out=[];shopping.map(normalizeShoppingItem).forEach(x=>{if(x.manual){out.push(x);return}const hit=out.find(y=>!y.manual&&sameShoppingArticle(y,x));if(!hit){out.push(x);return}hit.qty=Math.round((Number(hit.qty||0)+Number(x.qty||0))*100)/100;hit.checked=Boolean(hit.checked&&x.checked);hit.origins=[...new Set([...(hit.origins||[]),...(x.origins||[])])];hit.originRefs=[...(hit.originRefs||[]),...(x.originRefs||[])].filter((v,i,a)=>a.findIndex(z=>z.recipeId===v.recipeId&&z.date===v.date&&z.slot===v.slot)===i);if(!hit.store&&x.store)hit.store=x.store;if(!hit.aisle&&x.aisle)hit.aisle=x.aisle});shopping=out}
 function saveShopping(){shopping=shopping.map(normalizeShoppingItem);consolidateShopping();localStorage.setItem(shoppingStore,JSON.stringify(shopping));rememberShoppingAssignments();markDirty();if(activeViewId()==='shopping')markSessionDirty('shopping')}
-function transferMealToShopping(date,slot){const items=mealItems(date,slot);if(!items.length)return alert('Ajoute d’abord une recette à ce repas.');if(!mealPeople(date,slot))return alert('Indique d’abord le nombre de portions pour ce repas.');const key=mealKey(date,slot),transfers=mealTransfers(),previous=transfers[key]||[];
+let pendingMealTransfer=null;
+function mealTransferCandidates(date,slot){
+  const items=mealItems(date,slot),rows=[];
+  items.filter(m=>!m.isLeftover).forEach(m=>scaledIngredientRows(m.recipe,m.people,m.qtyOverrides||{}).forEach(row=>{
+    if(isIntertitleText(row.name))return;
+    const q=Number(row.qty);if(!Number.isFinite(q)||q===0)return;
+    const key=`${shoppingMatchKey(row.name)}|${shoppingMatchKey(row.unit)}`,hit=rows.find(x=>x.key===key);
+    if(hit)hit.qty=Math.round((hit.qty+q)*100)/100;
+    else rows.push({key,name:row.name,unit:row.unit,qty:q});
+  }));
+  return rows;
+}
+function transferMealToShopping(date,slot){
+  const items=mealItems(date,slot);
+  if(!items.length)return alert('Ajoute d’abord une recette à ce repas.');
+  if(!mealPeople(date,slot))return alert('Indique d’abord le nombre de portions pour ce repas.');
+  const rows=mealTransferCandidates(date,slot);
+  if(!rows.length)return alert('Aucun ingrédient à transférer.');
+  pendingMealTransfer={date,slot,rows};
+  $('#mealTransferList').innerHTML=rows.map((r,i)=>`<label class="transfer-preview-row"><input type="checkbox" data-transfer-preview="${i}" checked><span><strong>${esc(r.name)}</strong>${r.qty?` — ${esc(formatQty(r.qty))}${r.unit?` ${esc(r.unit)}`:''}`:''}</span></label>`).join('');
+  $('#mealTransferDialog').showModal();
+}
+function confirmMealTransfer(){
+  if(!pendingMealTransfer)return;
+  const {date,slot,rows}=pendingMealTransfer,key=mealKey(date,slot),transfers=mealTransfers(),previous=transfers[key]||[];
+  const selected=rows.filter((r,i)=>$(`[data-transfer-preview="${i}"]`)?.checked);
   previous.forEach(old=>{const x=shopping.find(s=>!s.manual&&sameShoppingArticle(s,old));if(x&&typeof x.qty==='number')x.qty=Math.max(0,Math.round((x.qty-Number(old.qty||0))*100)/100)});
   shopping=shopping.filter(x=>x.manual||Number(x.qty)>0||x.text);
-  const added=[];
-  items.filter(m=>!m.isLeftover).forEach(m=>{const rows=scaledIngredientRows(m.recipe,m.people,m.qtyOverrides||{});rows.forEach(row=>{if(isIntertitleText(row.name))return;const q=Number(row.qty);if(!Number.isFinite(q)||q===0)return;let x=shopping.find(s=>!s.manual&&sameShoppingArticle(s,row));const pref=shoppingAssignmentFor(row.name);if(!x){x=normalizeShoppingItem({name:row.name,qty:0,unit:row.unit,store:pref.store||'',aisle:pref.aisle||'',origins:[],originRefs:[]});shopping.push(x)}x.qty=Math.round((Number(x.qty||0)+q)*100)/100;const origin=`${dateLabel(date)} ${slot} · ${m.recipe.title}`;if(!x.origins.includes(origin))x.origins.push(origin);x.originRefs=x.originRefs||[];if(!x.originRefs.some(o=>o.recipeId===m.recipe.id&&o.date===date&&o.slot===slot))x.originRefs.push({recipeId:m.recipe.id,title:m.recipe.title,date,slot});added.push({name:row.name,unit:row.unit,qty:q})})});
-  transfers[key]=added;saveMealTransfers(transfers);saveShopping();renderShopping();$('#planFreshness').textContent=`${dateLabel(date)} ${slot.toLowerCase()} transféré dans la liste des courses.`;$('#planFreshness').classList.remove('hidden');
-  // Rester dans le Planning après le transfert : la semaine affichée et la position restent inchangées.
+  const meal=mealItems(date,slot);
+  selected.forEach(row=>{
+    let x=shopping.find(s=>!s.manual&&sameShoppingArticle(s,row));const pref=shoppingAssignmentFor(row.name);
+    if(!x){x=normalizeShoppingItem({name:row.name,qty:0,unit:row.unit,store:pref.store||'',aisle:pref.aisle||'',origins:[],originRefs:[]});shopping.push(x)}
+    x.qty=Math.round((Number(x.qty||0)+Number(row.qty||0))*100)/100;
+    meal.filter(m=>!m.isLeftover).forEach(m=>{const origin=`${dateLabel(date)} ${slot} · ${m.recipe.title}`;if(!x.origins.includes(origin))x.origins.push(origin);x.originRefs=x.originRefs||[];if(!x.originRefs.some(o=>o.recipeId===m.recipe.id&&o.date===date&&o.slot===slot))x.originRefs.push({recipeId:m.recipe.id,title:m.recipe.title,date,slot})});
+  });
+  transfers[key]=selected.map(r=>({name:r.name,unit:r.unit,qty:r.qty}));
+  saveMealTransfers(transfers);saveShopping();renderShopping();
+  $('#mealTransferDialog').close();pendingMealTransfer=null;
+  $('#planFreshness').textContent=`✓ ${selected.length} ingrédient${selected.length>1?'s':''} ajouté${selected.length>1?'s':''} aux courses pour ${dateLabel(date)} ${slot.toLowerCase()}.`;
+  $('#planFreshness').classList.remove('hidden');
   shoppingSessionDirty=false;
 }
+
 function aisleOrders(){try{return JSON.parse(localStorage.getItem(aisleOrderStore)||'{}')||{}}catch{return{}}}
 function saveAisleOrders(value){localStorage.setItem(aisleOrderStore,JSON.stringify(value));markDirty()}
 function aislesForStore(store){
@@ -593,7 +631,7 @@ function renderShopping(){
 function sortTextSelect(select){if(!select)return;const selected=select.value;const fixed=Array.from(select.options).filter(o=>o.value===''||o.value==='__other__');const text=Array.from(select.options).filter(o=>o.value!==''&&o.value!=='__other__').sort((a,b)=>a.textContent.localeCompare(b.textContent,'fr',{sensitivity:'base'}));select.replaceChildren(...fixed.filter(o=>o.value===''),...text,...fixed.filter(o=>o.value==='__other__'));if(Array.from(select.options).some(o=>o.value===selected))select.value=selected}function addSelectOption(select,value){if(value&&!Array.from(select.options).some(o=>o.value===value)){const option=document.createElement('option');option.value=value;option.textContent=value;select.insertBefore(option,select.querySelector('option[value="__other__"]'))}sortTextSelect(select)}function rememberedShoppingStores(){try{return JSON.parse(localStorage.getItem(shoppingStoreMemory)||'[]')||[]}catch{return[]}}function rememberShoppingStore(value){const v=String(value||'').trim();if(!v)return;const list=[...new Set([...rememberedShoppingStores(),v])].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));localStorage.setItem(shoppingStoreMemory,JSON.stringify(list))}function refreshShoppingSuggestions(){const assignmentStores=Object.values(shoppingAssignments()).map(x=>x.store).filter(Boolean),stores=[...new Set([...rememberedShoppingStores(),...assignmentStores,...shopping.map(x=>x.store).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'})),aisles=[...new Set(shopping.map(x=>x.aisle).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));stores.forEach(x=>addSelectOption($('#shoppingStore'),x));aisles.forEach(x=>addSelectOption($('#shoppingAisle'),x));sortTextSelect($('#shoppingStore'));sortTextSelect($('#shoppingAisle'))}function handleOtherSelect(select,label){if(select.value==='__other__'){const value=prompt(`Nouveau ${label} :`);if(value?.trim()){addSelectOption(select,value.trim());select.value=value.trim();if(label==='magasin')rememberShoppingStore(value.trim())}else select.value=''}}$('#shoppingStore').onchange=()=>handleOtherSelect($('#shoppingStore'),'magasin');$('#shoppingAisle').onchange=()=>handleOtherSelect($('#shoppingAisle'),'rayon');
 function openShopping(id=''){const x=shopping.find(i=>i.id===id);$('#shoppingDialogTitle').textContent=x?'Modifier l’article':'Ajouter un article';$('#shoppingId').value=x?.id||'';$('#shoppingName').value=x?.name||'';$('#shoppingQty').value=x?.qty||x?.text||'';$('#shoppingUnit').value=x?.unit||'';addSelectOption($('#shoppingStore'),x?.store||'');addSelectOption($('#shoppingAisle'),x?.aisle||'');refreshShoppingSuggestions();$('#shoppingStore').value=x?.store||'';$('#shoppingAisle').value=x?.aisle||'';$('#deleteShopping').classList.toggle('hidden',!x);$('#shoppingOrigins').classList.toggle('hidden',!x?.origins?.length);$('#shoppingOrigins').innerHTML=x?.origins?.length?`<strong>Origine :</strong><br>${x.origins.map(esc).join('<br>')}`:'';$('#shoppingDialog').showModal()}
 function addShopping(){openShopping()}
-$('#shoppingForm').onsubmit=e=>{e.preventDefault();const id=$('#shoppingId').value,x=shopping.find(i=>i.id===id),raw=$('#shoppingQty').value.trim(),parsed=parseNumber(raw),item=normalizeShoppingItem({...(x||{}),id:id||uid(),name:$('#shoppingName').value.trim(),qty:typeof parsed==='number'?parsed:0,text:typeof parsed==='number'?'':raw,unit:$('#shoppingUnit').value.trim(),store:$('#shoppingStore').value.trim(),aisle:$('#shoppingAisle').value.trim(),manual:x?.manual??true,origins:x?.origins||['Ajout manuel']});if(x)Object.assign(x,item);else shopping.push(item);rememberShoppingStore(item.store);if(item.name&&(item.store||item.aisle)){const saved=shoppingAssignments(),value={store:item.store||'',aisle:item.aisle||''};saved[shoppingAssignmentKey(item.name)]=value;saved[norm(item.name)]=value;localStorage.setItem(shoppingAssignmentStore,JSON.stringify(saved))}saveShopping();renderShopping();$('#shoppingDialog').close()};
+$('#shoppingForm').onsubmit=e=>{e.preventDefault();const id=$('#shoppingId').value,x=shopping.find(i=>i.id===id),raw=$('#shoppingQty').value.trim(),parsed=parseNumber(raw),item=normalizeShoppingItem({...(x||{}),id:id||uid(),name:$('#shoppingName').value.trim(),qty:typeof parsed==='number'?parsed:0,text:typeof parsed==='number'?'':raw,unit:$('#shoppingUnit').value.trim(),store:$('#shoppingStore').value.trim(),aisle:$('#shoppingAisle').value.trim(),manual:x?.manual??true,origins:x?.origins||['Ajout manuel']});if(x)Object.assign(x,item);else shopping.push(item);rememberShoppingStore(item.store);if(item.name&&(item.store||item.aisle)){rememberShoppingAssignment(item.name,item.store,item.aisle)}saveShopping();renderShopping();$('#shoppingDialog').close()};
 $('#closeShopping').onclick=()=>$('#shoppingDialog').close();$('#closeShoppingSource').onclick=()=>$('#shoppingSourceDialog').close();$('#deleteShopping').onclick=()=>{const id=$('#shoppingId').value;if(id&&confirm('Supprimer cet article ?')){shopping=shopping.filter(x=>x.id!==id);saveShopping();renderShopping();$('#shoppingDialog').close()}};
 $('#addShopping').onclick=addShopping;$('#addShoppingBottom').onclick=addShopping;if($('#returnToPlannerFromShopping'))$('#returnToPlannerFromShopping').onclick=requestShoppingReturn;if($('#saveShoppingLocal'))$('#saveShoppingLocal').onclick=()=>{saveShopping();resetSessionDirty('shopping');const b=$('#saveShoppingLocal');if(b){const old=b.textContent;b.textContent='Enregistré ✓';setTimeout(()=>{b.textContent=old},1400)}};$('#clearChecks').onclick=()=>{shopping.forEach(x=>x.checked=false);saveShopping();renderShopping()};$('#removeChecked').onclick=()=>{const n=shopping.filter(x=>x.checked).length;if(!n)return alert('Aucun article coché.');if(confirm(`Supprimer ${n} article${n>1?'s':''} acheté${n>1?'s':''} ?`)){shopping=shopping.filter(x=>!x.checked);saveShopping();renderShopping()}};$('#clearShopping').onclick=()=>{if(confirm('Vider toute la liste ?')){shopping=[];saveShopping();renderShopping()}};
 $$('[data-shop-group]').forEach(b=>b.onclick=()=>{shoppingGroupMode=b.dataset.shopGroup;$$('[data-shop-group]').forEach(x=>x.classList.toggle('active',x===b));renderShopping()});

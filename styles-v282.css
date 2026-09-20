@@ -238,3 +238,9 @@ select{padding-top:7px;padding-bottom:7px;line-height:1.15}
   #recipes .recipe-search-clear{justify-content:stretch}
   #recipes .recipe-search-clear button{width:100%}
 }
+
+/* v2.9.8.11.12 — aperçu du transfert Planning → Courses */
+.transfer-preview-list{max-height:55vh;overflow:auto;border:1px solid var(--line,#d8d3c4);border-radius:12px;margin:10px 0}
+.transfer-preview-row{display:flex;align-items:center;gap:12px;padding:11px 12px;border-bottom:1px solid var(--line,#d8d3c4);cursor:pointer}
+.transfer-preview-row:last-child{border-bottom:0}
+.transfer-preview-row input{width:22px;height:22px;flex:0 0 auto}
