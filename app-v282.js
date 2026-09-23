@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLo
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.11.13';
+const APP_VERSION='2.9.8.11.14';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -44,7 +44,7 @@ async function init(){
   await autoLoadSharedBackup();
   migrateLegacyWeekSlots();
   renderDaySlotChoices();
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=2981113', {updateViaCache:'none'});
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=2981114', {updateViaCache:'none'});
   setStartupStatus('Chargement de vos recettes…');
   const stored=JSON.parse(localStorage.getItem(recipeStore)||'null');
   if(stored) recipes=stored; else recipes=await fetch(`recipes.json?_=${Date.now()}`,{cache:'no-store'}).then(r=>r.json());
@@ -80,7 +80,10 @@ function showLeaveGuard(target){
 function captureShoppingReturnContext(from=activeViewId(),extra={}){
   if(from==='shopping')return;
   shoppingReturnContext={view:from,scrollY:scrollY,...extra};
-  if(from==='planner')shoppingReturnContext.weekStart=currentWeekStart;
+  if(from==='planner'){
+    shoppingReturnContext.weekStart=currentWeekStart;
+    localStorage.setItem(weekStore,currentWeekStart);
+  }
   updateShoppingReturnButton();
 }
 function updateShoppingReturnButton(){
@@ -138,7 +141,15 @@ async function updateWakeLock(view=activeViewId()){
   }catch(e){console.warn('Maintien de l’écran indisponible',e)}
 }
 document.addEventListener('visibilitychange',()=>updateWakeLock());
-function openMainView(id){if(id==='planner'){currentWeekStart=mondayISO(new Date());localStorage.setItem(weekStore,currentWeekStart);renderDaySlotChoices();renderPlan()}switchView(id);if(id==='planner'||id==='shopping')resetSessionDirty(id)}
+function openMainView(id){
+  if(id==='planner'){
+    const savedWeek=localStorage.getItem(weekStore);
+    if(savedWeek)currentWeekStart=savedWeek;
+    renderDaySlotChoices();renderPlan();
+  }
+  switchView(id);
+  if(id==='planner'||id==='shopping')resetSessionDirty(id)
+}
 $$('nav button').forEach(b=>b.onclick=()=>requestMainView(b.dataset.view));
 $$('[data-go]').forEach(b=>b.onclick=()=>requestMainView(b.dataset.go));
 function slug(s){return (norm(s).replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')||'recette')+'-'+Date.now().toString(36)+Math.random().toString(36).slice(2,5)}
@@ -544,7 +555,16 @@ function transferMealToShopping(date,slot){
   if(!rows.length)return alert('Aucun ingrédient à transférer.');
   pendingMealTransfer={date,slot,rows};
   $('#mealTransferList').innerHTML=rows.map((r,i)=>`<label class="transfer-preview-row"><input type="checkbox" data-transfer-preview="${i}" checked><span><strong>${esc(r.name)}</strong>${r.qty?` — ${esc(Math.round(Number(r.qty)*100)/100)}${r.unit?` ${esc(r.unit)}`:''}`:''}</span></label>`).join('');
-  $('#mealTransferDialog').showModal();
+  const dlg=$('#mealTransferDialog');
+  if(!dlg)return alert('Impossible d’ouvrir la sélection des ingrédients.');
+  try{
+    if(dlg.open)dlg.close();
+    if(typeof dlg.showModal==='function')dlg.showModal();
+    else dlg.setAttribute('open','');
+  }catch(e){
+    console.error('Ouverture sélection ingrédients',e);
+    dlg.setAttribute('open','');
+  }
 }
 function confirmMealTransfer(){
   if(!pendingMealTransfer)return;
