@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLo
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.11.12';
+const APP_VERSION='2.9.8.11.13';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -44,7 +44,7 @@ async function init(){
   await autoLoadSharedBackup();
   migrateLegacyWeekSlots();
   renderDaySlotChoices();
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=2981112', {updateViaCache:'none'});
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=2981113', {updateViaCache:'none'});
   setStartupStatus('Chargement de vos recettes…');
   const stored=JSON.parse(localStorage.getItem(recipeStore)||'null');
   if(stored) recipes=stored; else recipes=await fetch(`recipes.json?_=${Date.now()}`,{cache:'no-store'}).then(r=>r.json());
@@ -140,7 +140,7 @@ async function updateWakeLock(view=activeViewId()){
 document.addEventListener('visibilitychange',()=>updateWakeLock());
 function openMainView(id){if(id==='planner'){currentWeekStart=mondayISO(new Date());localStorage.setItem(weekStore,currentWeekStart);renderDaySlotChoices();renderPlan()}switchView(id);if(id==='planner'||id==='shopping')resetSessionDirty(id)}
 $$('nav button').forEach(b=>b.onclick=()=>requestMainView(b.dataset.view));
-$$('[data-go]').forEach(b=>b.onclick=()=>openMainView(b.dataset.go));
+$$('[data-go]').forEach(b=>b.onclick=()=>requestMainView(b.dataset.go));
 function slug(s){return (norm(s).replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')||'recette')+'-'+Date.now().toString(36)+Math.random().toString(36).slice(2,5)}
 function normalizeRecipe(r){return {id:String(r.id||r.uid||slug(r.title||r.name||'recette')),title:r.title||r.name||'Recette sans titre',category:r.category||'Importée',time:Number(r.time)||0,servings:Number(r.servings)||4,ingredients:Array.isArray(r.ingredients)?r.ingredients:[],steps:Array.isArray(r.steps)?r.steps:[],avecViande:!!r.avecViande,type:r.type||(r.avecViande?'viande':''),effort:r.effort||'',difficulty:r.difficulty||'',special:r.special||'',temperature:r.temperature||'les-deux',season:r.season||'toute-annee',period:['chaude','froide'].includes(r.period)?r.period:'indifferente',tags:Array.isArray(r.tags)?r.tags:[],source:r.source||'',notes:r.notes||'',paprikaUid:r.paprikaUid||r.uid||'',complementRecipeIds:Array.isArray(r.complementRecipeIds)?r.complementRecipeIds.map(String):[],complementText:r.complementText||'',leftoverIdeas:r.leftoverIdeas||'',cookedDates:Array.isArray(r.cookedDates)?[...new Set(r.cookedDates.filter(Boolean))]:[],favorite:Boolean(r.favorite),cookingComments:Array.isArray(r.cookingComments)?r.cookingComments.filter(x=>x&&x.text).map(x=>({date:x.date||'',text:String(x.text)})):[],photoId:String(r.photoId||'')};}
 function recipeTypeLabel(v){return ({viande:'viande',poisson:'poisson',vegetarien:'végétarien',vegane:'végane'})[v]||'Type non défini'}
@@ -543,7 +543,7 @@ function transferMealToShopping(date,slot){
   const rows=mealTransferCandidates(date,slot);
   if(!rows.length)return alert('Aucun ingrédient à transférer.');
   pendingMealTransfer={date,slot,rows};
-  $('#mealTransferList').innerHTML=rows.map((r,i)=>`<label class="transfer-preview-row"><input type="checkbox" data-transfer-preview="${i}" checked><span><strong>${esc(r.name)}</strong>${r.qty?` — ${esc(formatQty(r.qty))}${r.unit?` ${esc(r.unit)}`:''}`:''}</span></label>`).join('');
+  $('#mealTransferList').innerHTML=rows.map((r,i)=>`<label class="transfer-preview-row"><input type="checkbox" data-transfer-preview="${i}" checked><span><strong>${esc(r.name)}</strong>${r.qty?` — ${esc(Math.round(Number(r.qty)*100)/100)}${r.unit?` ${esc(r.unit)}`:''}`:''}</span></label>`).join('');
   $('#mealTransferDialog').showModal();
 }
 function confirmMealTransfer(){
