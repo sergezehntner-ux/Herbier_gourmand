@@ -831,6 +831,14 @@ $('#dataImportForm').onsubmit=async e=>{
     currentHgKeys.forEach(key=>localStorage.removeItem(key));
     Object.entries(pendingDataImport.data).forEach(([key,value])=>localStorage.setItem(key,value));
     if(window.hgMediaImport&&Array.isArray(pendingDataImport.media))await window.hgMediaImport(pendingDataImport.media);
+    const importedRecipes=(()=>{try{return JSON.parse(pendingDataImport.data[recipeStore]||'[]')}catch{return []}})();
+    const remotePhotos=importedRecipes.filter(r=>r?._importPhotoUrl&&!r.photoId);
+    if(remotePhotos.length&&window.hgMediaImportRemotePhoto){
+      let ok=0,failed=0;
+      for(const r of remotePhotos){try{r.photoId=await window.hgMediaImportRemotePhoto(r.id,r._importPhotoUrl);delete r._importPhotoUrl;ok++}catch(err){console.warn('Photo distante',r.title,err);failed++}}
+      localStorage.setItem(recipeStore,JSON.stringify(importedRecipes));
+      if(failed)console.warn(`${failed} photo(s) distante(s) non importée(s)`);
+    }
     const importedName=pendingDataImport._filename||'sauvegarde importée';
     localStorage.setItem(BACKUP_META_KEY,JSON.stringify({at:pendingDataImport.exportedAt||new Date().toISOString(),filename:importedName}));
     localStorage.setItem(CHANGE_COUNTER_KEY,'0');
