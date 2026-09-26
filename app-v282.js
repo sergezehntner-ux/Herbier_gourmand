@@ -678,7 +678,18 @@ $('#importForm').onsubmit=async e=>{e.preventDefault();if(!pendingImport.length)
     $('#importDialog').close();
     alert(`Photos Paprika : ${added} ajoutée(s) · ${already} déjà présente(s) · ${missing} recette(s) introuvable(s) · ${ambiguous} correspondance(s) ambiguë(s) · ${noPhoto} sans photo${errors?` · ${errors} erreur(s)`:''}.\n\nAucun autre champ des recettes n’a été modifié.`);return;
   }
-  const replace=$('#replaceDuplicates').checked,importTag=`Import du ${new Date().toLocaleDateString('fr-CH')}`;pendingImport=pendingImport.map(r=>({...r,tags:[...new Set([...(r.tags||[]),importTag])]}));let added=0,replaced=0,ignored=0;pendingImport.forEach(r=>{const i=recipes.findIndex(x=>(r.paprikaUid&&x.paprikaUid===r.paprikaUid)||norm(x.title)===norm(r.title));if(i>=0){if(replace){r.id=recipes[i].id;recipes[i]=r;replaced++}else ignored++}else{recipes.unshift(r);added++}});saveRecipes();fillCategories();renderRecipes();$('#importDialog').close();alert(`Import terminé : ${added} ajoutée(s), ${replaced} remplacée(s), ${ignored} ignorée(s).`)};
+  const replace=$('#replaceDuplicates').checked;let added=0,replaced=0,ignored=0,photos=0,photoErrors=0;const photoJobs=[];
+  for(const raw of pendingImport){
+    const isGenuss=/genussdeslebens\.de/i.test(raw.source||'');
+    const r={...raw,tags:[...new Set([...(raw.tags||[]),...(isGenuss?['Genuss']:[])])]};
+    const photoData=r._paprikaPhotoData||'';delete r._paprikaPhotoData;
+    const i=recipes.findIndex(x=>(r.paprikaUid&&x.paprikaUid===r.paprikaUid)||norm(x.title)===norm(r.title));let target=null;
+    if(i>=0){if(replace){r.id=recipes[i].id;r.photoId=recipes[i].photoId||r.photoId||'';recipes[i]=r;target=recipes[i];replaced++}else{ignored++;target=recipes[i]}}
+    else{recipes.unshift(r);target=r;added++}
+    if(photoData&&target&&!target.photoId&&window.hgMediaImportPaprikaPhoto)photoJobs.push({target,photoData});
+  }
+  if(photoJobs.length){$('#importStatus').textContent=`Import des photos… 0/${photoJobs.length}`;for(let n=0;n<photoJobs.length;n++){const j=photoJobs[n];try{j.target.photoId=await window.hgMediaImportPaprikaPhoto(j.target.id,j.photoData);photos++}catch(err){console.error('Photo import',j.target.title,err);photoErrors++}$('#importStatus').textContent=`Import des photos… ${n+1}/${photoJobs.length}`}}
+  saveRecipes();fillCategories();renderRecipes();$('#importDialog').close();alert(`Import terminé : ${added} ajoutée(s), ${replaced} remplacée(s), ${ignored} ignorée(s) · ${photos} photo(s) importée(s)${photoErrors?` · ${photoErrors} erreur(s) photo`:''}.`)};
 async function parseImportFile(file){const bytes=new Uint8Array(await file.arrayBuffer());return parseBytes(bytes,file.name)}
 async function parseBytes(bytes,name='import'){
   if(bytes[0]===0x50&&bytes[1]===0x4b){const entries=await unzip(bytes);let out=[];for(const e of entries){if(/\.(paprikarecipe|json|txt)$/i.test(e.name)||!e.name.includes('.'))out.push(...await parseBytes(e.data,e.name));}return dedupeImported(out)}
