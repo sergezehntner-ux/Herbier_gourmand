@@ -255,3 +255,14 @@ select{padding-top:7px;padding-bottom:7px;line-height:1.15}
 #home .outing-home-card button{padding:.55rem .8rem}
 #more .github-panel{margin-top:8px}
 @media(max-width:760px){#home.active{gap:6px;padding-top:6px}#home .hero{padding:10px 12px}#home .outing-home-card{display:flex;padding:8px 10px;gap:10px}#home .outing-home-card button{width:auto;margin-top:0;flex:0 0 auto}#home .outing-home-card p{font-size:.82rem}}
+
+
+/* v2.9.8.11.21 — navigation : 4 boutons ligne 1, 5 boutons ligne 2 */
+@media(min-width:561px){
+  nav{grid-template-columns:repeat(20,minmax(0,1fr))}
+  nav button:nth-child(-n+4){grid-column:span 5}
+  nav button:nth-child(n+5){grid-column:span 4}
+}
+@media(max-width:560px){
+  nav button{grid-column:auto}
+}
