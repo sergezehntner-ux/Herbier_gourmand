@@ -244,3 +244,12 @@ select{padding-top:7px;padding-bottom:7px;line-height:1.15}
 .transfer-preview-row{display:flex;align-items:center;gap:12px;padding:11px 12px;border-bottom:1px solid var(--line,#d8d3c4);cursor:pointer}
 .transfer-preview-row:last-child{border-bottom:0}
 .transfer-preview-row input{width:22px;height:22px;flex:0 0 auto}
+
+/* v2.9.8.11.19 — accueil compact */
+#home .home-intro{margin:.45rem 0;padding:.55rem .8rem}
+#home .hero{padding:.8rem 1rem;margin:.5rem 0}
+#home .hero h2{margin:.1rem 0 .55rem}
+#home .outing-home-card{padding:.7rem .9rem;margin:.5rem 0}
+#home .outing-home-card h2{margin:.05rem 0 .2rem;font-size:1.12rem}
+#home .outing-home-card p{margin:.15rem 0}
+#home .panel{margin:.55rem 0;padding:.8rem}
