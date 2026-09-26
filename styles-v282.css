@@ -245,11 +245,13 @@ select{padding-top:7px;padding-bottom:7px;line-height:1.15}
 .transfer-preview-row:last-child{border-bottom:0}
 .transfer-preview-row input{width:22px;height:22px;flex:0 0 auto}
 
-/* v2.9.8.11.19 — accueil compact */
-#home .home-intro{margin:.45rem 0;padding:.55rem .8rem}
-#home .hero{padding:.8rem 1rem;margin:.5rem 0}
-#home .hero h2{margin:.1rem 0 .55rem}
-#home .outing-home-card{padding:.7rem .9rem;margin:.5rem 0}
-#home .outing-home-card h2{margin:.05rem 0 .2rem;font-size:1.12rem}
-#home .outing-home-card p{margin:.15rem 0}
-#home .panel{margin:.55rem 0;padding:.8rem}
+/* v2.9.8.11.20 — accueil compact sur un écran + page Plus… */
+#home.active{justify-content:flex-start;gap:8px;padding-top:10px;padding-bottom:10px}
+#home .hero{margin:0 0 4px;padding:14px 16px}
+#home .hero h2{margin:0 0 8px}
+#home .outing-home-card{padding:10px 14px;margin:0;min-height:0}
+#home .outing-home-card h2{font-size:1.08rem;margin:0 0 2px}
+#home .outing-home-card p{font-size:.9rem;line-height:1.2}
+#home .outing-home-card button{padding:.55rem .8rem}
+#more .github-panel{margin-top:8px}
+@media(max-width:760px){#home.active{gap:6px;padding-top:6px}#home .hero{padding:10px 12px}#home .outing-home-card{display:flex;padding:8px 10px;gap:10px}#home .outing-home-card button{width:auto;margin-top:0;flex:0 0 auto}#home .outing-home-card p{font-size:.82rem}}

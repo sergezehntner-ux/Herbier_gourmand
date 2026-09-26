@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v282.css?v=2981119">
+  <link rel="stylesheet" href="styles-v282.css?v=2981118">
 
   <style>
     .recipe[data-recipe-open]{cursor:pointer}
@@ -151,21 +151,24 @@
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.19 · Accueil compact · filtres cumulatifs</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.20 · Accueil compact + Plus…</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
-  <button class="active" data-view="home">Accueil</button><button data-view="recipes">Recettes</button><button data-view="planner">Planning</button><button data-view="shopping">Courses</button><button data-view="restaurants">Sorties</button><button data-view="producers">Producteurs</button><button data-view="herbs">Plantes & Épices</button><button data-view="produce">Fruits & Légumes</button>
+  <button class="active" data-view="home">Accueil</button><button data-view="recipes">Recettes</button><button data-view="planner">Planning</button><button data-view="shopping">Courses</button><button data-view="restaurants">Sorties</button><button data-view="producers">Producteurs</button><button data-view="herbs">Plantes & Épices</button><button data-view="produce">Fruits & Légumes</button><button data-view="more">Plus…</button>
 </nav>
 <main>
 <section id="home" class="view active">
-  <div class="notice home-intro">Préparer tranquillement le week-end, gagner du temps toute la semaine.</div>
   <div class="hero"><h2>Que faisons-nous aujourd’hui ?</h2><button class="primary" data-go="planner">Préparer la semaine</button><button id="surpriseBtn" class="secondary">Une idée surprise</button></div>
   <div id="surpriseCard"></div>
   <section class="outing-home-card"><div><h2>Envie d’une sortie ?</h2><p>Retrouver une bonne adresse, explorer par lieu, pays ou spécialité.</p></div><button class="primary" data-go="restaurants">Choisir un restaurant</button></section>
   <section class="outing-home-card producer-home-card"><div><h2>Producteurs locaux</h2><p>Marchés, artisans et vente directe près de chez toi.</p></div><button class="primary" data-go="producers">Découvrir les producteurs</button></section>
   <section class="outing-home-card herb-home-card"><div><h2>Plantes & Épices</h2><p>Accords, usages, substitutions, mélanges et techniques pour éveiller la curiosité.</p></div><button class="primary" data-go="herbs">Ouvrir le Grand Herbier</button></section>
   <section class="outing-home-card produce-home-card"><div><h2>Fruits & Légumes</h2><p>Saisons, conservation, préparation, accords et recettes autour de 120 produits.</p></div><button class="primary" data-go="produce">Explorer la récolte</button></section>
+</section>
+
+<section id="more" class="view">
+  <div class="section-title"><div><h2>Plus…</h2><span class="muted">Sauvegarde, transfert et partage</span></div></div>
   <section class="panel github-panel" aria-labelledby="githubTitle">
     <div class="section-title"><div><h2 id="githubTitle">Partage et sauvegarde GitHub</h2><span class="muted">Un éditeur, plusieurs lecteurs.</span></div><span id="saveState" class="save-state">À jour</span></div>
     <p>Le bouton ci-dessous met à jour <code>herbier-latest.hgbak</code> dans ce dépôt. Le mode lecture seule charge automatiquement ce fichier.</p>
@@ -400,6 +403,6 @@
 <dialog id="leftoverChoiceDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2 id="leftoverChoiceTitle">Utiliser des restes</h2><p id="leftoverChoiceMessage"></p><div id="leftoverChoiceButtons" class="leftover-choice-buttons"></div><div class="leftover-choice-actions"><button id="leftoverChoiceCancel" type="button">Annuler</button></div></div></dialog>
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
-<script src="app-v282.js?v=2981119"></script>
-<script src="media-v1.js?v=2981119"></script>
+<script src="app-v282.js?v=2981118"></script>
+<script src="media-v1.js?v=2981118"></script>
 </body></html>
