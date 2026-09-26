@@ -139,6 +139,13 @@
     .hg-shopping-photo-panel{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1rem;align-items:start;margin:.8rem 0;padding:.8rem;border:1px solid #d8e2da;border-radius:.8rem;background:#f8fbf8}.hg-shopping-photo-panel p{margin:.25rem 0}.hg-shopping-photo-panel+.notice{font-size:.9rem}
     @media(max-width:600px){.recipe,.herb-card,.produce-card{padding-right:4.8rem}.hg-photo-small .hg-photo-button{width:3.65rem;height:3.65rem}.recipe-title,.herb-detail-head,.produce-detail-head{padding-right:7.2rem}.hg-photo-detail .hg-photo-button{width:6.5rem;height:6.5rem}.hg-photo-actions{flex-direction:column}.hg-shopping-photo-panel{grid-template-columns:1fr auto}}
   </style>
+
+<style id="hg-nav-4plus5-fix">
+/* v2.9.8.11.22 — force réellement 4 boutons puis 5 boutons */
+nav{grid-template-columns:repeat(20,minmax(0,1fr))!important}
+nav button:nth-child(-n+4){grid-column:span 5!important}
+nav button:nth-child(n+5){grid-column:span 4!important}
+</style>
 </head>
 <body>
 <div id="startupOverlay" class="startup-overlay" role="status" aria-live="polite" aria-busy="true">
@@ -151,7 +158,7 @@
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.21 · Navigation 4 + 5</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.22 · Navigation 4 + 5 corrigée</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
