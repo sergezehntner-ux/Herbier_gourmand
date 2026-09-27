@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLo
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.11.14';
+const APP_VERSION='2.9.8.11.24';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -17,6 +17,27 @@ const BACKUP_META_KEY='hg-backup-meta-v26';
 const EMERGENCY_BACKUP_KEY='hg-emergency-before-import-v26';
 const CHANGE_COUNTER_KEY='hg-changes-since-backup-v26';
 const LAST_DEVICE_ACTION_KEY='hg-last-device-action-v2952';
+const HG_DB_NAME='HerbierGourmandData', HG_DB_STORE='kv';
+const HG_LOCAL_KEYS=new Set([weekStore,'hg-planning-period-v1',BACKUP_META_KEY,CHANGE_COUNTER_KEY,LAST_DEVICE_ACTION_KEY,'hg-github-config-v27','hg-herb-benefits-migrated-v1','hg-produce-benefits-migrated-v1']);
+const hgCache=new Map();let hgDb=null,hgWriteQueue=Promise.resolve();
+const hgLocal=window.localStorage;
+function hgIsLocalKey(key){return HG_LOCAL_KEYS.has(String(key||''))}
+function hgOpenDb(){return new Promise((resolve,reject)=>{const req=indexedDB.open(HG_DB_NAME,1);req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(HG_DB_STORE))db.createObjectStore(HG_DB_STORE)};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
+function hgIdbGetAll(db){return new Promise((resolve,reject)=>{const tx=db.transaction(HG_DB_STORE,'readonly'),store=tx.objectStore(HG_DB_STORE),req=store.openCursor(),out=[];req.onsuccess=()=>{const c=req.result;if(c){out.push([c.key,c.value]);c.continue()}else resolve(out)};req.onerror=()=>reject(req.error)})}
+function hgIdbPut(key,value){if(!hgDb)return Promise.reject(new Error('IndexedDB Herbier non initialisé'));return new Promise((resolve,reject)=>{const tx=hgDb.transaction(HG_DB_STORE,'readwrite');tx.objectStore(HG_DB_STORE).put(String(value),String(key));tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error('Écriture IndexedDB annulée'))})}
+function hgIdbDelete(key){if(!hgDb)return Promise.reject(new Error('IndexedDB Herbier non initialisé'));return new Promise((resolve,reject)=>{const tx=hgDb.transaction(HG_DB_STORE,'readwrite');tx.objectStore(HG_DB_STORE).delete(String(key));tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error)})}
+function hgQueue(job){hgWriteQueue=hgWriteQueue.then(job).catch(err=>{console.error('Stockage IndexedDB Herbier',err);throw err});return hgWriteQueue}
+function hgGet(key){key=String(key);return hgIsLocalKey(key)?hgLocal.getItem(key):(hgCache.has(key)?hgCache.get(key):null)}
+function hgSet(key,value){key=String(key);value=String(value);if(hgIsLocalKey(key)){hgLocal.setItem(key,value);return}hgCache.set(key,value);hgQueue(()=>hgIdbPut(key,value))}
+function hgRemove(key){key=String(key);if(hgIsLocalKey(key)){hgLocal.removeItem(key);return}hgCache.delete(key);hgQueue(()=>hgIdbDelete(key))}
+async function hgFlush(){await hgWriteQueue}
+function hgAllEntries(){const out=new Map(hgCache);for(let i=0;i<hgLocal.length;i++){const k=hgLocal.key(i);if(k?.startsWith('hg-'))out.set(k,hgLocal.getItem(k))}return [...out.entries()]}
+async function hgStorageInit(){
+  if(!('indexedDB' in window))throw new Error('IndexedDB indisponible : Herbier refuse de placer la base complète dans localStorage.');
+  hgDb=await hgOpenDb();for(const [k,v] of await hgIdbGetAll(hgDb))hgCache.set(String(k),String(v));
+  const migrate=[];for(let i=0;i<hgLocal.length;i++){const k=hgLocal.key(i);if(k?.startsWith('hg-')&&!hgIsLocalKey(k)){const v=hgLocal.getItem(k);if(v!==null)migrate.push([k,v])}}
+  for(const [k,v] of migrate){await hgIdbPut(k,v);hgCache.set(k,v);hgLocal.removeItem(k)}
+}
 const uid=()=>globalThis.crypto?.randomUUID?.()||`${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
 function setStartupStatus(message){const el=$('#startupStatus');if(el)el.textContent=message}
@@ -33,20 +54,22 @@ function sameMeal(a,b){return a.date===b.date&&a.slot===b.slot}
 function mealItems(date,slot){return plan.filter(x=>x.date===date&&x.slot===slot)}
 function mealPeople(date,slot){const value=Number(mealItems(date,slot)[0]?.people);return value>=1&&value<=10?value:''}
 function setMealPeople(date,slot,value){const n=Number(value),p=n>=1&&n<=10?n:null;mealItems(date,slot).forEach(x=>x.people=p);savePlanData();renderPlan();}
-function savePlanData(){localStorage.setItem(planStore,JSON.stringify({version:4,weekStart:currentWeekStart,time:$('#planTime')?.value||'',items:plan.map(x=>({uid:x.uid||uid(),date:x.date,slot:x.slot,id:x.recipe.id,people:(Number(x.people)>=1&&Number(x.people)<=10?Number(x.people):null),role:x.role||'',notes:x.notes||'',preparePreviousDay:Boolean(x.preparePreviousDay),isLeftover:Boolean(x.isLeftover),leftoverSourceDate:x.leftoverSourceDate||'',leftoverPortions:Number(x.leftoverPortions)||0,leftoverIdea:x.leftoverIdea||''}))}));markDirty();if(activeViewId()==='planner')markSessionDirty('planner');}
-function mealTransfers(){try{return JSON.parse(localStorage.getItem(mealTransferStore)||'{}')}catch{return{}}}
-function saveMealTransfers(x){localStorage.setItem(mealTransferStore,JSON.stringify(x));markDirty()}
+function savePlanData(){hgSet(planStore,JSON.stringify({version:4,weekStart:currentWeekStart,time:$('#planTime')?.value||'',items:plan.map(x=>({uid:x.uid||uid(),date:x.date,slot:x.slot,id:x.recipe.id,people:(Number(x.people)>=1&&Number(x.people)<=10?Number(x.people):null),role:x.role||'',notes:x.notes||'',preparePreviousDay:Boolean(x.preparePreviousDay),isLeftover:Boolean(x.isLeftover),leftoverSourceDate:x.leftoverSourceDate||'',leftoverPortions:Number(x.leftoverPortions)||0,leftoverIdea:x.leftoverIdea||''}))}));markDirty();if(activeViewId()==='planner')markSessionDirty('planner');}
+function mealTransfers(){try{return JSON.parse(hgGet(mealTransferStore)||'{}')}catch{return{}}}
+function saveMealTransfers(x){hgSet(mealTransferStore,JSON.stringify(x));markDirty()}
 async function init(){
+  setStartupStatus('Préparation du stockage IndexedDB…');
+  await hgStorageInit();
   setStartupStatus('Préparation de l’application…');
   currentWeekStart=mondayISO(new Date());
-  localStorage.setItem(weekStore,currentWeekStart);
+  hgSet(weekStore,currentWeekStart);
   setStartupStatus('Chargement de vos données partagées…');
   await autoLoadSharedBackup();
   migrateLegacyWeekSlots();
   renderDaySlotChoices();
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=2981114', {updateViaCache:'none'});
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=2981124', {updateViaCache:'none'});
   setStartupStatus('Chargement de vos recettes…');
-  const stored=JSON.parse(localStorage.getItem(recipeStore)||'null');
+  const stored=JSON.parse(hgGet(recipeStore)||'null');
   if(stored) recipes=stored; else recipes=await fetch(`recipes.json?_=${Date.now()}`,{cache:'no-store'}).then(r=>r.json());
   recipes=recipes.map(normalizeRecipe);
   fillCategories(); renderRecipes();
@@ -59,7 +82,7 @@ async function init(){
   applyReadonlyMode(); checkForUpdate();
   finishStartup();
 }
-function saveRecipes(){localStorage.setItem(recipeStore,JSON.stringify(recipes));registerProtectedChange();markDirty();}
+function saveRecipes(){hgSet(recipeStore,JSON.stringify(recipes));registerProtectedChange();markDirty();}
 function activeViewId(){return document.querySelector('.view.active')?.id||'home'}
 function rememberScroll(view=activeViewId()){viewScrollPositions[view]=scrollY}
 function restoreScroll(view){requestAnimationFrame(()=>scrollTo(0,viewScrollPositions[view]||0))}
@@ -82,7 +105,7 @@ function captureShoppingReturnContext(from=activeViewId(),extra={}){
   shoppingReturnContext={view:from,scrollY:scrollY,...extra};
   if(from==='planner'){
     shoppingReturnContext.weekStart=currentWeekStart;
-    localStorage.setItem(weekStore,currentWeekStart);
+    hgSet(weekStore,currentWeekStart);
   }
   updateShoppingReturnButton();
 }
@@ -101,7 +124,7 @@ function returnFromShoppingContext(){
   if(!ctx){switchView('home');return}
   if(ctx.view==='planner'){
     currentWeekStart=ctx.weekStart||currentWeekStart;
-    localStorage.setItem(weekStore,currentWeekStart);
+    hgSet(weekStore,currentWeekStart);
     renderDaySlotChoices();renderPlan();
     viewScrollPositions.planner=Number(ctx.scrollY)||0;
     switchView('planner');
@@ -143,7 +166,7 @@ async function updateWakeLock(view=activeViewId()){
 document.addEventListener('visibilitychange',()=>updateWakeLock());
 function openMainView(id){
   if(id==='planner'){
-    const savedWeek=localStorage.getItem(weekStore);
+    const savedWeek=hgGet(weekStore);
     if(savedWeek)currentWeekStart=savedWeek;
     renderDaySlotChoices();renderPlan();
   }
@@ -351,23 +374,23 @@ $('#deleteRecipe').onclick=()=>{const id=$('#recipeId').value;if(id&&confirm('Su
 $('#duplicateRecipe').onclick=()=>{const r=formRecipe(slug($('#recipeTitle').value));r.title+=' (copie)';r.cookedDates=[];r.favorite=false;r.cookingComments=[];recipes.unshift(r);saveRecipes();fillCategories();keepScroll(renderRecipes,'recipes');$('#recipeDialog').close();};
 
 function defaultDaySlots(){return Object.fromEntries(days.map((_,i)=>[i,Object.fromEntries(slots.map(s=>[s,false]))]))}
-function readWeekSlots(){try{return JSON.parse(localStorage.getItem(weekSlotStore)||'{}')||{}}catch{return{}}}
+function readWeekSlots(){try{return JSON.parse(hgGet(weekSlotStore)||'{}')||{}}catch{return{}}}
 function migrateLegacyWeekSlots(){
   const map=readWeekSlots();
   if(Object.keys(map).length)return;
-  try{const legacy=JSON.parse(localStorage.getItem(slotStore)||'null');if(legacy)map[currentWeekStart]={...defaultDaySlots(),...legacy}}catch{}
-  localStorage.setItem(weekSlotStore,JSON.stringify(map));
+  try{const legacy=JSON.parse(hgGet(slotStore)||'null');if(legacy)map[currentWeekStart]={...defaultDaySlots(),...legacy}}catch{}
+  hgSet(weekSlotStore,JSON.stringify(map));
 }
 function readDaySlots(){const map=readWeekSlots();return map[currentWeekStart]?{...defaultDaySlots(),...map[currentWeekStart]}:defaultDaySlots()}
 function renderDaySlotChoices(){const state=readDaySlots();$('#daySlotChoices').innerHTML=days.map((day,i)=>`<div class="day-slot-row"><strong>${day}</strong>${slots.map(slot=>`<label class="mini-slot ${state[i]?.[slot]?'selected':''}"><input type="checkbox" data-day-slot="${i}" data-slot="${slot}" ${state[i]?.[slot]?'checked':''}><span>${slot}</span></label>`).join('')}</div>`).join('');$$('[data-day-slot]').forEach(c=>c.onchange=()=>{c.parentElement.classList.toggle('selected',c.checked);saveDaySlots();updateSlotStatus();renderPlan()});updateSlotStatus();}
-function saveDaySlots(){const state=defaultDaySlots();$$('[data-day-slot]').forEach(c=>state[c.dataset.daySlot][c.dataset.slot]=c.checked);const map=readWeekSlots();map[currentWeekStart]=state;localStorage.setItem(weekSlotStore,JSON.stringify(map));markDirty();if(activeViewId()==='planner')markSessionDirty('planner');}
+function saveDaySlots(){const state=defaultDaySlots();$$('[data-day-slot]').forEach(c=>state[c.dataset.daySlot][c.dataset.slot]=c.checked);const map=readWeekSlots();map[currentWeekStart]=state;hgSet(weekSlotStore,JSON.stringify(map));markDirty();if(activeViewId()==='planner')markSessionDirty('planner');}
 function selectedDaySlots(){return $$('[data-day-slot]:checked').map(c=>({date:addDaysISO(currentWeekStart,+c.dataset.daySlot),dayIndex:+c.dataset.daySlot,slot:c.dataset.slot}))}
 function updateSlotStatus(){/* compteur supprimé : la sélection reste visible directement dans la grille */}
 function calendarSeasonForDate(iso){const m=new Date(`${iso}T12:00:00`).getMonth()+1;return m>=3&&m<=5?'printemps':m>=6&&m<=8?'ete':m>=9&&m<=11?'automne':'hiver'}
 const planningPeriodStore='hg-planning-period-v1';
-function planningPeriod(){const v=localStorage.getItem(planningPeriodStore)||'indifferente';return ['chaude','froide'].includes(v)?v:'indifferente'}
+function planningPeriod(){const v=hgGet(planningPeriodStore)||'indifferente';return ['chaude','froide'].includes(v)?v:'indifferente'}
 function updatePlanningPeriodButton(){const b=$('#planningPeriod');if(!b)return;const p=planningPeriod();b.textContent=p==='chaude'?'Période ☀️':p==='froide'?'Période ❄️':'Période';b.classList.toggle('period-active',p!=='indifferente');b.title=`Période des propositions : ${recipePeriodLabel(p)}`}
-function setPlanningPeriod(value){localStorage.setItem(planningPeriodStore,['chaude','froide'].includes(value)?value:'indifferente');updatePlanningPeriodButton()}
+function setPlanningPeriod(value){hgSet(planningPeriodStore,['chaude','froide'].includes(value)?value:'indifferente');updatePlanningPeriodButton()}
 function proposalChoices(date,exclude=[]){const season=calendarSeasonForDate(date),wanted=planningPeriod();return recipes.filter(r=>{if(exclude.includes(r.id)||!norm(r.category).includes('plat principal'))return false;if(!((r.season||'toute-annee')==='toute-annee'||r.season===season))return false;const rp=r.period||'indifferente';if(wanted==='chaude'&&rp==='froide')return false;if(wanted==='froide'&&rp==='chaude')return false;return true;});}
 function pickRandom(a){return a[Math.floor(Math.random()*a.length)]}
 if($('#planningPeriod'))$('#planningPeriod').onclick=()=>{$('#planningPeriodDialog').showModal()};
@@ -377,9 +400,9 @@ updatePlanningPeriodButton();
 $('#generatePlan').onclick=()=>{const targets=selectedDaySlots();if(!targets.length)return alert('Choisis au moins un repas.');const used=[];let missing=0;targets.forEach(t=>{if(mealItems(t.date,t.slot).length)return;let pool=proposalChoices(t.date,used);if(!pool.length)pool=proposalChoices(t.date,[]);const recipe=pickRandom(pool);if(recipe){used.push(recipe.id);plan.push({uid:uid(),date:t.date,slot:t.slot,recipe,people:null,role:'',preparePreviousDay:recipe.special==='veille'})}else missing++});savePlanData();renderPlan();if(missing)alert(`${missing} repas n’a pas reçu de proposition : aucune recette « Plat principal » disponible pour la saison correspondante.`);};
 function scaledIngredientRows(r,people=r.servings,overrides={}){const f=(Number(people)||r.servings)/(r.servings||4);return r.ingredients.map(([n,q,u],i)=>{const ov=overrides[i];const amount=ov!==undefined?ov:(typeof q==='number'?Math.round(q*f*100)/100:q||'');return{name:n,qty:amount,unit:u||'',text:`${n} : ${amount??''} ${u||''}`.trim()}})}
 function scaledIngredients(r,people=null,overrides={}){const p=people||Number($('#people')?.value)||r.servings;return scaledIngredientRows(r,p,overrides).map(x=>x.text)}
-function mealNotes(){try{return JSON.parse(localStorage.getItem(mealNoteStore)||'{}')||{}}catch{return{}}}
+function mealNotes(){try{return JSON.parse(hgGet(mealNoteStore)||'{}')||{}}catch{return{}}}
 function mealNote(date,slot){return mealNotes()[mealKey(date,slot)]||''}
-function setMealNote(date,slot,value){const all=mealNotes(),key=mealKey(date,slot),v=String(value||'').trim();if(v)all[key]=v;else delete all[key];localStorage.setItem(mealNoteStore,JSON.stringify(all));markDirty();if(activeViewId()==='planner')markSessionDirty('planner')}
+function setMealNote(date,slot,value){const all=mealNotes(),key=mealKey(date,slot),v=String(value||'').trim();if(v)all[key]=v;else delete all[key];hgSet(mealNoteStore,JSON.stringify(all));markDirty();if(activeViewId()==='planner')markSessionDirty('planner')}
 let movingPlanIndex=null;
 function movePlanItem(index){const item=plan[index];if(!item)return;movingPlanIndex=index;$('#movePlanDate').value=item.date;$('#movePlanSlot').value=item.slot;$('#movePlanDialog').showModal();}
 $('#closeMovePlan').onclick=$('#cancelMovePlan').onclick=()=>{$('#movePlanDialog').close();movingPlanIndex=null};
@@ -398,8 +421,8 @@ function addLeftoverShoppingNotice(sourceDate,targetDate,slot,title){
   if(!shopping.some(x=>x.manual&&x.leftoverNoticeKey===notice.key))shopping.push(normalizeShoppingItem({id:uid(),name:'À vérifier — utilisation de restes',text:notice.msg,unit:'',store:'',aisle:'À vérifier',manual:true,origins:[`Restes de ${title}`],leftoverNoticeKey:notice.key}));
   saveShopping();
 }
-function leftoverNoticeAcks(){try{return new Set(JSON.parse(localStorage.getItem(leftoverAckStore)||'[]')||[])}catch{return new Set()}}
-function saveLeftoverNoticeAcks(set){localStorage.setItem(leftoverAckStore,JSON.stringify([...set]));markDirty()}
+function leftoverNoticeAcks(){try{return new Set(JSON.parse(hgGet(leftoverAckStore)||'[]')||[])}catch{return new Set()}}
+function saveLeftoverNoticeAcks(set){hgSet(leftoverAckStore,JSON.stringify([...set]));markDirty()}
 function acknowledgeLeftoverNotice(key){
   const acks=leftoverNoticeAcks();acks.add(key);saveLeftoverNoticeAcks(acks);
   shopping=shopping.filter(x=>x.leftoverNoticeKey!==key);saveShopping();renderShopping();
@@ -432,7 +455,7 @@ function syncLeftoverShoppingNotices(){
       changed=true;
     }
   }
-  if(changed){shopping=shopping.map(normalizeShoppingItem);localStorage.setItem(shoppingStore,JSON.stringify(shopping));}
+  if(changed){shopping=shopping.map(normalizeShoppingItem);hgSet(shoppingStore,JSON.stringify(shopping));}
 }
 function leftoverChoice(title,message,choices){
   return new Promise(resolve=>{
@@ -475,7 +498,7 @@ async function planLeftovers(index){
   }
   const role=finalMode==='C'?'Complément (restes)':'Restes';
   plan.push({uid:uid(),date,slot,recipe:r,people:portions,role,notes:`${idea} — restes du ${dateLabel(source.date)}`,preparePreviousDay:false,isLeftover:true,leftoverSourceDate:source.date,leftoverPortions:portions,leftoverIdea:idea});
-  savePlanData();addLeftoverShoppingNotice(source.date,date,slot,r.title);currentWeekStart=mondayISO(new Date(`${date}T12:00:00`));localStorage.setItem(weekStore,currentWeekStart);renderDaySlotChoices();renderPlan();
+  savePlanData();addLeftoverShoppingNotice(source.date,date,slot,r.title);currentWeekStart=mondayISO(new Date(`${date}T12:00:00`));hgSet(weekStore,currentWeekStart);renderDaySlotChoices();renderPlan();
   $('#planFreshness').textContent=`Restes planifiés pour ${dateLabel(date)} ${slot.toLowerCase()}. Vérifie la liste des courses si un complément est nécessaire.`;$('#planFreshness').classList.remove('hidden');switchView('planner');
 }
 function removePlanItem(index){const item=plan[index];if(!item)return;if(confirm(`Retirer « ${item.recipe.title} » du planning ?`)){plan.splice(index,1);savePlanData();keepScroll(renderPlan,'planner')}}
@@ -519,22 +542,22 @@ function renderPlan(){
   if($('#closeMealTransfer'))$('#closeMealTransfer').onclick=()=>{$('#mealTransferDialog').close();pendingMealTransfer=null};
   if($('#cancelMealTransfer'))$('#cancelMealTransfer').onclick=()=>{$('#mealTransferDialog').close();pendingMealTransfer=null};
 }
-$('#prevWeek').onclick=()=>{currentWeekStart=addDaysISO(currentWeekStart,-7);localStorage.setItem(weekStore,currentWeekStart);renderDaySlotChoices();renderPlan()};
-$('#nextWeek').onclick=()=>{currentWeekStart=addDaysISO(currentWeekStart,7);localStorage.setItem(weekStore,currentWeekStart);renderDaySlotChoices();renderPlan()};
-$('#currentWeek').onclick=()=>{currentWeekStart=mondayISO(new Date());localStorage.setItem(weekStore,currentWeekStart);renderDaySlotChoices();renderPlan()};
+$('#prevWeek').onclick=()=>{currentWeekStart=addDaysISO(currentWeekStart,-7);hgSet(weekStore,currentWeekStart);renderDaySlotChoices();renderPlan()};
+$('#nextWeek').onclick=()=>{currentWeekStart=addDaysISO(currentWeekStart,7);hgSet(weekStore,currentWeekStart);renderDaySlotChoices();renderPlan()};
+$('#currentWeek').onclick=()=>{currentWeekStart=mondayISO(new Date());hgSet(weekStore,currentWeekStart);renderDaySlotChoices();renderPlan()};
 $('#clearPlan').onclick=()=>{if(confirm(`Vider uniquement le planning de la semaine ${weekLabel(currentWeekStart)} et remettre ses sélections à zéro ?`)){const dates=new Set(days.map((_,i)=>addDaysISO(currentWeekStart,i)));plan=plan.filter(x=>!dates.has(x.date));$$('[data-day-slot]').forEach(c=>{c.checked=false;c.parentElement.classList.remove('selected')});saveDaySlots();savePlanData();updateSlotStatus();renderPlan()}};
 $('#savePlan').onclick=()=>{savePlanData();resetSessionDirty('planner');$('#planFreshness').textContent='Calendrier enregistré sur cet appareil.';$('#planFreshness').classList.remove('hidden')};
 function invalidateShopping(message){$('#planFreshness').textContent=message;$('#planFreshness').classList.remove('hidden')}
-function shoppingAssignments(){try{return JSON.parse(localStorage.getItem(shoppingAssignmentStore)||'{}')}catch{return{}}}
+function shoppingAssignments(){try{return JSON.parse(hgGet(shoppingAssignmentStore)||'{}')}catch{return{}}}
 function shoppingAssignmentKey(value){return shoppingMatchKey(String(value||'').replace(/\([^)]*\)/g,' ').replace(/\b\d+(?:[.,]\d+)?\s*(?:g|kg|mg|ml|cl|dl|l|pcs?|pi[eè]ces?)\b/gi,' '))}
-function rememberShoppingAssignment(name,store,aisle){if(!name||(!store&&!aisle))return;const saved=shoppingAssignments(),value={store:store||'',aisle:aisle||''};saved[shoppingAssignmentKey(name)]=value;saved[norm(name)]=value;localStorage.setItem(shoppingAssignmentStore,JSON.stringify(saved))}
+function rememberShoppingAssignment(name,store,aisle){if(!name||(!store&&!aisle))return;const saved=shoppingAssignments(),value={store:store||'',aisle:aisle||''};saved[shoppingAssignmentKey(name)]=value;saved[norm(name)]=value;hgSet(shoppingAssignmentStore,JSON.stringify(saved))}
 function shoppingAssignmentFor(value){const saved=shoppingAssignments(),key=shoppingAssignmentKey(value),legacy=norm(value);return saved[key]||saved[legacy]||{}}
 function normalizeShoppingItem(x={}){const pref=shoppingAssignmentFor(x.name||x.ingredient);return{id:x.id||uid(),name:x.name||x.ingredient||'',qty:x.qty??x.quantite??0,text:x.text||'',unit:x.unit||x.unite||'',store:x.store||x.magasin||pref.store||'',aisle:x.aisle||x.rayon||pref.aisle||'',checked:Boolean(x.checked??x.coche),manual:Boolean(x.manual),origins:Array.isArray(x.origins)?x.origins:Array.isArray(x.sources)?x.sources:Array.isArray(x.origine)?x.origine:[],originRefs:Array.isArray(x.originRefs)?x.originRefs:[],leftoverNoticeKey:x.leftoverNoticeKey||'',photoId:String(x.photoId||'')}}
-function rememberShoppingAssignments(){const saved=shoppingAssignments();shopping.forEach(x=>{if(x.name&&(x.store||x.aisle)){const value={store:x.store||'',aisle:x.aisle||''};saved[shoppingAssignmentKey(x.name)]=value;saved[norm(x.name)]=value}});localStorage.setItem(shoppingAssignmentStore,JSON.stringify(saved))}
+function rememberShoppingAssignments(){const saved=shoppingAssignments();shopping.forEach(x=>{if(x.name&&(x.store||x.aisle)){const value={store:x.store||'',aisle:x.aisle||''};saved[shoppingAssignmentKey(x.name)]=value;saved[norm(x.name)]=value}});hgSet(shoppingAssignmentStore,JSON.stringify(saved))}
 function shoppingMatchKey(value){return norm(String(value||'')).replace(/[\u00a0\u202f]/g,' ').replace(/[’‘`´ʼ']/g,'').replace(/[.،,;:()]/g,' ').replace(/[–—-]/g,' ').replace(/\s+/g,' ').trim()}
 function sameShoppingArticle(a,b){return shoppingMatchKey(a?.name)===shoppingMatchKey(b?.name)&&shoppingMatchKey(a?.unit)===shoppingMatchKey(b?.unit)}
 function consolidateShopping(){const out=[];shopping.map(normalizeShoppingItem).forEach(x=>{if(x.manual){out.push(x);return}const hit=out.find(y=>!y.manual&&sameShoppingArticle(y,x));if(!hit){out.push(x);return}hit.qty=Math.round((Number(hit.qty||0)+Number(x.qty||0))*100)/100;hit.checked=Boolean(hit.checked&&x.checked);hit.origins=[...new Set([...(hit.origins||[]),...(x.origins||[])])];hit.originRefs=[...(hit.originRefs||[]),...(x.originRefs||[])].filter((v,i,a)=>a.findIndex(z=>z.recipeId===v.recipeId&&z.date===v.date&&z.slot===v.slot)===i);if(!hit.store&&x.store)hit.store=x.store;if(!hit.aisle&&x.aisle)hit.aisle=x.aisle});shopping=out}
-function saveShopping(){shopping=shopping.map(normalizeShoppingItem);consolidateShopping();localStorage.setItem(shoppingStore,JSON.stringify(shopping));rememberShoppingAssignments();markDirty();if(activeViewId()==='shopping')markSessionDirty('shopping')}
+function saveShopping(){shopping=shopping.map(normalizeShoppingItem);consolidateShopping();hgSet(shoppingStore,JSON.stringify(shopping));rememberShoppingAssignments();markDirty();if(activeViewId()==='shopping')markSessionDirty('shopping')}
 let pendingMealTransfer=null;
 function mealTransferCandidates(date,slot){
   const items=mealItems(date,slot),rows=[];
@@ -587,8 +610,8 @@ function confirmMealTransfer(){
   shoppingSessionDirty=false;
 }
 
-function aisleOrders(){try{return JSON.parse(localStorage.getItem(aisleOrderStore)||'{}')||{}}catch{return{}}}
-function saveAisleOrders(value){localStorage.setItem(aisleOrderStore,JSON.stringify(value));markDirty()}
+function aisleOrders(){try{return JSON.parse(hgGet(aisleOrderStore)||'{}')||{}}catch{return{}}}
+function saveAisleOrders(value){hgSet(aisleOrderStore,JSON.stringify(value));markDirty()}
 function aislesForStore(store){
   const existing=[...new Set(shopping.filter(x=>(x.store||'')===store).map(x=>x.aisle||'Rayon à définir'))];
   const saved=aisleOrders()[store]||[];
@@ -648,7 +671,7 @@ function renderShopping(){
   $$('[data-leftover-ack]').forEach(b=>b.onclick=()=>acknowledgeLeftoverNotice(b.dataset.leftoverAck));
   refreshShoppingSuggestions();
 }
-function sortTextSelect(select){if(!select)return;const selected=select.value;const fixed=Array.from(select.options).filter(o=>o.value===''||o.value==='__other__');const text=Array.from(select.options).filter(o=>o.value!==''&&o.value!=='__other__').sort((a,b)=>a.textContent.localeCompare(b.textContent,'fr',{sensitivity:'base'}));select.replaceChildren(...fixed.filter(o=>o.value===''),...text,...fixed.filter(o=>o.value==='__other__'));if(Array.from(select.options).some(o=>o.value===selected))select.value=selected}function addSelectOption(select,value){if(value&&!Array.from(select.options).some(o=>o.value===value)){const option=document.createElement('option');option.value=value;option.textContent=value;select.insertBefore(option,select.querySelector('option[value="__other__"]'))}sortTextSelect(select)}function rememberedShoppingStores(){try{return JSON.parse(localStorage.getItem(shoppingStoreMemory)||'[]')||[]}catch{return[]}}function rememberShoppingStore(value){const v=String(value||'').trim();if(!v)return;const list=[...new Set([...rememberedShoppingStores(),v])].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));localStorage.setItem(shoppingStoreMemory,JSON.stringify(list))}function refreshShoppingSuggestions(){const assignmentStores=Object.values(shoppingAssignments()).map(x=>x.store).filter(Boolean),stores=[...new Set([...rememberedShoppingStores(),...assignmentStores,...shopping.map(x=>x.store).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'})),aisles=[...new Set(shopping.map(x=>x.aisle).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));stores.forEach(x=>addSelectOption($('#shoppingStore'),x));aisles.forEach(x=>addSelectOption($('#shoppingAisle'),x));sortTextSelect($('#shoppingStore'));sortTextSelect($('#shoppingAisle'))}function handleOtherSelect(select,label){if(select.value==='__other__'){const value=prompt(`Nouveau ${label} :`);if(value?.trim()){addSelectOption(select,value.trim());select.value=value.trim();if(label==='magasin')rememberShoppingStore(value.trim())}else select.value=''}}$('#shoppingStore').onchange=()=>handleOtherSelect($('#shoppingStore'),'magasin');$('#shoppingAisle').onchange=()=>handleOtherSelect($('#shoppingAisle'),'rayon');
+function sortTextSelect(select){if(!select)return;const selected=select.value;const fixed=Array.from(select.options).filter(o=>o.value===''||o.value==='__other__');const text=Array.from(select.options).filter(o=>o.value!==''&&o.value!=='__other__').sort((a,b)=>a.textContent.localeCompare(b.textContent,'fr',{sensitivity:'base'}));select.replaceChildren(...fixed.filter(o=>o.value===''),...text,...fixed.filter(o=>o.value==='__other__'));if(Array.from(select.options).some(o=>o.value===selected))select.value=selected}function addSelectOption(select,value){if(value&&!Array.from(select.options).some(o=>o.value===value)){const option=document.createElement('option');option.value=value;option.textContent=value;select.insertBefore(option,select.querySelector('option[value="__other__"]'))}sortTextSelect(select)}function rememberedShoppingStores(){try{return JSON.parse(hgGet(shoppingStoreMemory)||'[]')||[]}catch{return[]}}function rememberShoppingStore(value){const v=String(value||'').trim();if(!v)return;const list=[...new Set([...rememberedShoppingStores(),v])].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));hgSet(shoppingStoreMemory,JSON.stringify(list))}function refreshShoppingSuggestions(){const assignmentStores=Object.values(shoppingAssignments()).map(x=>x.store).filter(Boolean),stores=[...new Set([...rememberedShoppingStores(),...assignmentStores,...shopping.map(x=>x.store).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'})),aisles=[...new Set(shopping.map(x=>x.aisle).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));stores.forEach(x=>addSelectOption($('#shoppingStore'),x));aisles.forEach(x=>addSelectOption($('#shoppingAisle'),x));sortTextSelect($('#shoppingStore'));sortTextSelect($('#shoppingAisle'))}function handleOtherSelect(select,label){if(select.value==='__other__'){const value=prompt(`Nouveau ${label} :`);if(value?.trim()){addSelectOption(select,value.trim());select.value=value.trim();if(label==='magasin')rememberShoppingStore(value.trim())}else select.value=''}}$('#shoppingStore').onchange=()=>handleOtherSelect($('#shoppingStore'),'magasin');$('#shoppingAisle').onchange=()=>handleOtherSelect($('#shoppingAisle'),'rayon');
 function applyRememberedShoppingAssignment(){const name=$('#shoppingName').value.trim();if(!name)return;const pref=shoppingAssignmentFor(name);if(!pref.store&&!pref.aisle)return;if(pref.store){addSelectOption($('#shoppingStore'),pref.store);$('#shoppingStore').value=pref.store}if(pref.aisle){addSelectOption($('#shoppingAisle'),pref.aisle);$('#shoppingAisle').value=pref.aisle}}
 function openShopping(id=''){const x=shopping.find(i=>i.id===id);$('#shoppingDialogTitle').textContent=x?'Modifier l’article':'Ajouter un article';$('#shoppingId').value=x?.id||'';$('#shoppingName').value=x?.name||'';$('#shoppingQty').value=x?.qty||x?.text||'';$('#shoppingUnit').value=x?.unit||'';addSelectOption($('#shoppingStore'),x?.store||'');addSelectOption($('#shoppingAisle'),x?.aisle||'');refreshShoppingSuggestions();$('#shoppingStore').value=x?.store||'';$('#shoppingAisle').value=x?.aisle||'';$('#deleteShopping').classList.toggle('hidden',!x);$('#shoppingOrigins').classList.toggle('hidden',!x?.origins?.length);$('#shoppingOrigins').innerHTML=x?.origins?.length?`<strong>Origine :</strong><br>${x.origins.map(esc).join('<br>')}`:'';$('#shoppingDialog').showModal()}
 function addShopping(){openShopping()}
@@ -711,21 +734,21 @@ function dedupeImported(a){const seen=new Set();return a.filter(r=>{const k=r.pa
 function printDocument(title,body){const w=open('','_blank','width=900,height=700');if(!w)return alert('Fenêtre d’impression bloquée.');w.document.write(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>${esc(title)}</title><style>@page{margin:10mm}body{font-family:Arial;max-width:850px;margin:auto;line-height:1.25}h1,h2{font-family:Georgia}.columns{display:grid;grid-template-columns:1fr 1.4fr;gap:20px}li{margin:3px 0}.recipe-intertitle{font-weight:700;list-style:none;margin-top:8px;margin-left:-18px}.columns ol{list-style:none;counter-reset:recipe-step;padding-left:20px}.columns ol>li:not(.recipe-intertitle){counter-increment:recipe-step;position:relative}.columns ol>li:not(.recipe-intertitle)::before{content:counter(recipe-step) '. ';position:absolute;right:calc(100% + 5px)}.columns ol>.recipe-intertitle{margin-left:0}.day{border:1px solid #bbb;padding:8px;margin:6px 0;break-inside:avoid}.shop{columns:2}</style></head><body>${body}</body></html>`);w.document.close();setTimeout(()=>w.print(),250)}
 function printRecipe(r,people=null){if(!r)return;const p=people||r.servings;const body=`<h1>${esc(r.title)}</h1><p>${p} portions · ${esc(r.category)} · ${esc(recipeTypeLabel(r.type))} · ${esc(recipeEffortLabel(r.effort))} · ${esc(recipeDifficultyLabel(r.difficulty))}</p><div class="columns"><section><h2>Ingrédients</h2><ul>${ingredientRowsMarkup(scaledIngredientRows(r,p))}</ul></section><section><h2>Préparation</h2><ol>${stepRowsMarkup(r.steps)}</ol></section></div>`;printDocument(r.title,body)}
 $('#printPlan').onclick=()=>{const week=plan.filter(x=>x.date>=currentWeekStart&&x.date<=addDaysISO(currentWeekStart,6));if(!week.length)return alert('Aucun planning.');printDocument('Planning',`<h1>Calendrier culinaire — ${esc(weekLabel(currentWeekStart))}</h1>${days.map((d,i)=>{const date=addDaysISO(currentWeekStart,i),ms=week.filter(x=>x.date===date);return ms.length?`<div class="day"><h2>${esc(dateLabel(date))}</h2>${slots.map(s=>{const si=ms.filter(x=>x.slot===s);return si.length?`<h3>${s} — ${mealPeople(date,s)} pers.</h3>${si.map(m=>`<p>${m.role?`<strong>${esc(m.role)}</strong> · `:''}${esc(m.recipe.title)}</p>`).join('')}`:''}).join('')}</div>`:''}).join('')}`)};$('#printShopping').onclick=()=>{if(!shopping.length)return alert('Liste vide.');const grouped={};sortedShopping().forEach(x=>(grouped[shoppingGroupKey(x)]??=[]).push(x));printDocument('Courses',`<h1>Liste de courses</h1>${Object.entries(grouped).map(([g,items])=>`<div class="day"><h2>${esc(g)}</h2><ul>${items.map(x=>`<li>☐ ${esc(x.name)}${x.qty?` — ${Math.round(x.qty*100)/100} ${esc(x.unit)}`:''}${shoppingGroupMode==='store'&&x.aisle?` <small>(${esc(x.aisle)})</small>`:''}</li>`).join('')}</ul></div>`).join('')}`)};
-function loadSaved(){try{const s=JSON.parse(localStorage.getItem(planStore)||localStorage.getItem('hg-plan-v26')||'null');if(s){currentWeekStart=s.weekStart||localStorage.getItem(weekStore)||mondayISO(new Date());plan=(s.items||[]).map(x=>{const date=x.date||addDaysISO(currentWeekStart,Number(x.dayIndex)||0);return{uid:x.uid||uid(),date,slot:x.slot,people:(Number(x.people)>=1&&Number(x.people)<=10?Number(x.people):(Number(s.people)>=1&&Number(s.people)<=10?Number(s.people):null)),role:x.role||'',notes:x.notes||'',preparePreviousDay:Boolean(x.preparePreviousDay),isLeftover:Boolean(x.isLeftover),leftoverSourceDate:x.leftoverSourceDate||'',leftoverPortions:Number(x.leftoverPortions)||0,leftoverIdea:x.leftoverIdea||'',recipe:recipes.find(r=>r.id===x.id)}}).filter(x=>x.recipe)}shopping=(JSON.parse(localStorage.getItem(shoppingStore)||localStorage.getItem('hg-shopping-v26')||localStorage.getItem('hg-shopping')||'[]')||[]).map(normalizeShoppingItem);consolidateShopping();localStorage.setItem(shoppingStore,JSON.stringify(shopping))}catch(e){console.error(e)}localStorage.setItem(weekStore,currentWeekStart);renderDaySlotChoices();renderPlan();renderShopping()}
+function loadSaved(){try{const s=JSON.parse(hgGet(planStore)||hgGet('hg-plan-v26')||'null');if(s){currentWeekStart=s.weekStart||hgGet(weekStore)||mondayISO(new Date());plan=(s.items||[]).map(x=>{const date=x.date||addDaysISO(currentWeekStart,Number(x.dayIndex)||0);return{uid:x.uid||uid(),date,slot:x.slot,people:(Number(x.people)>=1&&Number(x.people)<=10?Number(x.people):(Number(s.people)>=1&&Number(s.people)<=10?Number(s.people):null)),role:x.role||'',notes:x.notes||'',preparePreviousDay:Boolean(x.preparePreviousDay),isLeftover:Boolean(x.isLeftover),leftoverSourceDate:x.leftoverSourceDate||'',leftoverPortions:Number(x.leftoverPortions)||0,leftoverIdea:x.leftoverIdea||'',recipe:recipes.find(r=>r.id===x.id)}}).filter(x=>x.recipe)}shopping=(JSON.parse(hgGet(shoppingStore)||hgGet('hg-shopping-v26')||hgGet('hg-shopping')||'[]')||[]).map(normalizeShoppingItem);consolidateShopping();hgSet(shoppingStore,JSON.stringify(shopping))}catch(e){console.error(e)}hgSet(weekStore,currentWeekStart);renderDaySlotChoices();renderPlan();renderShopping()}
 
 // Sauvegarde et transfert entre appareils
 let pendingDataImport = null;
 function herbierStorageSnapshot(){
   const data={};
-  for(let i=0;i<localStorage.length;i++){
-    const key=localStorage.key(i);
-    if(key && key.startsWith('hg-') && key!==EMERGENCY_BACKUP_KEY) data[key]=localStorage.getItem(key);
+  for(const [key,value] of hgAllEntries()){
+    if(key && key.startsWith('hg-') && key!==EMERGENCY_BACKUP_KEY) data[key]=value;
   }
   // Garantit que les collections actuellement chargées figurent dans la sauvegarde.
   data[recipeStore]=JSON.stringify(recipes);
   if(typeof restaurants!=='undefined' && Array.isArray(restaurants)) data[restaurantStore]=JSON.stringify(restaurants);
   if(typeof producers!=='undefined' && Array.isArray(producers)) data[producerStore]=JSON.stringify(producers);
   if(typeof herbs!=='undefined' && Array.isArray(herbs)) data[herbStore]=JSON.stringify(herbs);
+  if(typeof produceItems!=='undefined' && Array.isArray(produceItems)) data[produceStore]=JSON.stringify(produceItems);
   return {format:'HerbierGourmandBackup',formatVersion:1,appVersion:APP_VERSION,exportedAt:new Date().toISOString(),data};
 }
 function downloadTextFile(filename,text){
@@ -747,35 +770,35 @@ function backupDeviceLabel(){
 }
 function renderLastDeviceAction(){
   const el=$('#lastDeviceAction');if(!el)return;
-  const value=localStorage.getItem(LAST_DEVICE_ACTION_KEY);
+  const value=hgGet(LAST_DEVICE_ACTION_KEY);
   el.textContent=value?`Dernière action : ${value}`:'';
 }
 function rememberLastDeviceAction(kind,filename){
   if(!filename)return;
-  localStorage.setItem(LAST_DEVICE_ACTION_KEY,`${kind} ${filename}`);
+  hgSet(LAST_DEVICE_ACTION_KEY,`${kind} ${filename}`);
   renderLastDeviceAction();
 }
 renderLastDeviceAction();
-function backupMeta(){try{return JSON.parse(localStorage.getItem(BACKUP_META_KEY)||'null')}catch{return null}}
+function backupMeta(){try{return JSON.parse(hgGet(BACKUP_META_KEY)||'null')}catch{return null}}
 function updateBackupReminder(){
   const el=$('#backupReminder');if(!el)return;
-  const meta=backupMeta(),changes=Number(localStorage.getItem(CHANGE_COUNTER_KEY)||0);
+  const meta=backupMeta(),changes=Number(hgGet(CHANGE_COUNTER_KEY)||0);
   if(!meta){el.textContent='Conseil : crée une première sauvegarde et range-la dans ton dossier OneDrive.';return}
   const when=new Date(meta.at).toLocaleString('fr-FR');
   el.textContent=`Dernière sauvegarde : ${when}${changes?` · ${changes} modification${changes>1?'s':''} depuis`:''}.`;
 }
 function registerProtectedChange(){
-  const n=Number(localStorage.getItem(CHANGE_COUNTER_KEY)||0)+1;
-  localStorage.setItem(CHANGE_COUNTER_KEY,String(n));updateBackupReminder();
+  const n=Number(hgGet(CHANGE_COUNTER_KEY)||0)+1;
+  hgSet(CHANGE_COUNTER_KEY,String(n));updateBackupReminder();
 }
 function markBackupCreated(filename){
-  localStorage.setItem(BACKUP_META_KEY,JSON.stringify({at:new Date().toISOString(),filename}));
-  localStorage.setItem(CHANGE_COUNTER_KEY,'0');clearDirty();updateBackupReminder();
+  hgSet(BACKUP_META_KEY,JSON.stringify({at:new Date().toISOString(),filename}));
+  hgSet(CHANGE_COUNTER_KEY,'0');clearDirty();updateBackupReminder();
 }
 function createEmergencyCheckpoint(reason='opération sensible'){
   const snapshot=herbierStorageSnapshot();
   const record={reason,createdAt:new Date().toISOString(),snapshot};
-  localStorage.setItem(EMERGENCY_BACKUP_KEY,JSON.stringify(record));
+  hgSet(EMERGENCY_BACKUP_KEY,JSON.stringify(record));
   return snapshot;
 }
 async function exportBackupNow(){
@@ -837,24 +860,24 @@ $('#dataImportForm').onsubmit=async e=>{
   e.preventDefault();if(!pendingDataImport)return;
   try{
     createEmergencyCheckpoint('avant import');
-    const currentHgKeys=[];
-    for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key?.startsWith('hg-')&&key!==EMERGENCY_BACKUP_KEY)currentHgKeys.push(key)}
-    currentHgKeys.forEach(key=>localStorage.removeItem(key));
-    Object.entries(pendingDataImport.data).forEach(([key,value])=>localStorage.setItem(key,value));
+    const currentHgKeys=hgAllEntries().map(([key])=>key).filter(key=>key?.startsWith('hg-')&&key!==EMERGENCY_BACKUP_KEY);
+    currentHgKeys.forEach(key=>hgRemove(key));
+    Object.entries(pendingDataImport.data).forEach(([key,value])=>hgSet(key,value));
     if(window.hgMediaImport&&Array.isArray(pendingDataImport.media))await window.hgMediaImport(pendingDataImport.media);
     const importedRecipes=(()=>{try{return JSON.parse(pendingDataImport.data[recipeStore]||'[]')}catch{return []}})();
     const remotePhotos=importedRecipes.filter(r=>r?._importPhotoUrl&&!r.photoId);
     if(remotePhotos.length&&window.hgMediaImportRemotePhoto){
       let ok=0,failed=0;
       for(const r of remotePhotos){try{r.photoId=await window.hgMediaImportRemotePhoto(r.id,r._importPhotoUrl);delete r._importPhotoUrl;ok++}catch(err){console.warn('Photo distante',r.title,err);failed++}}
-      localStorage.setItem(recipeStore,JSON.stringify(importedRecipes));
+      hgSet(recipeStore,JSON.stringify(importedRecipes));
       if(failed)console.warn(`${failed} photo(s) distante(s) non importée(s)`);
     }
     const importedName=pendingDataImport._filename||'sauvegarde importée';
-    localStorage.setItem(BACKUP_META_KEY,JSON.stringify({at:pendingDataImport.exportedAt||new Date().toISOString(),filename:importedName}));
-    localStorage.setItem(CHANGE_COUNTER_KEY,'0');
-    localStorage.setItem(LAST_DEVICE_ACTION_KEY,`Import ${importedName}`);
+    hgSet(BACKUP_META_KEY,JSON.stringify({at:pendingDataImport.exportedAt||new Date().toISOString(),filename:importedName}));
+    hgSet(CHANGE_COUNTER_KEY,'0');
+    hgSet(LAST_DEVICE_ACTION_KEY,`Import ${importedName}`);
     $('#dataImportDialog').close();
+    await hgFlush();
     alert('Import terminé avec succès. Herbier Gourmand va recharger les données.');
     location.reload();
   }catch(err){console.error(err);alert('Impossible d’importer les données. Le point de restauration local a été conservé lorsque sa création a réussi.');}
@@ -869,20 +892,20 @@ function markDirty(){dirty=true;document.body.classList.add('has-unsaved');const
 function clearDirty(){dirty=false;document.body.classList.remove('has-unsaved');const el=$('#saveState');if(el){el.textContent='À jour';el.classList.remove('dirty')}}
 addEventListener('beforeunload',e=>{if(dirty&&!READONLY){e.preventDefault();e.returnValue='';}});
 function inferredGithubConfig(){const host=location.hostname,parts=location.pathname.split('/').filter(Boolean);return {owner:host.endsWith('.github.io')?host.split('.')[0]:'',repo:parts[0]||'',branch:'main',path:'herbier-latest.hgbak'};}
-function githubConfig(){try{return {...inferredGithubConfig(),...JSON.parse(localStorage.getItem('hg-github-config-v27')||'{}')}}catch{return inferredGithubConfig()}}
-async function autoLoadSharedBackup(){if(!READONLY)return;try{const r=await fetch(`herbier-latest.hgbak?_=${Date.now()}`,{cache:'no-store'});if(!r.ok)return;const b=await r.json();if(b?.format!=='HerbierGourmandBackup'||!b.data)return;Object.entries(b.data).forEach(([k,v])=>{if(k.startsWith('hg-')&&typeof v==='string')localStorage.setItem(k,v)});sessionStorage.setItem('hg-readonly-loaded',b.exportedAt||'loaded');}catch(e){console.warn('Sauvegarde partagée indisponible',e)}}
+function githubConfig(){try{return {...inferredGithubConfig(),...JSON.parse(hgGet('hg-github-config-v27')||'{}')}}catch{return inferredGithubConfig()}}
+async function autoLoadSharedBackup(){if(!READONLY)return;try{const r=await fetch(`herbier-latest.hgbak?_=${Date.now()}`,{cache:'no-store'});if(!r.ok)return;const b=await r.json();if(b?.format!=='HerbierGourmandBackup'||!b.data)return;Object.entries(b.data).forEach(([k,v])=>{if(k.startsWith('hg-')&&typeof v==='string')hgSet(k,v)});sessionStorage.setItem('hg-readonly-loaded',b.exportedAt||'loaded');}catch(e){console.warn('Sauvegarde partagée indisponible',e)}}
 function applyReadonlyMode(){if(!READONLY)return;document.body.classList.add('readonly-mode');document.querySelector('header p').textContent+=' · Lecture seule';['#newRecipe','#importPaprika','#exportRecipeTable','#newRestaurant','#newProducer','#newHerb','#newProduce','#savePlan','#buildShopping','#addShopping','#addShoppingBottom','#clearChecks','#removeChecked','#clearShopping','#exportData','#importData','#saveToGithub','#githubSettings','#manageAisles'].forEach(s=>{const e=$(s);if(e)e.classList.add('hidden')});$$('[data-edit],[data-edit-restaurant],#editViewedRecipe,#editViewedRestaurant,#editViewedProducer,#editViewedHerb,#editViewedProduce,.restaurant-card-edit,.producer-card-edit').forEach(e=>e.classList.add('hidden'));}
 $('#openReadonly').onclick=()=>open(`${location.origin}${location.pathname}?readonly=1`,'_blank');
 $('#githubSettings').onclick=()=>{const c=githubConfig();$('#githubOwner').value=c.owner;$('#githubRepo').value=c.repo;$('#githubBranch').value=c.branch;$('#githubPath').value=c.path;$('#githubToken').value=sessionStorage.getItem('hg-github-token-v27')||'';$('#githubDialog').showModal()};
 $('#closeGithub').onclick=$('#cancelGithub').onclick=()=>$('#githubDialog').close();
-$('#githubForm').onsubmit=e=>{e.preventDefault();const c={owner:$('#githubOwner').value.trim(),repo:$('#githubRepo').value.trim(),branch:$('#githubBranch').value.trim(),path:$('#githubPath').value.trim()};localStorage.setItem('hg-github-config-v27',JSON.stringify(c));sessionStorage.setItem('hg-github-token-v27',$('#githubToken').value.trim());$('#githubDialog').close();$('#githubStatus').textContent='Configuration enregistrée pour ce navigateur.'};
+$('#githubForm').onsubmit=e=>{e.preventDefault();const c={owner:$('#githubOwner').value.trim(),repo:$('#githubRepo').value.trim(),branch:$('#githubBranch').value.trim(),path:$('#githubPath').value.trim()};hgSet('hg-github-config-v27',JSON.stringify(c));sessionStorage.setItem('hg-github-token-v27',$('#githubToken').value.trim());$('#githubDialog').close();$('#githubStatus').textContent='Configuration enregistrée pour ce navigateur.'};
 function bytesToBase64(text){return btoa(unescape(encodeURIComponent(text)))}
 async function githubPutFile(path,text,message){const c=githubConfig(),token=sessionStorage.getItem('hg-github-token-v27');if(!c.owner||!c.repo||!token)throw new Error('Configuration GitHub ou jeton manquant');const url=`https://api.github.com/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/contents/${path.split('/').map(encodeURIComponent).join('/')}?ref=${encodeURIComponent(c.branch)}`;let sha='';const old=await fetch(url,{headers:{Accept:'application/vnd.github+json',Authorization:`Bearer ${token}`}});if(old.ok)sha=(await old.json()).sha||'';else if(old.status!==404)throw new Error(`Lecture GitHub impossible (${old.status})`);const body={message,content:bytesToBase64(text),branch:c.branch,...(sha?{sha}:{})};const put=await fetch(url.split('?')[0],{method:'PUT',headers:{Accept:'application/vnd.github+json',Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify(body)});if(!put.ok)throw new Error(`Enregistrement GitHub impossible (${put.status})`);return put.json();}
 $('#saveToGithub').onclick=async()=>{try{const btn=$('#saveToGithub');btn.disabled=true;$('#githubStatus').textContent='Sauvegarde en cours…';const snap=herbierStorageSnapshot(),text=JSON.stringify(snap,null,2),c=githubConfig(),d=new Date(),pad=n=>String(n).padStart(2,'0'),dated=`backups/Herbier_Gourmand_${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}.hgbak`;await githubPutFile(c.path,text,`Herbier Gourmand : sauvegarde ${d.toLocaleString('fr-FR')}`);await githubPutFile(dated,text,`Herbier Gourmand : archive ${d.toLocaleString('fr-FR')}`);markBackupCreated(c.path);clearDirty();$('#githubStatus').textContent='Sauvegarde GitHub terminée. La version en lecture seule est à jour.';btn.disabled=false;}catch(e){console.error(e);$('#githubStatus').textContent=e.message;$('#saveToGithub').disabled=false;}};
 
 function normalizeProducer(p={}){return {id:String(p.id||slug(p.name||'producteur')),name:String(p.name||'Producteur sans nom'),type:String(p.type||''),categories:Array.isArray(p.categories)?p.categories:[],region:String(p.region||''),city:String(p.city||''),address:String(p.address||''),postalCode:String(p.postalCode||''),country:String(p.country||'Suisse'),phone:String(p.phone||''),website:String(p.website||''),hours:String(p.hours||''),products:Array.isArray(p.products)?p.products:[],featuredProducts:Array.isArray(p.featuredProducts)?p.featuredProducts:[],salesModes:Array.isArray(p.salesModes)?p.salesModes:[],labels:Array.isArray(p.labels)?p.labels:[],tags:Array.isArray(p.tags)?p.tags:[],notes:String(p.notes||''),description:String(p.description||''),services:String(p.services||''),directSale:String(p.directSale||''),source:String(p.source||'')};}
-function saveProducers(){localStorage.setItem(producerStore,JSON.stringify(producers));registerProtectedChange();markDirty()}
-async function initProducers(){try{const stored=JSON.parse(localStorage.getItem(producerStore)||'null');if(stored)producers=stored;else{const r=await fetch(`producers.json?_=${Date.now()}`,{cache:'no-store'});producers=r.ok?await r.json():[];localStorage.setItem(producerStore,JSON.stringify(producers))}producers=producers.map(normalizeProducer);renderProducerFilters();refreshProducerCitySuggestions();renderProducers()}catch(e){console.error(e);producers=[];renderProducers()}}
+function saveProducers(){hgSet(producerStore,JSON.stringify(producers));registerProtectedChange();markDirty()}
+async function initProducers(){try{const stored=JSON.parse(hgGet(producerStore)||'null');if(stored)producers=stored;else{const r=await fetch(`producers.json?_=${Date.now()}`,{cache:'no-store'});producers=r.ok?await r.json():[];hgSet(producerStore,JSON.stringify(producers))}producers=producers.map(normalizeProducer);renderProducerFilters();refreshProducerCitySuggestions();renderProducers()}catch(e){console.error(e);producers=[];renderProducers()}}
 function producerTerms(p){return [...new Set([...(p.products||[]),...(p.featuredProducts||[]),...(p.tags||[]),...(p.categories||[]),...(p.salesModes||[]),...(p.labels||[])].map(x=>String(x||'').trim()).filter(Boolean))]}
 function producerTypes(p){return [...new Set([p.type,...(p.categories||[])].map(x=>String(x||'').trim()).filter(Boolean))]}
 function producerValues(field){return [...new Set(producers.flatMap(p=>field==='tags'?producerTerms(p):field==='type'?producerTypes(p):[p[field]]).map(x=>String(x||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}))}
@@ -997,9 +1020,9 @@ function refreshProducerCitySuggestions(){renderProducerCityMatches()}
 const restaurantStore='hg-restaurants-v26';
 let restaurants=[], viewedRestaurantId=null, previousRestaurantView='restaurants', restaurantReturnContext=null;
 function normalizeRestaurant(r={}){return {id:String(r.id||slug(r.name||'restaurant')),name:String(r.name||'Restaurant sans nom'),tenant:String(r.tenant||''),address:String(r.address||''),postalCode:String(r.postalCode||''),city:String(r.city||''),country:String(r.country||''),region:String(r.region||''),phone:String(r.phone||''),phones:Array.isArray(r.phones)?r.phones:[],email:String(r.email||''),website:String(r.website||''),hours:String(r.hours||''),specialties:Array.isArray(r.specialties)?r.specialties:[],notes:String(r.notes||''),source:String(r.source||'')};}
-function saveRestaurants(){localStorage.setItem(restaurantStore,JSON.stringify(restaurants));registerProtectedChange();markDirty();}
+function saveRestaurants(){hgSet(restaurantStore,JSON.stringify(restaurants));registerProtectedChange();markDirty();}
 async function initRestaurants(){
-  try{const stored=JSON.parse(localStorage.getItem(restaurantStore)||'null');if(stored)restaurants=stored;else{const res=await fetch(`restaurants.json?_=${Date.now()}`,{cache:'no-store'});restaurants=res.ok?await res.json():[];saveRestaurants();}restaurants=restaurants.map(normalizeRestaurant);renderRestaurantFilters();renderRestaurants();}
+  try{const stored=JSON.parse(hgGet(restaurantStore)||'null');if(stored)restaurants=stored;else{const res=await fetch(`restaurants.json?_=${Date.now()}`,{cache:'no-store'});restaurants=res.ok?await res.json():[];saveRestaurants();}restaurants=restaurants.map(normalizeRestaurant);renderRestaurantFilters();renderRestaurants();}
   catch(e){console.error(e);restaurants=[];renderRestaurants();}
 }
 function uniqueRestaurantValues(field){return [...new Set(restaurants.flatMap(r=>field==='specialties'?r.specialties:[r[field]]).map(x=>String(x||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));}
@@ -1035,7 +1058,7 @@ const herbBenefits2984=[["Basilic","Polyphénols, composés aromatiques; vitamin
 function herbBenefitMatchKey2984(value){return norm(String(value||'').replace(/\([^)]*\)/g,' ').replace(/[’']/g,' ').replace(/[-–—]/g,' ')).replace(/\s+/g,' ').trim();}
 function applyHerbBenefits2984(items){
   const migrationKey='hg-migration-herb-benefits-2984';
-  if(localStorage.getItem(migrationKey)==='1')return false;
+  if(hgGet(migrationKey)==='1')return false;
   const byName=new Map();
   herbBenefits2984.forEach(([name,apports,bienfaits])=>{
     const full=norm(name), simple=herbBenefitMatchKey2984(name);
@@ -1043,8 +1066,8 @@ function applyHerbBenefits2984(items){
   });
   let changed=0;
   items.forEach(h=>{const info=byName.get(norm(h.name))||byName.get(herbBenefitMatchKey2984(h.name));if(!info)return;h.benefits=`Apports : ${info.apports}\nBienfaits : ${info.bienfaits}`;changed++;});
-  localStorage.setItem(migrationKey,'1');
-  if(changed)localStorage.setItem(herbStore,JSON.stringify(items));
+  hgSet(migrationKey,'1');
+  if(changed)hgSet(herbStore,JSON.stringify(items));
   console.info(`v2.9.8.4 — Bienfaits Plantes & Épices : ${changed} fiche(s) mise(s) à jour.`);
   return changed>0;
 }
@@ -1053,9 +1076,9 @@ async function initHerbs(){
  try{
   const res=await fetch(`herbs-spices.json?_=${Date.now()}`,{cache:'no-store'}),payload=res.ok?await res.json():{herbs:[]};
   herbKnowledge={accords:payload.accords||[],melanges:payload.melanges||[],substitutions:payload.substitutions||[],techniques:payload.techniques||[]};
-  const stored=JSON.parse(localStorage.getItem(herbStore)||'null');
+  const stored=JSON.parse(hgGet(herbStore)||'null');
   herbs=(stored&&stored.length?stored:payload.herbs||[]).map(normalizeHerb);
-  if(!stored)localStorage.setItem(herbStore,JSON.stringify(herbs));
+  if(!stored)hgSet(herbStore,JSON.stringify(herbs));
   applyHerbBenefits2984(herbs);
   renderHerbFilters();renderHerbs();
  }catch(e){console.error('Grand Herbier',e);herbs=[];renderHerbs();}
@@ -1084,8 +1107,8 @@ function openHerbEditor(id=viewedHerbId){
 if($('#newHerb'))$('#newHerb').onclick=()=>openHerbEditor('');
 if($('#editViewedHerb'))$('#editViewedHerb').onclick=()=>openHerbEditor();
 if($('#closeHerbDialog'))$('#closeHerbDialog').onclick=()=>$('#herbDialog').close();
-if($('#deleteHerb'))$('#deleteHerb').onclick=async()=>{const id=$('#herbEditId').value,h=herbs.find(x=>x.id===id);if(!h)return;if(!confirm(`Supprimer définitivement « ${h.name} » ?`))return;const photoId=h.photoId||'';herbs=herbs.filter(x=>x.id!==id);localStorage.setItem(herbStore,JSON.stringify(herbs));if(photoId&&window.hgMediaDeletePhoto)try{await window.hgMediaDeletePhoto(photoId)}catch(err){console.warn('Suppression photo',err)}registerProtectedChange();markDirty();viewedHerbId=null;renderHerbFilters();renderHerbs();$('#herbDialog').close();switchView('herbs')};
-if($('#herbForm'))$('#herbForm').onsubmit=e=>{e.preventDefault();const oldId=$('#herbEditId').value;let h=oldId?herbs.find(x=>x.id===oldId):null;const map={Name:'name',Family:'family',Origin:'origin',Season:'season',Intensity:'intensity',Forms:'forms',Flavor:'flavor',Uses:'uses',Benefits:'benefits',IdealFoods:'idealFoods',Pairings:'recommendedPairings',Cooking:'cookingBehavior',Preparation:'preparation',Quantity:'quantity',Substitution:'substitution',Avoid:'avoid',Conservation:'conservation',Where:'whereToBuy',RecipeIdeas:'recipeIdeas',ChefTip:'chefTip'};if(!h){const name=$('#herbEditName').value.trim();let id=slug(name||`plante-${Date.now()}`);if(herbs.some(x=>x.id===id))id=`${id}-${Date.now()}`;h=normalizeHerb({id,name});herbs.push(h)}Object.entries(map).forEach(([suffix,key])=>h[key]=$(`#herbEdit${suffix}`).value.trim());localStorage.setItem(herbStore,JSON.stringify(herbs));registerProtectedChange();markDirty();renderHerbFilters();renderHerbs();$('#herbDialog').close();showHerb(h.id)};
+if($('#deleteHerb'))$('#deleteHerb').onclick=async()=>{const id=$('#herbEditId').value,h=herbs.find(x=>x.id===id);if(!h)return;if(!confirm(`Supprimer définitivement « ${h.name} » ?`))return;const photoId=h.photoId||'';herbs=herbs.filter(x=>x.id!==id);hgSet(herbStore,JSON.stringify(herbs));if(photoId&&window.hgMediaDeletePhoto)try{await window.hgMediaDeletePhoto(photoId)}catch(err){console.warn('Suppression photo',err)}registerProtectedChange();markDirty();viewedHerbId=null;renderHerbFilters();renderHerbs();$('#herbDialog').close();switchView('herbs')};
+if($('#herbForm'))$('#herbForm').onsubmit=e=>{e.preventDefault();const oldId=$('#herbEditId').value;let h=oldId?herbs.find(x=>x.id===oldId):null;const map={Name:'name',Family:'family',Origin:'origin',Season:'season',Intensity:'intensity',Forms:'forms',Flavor:'flavor',Uses:'uses',Benefits:'benefits',IdealFoods:'idealFoods',Pairings:'recommendedPairings',Cooking:'cookingBehavior',Preparation:'preparation',Quantity:'quantity',Substitution:'substitution',Avoid:'avoid',Conservation:'conservation',Where:'whereToBuy',RecipeIdeas:'recipeIdeas',ChefTip:'chefTip'};if(!h){const name=$('#herbEditName').value.trim();let id=slug(name||`plante-${Date.now()}`);if(herbs.some(x=>x.id===id))id=`${id}-${Date.now()}`;h=normalizeHerb({id,name});herbs.push(h)}Object.entries(map).forEach(([suffix,key])=>h[key]=$(`#herbEdit${suffix}`).value.trim());hgSet(herbStore,JSON.stringify(herbs));registerProtectedChange();markDirty();renderHerbFilters();renderHerbs();$('#herbDialog').close();showHerb(h.id)};
 if($('#backFromHerb'))$('#backFromHerb').onclick=()=>switchView(previousHerbView);
 
 
@@ -1095,12 +1118,12 @@ let produceItems=[], viewedProduceId=null, previousProduceView='produce';
 const produceBenefits2983=[["Pomme","Fibres, vitamine C, polyphénols","Transit, satiété et santé cardiovasculaire"],["Poire","Fibres, cuivre, vitamine C","Transit intestinal et satiété"],["Banane","Potassium, vitamine B6, fibres","Fonction musculaire, énergie et transit"],["Orange","Vitamine C, folates, fibres","Immunité et absorption du fer"],["Mandarine","Vitamine C, flavonoïdes","Immunité et antioxydants"],["Clémentine","Vitamine C, folates","Immunité et formation cellulaire"],["Citron","Vitamine C, flavonoïdes","Antioxydants et absorption du fer"],["Pamplemousse","Vitamine C, vitamine A","Immunité et peau"],["Kiwi","Vitamines C et K, fibres","Immunité et digestion"],["Fraise","Vitamine C, manganèse, polyphénols","Antioxydants et santé cardiovasculaire"],["Framboise","Fibres, vitamine C, manganèse","Transit et satiété"],["Mûre","Fibres, vitamines C et K","Transit et antioxydants"],["Myrtille","Anthocyanes, vitamine C, fibres","Santé cardiovasculaire et antioxydants"],["Cassis","Vitamine C, anthocyanes","Immunité et protection cellulaire"],["Groseille","Vitamine C, fibres","Transit et antioxydants"],["Raisin","Polyphénols, vitamine K","Santé cardiovasculaire et antioxydants"],["Cerise","Polyphénols, vitamine C","Protection antioxydante"],["Pêche","Vitamine C, caroténoïdes, eau","Hydratation, peau et vision"],["Nectarine","Vitamine C, caroténoïdes","Peau, vision et antioxydants"],["Abricot","Bêta-carotène, potassium, fibres","Vision, peau et transit"],["Prune","Fibres, vitamine K, polyphénols","Transit et antioxydants"],["Mirabelle","Fibres, caroténoïdes","Transit et protection cellulaire"],["Quetsche","Fibres, polyphénols","Transit et antioxydants"],["Figue","Fibres, potassium, calcium","Transit et apport minéral"],["Datte","Fibres, potassium, glucides","Énergie et transit"],["Grenade","Polyphénols, vitamine C","Protection antioxydante"],["Kaki","Bêta-carotène, fibres, vitamine C","Vision, transit et immunité"],["Coing","Fibres, vitamine C","Transit et satiété"],["Pastèque","Eau, lycopène, vitamine C","Hydratation et antioxydants"],["Melon","Eau, bêta-carotène, vitamine C","Hydratation, peau et vision"],["Ananas","Vitamine C, manganèse","Immunité et métabolisme"],["Mangue","Vitamines A et C, folates","Vision, peau et immunité"],["Papaye","Vitamines C et A, folates","Immunité, peau et digestion"],["Fruit de la passion","Fibres, vitamines A et C","Transit et antioxydants"],["Goyave","Vitamine C, fibres, folates","Immunité et transit"],["Litchi","Vitamine C, cuivre","Immunité et métabolisme"],["Noix de coco","Fibres, manganèse, lipides","Satiété et énergie"],["Avocat","Graisses insaturées, fibres, folates","Santé cardiovasculaire et satiété"],["Carambole","Vitamine C, fibres","Antioxydants et transit"],["Pitaya","Fibres, vitamine C, magnésium","Transit et antioxydants"],["Physalis","Vitamine C, caroténoïdes","Immunité et protection cellulaire"],["Nèfle","Caroténoïdes, fibres, potassium","Vision et transit"],["Nashi","Eau, fibres, vitamine C","Hydratation et transit"],["Canneberge","Polyphénols, vitamine C","Protection antioxydante"],["Sureau (baies cuites)","Anthocyanes, vitamine C","Antioxydants; à consommer cuit"],["Mûre blanche","Fibres, vitamine C, fer","Transit et micronutriments"],["Feijoa","Vitamine C, fibres","Immunité et transit"],["Chérimole","Vitamines B6 et C, fibres","Métabolisme et transit"],["Corossol","Vitamine C, fibres, potassium","Immunité et transit"],["Tamarin","Fibres, magnésium, potassium","Transit et minéraux"],["Kumquat","Vitamine C, fibres","Immunité et transit"],["Pomelo","Vitamine C, potassium","Immunité et équilibre hydrique"],["Bergamote","Vitamine C, flavonoïdes","Apport antioxydant"],["Yuzu","Vitamine C, composés aromatiques","Immunité et antioxydants"],["Longane","Vitamine C, cuivre","Immunité et métabolisme"],["Ramboutan","Vitamine C, cuivre","Immunité et métabolisme"],["Mangoustan","Fibres, vitamine C","Transit et antioxydants"],["Jacquier","Fibres, vitamine C, potassium","Transit et énergie"],["Durian","Fibres, vitamines B, potassium","Énergie et fonction nerveuse"],["Figue de Barbarie","Fibres, vitamine C, magnésium","Transit et antioxydants"],["Açaï","Polyphénols, fibres, lipides","Antioxydants et satiété"],["Aronia","Anthocyanes, polyphénols","Forte contribution antioxydante"],["Argousier","Vitamine C, caroténoïdes","Immunité et protection cellulaire"],["Jujube","Vitamine C, fibres","Immunité et transit"],["Sapote","Fibres, vitamine C, caroténoïdes","Transit, peau et antioxydants"],["Carotte","Bêta-carotène, fibres, potassium","Vision, peau et transit"],["Brocoli","Vitamines C et K, folates, fibres","Immunité, os et transit"],["Chou-fleur","Vitamine C, folates, fibres","Immunité et digestion"],["Chou vert","Vitamines C et K, fibres","Santé osseuse et transit"],["Chou rouge","Anthocyanes, vitamines C et K","Antioxydants et os"],["Chou frisé (kale)","Vitamines K, A et C","Os, vision et immunité"],["Chou de Bruxelles","Vitamines C et K, fibres","Transit et santé osseuse"],["Chou-rave","Vitamine C, fibres, potassium","Immunité et transit"],["Chou chinois","Vitamines A, C, K, folates","Vision, immunité et os"],["Pak-choï","Vitamines A, C, K, calcium","Os, vision et immunité"],["Épinard","Folates, vitamines K et A, fer","Formation cellulaire, os et vision"],["Blette","Vitamines K et A, magnésium","Os et fonction musculaire"],["Laitue","Folates, vitamine K, eau","Hydratation et formation cellulaire"],["Roquette","Vitamine K, folates, calcium","Santé osseuse"],["Mâche","Folates, vitamine C, caroténoïdes","Immunité et vision"],["Endive","Fibres, folates, vitamine K","Transit et os"],["Chicorée","Fibres, folates, vitamine K","Transit et microbiote"],["Cresson","Vitamines K, C et A","Os, immunité et vision"],["Tomate","Lycopène, vitamine C, potassium","Antioxydants et santé cardiovasculaire"],["Poivron rouge","Vitamine C, caroténoïdes","Immunité, peau et vision"],["Poivron vert","Vitamine C, folates, fibres","Immunité et transit"],["Aubergine","Fibres, polyphénols","Transit et antioxydants"],["Courgette","Eau, vitamine C, potassium","Hydratation et fibres"],["Concombre","Eau, vitamine K","Hydratation"],["Courge butternut","Bêta-carotène, fibres, potassium","Vision, peau et transit"],["Potiron","Bêta-carotène, potassium, fibres","Vision et satiété"],["Potimarron","Bêta-carotène, fibres, potassium","Vision et transit"],["Citrouille","Bêta-carotène, vitamine C, fibres","Vision et immunité"],["Pâtisson","Vitamine C, fibres, potassium","Transit et équilibre hydrique"],["Fenouil","Fibres, vitamine C, potassium","Transit et satiété"],["Céleri-branche","Eau, vitamine K, potassium","Hydratation et équilibre hydrique"],["Céleri-rave","Fibres, vitamine K, phosphore","Transit et os"],["Poireau","Fibres, folates, vitamine K","Transit et formation cellulaire"],["Oignon","Flavonoïdes, composés soufrés","Apport antioxydant"],["Ail","Composés soufrés, manganèse","Santé cardiovasculaire"],["Échalote","Flavonoïdes, composés soufrés","Protection antioxydante"],["Artichaut","Fibres, folates, magnésium","Transit et satiété"],["Asperge","Folates, vitamine K, fibres","Formation cellulaire et transit"],["Haricot vert","Fibres, folates, vitamine K","Transit et os"],["Petit pois","Fibres, protéines végétales, folates","Satiété et transit"],["Pois mange-tout","Fibres, vitamine C, folates","Transit et immunité"],["Fève","Protéines végétales, fibres, folates","Satiété et formation cellulaire"],["Maïs doux","Fibres, vitamines B, caroténoïdes","Énergie et transit"],["Betterave","Folates, nitrates naturels, manganèse","Formation cellulaire et circulation"],["Navet","Vitamine C, fibres, potassium","Immunité et transit"],["Panais","Fibres, folates, potassium","Transit et satiété"],["Radis","Vitamine C, eau, composés soufrés","Hydratation et antioxydants"],["Radis noir","Fibres, vitamine C, composés soufrés","Transit et antioxydants"],["Rutabaga","Vitamine C, fibres, potassium","Immunité et transit"],["Topinambour","Inuline, fibres, potassium","Microbiote et transit"],["Salsifis","Fibres, potassium, folates","Transit et satiété"],["Scorsonère","Fibres, potassium, fer","Transit et minéraux"],["Patate douce","Bêta-carotène, fibres, potassium","Vision, satiété et transit"],["Pomme de terre","Potassium, vitamine C, amidon","Énergie et fonction musculaire"],["Manioc","Amidon, vitamine C, manganèse","Énergie; bien cuire"],["Igname","Fibres, potassium, vitamine C","Énergie et transit"],["Taro","Amidon, fibres, potassium","Énergie et satiété"],["Gombo","Fibres, folates, vitamine C","Transit et formation cellulaire"],["Pousses de bambou","Fibres, cuivre, potassium","Transit et minéraux"],["Cœur de palmier","Fibres, cuivre, manganèse","Satiété et minéraux"],["Champignon de Paris","Vitamines B, sélénium, cuivre","Métabolisme et antioxydants"],["Pleurote","Vitamines B, cuivre, fibres","Métabolisme et transit"],["Shiitaké","Vitamines B, cuivre, fibres","Métabolisme énergétique"],["Cèpe","Fibres, cuivre, vitamines B","Transit et métabolisme"],["Girolle","Fibres, cuivre, caroténoïdes","Transit et micronutriments"]];
 function applyProduceBenefits2983(items){
   const migrationKey='hg-migration-produce-benefits-2983';
-  if(localStorage.getItem(migrationKey)==='1')return false;
+  if(hgGet(migrationKey)==='1')return false;
   const byName=new Map(produceBenefits2983.map(([name,apports,bienfaits])=>[norm(name),{apports,bienfaits}]));
   let changed=0;
   items.forEach(p=>{const info=byName.get(norm(p.name));if(!info)return;p.benefits=`Apports : ${info.apports}\nBienfaits : ${info.bienfaits}`;changed++;});
-  localStorage.setItem(migrationKey,'1');
-  if(changed)localStorage.setItem(produceStore,JSON.stringify(items));
+  hgSet(migrationKey,'1');
+  if(changed)hgSet(produceStore,JSON.stringify(items));
   console.info(`v2.9.8.3 — Bienfaits enrichis : ${changed} fiche(s) mise(s) à jour.`);
   return changed>0;
 }
@@ -1114,9 +1137,9 @@ function renderProduceFilters(){fillProduceSelect('#produceCategory',produceFace
 async function initProduce(){
  try{
   const res=await fetch(`fruits-vegetables.json?_=${Date.now()}`,{cache:'no-store'}),payload=res.ok?await res.json():{products:[]};
-  const stored=JSON.parse(localStorage.getItem(produceStore)||'null');
+  const stored=JSON.parse(hgGet(produceStore)||'null');
   produceItems=(stored&&stored.length?stored:payload.products||[]).map(normalizeProduce);
-  if(!stored)localStorage.setItem(produceStore,JSON.stringify(produceItems));
+  if(!stored)hgSet(produceStore,JSON.stringify(produceItems));
   applyProduceBenefits2983(produceItems);
   renderProduceFilters();
   renderProduce();
@@ -1143,8 +1166,8 @@ function openProduceEditor(id=viewedProduceId){
 if($('#newProduce'))$('#newProduce').onclick=()=>openProduceEditor('');
 if($('#editViewedProduce'))$('#editViewedProduce').onclick=()=>openProduceEditor();
 if($('#closeProduceDialog'))$('#closeProduceDialog').onclick=()=>$('#produceDialog').close();
-if($('#deleteProduce'))$('#deleteProduce').onclick=async()=>{const id=$('#produceEditId').value,p=produceItems.find(x=>x.id===id);if(!p)return;if(!confirm(`Supprimer définitivement « ${p.name} » ?`))return;const photoId=p.photoId||'';produceItems=produceItems.filter(x=>x.id!==id);localStorage.setItem(produceStore,JSON.stringify(produceItems));if(photoId&&window.hgMediaDeletePhoto)try{await window.hgMediaDeletePhoto(photoId)}catch(err){console.warn('Suppression photo',err)}registerProtectedChange();markDirty();viewedProduceId=null;renderProduceFilters();renderProduce();$('#produceDialog').close();switchView('produce')};
-if($('#produceForm'))$('#produceForm').onsubmit=e=>{e.preventDefault();const oldId=$('#produceEditId').value;let p=oldId?produceItems.find(x=>x.id===oldId):null;const map={Name:'name',Category:'category',Latin:'latinName',Availability:'availability',Season:'season',Description:'description',Benefits:'benefits',Pairings:'pairings',BenefitPairings:'benefitPairings',Preparation:'preparation',Conservation:'conservation',Uses:'uses',Notes:'notes'};if(!p){const name=$('#produceEditName').value.trim();let id=slug(name||`produit-${Date.now()}`);if(produceItems.some(x=>x.id===id))id=`${id}-${Date.now()}`;p=normalizeProduce({id,name});produceItems.push(p)}Object.entries(map).forEach(([suffix,key])=>p[key]=$(`#produceEdit${suffix}`).value.trim());localStorage.setItem(produceStore,JSON.stringify(produceItems));registerProtectedChange();markDirty();renderProduceFilters();renderProduce();$('#produceDialog').close();showProduce(p.id)};
+if($('#deleteProduce'))$('#deleteProduce').onclick=async()=>{const id=$('#produceEditId').value,p=produceItems.find(x=>x.id===id);if(!p)return;if(!confirm(`Supprimer définitivement « ${p.name} » ?`))return;const photoId=p.photoId||'';produceItems=produceItems.filter(x=>x.id!==id);hgSet(produceStore,JSON.stringify(produceItems));if(photoId&&window.hgMediaDeletePhoto)try{await window.hgMediaDeletePhoto(photoId)}catch(err){console.warn('Suppression photo',err)}registerProtectedChange();markDirty();viewedProduceId=null;renderProduceFilters();renderProduce();$('#produceDialog').close();switchView('produce')};
+if($('#produceForm'))$('#produceForm').onsubmit=e=>{e.preventDefault();const oldId=$('#produceEditId').value;let p=oldId?produceItems.find(x=>x.id===oldId):null;const map={Name:'name',Category:'category',Latin:'latinName',Availability:'availability',Season:'season',Description:'description',Benefits:'benefits',Pairings:'pairings',BenefitPairings:'benefitPairings',Preparation:'preparation',Conservation:'conservation',Uses:'uses',Notes:'notes'};if(!p){const name=$('#produceEditName').value.trim();let id=slug(name||`produit-${Date.now()}`);if(produceItems.some(x=>x.id===id))id=`${id}-${Date.now()}`;p=normalizeProduce({id,name});produceItems.push(p)}Object.entries(map).forEach(([suffix,key])=>p[key]=$(`#produceEdit${suffix}`).value.trim());hgSet(produceStore,JSON.stringify(produceItems));registerProtectedChange();markDirty();renderProduceFilters();renderProduce();$('#produceDialog').close();showProduce(p.id)};
 if($('#backFromProduce'))$('#backFromProduce').onclick=()=>switchView(previousProduceView);
 
 
