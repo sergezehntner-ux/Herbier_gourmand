@@ -1,0 +1,12 @@
+Herbier Gourmand — lot Yummy Food Vlog / Genuss
+Date : 29.09.2026
+Recettes préparées : 46
+
+Import :
+1. Ouvrir Herbier Gourmand.
+2. Choisir « Import Paprika ».
+3. Sélectionner Genuss_Yummy_Food_Vlog_lot_2026-09-29.json.
+4. Vérifier l’aperçu puis confirmer.
+
+Toutes les recettes portent les catégories/tags « Genuss » et « Yummy Food Vlog ».
+Le ZIP ne contient que les nouveaux fichiers de ce lot, conformément à la règle des livraisons Herbier Gourmand.
