@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v282.css?v=2981118">
+  <link rel="stylesheet" href="styles-v282.css?v=2981130">
 
   <style>
     .recipe[data-recipe-open]{cursor:pointer}
@@ -158,11 +158,11 @@ nav button:nth-child(n+5){grid-column:span 4!important}
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.29 · Rayons + Planning aujourd’hui</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.30 · Stock anti-gaspillage</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
-  <button class="active" data-view="home">Accueil</button><button data-view="recipes">Recettes</button><button data-view="planner">Planning</button><button data-view="shopping">Courses</button><button data-view="restaurants">Sorties</button><button data-view="producers">Producteurs</button><button data-view="herbs">Plantes & Épices</button><button data-view="produce">Fruits & Légumes</button><button data-view="more">Plus…</button>
+  <button class="active" data-view="home">Accueil</button><button data-view="recipes">Recettes</button><button data-view="planner">Planning</button><button data-view="shopping">Courses</button><button data-view="stock">Stock</button><button data-view="restaurants">Sorties</button><button data-view="producers">Producteurs</button><button data-view="herbs">Plantes & Épices</button><button data-view="produce">Fruits & Légumes</button><button data-view="more">Plus…</button>
 </nav>
 <main>
 <section id="home" class="view active">
@@ -241,6 +241,14 @@ nav button:nth-child(n+5){grid-column:span 4!important}
   <div id="shoppingList"></div>
   <button id="addShoppingBottom" class="wide secondary">+ Ajouter un article</button>
   <div class="sticky-actions"><button id="saveShoppingLocal" class="primary">Enregistrer la liste</button><button id="clearChecks">Tout décocher</button><button id="removeChecked">Supprimer cochés</button><button id="clearShopping" class="danger">Vider</button><button id="printShopping">Imprimer</button></div>
+</section>
+
+<section id="stock" class="view stock-view">
+  <div class="section-title"><div><h2>Stock</h2><span id="stockCount" class="muted"></span></div><div class="button-row"><button id="manageStockProducts" type="button">Gérer les produits</button><button id="addStock" class="primary" type="button">+ Ajouter</button></div></div>
+  <div class="notice subtle stock-help">Coche ce que tu veux utiliser, puis cherche des recettes avec tous les produits sélectionnés ou au moins un.</div>
+  <div class="stock-head"><span></span><strong>Quoi</strong><strong>Où</strong></div>
+  <div id="stockList" class="stock-list"></div>
+  <button id="stockRecipeSearch" class="primary stock-search-fab" type="button" disabled>🔎 Chercher dans les recettes</button>
 </section>
 
 <section id="restaurants" class="view">
@@ -356,6 +364,13 @@ nav button:nth-child(n+5){grid-column:span 4!important}
 
 
 <dialog id="mealTransferDialog"><div class="leftover-choice-card"><div class="dialog-head"><h2>Transférer dans les courses</h2><button type="button" id="closeMealTransfer">×</button></div><p class="muted">Décoche les ingrédients que tu as encore.</p><div id="mealTransferList" class="transfer-preview-list"></div><div class="dialog-actions"><button type="button" id="cancelMealTransfer">Annuler</button><button type="button" id="confirmMealTransfer" class="primary">Ajouter aux courses</button></div></div></dialog>
+<dialog id="stockDialog"><form id="stockForm" method="dialog"><div class="dialog-head"><h2 id="stockDialogTitle">Stock</h2><button type="button" id="closeStockDialog">×</button></div>
+<input type="hidden" id="stockId"><div class="grid"><label>Quoi<select id="stockProduct" required></select></label><label>Où<select id="stockLocation" required></select></label><label>Groupe<select id="stockGroup"><option value="">À définir</option></select></label><label>Rayon<select id="stockAisle"><option value="">À définir</option></select></label><label>Rechercher aussi<input id="stockSearchAlso" placeholder="Ex. Bœuf pour Entrecôte"></label></div>
+<p class="muted">Groupe et Rayon servent au classement et à la recherche, mais ne sont pas affichés dans la liste.</p>
+<div class="dialog-actions"><button type="button" id="deleteStock" class="danger">Supprimer</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
+<dialog id="stockProductDialog"><form id="stockProductForm" method="dialog"><div class="dialog-head"><h2>Gérer les produits</h2><button type="button" id="closeStockProducts">×</button></div>
+<div id="stockProductList" class="stock-product-list"></div><hr><h3>Ajouter un produit</h3><div class="grid"><label>Nom<input id="newStockProductName" required></label><label>Groupe<input id="newStockProductGroup" placeholder="Bœuf, Fromage…"></label><label>Rayon<select id="newStockProductAisle"></select></label><label>Rechercher aussi<input id="newStockProductAlias" placeholder="Ex. Bœuf"></label></div><div class="dialog-actions"><button type="submit" class="primary">Ajouter</button></div></form></dialog>
+<dialog id="stockSearchDialog"><div class="leftover-choice-card"><div class="dialog-head"><h2>Chercher dans les recettes</h2><button type="button" id="closeStockSearch">×</button></div><p id="stockSearchSummary" class="muted"></p><div class="stock-search-choices"><button type="button" id="stockSearchAll" class="primary">Tous ces ingrédients</button><button type="button" id="stockSearchAny">Au moins un de ces ingrédients</button></div></div></dialog>
 <dialog id="shoppingDialog"><form id="shoppingForm" method="dialog"><div class="dialog-head"><h2 id="shoppingDialogTitle">Article</h2><button type="button" id="closeShopping">×</button></div>
 <input type="hidden" id="shoppingId">
 <div class="grid"><label>Article<input id="shoppingName" required></label><label>Quantité<input id="shoppingQty" placeholder="Ex. 2 ou 0,5"></label><label>Unité<input id="shoppingUnit" placeholder="Ex. kg, L, pièces"></label><label>Magasin<select id="shoppingStore"><option value="">À définir</option><option>Boucherie</option><option>Boulangerie</option><option>Marché</option><option>Pharmacie</option><option>Supermarché</option><option value="__other__">Autre…</option></select></label><label>Rayon<select id="shoppingAisle"><option value="">À définir</option><option>Boissons</option><option>Boucherie</option><option>Boulangerie</option><option>Épicerie</option><option>Fruits et légumes</option><option>Hygiène</option><option>Ménage</option><option>Poissonnerie</option><option>Produits laitiers</option><option>Surgelés</option><option value="__other__">Autre…</option></select></label></div>
@@ -410,6 +425,6 @@ nav button:nth-child(n+5){grid-column:span 4!important}
 <dialog id="leftoverChoiceDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2 id="leftoverChoiceTitle">Utiliser des restes</h2><p id="leftoverChoiceMessage"></p><div id="leftoverChoiceButtons" class="leftover-choice-buttons"></div><div class="leftover-choice-actions"><button id="leftoverChoiceCancel" type="button">Annuler</button></div></div></dialog>
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
-<script src="app-v282.js?v=2981126"></script>
+<script src="app-v282.js?v=2981130"></script>
 <script src="media-v1.js?v=2981125"></script>
 </body></html>
