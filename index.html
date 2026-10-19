@@ -139,6 +139,11 @@
     .shop-item.checked .hg-shop-photo-check:after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.65rem;font-weight:900;color:#20382a}
     .hg-shopping-photo-panel{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1rem;align-items:start;margin:.8rem 0;padding:.8rem;border:1px solid #d8e2da;border-radius:.8rem;background:#f8fbf8}.hg-shopping-photo-panel p{margin:.25rem 0}.hg-shopping-photo-panel+.notice{font-size:.9rem}
     @media(max-width:600px){.recipe,.herb-card,.produce-card{padding-right:4.8rem}.hg-photo-small .hg-photo-button{width:3.65rem;height:3.65rem}.recipe-title,.herb-detail-head,.produce-detail-head{padding-right:7.2rem}.hg-photo-detail .hg-photo-button{width:6.5rem;height:6.5rem}.hg-photo-actions{flex-direction:column}.hg-shopping-photo-panel{grid-template-columns:1fr auto}}
+  
+    /* v2.9.8.11.34 — Stock : clavier conservé et suggestions au-dessus du clavier */
+    #stockDialog .hg-touch-choice-list,#stockProductDialog .hg-touch-choice-list{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+    #stockDialog .hg-touch-choice-list button,#stockProductDialog .hg-touch-choice-list button{min-height:46px}
+
   </style>
 
 <style id="hg-nav-4plus5-fix">
@@ -159,7 +164,7 @@ nav button:nth-child(n+6){grid-column:span 4!important}
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.33 · Stock suggestions visibles</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.34 · Stock clavier + choix visibles</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>

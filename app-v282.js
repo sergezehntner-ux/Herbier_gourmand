@@ -999,9 +999,31 @@ function applyTouchSuggestion(input,value){
   closeTouchSuggestions(input);
   input.focus();
 }
+function ensureTouchSuggestionBox(input){
+  if(input?._hgSuggestionBox)return input._hgSuggestionBox;
+  const wrap=document.createElement('div');wrap.className='hg-touch-choice-wrap';
+  input.parentNode.insertBefore(wrap,input);wrap.appendChild(input);
+  const box=document.createElement('div');box.className='hg-touch-choice-list';box.setAttribute('role','listbox');
+  wrap.appendChild(box);input._hgSuggestionBox=box;return box;
+}
+function positionTouchSuggestions(input){
+  const box=input?._hgSuggestionBox;if(!box||!box.classList.contains('open'))return;
+  const stockField=['stockProduct','stockLocation','stockGroup','stockAisle','newStockProductAisle'].includes(input.id);
+  if(!stockField){box.style.cssText='';return}
+  const vv=window.visualViewport, vr=vv?{top:vv.offsetTop,height:vv.height,width:vv.width}:{top:0,height:innerHeight,width:innerWidth};
+  const r=input.getBoundingClientRect(), margin=8, bottom=vr.top+vr.height-margin;
+  const roomBelow=bottom-r.bottom-6, desired=Math.min(260,Math.max(110,roomBelow));
+  box.style.position='fixed';box.style.left=Math.max(margin,r.left)+'px';box.style.width=Math.min(r.width,vr.width-margin*2)+'px';
+  box.style.right='auto';box.style.top=(r.bottom+4)+'px';box.style.maxHeight=desired+'px';box.style.zIndex='10000';
+  if(roomBelow<110){
+    const roomAbove=r.top-vr.top-margin;
+    box.style.maxHeight=Math.min(260,Math.max(90,roomAbove-6))+'px';
+    box.style.top='auto';box.style.bottom=Math.max(margin,(window.innerHeight-(r.top-4)))+'px';
+  }else box.style.bottom='auto';
+}
 function closeTouchSuggestions(input){
   const box=input?._hgSuggestionBox;
-  if(box){box.classList.remove('open');box.innerHTML=''}
+  if(box){box.classList.remove('open');box.innerHTML='';box.style.cssText=''}
 }
 function renderTouchSuggestions(input){
   if(!input)return;
@@ -1009,32 +1031,30 @@ function renderTouchSuggestions(input){
   if(!values.length){closeTouchSuggestions(input);return}
   const {query}=suggestionTokenInfo(input), q=norm(query);
   const matches=(q?values.filter(v=>norm(v).startsWith(q)||norm(v).includes(q)):values).slice(0,12);
-  let box=input._hgSuggestionBox;
-  if(!box){
-    const wrap=document.createElement('div');wrap.className='hg-touch-choice-wrap';
-    input.parentNode.insertBefore(wrap,input);wrap.appendChild(input);
-    box=document.createElement('div');box.className='hg-touch-choice-list';box.setAttribute('role','listbox');
-    wrap.appendChild(box);input._hgSuggestionBox=box;
-  }
+  const box=ensureTouchSuggestionBox(input);
   box.innerHTML=matches.length?matches.map(v=>`<button type="button" role="option" data-hg-touch-choice="${esc(v)}">${esc(v)}</button>`).join(''):'<div class="hg-touch-choice-empty">Aucun résultat</div>';
-  box.classList.add('open');
+  box.classList.add('open');positionTouchSuggestions(input);
   box.querySelectorAll('[data-hg-touch-choice]').forEach(btn=>btn.onclick=()=>applyTouchSuggestion(input,btn.dataset.hgTouchChoice));
 }
 function initTouchChoiceFields(){
   document.querySelectorAll('input[list]').forEach(input=>{
     if(input.dataset.hgTouchChoiceReady==='1')return;
     input.dataset.hgTouchChoiceReady='1';
+    ensureTouchSuggestionBox(input); // créé avant la saisie : le champ ne bouge plus après la première lettre
     input.addEventListener('input',()=>renderTouchSuggestions(input));
     input.addEventListener('focus',()=>renderTouchSuggestions(input));
     input.addEventListener('keydown',e=>{
       const box=input._hgSuggestionBox, first=box?.querySelector('[data-hg-touch-choice]');
       if((e.key==='Enter'||e.key==='Tab')&&first&&box.classList.contains('open')){
-        // Tab reste disponible sur notebook ; Entrée sert d'équivalent clavier/tactile.
         e.preventDefault();applyTouchSuggestion(input,first.dataset.hgTouchChoice);
       }else if(e.key==='Escape')closeTouchSuggestions(input);
     });
   });
 }
+const repositionOpenTouchSuggestions=()=>document.querySelectorAll('input[list]').forEach(input=>{if(input._hgSuggestionBox?.classList.contains('open'))positionTouchSuggestions(input)});
+window.visualViewport?.addEventListener('resize',repositionOpenTouchSuggestions);
+window.visualViewport?.addEventListener('scroll',repositionOpenTouchSuggestions);
+window.addEventListener('resize',repositionOpenTouchSuggestions);
 document.addEventListener('pointerdown',e=>{
   document.querySelectorAll('input[list]').forEach(input=>{if(!e.target.closest('.hg-touch-choice-wrap')&&e.target!==input)closeTouchSuggestions(input)});
 });
