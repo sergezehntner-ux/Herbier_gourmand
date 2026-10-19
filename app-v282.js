@@ -1008,9 +1008,7 @@ function renderTouchSuggestions(input){
   const values=datalistValuesForInput(input);
   if(!values.length){closeTouchSuggestions(input);return}
   const {query}=suggestionTokenInfo(input), q=norm(query);
-  if(!q){closeTouchSuggestions(input);return}
-  const matches=values.filter(v=>norm(v).startsWith(q)||norm(v).includes(q)).slice(0,8);
-  if(!matches.length){closeTouchSuggestions(input);return}
+  const matches=(q?values.filter(v=>norm(v).startsWith(q)||norm(v).includes(q)):values).slice(0,12);
   let box=input._hgSuggestionBox;
   if(!box){
     const wrap=document.createElement('div');wrap.className='hg-touch-choice-wrap';
@@ -1018,7 +1016,7 @@ function renderTouchSuggestions(input){
     box=document.createElement('div');box.className='hg-touch-choice-list';box.setAttribute('role','listbox');
     wrap.appendChild(box);input._hgSuggestionBox=box;
   }
-  box.innerHTML=matches.map(v=>`<button type="button" role="option" data-hg-touch-choice="${esc(v)}">${esc(v)}</button>`).join('');
+  box.innerHTML=matches.length?matches.map(v=>`<button type="button" role="option" data-hg-touch-choice="${esc(v)}">${esc(v)}</button>`).join(''):'<div class="hg-touch-choice-empty">Aucun résultat</div>';
   box.classList.add('open');
   box.querySelectorAll('[data-hg-touch-choice]').forEach(btn=>btn.onclick=()=>applyTouchSuggestion(input,btn.dataset.hgTouchChoice));
 }
