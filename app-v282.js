@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.11.32';
+const APP_VERSION='2.9.8.11.39';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -211,6 +211,31 @@ function sourceRecipeIdsForShopping(x){const ids=new Set((x.originRefs||[]).map(
 function openShoppingSources(id){const x=shopping.find(i=>i.id===id);if(!x)return;const ids=sourceRecipeIdsForShopping(x);if(!ids.length)return openShopping(id);if(ids.length===1){showRecipe(ids[0],'shopping');return}const list=$('#shoppingSourceList');list.innerHTML=ids.map(rid=>{const r=recipeById(rid);return `<button type="button" data-shopping-source-recipe="${esc(r.id)}">${esc(r.title)}</button>`}).join('');$$('[data-shopping-source-recipe]').forEach(b=>b.onclick=()=>{$('#shoppingSourceDialog').close();showRecipe(b.dataset.shoppingSourceRecipe,'shopping')});$('#shoppingSourceDialog').showModal()}
 function recipeCard(r){const choose=selectionContext?`<button class="primary" data-choose="${esc(r.id)}">Choisir pour ${esc(dateLabel(selectionContext.date))} ${esc(selectionContext.slot.toLowerCase())}</button>`:'';return `<article class="recipe" data-recipe-open="${esc(r.id)}"><div class="recipe-head"><div class="meta recipe-meta-line">${recipeMetaMarkup(r)}</div><h3>${esc(r.title)}</h3><div class="recipe-tag-meta-row"><div class="badges">${(r.tags||[]).slice(0,5).map(t=>`<span>${esc(t)}</span>`).join('')}</div><div class="meta recipe-meta-tail">${recipeMetaTailMarkup(r)}</div></div></div><div class="recipe-actions">${choose}<button data-edit="${esc(r.id)}">Modifier</button><button data-print-recipe="${esc(r.id)}">Imprimer</button></div></article>`;}
 let recipeZeroResultAlerted=false,stockRecipeSearchContext=null;
+function stockRecipeCriterionTerms(item){
+  return [...new Set([item?.name,item?.alias,item?.group].map(v=>norm(v||'')).filter(Boolean))];
+}
+function stockRecipeIngredientCorpus(r){
+  return (r.ingredients||[]).map(row=>norm(Array.isArray(row)?row[0]:row)).filter(Boolean);
+}
+function stockRecipeCriterionMatches(r,item){
+  const terms=stockRecipeCriterionTerms(item),ingredients=stockRecipeIngredientCorpus(r);
+  return terms.some(term=>ingredients.some(ing=>ing.includes(term)||term.includes(ing)));
+}
+function stockRecipeMatches(r){
+  const ctx=stockRecipeSearchContext;if(!ctx?.items?.length)return true;
+  const hits=ctx.items.map(item=>stockRecipeCriterionMatches(r,item));
+  return ctx.mode==='any'?hits.some(Boolean):hits.every(Boolean);
+}
+function runStockRecipeSearch(mode){
+  const selected=stock.filter(x=>x.checked);if(!selected.length)return;
+  const ctx={mode:mode==='any'?'any':'all',items:selected.map(x=>({name:x.name,alias:x.alias,group:x.group}))};
+  const found=recipes.filter(r=>{const old=stockRecipeSearchContext;stockRecipeSearchContext=ctx;const ok=stockRecipeMatches(r);stockRecipeSearchContext=old;return ok});
+  if(!found.length){$('#stockSearchDialog')?.close();alert('Pas de résultat. Réduisez les critères.');return;}
+  stockRecipeSearchContext=ctx;
+  if($('#search'))$('#search').value='';
+  ['#category','#recipeTypeFilter','#recipeTemperatureFilter','#recipeSeasonFilter','#recipePeriodFilter'].forEach(sel=>{if($(sel))$(sel).value=''});
+  recipeZeroResultAlerted=false;$('#stockSearchDialog')?.close();switchView('recipes',{top:true});renderRecipes();
+}
 function recipeSearchTerms(){return String($('#search')?.value||'').split(',').map(norm).filter(Boolean)}
 function recipeSearchCorpus(r){return norm([r.title,(r.tags||[]).join(' '),(r.ingredients||[]).flat().join(' '),(r.steps||[]).join(' ')].join(' '))}
 function recipeFieldMatches(value,filter){if(!filter)return true;if(filter==='__undefined__')return !String(value||'').trim();const compact=v=>norm(v).replace(/[^a-z0-9]+/g,'');return compact(value)===compact(filter)}
@@ -1086,6 +1111,7 @@ function closeTouchSuggestions(input){
 }
 function renderTouchSuggestions(input){
   if(!input)return;
+  document.querySelectorAll('input[list]').forEach(other=>{if(other!==input)closeTouchSuggestions(other)});
   const values=datalistValuesForInput(input);
   if(!values.length){closeTouchSuggestions(input);return}
   const {query}=suggestionTokenInfo(input), q=norm(query);
