@@ -164,7 +164,7 @@ nav button:nth-child(n+6){grid-column:span 4!important}
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.35 · Stock listes modifiables</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.36 · Stock impression groupée</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -250,7 +250,7 @@ nav button:nth-child(n+6){grid-column:span 4!important}
 </section>
 
 <section id="stock" class="view stock-view">
-  <div class="section-title"><div><h2>Stock</h2><span id="stockCount" class="muted"></span></div><div class="button-row"><button id="manageStockProducts" type="button">Modifier les listes</button><button id="addStock" class="primary" type="button">+ Ajouter</button></div></div>
+  <div class="section-title"><div><h2>Stock</h2><span id="stockCount" class="muted"></span></div><div class="button-row"><button id="printStock" type="button">Impression</button><button id="manageStockProducts" type="button">Modifier les listes</button><button id="addStock" class="primary" type="button">+ Ajouter</button></div></div>
   <div class="notice subtle stock-help">Coche ce que tu veux utiliser, puis cherche des recettes avec tous les produits sélectionnés ou au moins un.</div>
   <div class="stock-head"><span></span><strong>Quoi</strong><strong>Où</strong></div>
   <div id="stockList" class="stock-list"></div>
@@ -376,6 +376,7 @@ nav button:nth-child(n+6){grid-column:span 4!important}
 <div class="dialog-actions"><button type="button" id="deleteStock" class="danger">Supprimer</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 <dialog id="stockProductDialog"><div><div class="dialog-head"><h2>Modifier les listes du Stock</h2><button type="button" id="closeStockProducts">×</button></div>
 <p class="muted">Choisis directement le type d’élément, puis l’élément à corriger.</p><div class="grid"><label>Élément<select id="stockListKind"><option value="product">Quoi</option><option value="group">Groupe</option><option value="aisle">Rayon</option><option value="location">Où</option></select></label><label>Choisir<select id="stockListValue"></select></label></div><div id="stockListSourceNote" class="notice subtle hidden"></div><div class="dialog-actions"><button type="button" id="renameStockListValue">Renommer</button><button type="button" id="deleteStockListValue" class="danger">Supprimer</button></div></div></dialog>
+<dialog id="stockPrintDialog"><div class="leftover-choice-card"><div class="dialog-head"><h2>Imprimer le stock</h2><button type="button" id="closeStockPrint">×</button></div><p class="muted">Choisis le regroupement de la liste.</p><div class="stock-search-choices"><button type="button" id="printStockByGroup" class="primary">Liste du stock groupée par Groupe</button><button type="button" id="printStockByAisle">Liste du stock groupée par Rayon</button></div></div></dialog>
 <dialog id="stockSearchDialog"><div class="leftover-choice-card"><div class="dialog-head"><h2>Chercher dans les recettes</h2><button type="button" id="closeStockSearch">×</button></div><p id="stockSearchSummary" class="muted"></p><div class="stock-search-choices"><button type="button" id="stockSearchAll" class="primary">Tous ces ingrédients</button><button type="button" id="stockSearchAny">Au moins un de ces ingrédients</button></div></div></dialog>
 <dialog id="shoppingDialog"><form id="shoppingForm" method="dialog"><div class="dialog-head"><h2 id="shoppingDialogTitle">Article</h2><button type="button" id="closeShopping">×</button></div>
 <input type="hidden" id="shoppingId">
