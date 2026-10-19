@@ -759,17 +759,65 @@ function openStock(id=''){const x=stock.find(i=>i.id===id),products=mergedStockP
 function renderStock(){const list=$('#stockList');if(!list)return;const sorted=[...stock].sort((a,b)=>a.name.localeCompare(b.name,'fr',{sensitivity:'base'}));$('#stockCount').textContent=`${stock.length} produit${stock.length>1?'s':''}`;list.innerHTML=sorted.map(x=>`<div class="stock-row"><input type="checkbox" data-stock-check="${esc(x.id)}" ${x.checked?'checked':''} aria-label="Sélectionner ${esc(x.name)}"><button type="button" class="stock-name" data-stock-edit="${esc(x.id)}">${esc(x.name)}</button><span class="stock-place">${esc(x.location||'À définir')}</span></div>`).join('')||'<p class="muted">Le stock est vide.</p>';$$('[data-stock-check]').forEach(c=>c.onchange=()=>{const x=stock.find(i=>i.id===c.dataset.stockCheck);if(x)x.checked=c.checked;hgSet(stockStore,JSON.stringify(stock));updateStockSearchButton()});$$('[data-stock-edit]').forEach(b=>b.onclick=()=>openStock(b.dataset.stockEdit));updateStockSearchButton()}
 function updateStockSearchButton(){const n=stock.filter(x=>x.checked).length,b=$('#stockRecipeSearch');if(!b)return;b.disabled=!n;b.textContent=n?`🔎 Chercher dans les recettes (${n})`:'🔎 Chercher dans les recettes'}
 function handleStockOther(field,label){if(field.tagName==='INPUT'){if(label==='lieu'&&field.value.trim()&&!stockLocations().some(x=>norm(x)===norm(field.value))){const a=stockLocations();a.push(field.value.trim());saveStockLocations(a)}return}if(field.value!=='__other__')return;const v=prompt(`Nouveau ${label} :`)?.trim();if(!v){field.value='';return}const o=document.createElement('option');o.value=v;o.textContent=v;field.insertBefore(o,field.lastElementChild);field.value=v;if(label==='lieu'){const a=stockLocations();a.push(v);saveStockLocations(a)}}
-function openStockProducts(){renderStockProductManager();fillStockSelect($('#newStockProductAisle'),knownAisles(),'',true);$('#newStockProductName').value='';$('#newStockProductGroup').value='';$('#newStockProductAlias').value='';$('#stockProductDialog').showModal()}
-function renderStockProductManager(){const box=$('#stockProductList');if(!box)return;box.innerHTML=stockProducts.sort((a,b)=>a.name.localeCompare(b.name,'fr',{sensitivity:'base'})).map((p,i)=>`<div class="stock-product-row"><div><strong>${esc(p.name)}</strong><small>${esc([p.group,p.aisle,p.alias&&'Recherche aussi : '+p.alias].filter(Boolean).join(' · '))}</small></div><button type="button" data-stock-product-delete="${i}" class="danger">Supprimer</button></div>`).join('')||'<p class="muted">Aucun produit personnel. Les Fruits & Légumes sont repris automatiquement.</p>';$$('[data-stock-product-delete]').forEach(b=>b.onclick=()=>{const p=stockProducts[Number(b.dataset.stockProductDelete)];if(!p)return;if(confirm(`Supprimer « ${p.name} » du catalogue ?`)){stockProducts.splice(Number(b.dataset.stockProductDelete),1);saveStockProducts();renderStockProductManager()}})}
-function stockTermVariants(value){const v=norm(value);if(!v)return[];const out=[v];if(v.length>4&&/[sx]$/.test(v))out.push(v.slice(0,-1));return [...new Set(out)]}
-function stockRecipeMatches(r){if(!stockRecipeSearchContext)return true;const corpus=recipeSearchCorpus(r),groups=stockRecipeSearchContext.groups||[];const one=g=>[g.name,g.alias].filter(Boolean).flatMap(stockTermVariants).some(t=>corpus.includes(t));return stockRecipeSearchContext.mode==='any'?groups.some(one):groups.every(one)}
-function selectedStockSearchTerms(){const out=[];stock.filter(x=>x.checked).forEach(x=>{[x.name,x.alias].filter(Boolean).forEach(v=>out.push(v))});return [...new Set(out)]}
-function runStockRecipeSearch(mode){const terms=selectedStockSearchTerms();if(!terms.length)return;stockRecipeSearchContext={mode,from:'stock',groups:stock.filter(x=>x.checked).map(x=>({name:x.name,alias:x.alias||''}))};const matches=recipes.filter(r=>stockRecipeMatches(r));$('#stockSearchDialog').close();if(!matches.length){stockRecipeSearchContext=null;alert('Pas de résultat. Réduisez les critères.');return}$('#search').value=stock.filter(x=>x.checked).map(x=>x.name).join(', ');['#category','#recipeTypeFilter','#recipeTemperatureFilter','#recipeSeasonFilter','#recipePeriodFilter'].forEach(id=>{if($(id))$(id).value=''});recipeZeroResultAlerted=false;switchView('recipes',{top:true});renderRecipes()}
+function stockListValues(kind){
+  if(kind==='location')return stockLocations();
+  if(kind==='group')return [...new Set([...mergedStockProducts().map(x=>x.group),...stock.map(x=>x.group)].filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));
+  if(kind==='aisle')return [...new Set([...knownAisles(),...stock.map(x=>x.aisle)].filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));
+  return mergedStockProducts().map(x=>x.name);
+}
+function renderStockListManager(){
+  const kind=$('#stockListKind')?.value||'product',sel=$('#stockListValue');if(!sel)return;
+  const values=stockListValues(kind);sel.innerHTML=values.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('')||'<option value="">Aucun élément</option>';
+  updateStockListManagerState();
+}
+function updateStockListManagerState(){
+  const kind=$('#stockListKind')?.value||'product',value=$('#stockListValue')?.value||'',note=$('#stockListSourceNote');
+  const produce=kind==='product'&&value&&produceStockProducts().some(p=>norm(p.name)===norm(value));
+  if(note){note.classList.toggle('hidden',!produce);note.textContent=produce?'Ce nom vient de Fruits & Légumes. Il se modifie dans cette rubrique afin de garder une seule écriture de référence.':''}
+  if($('#renameStockListValue'))$('#renameStockListValue').disabled=!value||produce;
+  if($('#deleteStockListValue'))$('#deleteStockListValue').disabled=!value||produce;
+}
+function openStockProducts(){renderStockListManager();$('#stockProductDialog').showModal()}
+function renameStockListValue(){
+  const kind=$('#stockListKind').value,old=$('#stockListValue').value;if(!old)return;
+  if(kind==='product'&&produceStockProducts().some(p=>norm(p.name)===norm(old)))return alert('Ce nom vient de Fruits & Légumes. Modifie-le dans cette rubrique.');
+  const asked=prompt('Nouveau nom :',old);if(asked===null)return;const neu=asked.trim();if(!neu||norm(neu)===norm(old))return;
+  if(stockListValues(kind).some(v=>norm(v)===norm(neu)))return alert('Cet élément existe déjà.');
+  if(kind==='location'){
+    saveStockLocations(stockLocations().map(v=>norm(v)===norm(old)?neu:v));stock.forEach(x=>{if(norm(x.location)===norm(old))x.location=neu});
+  }else if(kind==='group'){
+    stockProducts.forEach(x=>{if(norm(x.group)===norm(old))x.group=neu});stock.forEach(x=>{if(norm(x.group)===norm(old))x.group=neu});saveStockProducts();
+  }else if(kind==='aisle'){
+    stockProducts.forEach(x=>{if(norm(x.aisle)===norm(old))x.aisle=neu});stock.forEach(x=>{if(norm(x.aisle)===norm(old))x.aisle=neu});shopping.forEach(x=>{if(norm(x.aisle)===norm(old))x.aisle=neu});
+    const all=aisleOrders();Object.keys(all).forEach(store=>all[store]=(all[store]||[]).map(v=>norm(v)===norm(old)?neu:v));saveAisleOrders(all);saveShopping();saveStockProducts();
+  }else{
+    stockProducts.forEach(x=>{if(norm(x.name)===norm(old))x.name=neu});stock.forEach(x=>{if(norm(x.name)===norm(old))x.name=neu});saveStockProducts();
+  }
+  hgSet(stockStore,JSON.stringify(stock));markDirty();renderStock();renderStockListManager();$('#stockListValue').value=neu;updateStockListManagerState();
+}
+function deleteStockListValue(){
+  const kind=$('#stockListKind').value,value=$('#stockListValue').value;if(!value)return;
+  if(kind==='product'&&produceStockProducts().some(p=>norm(p.name)===norm(value)))return alert('Ce nom vient de Fruits & Légumes. Modifie-le dans cette rubrique.');
+  const used=kind==='location'?stock.filter(x=>norm(x.location)===norm(value)).length:kind==='group'?stock.filter(x=>norm(x.group)===norm(value)).length:kind==='aisle'?stock.filter(x=>norm(x.aisle)===norm(value)).length:stock.filter(x=>norm(x.name)===norm(value)).length;
+  const extra=used?`\n\n${used} élément${used>1?'s':''} du stock l’utilise${used>1?'nt':''}. ${kind==='product'?'Ces lignes seront supprimées.':'La valeur sera effacée de ces lignes.'}`:'';
+  if(!confirm(`Supprimer « ${value} » ?${extra}`))return;
+  if(kind==='location'){
+    saveStockLocations(stockLocations().filter(v=>norm(v)!==norm(value)));stock.forEach(x=>{if(norm(x.location)===norm(value))x.location=''})
+  }else if(kind==='group'){
+    stockProducts.forEach(x=>{if(norm(x.group)===norm(value))x.group=''});stock.forEach(x=>{if(norm(x.group)===norm(value))x.group=''});saveStockProducts();
+  }else if(kind==='aisle'){
+    stockProducts.forEach(x=>{if(norm(x.aisle)===norm(value))x.aisle=''});stock.forEach(x=>{if(norm(x.aisle)===norm(value))x.aisle=''});shopping.forEach(x=>{if(norm(x.aisle)===norm(value))x.aisle='Rayon à définir'});
+    const all=aisleOrders();Object.keys(all).forEach(store=>all[store]=(all[store]||[]).filter(v=>norm(v)!==norm(value)));saveAisleOrders(all);saveShopping();saveStockProducts();
+  }else{
+    stockProducts=stockProducts.filter(x=>norm(x.name)!==norm(value));stock=stock.filter(x=>norm(x.name)!==norm(value));saveStockProducts();
+  }
+  hgSet(stockStore,JSON.stringify(stock));markDirty();renderStock();renderStockListManager();
+}
 if($('#addStock'))$('#addStock').onclick=()=>openStock();if($('#closeStockDialog'))$('#closeStockDialog').onclick=()=>$('#stockDialog').close();if($('#stockProduct'))$('#stockProduct').onchange=refreshStockProductFields;if($('#stockLocation'))$('#stockLocation').onchange=()=>handleStockOther($('#stockLocation'),'lieu');if($('#stockGroup'))$('#stockGroup').onchange=()=>handleStockOther($('#stockGroup'),'groupe');if($('#stockAisle'))$('#stockAisle').onchange=()=>handleStockOther($('#stockAisle'),'rayon');
 if($('#stockForm'))$('#stockForm').onsubmit=e=>{e.preventDefault();const id=$('#stockId').value,name=$('#stockProduct').value;if(!name)return;const item={id:id||uid(),name,location:$('#stockLocation').value,group:$('#stockGroup').value,aisle:$('#stockAisle').value,alias:$('#stockSearchAlso').value.trim(),checked:false};const old=stock.find(x=>x.id===id);if(old)Object.assign(old,item);else stock.push(item);const p=productForStockName(name);if(!p||p.source!=='produce'){const i=stockProducts.findIndex(x=>norm(x.name)===norm(name)),def={name,group:item.group,aisle:item.aisle,alias:item.alias};if(i>=0)stockProducts[i]=def;else stockProducts.push(def);saveStockProducts()}saveStock();$('#stockDialog').close()};
 if($('#deleteStock'))$('#deleteStock').onclick=()=>{const id=$('#stockId').value;if(id&&confirm('Supprimer ce produit du stock ?')){stock=stock.filter(x=>x.id!==id);saveStock();$('#stockDialog').close()}};
-if($('#manageStockProducts'))$('#manageStockProducts').onclick=openStockProducts;if($('#closeStockProducts'))$('#closeStockProducts').onclick=()=>$('#stockProductDialog').close();if($('#newStockProductAisle'))$('#newStockProductAisle').onchange=()=>handleStockOther($('#newStockProductAisle'),'rayon');
-if($('#stockProductForm'))$('#stockProductForm').onsubmit=e=>{e.preventDefault();const name=$('#newStockProductName').value.trim();if(!name)return;if(mergedStockProducts().some(x=>norm(x.name)===norm(name)))return alert('Ce produit existe déjà.');stockProducts.push({name,group:$('#newStockProductGroup').value.trim(),aisle:$('#newStockProductAisle').value,alias:$('#newStockProductAlias').value.trim()});saveStockProducts();renderStockProductManager();$('#newStockProductName').value='';$('#newStockProductGroup').value='';$('#newStockProductAlias').value=''};
+if($('#manageStockProducts'))$('#manageStockProducts').onclick=openStockProducts;if($('#closeStockProducts'))$('#closeStockProducts').onclick=()=>$('#stockProductDialog').close();
+if($('#stockListKind'))$('#stockListKind').onchange=renderStockListManager;if($('#stockListValue'))$('#stockListValue').onchange=updateStockListManagerState;if($('#renameStockListValue'))$('#renameStockListValue').onclick=renameStockListValue;if($('#deleteStockListValue'))$('#deleteStockListValue').onclick=deleteStockListValue;
 if($('#stockRecipeSearch'))$('#stockRecipeSearch').onclick=()=>{const selected=stock.filter(x=>x.checked);$('#stockSearchSummary').textContent=selected.map(x=>x.name).join(' · ');$('#stockSearchDialog').showModal()};if($('#closeStockSearch'))$('#closeStockSearch').onclick=()=>$('#stockSearchDialog').close();if($('#stockSearchAll'))$('#stockSearchAll').onclick=()=>runStockRecipeSearch('all');if($('#stockSearchAny'))$('#stockSearchAny').onclick=()=>runStockRecipeSearch('any');
 
 function loadSaved(){try{const s=JSON.parse(hgGet(planStore)||hgGet('hg-plan-v26')||'null');if(s){currentWeekStart=s.weekStart||hgGet(weekStore)||mondayISO(new Date());plan=(s.items||[]).map(x=>{const date=x.date||addDaysISO(currentWeekStart,Number(x.dayIndex)||0);return{uid:x.uid||uid(),date,slot:x.slot,people:(Number(x.people)>=1&&Number(x.people)<=10?Number(x.people):(Number(s.people)>=1&&Number(s.people)<=10?Number(s.people):null)),role:x.role||'',notes:x.notes||'',preparePreviousDay:Boolean(x.preparePreviousDay),isLeftover:Boolean(x.isLeftover),leftoverSourceDate:x.leftoverSourceDate||'',leftoverPortions:Number(x.leftoverPortions)||0,leftoverIdea:x.leftoverIdea||'',recipe:recipes.find(r=>r.id===x.id)}}).filter(x=>x.recipe)}shopping=(JSON.parse(hgGet(shoppingStore)||hgGet('hg-shopping-v26')||hgGet('hg-shopping')||'[]')||[]).map(normalizeShoppingItem);consolidateShopping();hgSet(shoppingStore,JSON.stringify(shopping))}catch(e){console.error(e)}publishMaVieShoppingStatus();hgSet(weekStore,currentWeekStart);renderDaySlotChoices();renderPlan();renderShopping()}
