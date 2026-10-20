@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.11.41';
+const APP_VERSION='2.9.8.11.42';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -1368,13 +1368,14 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
 })();
 
 
-/* v2.9.8.11.41 — Catalogue ingrédients : modification par listes contrôlées. */
+/* v2.9.8.11.42 — Catalogue ingrédients : persistance + sauvegarde dédiée. */
 (()=>{
  const STORE='hg-ingredient-catalog-v1';
  const source=Array.isArray(window.HG_FRIGO_CATALOG_SOURCE)?window.HG_FRIGO_CATALOG_SOURCE:[];
  let catalog=[];
- const load=()=>{try{const saved=JSON.parse(hgGet(STORE)||'null');catalog=Array.isArray(saved)?saved:source.map(x=>({...x}));}catch(_){catalog=source.map(x=>({...x}))}};
- const save=()=>{hgSet(STORE,JSON.stringify(catalog));registerProtectedChange();markDirty()};
+ const clean=x=>({...x,_editing:undefined});
+ const load=()=>{try{const raw=hgGet(STORE),saved=raw?JSON.parse(raw):null;catalog=Array.isArray(saved)?saved.map(clean):source.map(x=>({...x}));if(!Array.isArray(saved))hgSet(STORE,JSON.stringify(catalog));return Boolean(Array.isArray(saved))}catch(_){catalog=source.map(x=>({...x}));return false}};
+ const save=()=>{const stable=catalog.map(({_editing,...x})=>x);catalog=stable;hgSet(STORE,JSON.stringify(stable));registerProtectedChange();markDirty()};
  const groups=()=>[...new Set(catalog.map(x=>String(x.group||'À classer').trim()||'À classer'))].sort((a,b)=>a.localeCompare(b,'fr'));
  const names=()=>[...new Set(catalog.map(x=>String(x.name||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr'));
  function refreshGroups(){const sel=$('#ingredientCatalogGroup');if(!sel)return;const keep=sel.value;sel.innerHTML='<option value="">Tous les groupes</option>'+groups().map(g=>`<option>${esc(g)}</option>`).join('');if([...sel.options].some(o=>o.value===keep))sel.value=keep}
@@ -1386,9 +1387,13 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   list.querySelectorAll('.catalog-edit-group').forEach(sel=>sel.onchange=()=>{if(sel.value!=='__new__')return;const r=sel.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r.dataset.catalogId);const v=prompt('Nom du nouveau groupe :',x?.group||'')?.trim();if(!v){sel.value=x?.group||'À classer';return}const existing=groups().find(g=>norm(g)===norm(v));const value=existing||v;const o=document.createElement('option');o.value=o.textContent=value;sel.insertBefore(o,sel.lastElementChild);sel.value=value});
  }
  function render(){refreshGroups();const list=$('#ingredientCatalogList'),count=$('#ingredientCatalogCount');if(!list||!count)return;const found=filtered();count.textContent=`${found.length} image${found.length>1?'s':''} affichée${found.length>1?'s':''} · ${catalog.length} au catalogue`;list.innerHTML=found.map(row).join('')||'<p class="ingredient-catalog-empty">Aucun élément trouvé.</p>';bindSpecialSelects(list);list.querySelectorAll('[data-catalog-edit]').forEach(b=>b.onclick=()=>{const r=b.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r.dataset.catalogId);if(!x)return;if(x._editing){const n=r.querySelector('.catalog-edit-name').value.trim(),g=r.querySelector('.catalog-edit-group').value.trim();if(!n||n==='__new__')return alert('Choisissez un nom.');if(!g||g==='__new__')return alert('Choisissez un groupe.');const dup=catalog.find(y=>y.id!==x.id&&norm(y.name)===norm(n));if(dup)return alert(`« ${n} » existe déjà dans le catalogue.`);x.name=n;x.group=g;delete x._editing;save()}else{x._editing=true}render()});list.querySelectorAll('[data-catalog-delete]').forEach(b=>b.onclick=()=>{const r=b.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r.dataset.catalogId);if(!x)return;if(!confirm(`Supprimer « ${x.name} » du catalogue ?`))return;catalog=catalog.filter(y=>y.id!==x.id);save();render()})}
- load();
- $('#openIngredientCatalog')?.addEventListener('click',()=>{render();switchView('ingredientCatalog',{top:true})});
+ function catalogBackupName(){return `Herbier-Gourmand_Catalogue_${backupStamp()}.hgcat`}
+ function exportCatalog(){const stable=catalog.map(({_editing,...x})=>x),payload={format:'HerbierGourmandIngredientCatalog',formatVersion:1,appVersion:APP_VERSION,exportedAt:new Date().toISOString(),catalog:stable};downloadTextFile(catalogBackupName(),JSON.stringify(payload,null,2));const st=$('#ingredientCatalogBackupStatus');if(st)st.textContent=`Sauvegarde du catalogue créée · ${stable.length} éléments.`}
+ async function importCatalogFile(file){try{const parsed=JSON.parse(await file.text());if(parsed?.format!=='HerbierGourmandIngredientCatalog'||parsed?.formatVersion!==1||!Array.isArray(parsed.catalog))throw new Error('format de sauvegarde du catalogue non reconnu');if(!confirm(`Restaurer ce catalogue (${parsed.catalog.length} éléments) ? Le catalogue actuel sera remplacé.`))return;catalog=parsed.catalog.map(clean);save();render();const st=$('#ingredientCatalogBackupStatus');if(st)st.textContent=`Catalogue restauré · ${catalog.length} éléments.`}catch(e){alert(`Restauration impossible : ${e.message}`)}}
+ $('#openIngredientCatalog')?.addEventListener('click',()=>{const recovered=load();render();switchView('ingredientCatalog',{top:true});const st=$('#ingredientCatalogBackupStatus');if(st&&recovered)st.textContent='Catalogue chargé depuis le stockage permanent.'});
  $('#backFromIngredientCatalog')?.addEventListener('click',()=>switchView('more'));
  $('#ingredientCatalogSearch')?.addEventListener('input',render);
  $('#ingredientCatalogGroup')?.addEventListener('change',render);
+ $('#exportIngredientCatalog')?.addEventListener('click',exportCatalog);
+ $('#ingredientCatalogImportFile')?.addEventListener('change',e=>{const f=e.target.files?.[0];if(f)importCatalogFile(f);e.target.value=''});
 })();

@@ -210,7 +210,8 @@ nav button:nth-child(n+6){grid-column:span 4!important}
 </section>
 
 <section id="ingredientCatalog" class="view">
-  <div class="section-title"><div><h2>Catalogue ingrédients</h2><span id="ingredientCatalogCount" class="muted"></span></div><div class="button-row"><button id="backFromIngredientCatalog" type="button">← Plus…</button></div></div>
+  <div class="section-title"><div><h2>Catalogue ingrédients</h2><span id="ingredientCatalogCount" class="muted"></span></div><div class="button-row"><button id="exportIngredientCatalog" type="button">Sauvegarder catalogue</button><label class="secondary import-label">Restaurer catalogue<input id="ingredientCatalogImportFile" type="file" accept=".hgcat,.json,application/json" hidden></label><button id="backFromIngredientCatalog" type="button">← Plus…</button></div></div>
+  <p id="ingredientCatalogBackupStatus" class="muted" aria-live="polite"></p>
   <div class="catalog-toolbar"><input id="ingredientCatalogSearch" type="search" placeholder="Rechercher un nom…"><select id="ingredientCatalogGroup"><option value="">Tous les groupes</option></select></div>
   <div id="ingredientCatalogList" class="ingredient-catalog-list"></div>
 </section>
