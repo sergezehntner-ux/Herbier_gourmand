@@ -379,6 +379,7 @@ nav button:nth-child(n+6){grid-column:span 4!important}
 
 <dialog id="planningPeriodDialog"><form method="dialog"><div class="dialog-head"><h2>Période des propositions</h2><button type="button" id="closePlanningPeriod">×</button></div><p>La saison reste toujours active. La période permet seulement d’écarter les recettes inadaptées à la température du moment.</p><div class="period-choice-list"><button type="button" data-planning-period="indifferente">Indifférente</button><button type="button" data-planning-period="chaude">☀️ Période chaude</button><button type="button" data-planning-period="froide">❄️ Période froide</button></div></form></dialog>
 
+<dialog id="recipePlanAddDialog"><form id="recipePlanAddForm" method="dialog"><div class="dialog-head"><h2>Choisir pour…</h2><button type="button" id="closeRecipePlanAdd">×</button></div><div class="grid"><label>Date<input id="recipePlanAddDate" type="date" required></label><label>Repas<select id="recipePlanAddSlot" required><option value="Matin">Matin</option><option value="Midi">Midi</option><option value="Soir">Soir</option></select></label></div><div class="dialog-actions"><button type="button" id="cancelRecipePlanAdd">Annuler</button><button type="submit" class="primary">Ajouter au Planning</button></div></form></dialog>
 <dialog id="movePlanDialog"><form id="movePlanForm" method="dialog"><div class="dialog-head"><h2>Déplacer dans le planning</h2><button type="button" id="closeMovePlan">×</button></div><div class="grid"><label>Date<input id="movePlanDate" type="date" required></label><label>Repas<select id="movePlanSlot" required><option value="Matin">Matin</option><option value="Midi">Midi</option><option value="Soir">Soir</option></select></label></div><div class="dialog-actions"><button type="button" id="cancelMovePlan">Annuler</button><button type="submit" class="primary">Déplacer</button></div></form></dialog>
 
 
@@ -446,6 +447,6 @@ nav button:nth-child(n+6){grid-column:span 4!important}
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
 <script src="frigo-catalog-data.js?v=2981140"></script>
-<script src="app-v282.js?v=2981144"></script>
+<script src="app-v282.js?v=2981146"></script>
 <script src="media-v1.js?v=2981125"></script>
 </body></html>
