@@ -144,7 +144,8 @@
     #stockDialog .hg-touch-choice-list,#stockProductDialog .hg-touch-choice-list{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
     #stockDialog .hg-touch-choice-list button,#stockProductDialog .hg-touch-choice-list button{min-height:46px}
 
-  </style>
+  #hgEncyList .hg-ency-row{display:flex;align-items:center;gap:12px;padding:9px 12px;border-bottom:1px solid #ddd;cursor:pointer;min-height:50px}#hgEncyList .hg-ency-row strong{flex:1}#hgEncyList .hg-ency-row small{color:#68736b}#hgEncyDialog{max-width:min(800px,96vw);max-height:90vh;overflow:auto}#hgEncyDialog form{padding:16px}#hgEncyDialog textarea{min-height:52px}#hgEncyDetailContent .hg-ency-block{padding:10px 0;border-bottom:1px solid #ddd}#hgEncyDetailContent .hg-ency-block h3{margin:0 0 5px}#hgEncyDialog .grid{gap:8px}#hgEncyDialog .dialog-actions{position:sticky;bottom:0;background:#fff;padding:8px 0}
+</style>
 
 <style id="hg-nav-4plus5-fix">
 /* v2.9.8.11.22 — force réellement 4 boutons puis 5 boutons */
@@ -199,12 +200,12 @@ nav button:nth-child(n+6){grid-column:span 4!important}
   <div class="section-title"><div><h2>Bibliothèque gourmande</h2><span class="muted">Catalogue maître et six encyclopédies culinaires</span></div></div>
   <div class="hg-library-grid">
     <button class="hg-library-card hg-library-catalog" type="button" id="libraryOpenCatalog"><span class="hg-library-icon">📇</span><span class="hg-library-copy"><strong>Catalogue</strong><small>Index maître des ingrédients</small></span></button>
-    <article class="hg-library-card hg-library-pending"><span class="hg-library-icon">🥩</span><span class="hg-library-copy"><strong>Viandes & Volailles</strong><small>À construire</small></span></article>
-    <article class="hg-library-card hg-library-pending"><span class="hg-library-icon">🐟</span><span class="hg-library-copy"><strong>Poissons & Crustacés</strong><small>À construire</small></span></article>
+    <button class="hg-library-card" type="button" data-encyclopedia="meat"><span class="hg-library-icon">🥩</span><span class="hg-library-copy"><strong>Viandes & Volailles</strong><small>Encyclopédie</small></span></button>
+    <button class="hg-library-card" type="button" data-encyclopedia="fish"><span class="hg-library-icon">🐟</span><span class="hg-library-copy"><strong>Poissons & Crustacés</strong><small>Encyclopédie</small></span></button>
     <button class="hg-library-card" type="button" data-go="produce"><span class="hg-library-icon">🍎</span><span class="hg-library-copy"><strong>Fruits & Légumes</strong><small>Encyclopédie existante</small></span></button>
     <button class="hg-library-card" type="button" data-go="herbs"><span class="hg-library-icon">🌿</span><span class="hg-library-copy"><strong>Plantes & Épices</strong><small>Encyclopédie existante</small></span></button>
-    <article class="hg-library-card hg-library-pending"><span class="hg-library-icon">🫙</span><span class="hg-library-copy"><strong>Condiments & Sauces</strong><small>À construire</small></span></article>
-    <article class="hg-library-card hg-library-pending"><span class="hg-library-icon">🍹</span><span class="hg-library-copy"><strong>Boissons & Cocktails</strong><small>À construire</small></span></article>
+    <button class="hg-library-card" type="button" data-encyclopedia="condiments"><span class="hg-library-icon">🫙</span><span class="hg-library-copy"><strong>Condiments & Sauces</strong><small>Encyclopédie</small></span></button>
+    <button class="hg-library-card" type="button" data-encyclopedia="drinks"><span class="hg-library-icon">🍹</span><span class="hg-library-copy"><strong>Boissons & Cocktails</strong><small>Encyclopédie</small></span></button>
   </div>
 </section>
 
@@ -359,6 +360,17 @@ nav button:nth-child(n+6){grid-column:span 4!important}
   <article id="produceViewContent"></article>
 </section>
 
+<section id="hgEncyclopedia" class="view">
+  <div class="section-title"><div><h2 id="hgEncyTitle">Encyclopédie</h2><span class="muted" id="hgEncyCount"></span></div><div class="button-row"><button id="hgEncyAdd" class="primary">Ajouter</button><button id="hgEncyBack">← Bibliothèque</button></div></div>
+  <div class="produce-search-grid"><label>Recherche<input id="hgEncySearch" type="search" placeholder="Nom, utilisation, préparation…"></label><label>Catégorie<select id="hgEncyCategory"><option value="">Toutes les catégories</option></select></label></div>
+  <div id="hgEncyList" class="produce-list"></div>
+</section>
+<section id="hgEncyclopediaDetail" class="view recipe-screen"><div class="recipe-screen-actions"><button id="hgEncyDetailBack">← Retour</button><div><button id="hgEncyPrint">Imprimer</button><button id="hgEncyEdit">Modifier</button></div></div><article id="hgEncyDetailContent"></article></section>
+<dialog id="hgEncyDialog"><form id="hgEncyForm"><div class="dialog-head"><h2 id="hgEncyDialogTitle">Fiche encyclopédique</h2><button type="button" id="hgEncyClose">×</button></div>
+<div class="grid"><label>Nom du Catalogue<select id="hgEncyName" required></select></label><label>Catégorie<input id="hgEncyFieldCategory" placeholder="Ex. Sauce, Marinade…"></label><label>Partie utilisée<input id="hgEncyPart" placeholder="Ex. Filet, feuille, fruit…"></label><label>Saison<input id="hgEncySeason" placeholder="Ex. Été, toute l’année…"></label></div>
+<div class="grid"><label>Utilisations culinaires<textarea id="hgEncyUses" rows="2"></textarea></label><label>À associer avec<textarea id="hgEncyPairings" rows="2"></textarea></label><label>Modes de préparation<textarea id="hgEncyPreparation" rows="3"></textarea></label><label>Conservation<textarea id="hgEncyConservation" rows="2"></textarea></label><label>Description<textarea id="hgEncyDescription" rows="2"></textarea></label><label>Bienfaits / caractéristiques<textarea id="hgEncyBenefits" rows="2"></textarea></label><label>Associations renforçant les bienfaits<textarea id="hgEncyBenefitPairings" rows="2"></textarea></label><label>Remarques<textarea id="hgEncyNotes" rows="2"></textarea></label></div>
+<div class="button-row"><label><input type="checkbox" id="hgEncyRaw"> Cru</label><label><input type="checkbox" id="hgEncyCooked"> Cuit</label><label><input type="checkbox" id="hgEncyFreezable"> Congelable</label></div>
+<div class="dialog-actions"><button type="button" id="hgEncyDelete" class="danger">Supprimer la fiche</button><button type="button" id="hgEncyCancel">Annuler</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 </main>
 <footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse.</footer>
 <button id="recipeFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des recettes">🔍 Rechercher</button>
@@ -467,6 +479,6 @@ nav button:nth-child(n+6){grid-column:span 4!important}
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
 <script src="frigo-catalog-data.js?v=2981140"></script>
-<script src="app-v282.js?v=2981154"></script>
+<script src="app-v282.js?v=2981155"></script>
 <script src="media-v1.js?v=2981125"></script>
 </body></html>
