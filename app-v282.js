@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.11.58';
+const APP_VERSION='2.9.8.11.57';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -88,8 +88,7 @@ function rememberScroll(view=activeViewId()){viewScrollPositions[view]=scrollY}
 function restoreScroll(view){requestAnimationFrame(()=>scrollTo(0,viewScrollPositions[view]||0))}
 function restoreScrollStable(view,y){const target=Math.max(0,Number(y)||0);viewScrollPositions[view]=target;requestAnimationFrame(()=>requestAnimationFrame(()=>scrollTo(0,target)));setTimeout(()=>scrollTo(0,target),120)}
 function keepScroll(action,view=activeViewId()){const y=scrollY;action();requestAnimationFrame(()=>scrollTo(0,y));viewScrollPositions[view]=y}
-function updateFloatingLibrary(){const b=document.getElementById('hgFloatingLibrary');if(b)b.classList.toggle('visible',['herbs','herbView','produce','produceView','hgEncyclopedia','hgEncyclopediaDetail'].includes(activeViewId()));}
-function switchView(id,{top=false}={}){const from=activeViewId();if(from!==id)rememberScroll(from);$$('.view').forEach(v=>v.classList.toggle('active',v.id===id));$$('nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===id));if(top)viewScrollPositions[id]=0;restoreScroll(id);updateWakeLock(id);updateFloatingLibrary();}
+function switchView(id,{top=false}={}){const from=activeViewId();if(from!==id)rememberScroll(from);$$('.view').forEach(v=>v.classList.toggle('active',v.id===id));$$('nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===id));if(top)viewScrollPositions[id]=0;restoreScroll(id);updateWakeLock(id);}
 let plannerSessionDirty=false,shoppingSessionDirty=false,leaveGuardTarget=null,shoppingReturnContext=null;
 function markSessionDirty(view=activeViewId()){if(view==='planner')plannerSessionDirty=true;if(view==='shopping')shoppingSessionDirty=true}
 function resetSessionDirty(view){if(view==='planner')plannerSessionDirty=false;if(view==='shopping')shoppingSessionDirty=false}
@@ -1432,7 +1431,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  function exportCatalog(){const stable=catalog.map(x=>normalizeItem(x)),payload={format:'HerbierGourmandIngredientCatalog',formatVersion:1,appVersion:APP_VERSION,exportedAt:new Date().toISOString(),catalog:stable};downloadTextFile(catalogBackupName(),JSON.stringify(payload,null,2));const st=$('#ingredientCatalogBackupStatus');if(st)st.textContent=`Sauvegarde du catalogue créée · ${stable.length} éléments.`}
  async function importCatalogFile(file){try{const parsed=JSON.parse(await file.text());if(parsed?.format!=='HerbierGourmandIngredientCatalog'||parsed?.formatVersion!==1||!Array.isArray(parsed.catalog))throw new Error('format de sauvegarde du catalogue non reconnu');if(!confirm(`Restaurer ce catalogue (${parsed.catalog.length} éléments) ? Le catalogue actuel sera remplacé.`))return;catalog=parsed.catalog.map(x=>normalizeItem(x,true));save();render();const st=$('#ingredientCatalogBackupStatus');if(st)st.textContent=`Catalogue restauré · ${catalog.length} éléments.`}catch(e){alert(`Restauration impossible : ${e.message}`)}}
  const openCatalogFromLibrary=()=>{const recovered=load();render();switchView('ingredientCatalog',{top:true});const st=$('#ingredientCatalogBackupStatus');if(st&&recovered)st.textContent='Catalogue chargé depuis le stockage permanent.'};
- const addDialog=$('#catalogAddDialog');if(addDialog)document.body.appendChild(addDialog);
+ const addDialog=$('#catalogAddDialog');
  $('#addIngredientCatalog')?.addEventListener('click',()=>{if(READONLY)return;for(const [field,values] of [['catalogAisleSuggestions',aisles()],['catalogGroupSuggestions',groups()]]){$('#'+field).innerHTML=values.map(v=>`<option value="${esc(v)}"></option>`).join('')}$('#catalogAddForm').reset();addDialog.showModal();$('#catalogAddName').focus()});
  $('#catalogAddClose')?.addEventListener('click',()=>addDialog.close());
  $('#catalogAddCancel')?.addEventListener('click',()=>addDialog.close());
@@ -1483,7 +1482,6 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   for(const [k,field] of Object.entries(fields)){const el=get(field);if(el.type==='checkbox')el.checked=!!x?.[k];else el.value=x?.[k]||''}
   updateFreezing();get('hgEncyDelete').hidden=!x;get('hgEncyDialog').showModal();
  }
- document.body.appendChild(get('hgEncyDialog'));
  const freeze=get('hgEncyFreezable'),raw=get('hgEncyRaw'),cooked=get('hgEncyCooked');
  function updateFreezing(){raw.disabled=cooked.disabled=!freeze.checked;if(!freeze.checked){raw.checked=false;cooked.checked=false}}
  freeze.addEventListener('change',updateFreezing);
@@ -1501,10 +1499,10 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  get('hgEncyAdd').onclick=()=>edit();get('hgEncyEdit').onclick=()=>edit(chosen);
  get('hgEncySearch').oninput=render;get('hgEncyCategory').onchange=render;
  get('hgEncyPrint').onclick=()=>{const x=item();if(x)printDocument(x.name,`<h1>${esc(x.name)}</h1>`+get('hgEncyDetailContent').innerHTML)};
+ get('hgEncyPrintList').onclick=()=>{const rows=[...get('hgEncyList').querySelectorAll('[data-id]')].map(b=>db[active].find(x=>x.id===b.dataset.id)).filter(Boolean);if(!rows.length)return alert('Aucune fiche à imprimer.');printDocument(labels[active],`<h1>${esc(labels[active])}</h1><p>${rows.length} fiche(s)</p>`+rows.map(x=>`<div class="day"><h2>${esc(x.name)}</h2><p>${esc(x.category||'')}</p><p>${esc(x.uses||x.description||'')}</p></div>`).join(''))};
  document.querySelectorAll('[data-encyclopedia]').forEach(b=>b.onclick=()=>open(b.dataset.encyclopedia));
  init();
 })();
 
-// Retour flottant unique des six encyclopédies.
-document.getElementById('hgFloatingLibrary')?.addEventListener('click',()=>switchView('library',{top:true}));
-updateFloatingLibrary();
+/* v2.9.8.11.59 — bouton de retour unique, commun aux six encyclopédies et au Catalogue */
+(()=>{const b=document.getElementById('hgLibraryFloatingBack');if(b)b.addEventListener('click',()=>switchView('library',{top:true}));})();

@@ -145,11 +145,6 @@
     #stockDialog .hg-touch-choice-list button,#stockProductDialog .hg-touch-choice-list button{min-height:46px}
 
   #hgEncyList .hg-ency-row{display:flex;align-items:center;gap:12px;padding:9px 12px;border-bottom:1px solid #ddd;cursor:pointer;min-height:50px}#hgEncyList .hg-ency-row strong{flex:1}#hgEncyList .hg-ency-row small{color:#68736b}#hgEncyDialog{max-width:min(800px,96vw);max-height:90vh;overflow:auto}#hgEncyDialog form{padding:16px}#hgEncyDialog textarea{min-height:52px}#hgEncyDetailContent .hg-ency-block{padding:10px 0;border-bottom:1px solid #ddd}#hgEncyDetailContent .hg-ency-block h3{margin:0 0 5px}#hgEncyDialog .grid{gap:8px}#hgEncyDialog .dialog-actions{position:sticky;bottom:0;background:#fff;padding:8px 0}
-
-/* Retour commun flottant : six encyclopédies */
-.hg-floating-library{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));z-index:290;display:none;padding:.65rem .9rem;border-radius:999px;box-shadow:0 5px 18px #0003;font-weight:700}
-.hg-floating-library.visible{display:inline-flex}
-body:has(dialog[open]) .hg-floating-library{display:none!important}
 </style>
 
 <style id="hg-nav-4plus5-fix">
@@ -173,7 +168,14 @@ nav button:nth-child(n+6){grid-column:span 4!important}
 .hg-library-pending{background:#f5f3eb;cursor:default}.hg-library-card:focus-visible{outline:3px solid #347457;outline-offset:2px}
 @media(max-width:650px){.hg-library-card{padding:8px 6px;gap:5px;min-height:62px}.hg-library-copy{gap:3px}.hg-library-card strong{font-size:.88rem}.hg-library-card small{font-size:.69rem}.hg-library-icon{font-size:1.25rem}}
 </style>
-<style id="hg-catalog-photos-v53">.ingredient-catalog-photo-hit{display:block;width:64px;height:52px;padding:0;border:0;background:transparent;cursor:pointer;border-radius:8px}.ingredient-catalog-photo-hit:focus-visible{outline:2px solid #35634c;outline-offset:2px}.ingredient-catalog-photo-hit .ingredient-catalog-thumb{display:block}.ingredient-catalog-row{grid-template-columns:72px minmax(0,1.25fr) minmax(120px,.7fr) minmax(120px,.7fr) auto}@media(max-width:700px){.ingredient-catalog-photo-hit{width:52px;height:46px}.ingredient-catalog-row{grid-template-columns:58px minmax(0,1fr) auto}}</style></head>
+<style id="hg-catalog-photos-v53">.ingredient-catalog-photo-hit{display:block;width:64px;height:52px;padding:0;border:0;background:transparent;cursor:pointer;border-radius:8px}.ingredient-catalog-photo-hit:focus-visible{outline:2px solid #35634c;outline-offset:2px}.ingredient-catalog-photo-hit .ingredient-catalog-thumb{display:block}.ingredient-catalog-row{grid-template-columns:72px minmax(0,1.25fr) minmax(120px,.7fr) minmax(120px,.7fr) auto}@media(max-width:700px){.ingredient-catalog-photo-hit{width:52px;height:46px}.ingredient-catalog-row{grid-template-columns:58px minmax(0,1fr) auto}}</style><style id="hg-v59-floating-fix">
+#hgLibraryFloatingBack{position:fixed!important;right:max(16px,env(safe-area-inset-right))!important;bottom:max(18px,env(safe-area-inset-bottom))!important;z-index:400!important;display:none;padding:12px 19px;border-radius:999px;background:#315d48;color:white;font-weight:700;box-shadow:0 7px 22px #0003;cursor:pointer}
+body:has(.view.active:is(#ingredientCatalog,#herbs,#herbView,#produce,#produceView,#hgEncyclopedia,#hgEncyclopediaDetail)) #hgLibraryFloatingBack{display:block!important}
+body:has(dialog[open]) #hgLibraryFloatingBack{display:none!important}
+#backFromIngredientCatalog,#backHerbsToLibrary,#backProduceToLibrary,#hgEncyBack{display:none!important}
+@media(max-width:700px){#hgLibraryFloatingBack{right:12px!important;bottom:14px!important;padding:10px 15px}}
+</style>
+</head>
 <body>
 <div id="startupOverlay" class="startup-overlay" role="status" aria-live="polite" aria-busy="true">
   <div class="startup-card">
@@ -185,7 +187,7 @@ nav button:nth-child(n+6){grid-column:span 4!important}
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.58 · Catalogue : Nom · Catégorie · Rayon</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.59 · Catalogue : Nom · Catégorie · Rayon</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -236,7 +238,7 @@ nav button:nth-child(n+6){grid-column:span 4!important}
 </section>
 
 <section id="ingredientCatalog" class="view">
-  <div class="section-title"><div><h2>Catalogue ingrédients</h2><span id="ingredientCatalogCount" class="muted"></span></div><div class="button-row"><button id="addIngredientCatalog" class="primary" type="button">+ Ajouter</button><button id="exportIngredientCatalog" type="button">Sauvegarder catalogue</button><label class="secondary import-label">Restaurer catalogue<input id="ingredientCatalogImportFile" type="file" accept=".hgcat,.json,application/json" hidden></label><button id="backFromIngredientCatalog" type="button">← Bibliothèque</button></div></div>
+  <div class="section-title"><div><h2>Catalogue ingrédients</h2><span id="ingredientCatalogCount" class="muted"></span></div><div class="button-row"><button id="addIngredientCatalog" class="primary" type="button">+ Ajouter</button><button id="exportIngredientCatalog" type="button">Sauvegarder catalogue</button><label class="secondary import-label">Restaurer catalogue<input id="ingredientCatalogImportFile" type="file" accept=".hgcat,.json,application/json" hidden></label><button hidden id="backFromIngredientCatalog" type="button">← Bibliothèque</button></div></div>
   <p id="ingredientCatalogBackupStatus" class="muted" aria-live="polite"></p>
   <div class="catalog-toolbar"><input id="ingredientCatalogSearch" type="search" placeholder="Rechercher un nom…"><select id="ingredientCatalogAisle"><option value="">Tous les rayons</option></select><select id="ingredientCatalogGroup"><option value="">Toutes les catégories</option></select></div>
   <dialog id="catalogAddDialog"><form id="catalogAddForm"><div class="dialog-head"><h2>Nouvel article du Catalogue</h2><button type="button" id="catalogAddClose">×</button></div><div class="grid"><label>Nom<input id="catalogAddName" required maxlength="200"></label><label>Rayon<input id="catalogAddAisle" list="catalogAisleSuggestions" required><datalist id="catalogAisleSuggestions"></datalist></label><label>Catégorie<input id="catalogAddGroup" list="catalogGroupSuggestions"><datalist id="catalogGroupSuggestions"></datalist></label></div><div class="dialog-actions"><button type="button" id="catalogAddCancel">Annuler</button><button class="primary" type="submit">Enregistrer</button></div></form></dialog><input id="ingredientCatalogPhotoFile" type="file" accept="image/*" hidden><div id="ingredientCatalogList" class="ingredient-catalog-list"></div>
@@ -331,7 +333,7 @@ nav button:nth-child(n+6){grid-column:span 4!important}
 </section>
 
 <section id="herbs" class="view">
-  <div class="section-title"><div><h2>Plantes & Épices</h2><span id="herbCount" class="muted"></span></div><div class="button-row"><button id="newHerb" class="primary">Ajouter</button><button id="printHerbList">Imprimer la liste</button><button id="randomHerb" class="secondary">Découverte surprise</button><button id="backHerbsToLibrary" type="button">← Bibliothèque</button></div></div>
+  <div class="section-title"><div><h2>Plantes & Épices</h2><span id="herbCount" class="muted"></span></div><div class="button-row"><button id="newHerb" class="primary">Ajouter</button><button id="printHerbList">Imprimer la liste</button><button id="randomHerb" class="secondary">Découverte surprise</button><button hidden id="backHerbsToLibrary" type="button">← Bibliothèque</button></div></div>
   <p class="lead">Chercher une plante, une saveur, un aliment, une cuisine ou une utilisation.</p>
   <div class="herb-search-grid">
     <label>Recherche<input id="herbSearch" type="search" placeholder="Basilic, poisson, citron, curry…"></label>
@@ -349,7 +351,7 @@ nav button:nth-child(n+6){grid-column:span 4!important}
 
 
 <section id="produce" class="view">
-  <div class="section-title"><div><h2>Fruits & Légumes</h2><span id="produceCount" class="muted"></span></div><div class="button-row"><button id="newProduce" class="primary">Ajouter</button><button id="printProduceList">Imprimer la liste</button><button id="randomProduce" class="secondary">Découverte surprise</button><button id="backProduceToLibrary" type="button">← Bibliothèque</button></div></div>
+  <div class="section-title"><div><h2>Fruits & Légumes</h2><span id="produceCount" class="muted"></span></div><div class="button-row"><button id="newProduce" class="primary">Ajouter</button><button id="printProduceList">Imprimer la liste</button><button id="randomProduce" class="secondary">Découverte surprise</button><button hidden id="backProduceToLibrary" type="button">← Bibliothèque</button></div></div>
   <p class="lead">Chercher un produit, une saison, une préparation, un accord ou une utilisation culinaire.</p>
   <div class="produce-search-grid">
     <label>Recherche<input id="produceSearch" type="search" placeholder="Tomate, hiver, rôti, salade…"></label>
@@ -366,7 +368,7 @@ nav button:nth-child(n+6){grid-column:span 4!important}
 </section>
 
 <section id="hgEncyclopedia" class="view">
-  <div class="section-title"><div><h2 id="hgEncyTitle">Encyclopédie</h2><span class="muted" id="hgEncyCount"></span></div><div class="button-row"><button id="hgEncyAdd" class="primary">Ajouter</button><button id="hgEncyBack">← Bibliothèque</button></div></div>
+  <div class="section-title"><div><h2 id="hgEncyTitle">Encyclopédie</h2><span class="muted" id="hgEncyCount"></span></div><div class="button-row"><button id="hgEncyAdd" class="primary">Ajouter</button><button id="hgEncyPrintList" type="button">Imprimer la liste</button><button hidden id="hgEncyBack">← Bibliothèque</button></div></div>
   <div class="produce-search-grid"><label>Recherche<input id="hgEncySearch" type="search" placeholder="Nom, utilisation, préparation…"></label><label>Catégorie<select id="hgEncyCategory"><option value="">Toutes les catégories</option></select></label></div>
   <div id="hgEncyList" class="produce-list"></div>
 </section>
@@ -374,12 +376,11 @@ nav button:nth-child(n+6){grid-column:span 4!important}
 <dialog id="hgEncyDialog"><form id="hgEncyForm"><div class="dialog-head"><h2 id="hgEncyDialogTitle">Fiche encyclopédique</h2><button type="button" id="hgEncyClose">×</button></div>
 <div class="grid"><label>Nom<select id="hgEncyName" required></select></label><label>Catégorie<input id="hgEncyFieldCategory" placeholder="Ex. Sauce, Marinade…"></label><label>Partie utilisée<input id="hgEncyPart" placeholder="Ex. Filet, feuille, fruit…"></label><label>Saison<input id="hgEncySeason" placeholder="Ex. Été, toute l’année…"></label></div>
 <div class="grid"><label>Utilisations culinaires<textarea id="hgEncyUses" rows="2"></textarea></label><label>À associer avec<textarea id="hgEncyPairings" rows="2"></textarea></label><label>Modes de préparation<textarea id="hgEncyPreparation" rows="3"></textarea></label><label>Conservation<textarea id="hgEncyConservation" rows="2"></textarea></label><label>Description<textarea id="hgEncyDescription" rows="2"></textarea></label><label>Bienfaits / Caractéristiques<textarea id="hgEncyBenefits" rows="2"></textarea></label><label>Associations renforçant les bienfaits<textarea id="hgEncyBenefitPairings" rows="2"></textarea></label><label>Remarques<textarea id="hgEncyNotes" rows="2"></textarea></label></div>
-<div class="grid"><label>Origine<input id="hgEncyOrigin"></label><label>Nom latin<input id="hgEncyLatin"></label><label>Disponibilité<input id="hgEncyAvailability"></label><label>Intensité<input id="hgEncyIntensity"></label><label>Formes<input id="hgEncyForms"></label><label>Profil gustatif<input id="hgEncyFlavor"></label><label>Quantité indicative<input id="hgEncyQuantity"></label><label>Substitution<input id="hgEncySubstitution"></label><label>Erreur à éviter<input id="hgEncyAvoid"></label><label>Où acheter<input id="hgEncyWhere"></label><label>Idées de recettes<textarea id="hgEncyRecipeIdeas" rows="2"></textarea></label><label>Astuce du chef<textarea id="hgEncyChefTip" rows="2"></textarea></label></div>
 <div class="button-row"><label><input type="checkbox" id="hgEncyFreezable"> Congelable</label><label><input type="checkbox" id="hgEncyRaw"> Cru</label><label><input type="checkbox" id="hgEncyCooked"> Cuit</label></div>
 <div class="dialog-actions"><button type="button" id="hgEncyDelete" class="danger">Supprimer la fiche</button><button type="button" id="hgEncyCancel">Annuler</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 </main>
+<button id="hgLibraryFloatingBack" type="button" class="primary" aria-label="Retour à la Bibliothèque">← Bibliothèque</button>
 <footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse.</footer>
-<button id="hgFloatingLibrary" class="primary hg-floating-library" type="button">← Bibliothèque</button>
 <button id="recipeFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des recettes">🔍 Rechercher</button>
 <button id="restaurantFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des sorties">🔍 Rechercher</button>
 <button id="producerFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des producteurs">🔍 Rechercher</button>
@@ -486,6 +487,6 @@ nav button:nth-child(n+6){grid-column:span 4!important}
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
 <script src="frigo-catalog-data.js?v=2981140"></script>
-<script src="app-v282.js?v=2981158"></script>
+<script src="app-v282.js?v=2981159"></script>
 <script src="media-v1.js?v=2981125"></script>
 </body></html>
