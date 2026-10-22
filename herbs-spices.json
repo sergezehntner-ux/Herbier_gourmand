@@ -211,7 +211,7 @@
     },
     {
       "id": "thym-commun",
-      "name": "Thym commun",
+      "name": "Thym",
       "family": "Herbe aromatique",
       "origin": "Europe, Méditerranée ou Asie",
       "forms": "fraîche ou séchée",
@@ -575,7 +575,7 @@
     },
     {
       "id": "estragon-francais",
-      "name": "Estragon français",
+      "name": "Estragon",
       "family": "Herbe aromatique",
       "origin": "Europe, Méditerranée ou Asie",
       "forms": "fraîche ou séchée",
@@ -705,7 +705,7 @@
     },
     {
       "id": "laurier-sauce",
-      "name": "Laurier-sauce",
+      "name": "Laurier sauce",
       "family": "Herbe aromatique",
       "origin": "Europe, Méditerranée ou Asie",
       "forms": "fraîche ou séchée",
@@ -1537,7 +1537,7 @@
     },
     {
       "id": "feuille-de-curry",
-      "name": "Feuille de curry",
+      "name": "Kaloupilé (Feuille de curry)",
       "family": "Herbe aromatique",
       "origin": "Europe, Méditerranée ou Asie",
       "forms": "fraîche ou séchée",
@@ -1589,7 +1589,7 @@
     },
     {
       "id": "feuille-de-combava",
-      "name": "Feuille de combava",
+      "name": "Combava feuille",
       "family": "Herbe aromatique",
       "origin": "Europe, Méditerranée ou Asie",
       "forms": "fraîche ou séchée",
@@ -1615,7 +1615,7 @@
     },
     {
       "id": "feuille-de-pandan",
-      "name": "Feuille de pandan",
+      "name": "Pandan feuille",
       "family": "Herbe aromatique",
       "origin": "Europe, Méditerranée ou Asie",
       "forms": "fraîche ou séchée",
@@ -1641,7 +1641,7 @@
     },
     {
       "id": "feuille-de-moutarde",
-      "name": "Feuille de moutarde",
+      "name": "Moutarde feuille",
       "family": "Herbe aromatique",
       "origin": "Europe, Méditerranée ou Asie",
       "forms": "fraîche ou séchée",
@@ -1667,7 +1667,7 @@
     },
     {
       "id": "feuille-de-fenugrec",
-      "name": "Feuille de fenugrec",
+      "name": "Fenugrec feuille",
       "family": "Herbe aromatique",
       "origin": "Europe, Méditerranée ou Asie",
       "forms": "fraîche ou séchée",
@@ -1693,7 +1693,7 @@
     },
     {
       "id": "feuille-de-celeri",
-      "name": "Feuille de céleri",
+      "name": "Céleri feuille",
       "family": "Herbe aromatique",
       "origin": "Europe, Méditerranée ou Asie",
       "forms": "fraîche ou séchée",
@@ -1953,7 +1953,7 @@
     },
     {
       "id": "cannelle-cassia",
-      "name": "Cannelle Cassia",
+      "name": "Cannelle Cassia (Cannelle de Chine)",
       "family": "Épice",
       "origin": "Asie, Afrique, Amériques ou Méditerranée",
       "forms": "entière ou moulue",
@@ -2785,7 +2785,7 @@
     },
     {
       "id": "baies-roses",
-      "name": "Baies roses",
+      "name": "Baie rose",
       "family": "Épice",
       "origin": "Asie, Afrique, Amériques ou Méditerranée",
       "forms": "entière ou moulue",
@@ -2837,7 +2837,7 @@
     },
     {
       "id": "ajowan",
-      "name": "Ajowan",
+      "name": "Ajowan (Cumin royal)",
       "family": "Épice",
       "origin": "Asie, Afrique, Amériques ou Méditerranée",
       "forms": "entière ou moulue",
@@ -2941,7 +2941,7 @@
     },
     {
       "id": "poivre-sansho",
-      "name": "Poivre sansho",
+      "name": "Poivre Sansho",
       "family": "Épice",
       "origin": "Asie, Afrique, Amériques ou Méditerranée",
       "forms": "entière ou moulue",
@@ -2967,7 +2967,7 @@
     },
     {
       "id": "feve-tonka",
-      "name": "Fève tonka",
+      "name": "Tonka fève",
       "family": "Épice",
       "origin": "Asie, Afrique, Amériques ou Méditerranée",
       "forms": "entière ou moulue",
@@ -3227,7 +3227,7 @@
     },
     {
       "id": "wasabi-en-poudre",
-      "name": "Wasabi en poudre",
+      "name": "Wasabi poudre",
       "family": "Épice",
       "origin": "Asie, Afrique, Amériques ou Méditerranée",
       "forms": "entière ou moulue",
@@ -3461,7 +3461,7 @@
     },
     {
       "id": "chanvre-decortique",
-      "name": "Chanvre décortiqué",
+      "name": "Chanvre graine",
       "family": "Graine",
       "origin": "origines variées",
       "forms": "entière, moulue ou en pâte",
@@ -3695,7 +3695,7 @@
     },
     {
       "id": "graines-de-celeri",
-      "name": "Graines de céleri",
+      "name": "Céleri graine",
       "family": "Graine",
       "origin": "origines variées",
       "forms": "entière, moulue ou en pâte",
@@ -3721,7 +3721,7 @@
     },
     {
       "id": "graines-d-aneth",
-      "name": "Graines d'aneth",
+      "name": "Aneth graine",
       "family": "Graine",
       "origin": "origines variées",
       "forms": "entière, moulue ou en pâte",
@@ -3747,7 +3747,7 @@
     },
     {
       "id": "graines-d-oignon",
-      "name": "Graines d'oignon",
+      "name": "Oignon graine",
       "family": "Graine",
       "origin": "origines variées",
       "forms": "entière, moulue ou en pâte",
@@ -3799,7 +3799,7 @@
     },
     {
       "id": "lavande-culinaire",
-      "name": "Lavande culinaire",
+      "name": "Lavande",
       "family": "Fleur comestible",
       "origin": "Europe ou Méditerranée",
       "forms": "fraîche, séchée ou en eau florale",
@@ -3825,7 +3825,7 @@
     },
     {
       "id": "fleur-de-sureau",
-      "name": "Fleur de sureau",
+      "name": "Sureau fleur",
       "family": "Fleur comestible",
       "origin": "Europe ou Méditerranée",
       "forms": "fraîche, séchée ou en eau florale",
@@ -3981,7 +3981,7 @@
     },
     {
       "id": "fleur-d-oranger",
-      "name": "Fleur d'oranger",
+      "name": "Oranger fleur",
       "family": "Fleur comestible",
       "origin": "Europe ou Méditerranée",
       "forms": "fraîche, séchée ou en eau florale",
@@ -4007,7 +4007,7 @@
     },
     {
       "id": "chrysantheme-comestible",
-      "name": "Chrysanthème comestible",
+      "name": "Chrysanthème",
       "family": "Fleur comestible",
       "origin": "Europe ou Méditerranée",
       "forms": "fraîche, séchée ou en eau florale",
@@ -4085,7 +4085,7 @@
     },
     {
       "id": "fleur-de-courgette",
-      "name": "Fleur de courgette",
+      "name": "Courgette fleur",
       "family": "Fleur comestible",
       "origin": "Europe ou Méditerranée",
       "forms": "fraîche, séchée ou en eau florale",
@@ -4111,7 +4111,7 @@
     },
     {
       "id": "fleur-de-fenouil",
-      "name": "Fleur de fenouil",
+      "name": "Fenouil fleur",
       "family": "Fleur comestible",
       "origin": "Europe ou Méditerranée",
       "forms": "fraîche, séchée ou en eau florale",
@@ -4137,7 +4137,7 @@
     },
     {
       "id": "fleur-de-basilic",
-      "name": "Fleur de basilic",
+      "name": "Basilic",
       "family": "Fleur comestible",
       "origin": "Europe ou Méditerranée",
       "forms": "fraîche, séchée ou en eau florale",
@@ -4371,7 +4371,7 @@
     },
     {
       "id": "celeri-rave",
-      "name": "Céleri-rave",
+      "name": "Céleri rave",
       "family": "Aromate",
       "origin": "cultures mondiales",
       "forms": "frais, confit, séché ou fermenté",
@@ -4527,7 +4527,7 @@
     },
     {
       "id": "combava",
-      "name": "Combava",
+      "name": "Combava (Citrus hystrix)",
       "family": "Aromate",
       "origin": "cultures mondiales",
       "forms": "frais, confit, séché ou fermenté",
@@ -4657,7 +4657,7 @@
     },
     {
       "id": "capres",
-      "name": "Câpres",
+      "name": "Câpre",
       "family": "Aromate",
       "origin": "cultures mondiales",
       "forms": "frais, confit, séché ou fermenté",

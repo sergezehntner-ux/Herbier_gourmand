@@ -131,7 +131,7 @@
     {
       "id": "celeri-rave",
       "category": "Légume-racine",
-      "name": "Céleri-rave",
+      "name": "Céleri rave",
       "latinName": "Apium graveolens var. rapaceum",
       "availability": "Septembre à avril",
       "season": "Automne-Hiver",
@@ -403,7 +403,7 @@
     {
       "id": "bette",
       "category": "Légume-feuille",
-      "name": "Bette",
+      "name": "Côte de bette",
       "latinName": "Beta vulgaris var. cicla",
       "availability": "Mai à novembre",
       "season": "Été",
@@ -547,7 +547,7 @@
     {
       "id": "chou-de-bruxelles",
       "category": "Chou",
-      "name": "Chou de Bruxelles",
+      "name": "Choux de Bruxelles",
       "latinName": "Brassica oleracea var. gemmifera",
       "availability": "Septembre à mars",
       "season": "Automne-Hiver",
@@ -1219,7 +1219,7 @@
     {
       "id": "reine-claude",
       "category": "Fruit à noyau",
-      "name": "Reine-claude",
+      "name": "Reine-Claude",
       "latinName": "Prunus domestica italica",
       "availability": "Août",
       "season": "Été",
@@ -1395,7 +1395,7 @@
     {
       "id": "sureau-baies",
       "category": "Petit fruit",
-      "name": "Sureau (baies)",
+      "name": "Sureau baie",
       "latinName": "Sambucus nigra",
       "availability": "Août à septembre",
       "season": "Fin été",
