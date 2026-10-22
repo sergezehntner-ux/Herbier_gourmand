@@ -145,6 +145,11 @@
     #stockDialog .hg-touch-choice-list button,#stockProductDialog .hg-touch-choice-list button{min-height:46px}
 
   #hgEncyList .hg-ency-row{display:flex;align-items:center;gap:12px;padding:9px 12px;border-bottom:1px solid #ddd;cursor:pointer;min-height:50px}#hgEncyList .hg-ency-row strong{flex:1}#hgEncyList .hg-ency-row small{color:#68736b}#hgEncyDialog{max-width:min(800px,96vw);max-height:90vh;overflow:auto}#hgEncyDialog form{padding:16px}#hgEncyDialog textarea{min-height:52px}#hgEncyDetailContent .hg-ency-block{padding:10px 0;border-bottom:1px solid #ddd}#hgEncyDetailContent .hg-ency-block h3{margin:0 0 5px}#hgEncyDialog .grid{gap:8px}#hgEncyDialog .dialog-actions{position:sticky;bottom:0;background:#fff;padding:8px 0}
+
+/* Retour commun flottant : six encyclopédies */
+.hg-floating-library{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));z-index:290;display:none;padding:.65rem .9rem;border-radius:999px;box-shadow:0 5px 18px #0003;font-weight:700}
+.hg-floating-library.visible{display:inline-flex}
+body:has(dialog[open]) .hg-floating-library{display:none!important}
 </style>
 
 <style id="hg-nav-4plus5-fix">
@@ -180,7 +185,7 @@ nav button:nth-child(n+6){grid-column:span 4!important}
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.57 · Catalogue : Nom · Catégorie · Rayon</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.58 · Catalogue : Nom · Catégorie · Rayon</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -369,10 +374,12 @@ nav button:nth-child(n+6){grid-column:span 4!important}
 <dialog id="hgEncyDialog"><form id="hgEncyForm"><div class="dialog-head"><h2 id="hgEncyDialogTitle">Fiche encyclopédique</h2><button type="button" id="hgEncyClose">×</button></div>
 <div class="grid"><label>Nom<select id="hgEncyName" required></select></label><label>Catégorie<input id="hgEncyFieldCategory" placeholder="Ex. Sauce, Marinade…"></label><label>Partie utilisée<input id="hgEncyPart" placeholder="Ex. Filet, feuille, fruit…"></label><label>Saison<input id="hgEncySeason" placeholder="Ex. Été, toute l’année…"></label></div>
 <div class="grid"><label>Utilisations culinaires<textarea id="hgEncyUses" rows="2"></textarea></label><label>À associer avec<textarea id="hgEncyPairings" rows="2"></textarea></label><label>Modes de préparation<textarea id="hgEncyPreparation" rows="3"></textarea></label><label>Conservation<textarea id="hgEncyConservation" rows="2"></textarea></label><label>Description<textarea id="hgEncyDescription" rows="2"></textarea></label><label>Bienfaits / Caractéristiques<textarea id="hgEncyBenefits" rows="2"></textarea></label><label>Associations renforçant les bienfaits<textarea id="hgEncyBenefitPairings" rows="2"></textarea></label><label>Remarques<textarea id="hgEncyNotes" rows="2"></textarea></label></div>
+<div class="grid"><label>Origine<input id="hgEncyOrigin"></label><label>Nom latin<input id="hgEncyLatin"></label><label>Disponibilité<input id="hgEncyAvailability"></label><label>Intensité<input id="hgEncyIntensity"></label><label>Formes<input id="hgEncyForms"></label><label>Profil gustatif<input id="hgEncyFlavor"></label><label>Quantité indicative<input id="hgEncyQuantity"></label><label>Substitution<input id="hgEncySubstitution"></label><label>Erreur à éviter<input id="hgEncyAvoid"></label><label>Où acheter<input id="hgEncyWhere"></label><label>Idées de recettes<textarea id="hgEncyRecipeIdeas" rows="2"></textarea></label><label>Astuce du chef<textarea id="hgEncyChefTip" rows="2"></textarea></label></div>
 <div class="button-row"><label><input type="checkbox" id="hgEncyFreezable"> Congelable</label><label><input type="checkbox" id="hgEncyRaw"> Cru</label><label><input type="checkbox" id="hgEncyCooked"> Cuit</label></div>
 <div class="dialog-actions"><button type="button" id="hgEncyDelete" class="danger">Supprimer la fiche</button><button type="button" id="hgEncyCancel">Annuler</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 </main>
 <footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse.</footer>
+<button id="hgFloatingLibrary" class="primary hg-floating-library" type="button">← Bibliothèque</button>
 <button id="recipeFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des recettes">🔍 Rechercher</button>
 <button id="restaurantFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des sorties">🔍 Rechercher</button>
 <button id="producerFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des producteurs">🔍 Rechercher</button>
@@ -479,6 +486,6 @@ nav button:nth-child(n+6){grid-column:span 4!important}
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
 <script src="frigo-catalog-data.js?v=2981140"></script>
-<script src="app-v282.js?v=2981157"></script>
+<script src="app-v282.js?v=2981158"></script>
 <script src="media-v1.js?v=2981125"></script>
 </body></html>
