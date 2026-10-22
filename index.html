@@ -167,7 +167,7 @@ nav button:nth-child(n+6){grid-column:span 4!important}
 .hg-library-pending{background:#f5f3eb;cursor:default}.hg-library-card:focus-visible{outline:3px solid #347457;outline-offset:2px}
 @media(max-width:650px){.hg-library-card{padding:8px 6px;gap:5px;min-height:62px}.hg-library-copy{gap:3px}.hg-library-card strong{font-size:.88rem}.hg-library-card small{font-size:.69rem}.hg-library-icon{font-size:1.25rem}}
 </style>
-</head>
+<style id="hg-catalog-photos-v52">.ingredient-catalog-photo-actions{display:flex;flex-direction:column;gap:3px;align-items:center}.ingredient-catalog-photo-actions button{font-size:.7rem;padding:3px 5px;line-height:1.15}.ingredient-catalog-photo-actions .catalog-photo-remove{color:#9c3330}.ingredient-catalog-row{grid-template-columns:82px minmax(0,1.25fr) minmax(120px,.7fr) minmax(120px,.7fr) auto}@media(max-width:700px){.ingredient-catalog-row{grid-template-columns:72px minmax(0,1fr) auto}}</style></head>
 <body>
 <div id="startupOverlay" class="startup-overlay" role="status" aria-live="polite" aria-busy="true">
   <div class="startup-card">
@@ -179,7 +179,7 @@ nav button:nth-child(n+6){grid-column:span 4!important}
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.51 · Catalogue : Nom · Catégorie · Rayon</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.52 · Catalogue : Nom · Catégorie · Rayon</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -233,7 +233,7 @@ nav button:nth-child(n+6){grid-column:span 4!important}
   <div class="section-title"><div><h2>Catalogue ingrédients</h2><span id="ingredientCatalogCount" class="muted"></span></div><div class="button-row"><button id="exportIngredientCatalog" type="button">Sauvegarder catalogue</button><label class="secondary import-label">Restaurer catalogue<input id="ingredientCatalogImportFile" type="file" accept=".hgcat,.json,application/json" hidden></label><button id="backFromIngredientCatalog" type="button">← Bibliothèque</button></div></div>
   <p id="ingredientCatalogBackupStatus" class="muted" aria-live="polite"></p>
   <div class="catalog-toolbar"><input id="ingredientCatalogSearch" type="search" placeholder="Rechercher un nom…"><select id="ingredientCatalogAisle"><option value="">Tous les rayons</option></select><select id="ingredientCatalogGroup"><option value="">Toutes les catégories</option></select></div>
-  <div id="ingredientCatalogList" class="ingredient-catalog-list"></div>
+  <input id="ingredientCatalogPhotoFile" type="file" accept="image/*" hidden><div id="ingredientCatalogList" class="ingredient-catalog-list"></div>
 </section>
 <section id="recipes" class="view">
   <div id="recipeReturnBar" class="return-bar hidden"><span id="selectionHint"></span><button id="returnPlanner">Reprendre au planning</button></div>
@@ -325,7 +325,7 @@ nav button:nth-child(n+6){grid-column:span 4!important}
 </section>
 
 <section id="herbs" class="view">
-  <div class="section-title"><div><h2>Plantes & Épices</h2><span id="herbCount" class="muted"></span></div><div class="button-row"><button id="newHerb" class="primary">Ajouter</button><button id="printHerbList">Imprimer la liste</button><button id="randomHerb" class="secondary">Découverte surprise</button></div></div>
+  <div class="section-title"><div><h2>Plantes & Épices</h2><span id="herbCount" class="muted"></span></div><div class="button-row"><button id="newHerb" class="primary">Ajouter</button><button id="printHerbList">Imprimer la liste</button><button id="randomHerb" class="secondary">Découverte surprise</button><button id="backHerbsToLibrary" type="button">← Bibliothèque</button></div></div>
   <p class="lead">Chercher une plante, une saveur, un aliment, une cuisine ou une utilisation.</p>
   <div class="herb-search-grid">
     <label>Recherche<input id="herbSearch" type="search" placeholder="Basilic, poisson, citron, curry…"></label>
@@ -343,7 +343,7 @@ nav button:nth-child(n+6){grid-column:span 4!important}
 
 
 <section id="produce" class="view">
-  <div class="section-title"><div><h2>Fruits & Légumes</h2><span id="produceCount" class="muted"></span></div><div class="button-row"><button id="newProduce" class="primary">Ajouter</button><button id="printProduceList">Imprimer la liste</button><button id="randomProduce" class="secondary">Découverte surprise</button></div></div>
+  <div class="section-title"><div><h2>Fruits & Légumes</h2><span id="produceCount" class="muted"></span></div><div class="button-row"><button id="newProduce" class="primary">Ajouter</button><button id="printProduceList">Imprimer la liste</button><button id="randomProduce" class="secondary">Découverte surprise</button><button id="backProduceToLibrary" type="button">← Bibliothèque</button></div></div>
   <p class="lead">Chercher un produit, une saison, une préparation, un accord ou une utilisation culinaire.</p>
   <div class="produce-search-grid">
     <label>Recherche<input id="produceSearch" type="search" placeholder="Tomate, hiver, rôti, salade…"></label>
@@ -467,6 +467,6 @@ nav button:nth-child(n+6){grid-column:span 4!important}
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
 <script src="frigo-catalog-data.js?v=2981140"></script>
-<script src="app-v282.js?v=2981151"></script>
+<script src="app-v282.js?v=2981152"></script>
 <script src="media-v1.js?v=2981125"></script>
 </body></html>
