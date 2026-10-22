@@ -1,7 +1,7 @@
 let recipes = [], plan = [], shopping = [], stock = [], stockProducts = [], pendingImport = [];
 let currentWeekStart = mondayISO(new Date()), viewedPlanItemId = null;
 let selectionContext = null, viewedRecipeId = null, previousView = 'recipes', shoppingGroupMode = 'store';
-const viewScrollPositions={home:0,recipes:0,planner:0,shopping:0,recipeView:0,restaurants:0,restaurantView:0,producers:0,producerView:0,herbs:0,herbView:0,produce:0,produceView:0,stock:0,ingredientCatalog:0};
+const viewScrollPositions={library:0,home:0,recipes:0,planner:0,shopping:0,recipeView:0,restaurants:0,restaurantView:0,producers:0,producerView:0,herbs:0,herbView:0,produce:0,produceView:0,stock:0,ingredientCatalog:0};
 const days = ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
 const slots = ["Matin","Midi","Soir"];
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.11.48';
+const APP_VERSION='2.9.8.11.49';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -114,7 +114,7 @@ function updateShoppingReturnButton(){
   b.classList.remove('hidden');
   b.textContent='← Retour';
   const source=shoppingReturnContext?.view;
-  const labels={planner:'Planning',recipes:'Recettes',recipeView:'Recette',restaurants:'Sorties',restaurantView:'Sortie',producers:'Producteurs',producerView:'Producteur',herbs:'Plantes & Épices',herbView:'Plante / épice',produce:'Fruits & Légumes',produceView:'Fruit / légume',home:'Accueil'};
+  const labels={planner:'Planning',recipes:'Recettes',recipeView:'Recette',restaurants:'Sorties',restaurantView:'Sortie',producers:'Producteurs',producerView:'Producteur',herbs:'Plantes & Épices',herbView:'Plante / épice',produce:'Fruits & Légumes',produceView:'Fruit / légume',library:'Bibliothèque',home:'Accueil'};
   b.title=source?`Retour à ${labels[source]||source}`:'Retour';
 }
 function returnFromShoppingContext(){
@@ -179,6 +179,7 @@ function openMainView(id){
 }
 $$('nav button').forEach(b=>b.onclick=()=>requestMainView(b.dataset.view));
 $$('[data-go]').forEach(b=>b.onclick=()=>requestMainView(b.dataset.go));
+$('#libraryOpenCatalog')?.addEventListener('click',()=>$('#openIngredientCatalog')?.click());
 function slug(s){return (norm(s).replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')||'recette')+'-'+Date.now().toString(36)+Math.random().toString(36).slice(2,5)}
 function normalizeRecipe(r){return {id:String(r.id||r.uid||slug(r.title||r.name||'recette')),title:r.title||r.name||'Recette sans titre',category:r.category||'Importée',time:Number(r.time)||0,servings:Number(r.servings)||4,ingredients:Array.isArray(r.ingredients)?r.ingredients:[],steps:Array.isArray(r.steps)?r.steps:[],avecViande:!!r.avecViande,type:r.type||(r.avecViande?'viande':''),effort:r.effort||'',difficulty:r.difficulty||'',special:r.special||'',temperature:r.temperature||'les-deux',season:r.season||'toute-annee',period:['chaude','froide'].includes(r.period)?r.period:'indifferente',tags:Array.isArray(r.tags)?r.tags:[],source:r.source||'',notes:r.notes||'',paprikaUid:r.paprikaUid||r.uid||'',complementRecipeIds:Array.isArray(r.complementRecipeIds)?r.complementRecipeIds.map(String):[],complementText:r.complementText||'',leftoverIdeas:r.leftoverIdeas||'',cookedDates:Array.isArray(r.cookedDates)?[...new Set(r.cookedDates.filter(Boolean))]:[],favorite:Boolean(r.favorite),cookingComments:Array.isArray(r.cookingComments)?r.cookingComments.filter(x=>x&&x.text).map(x=>({date:x.date||'',text:String(x.text)})):[],photoId:String(r.photoId||'')};}
 function recipeTypeLabel(v){return ({viande:'viande',poisson:'poisson',vegetarien:'végétarien',vegane:'végane'})[v]||'Type non défini'}
@@ -1415,7 +1416,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  function exportCatalog(){const stable=catalog.map(x=>normalizeItem(x)),payload={format:'HerbierGourmandIngredientCatalog',formatVersion:1,appVersion:APP_VERSION,exportedAt:new Date().toISOString(),catalog:stable};downloadTextFile(catalogBackupName(),JSON.stringify(payload,null,2));const st=$('#ingredientCatalogBackupStatus');if(st)st.textContent=`Sauvegarde du catalogue créée · ${stable.length} éléments.`}
  async function importCatalogFile(file){try{const parsed=JSON.parse(await file.text());if(parsed?.format!=='HerbierGourmandIngredientCatalog'||parsed?.formatVersion!==1||!Array.isArray(parsed.catalog))throw new Error('format de sauvegarde du catalogue non reconnu');if(!confirm(`Restaurer ce catalogue (${parsed.catalog.length} éléments) ? Le catalogue actuel sera remplacé.`))return;catalog=parsed.catalog.map(x=>normalizeItem(x,true));save();render();const st=$('#ingredientCatalogBackupStatus');if(st)st.textContent=`Catalogue restauré · ${catalog.length} éléments.`}catch(e){alert(`Restauration impossible : ${e.message}`)}}
  $('#openIngredientCatalog')?.addEventListener('click',()=>{const recovered=load();render();switchView('ingredientCatalog',{top:true});const st=$('#ingredientCatalogBackupStatus');if(st&&recovered)st.textContent='Catalogue chargé depuis le stockage permanent.'});
- $('#backFromIngredientCatalog')?.addEventListener('click',()=>switchView('more'));
+ $('#backFromIngredientCatalog')?.addEventListener('click',()=>switchView('library'));
  $('#ingredientCatalogSearch')?.addEventListener('input',render);
  $('#ingredientCatalogAisle')?.addEventListener('change',render);
  $('#ingredientCatalogGroup')?.addEventListener('change',render);

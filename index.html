@@ -155,6 +155,12 @@ nav button:nth-child(n+6){grid-column:span 4!important}
 <style id="hg-ingredient-catalog-style">
 .catalog-toolbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(150px,220px) minmax(150px,220px);gap:8px;margin:8px 0 12px}.catalog-toolbar input,.catalog-toolbar select{width:100%}.ingredient-catalog-list{display:flex;flex-direction:column;gap:0;border-top:1px solid #ddd}.ingredient-catalog-row{display:grid;grid-template-columns:72px minmax(0,1.25fr) minmax(120px,.7fr) minmax(120px,.7fr) auto;align-items:center;gap:10px;padding:6px 4px;border-bottom:1px solid #ddd}.ingredient-catalog-thumb{width:64px;height:52px;object-fit:contain;background:#fff;border-radius:8px}.ingredient-catalog-name{font-weight:700}.ingredient-catalog-aisle,.ingredient-catalog-group{color:var(--muted,#666)}.ingredient-catalog-actions{display:flex;gap:6px;justify-content:flex-end}.ingredient-catalog-row input,.ingredient-catalog-row select{width:100%;min-width:0}.ingredient-catalog-empty{padding:18px 4px}.catalog-launch-panel{margin-bottom:12px}@media(max-width:700px){.ingredient-catalog-row{grid-template-columns:58px minmax(0,1fr) auto;gap:7px}.ingredient-catalog-thumb{width:52px;height:46px}.ingredient-catalog-aisle,.ingredient-catalog-group{grid-column:2}.ingredient-catalog-actions{grid-column:3;grid-row:1/4;flex-direction:column}.catalog-toolbar{grid-template-columns:1fr}}
 </style>
+<style id="hg-library-v49">
+.hg-library-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0 22px}
+.hg-library-card{box-sizing:border-box;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:5px;padding:14px 8px;border:1px solid #d7d9ce;border-radius:14px;background:#fffefa;color:#263e31;font:inherit;min-height:112px;cursor:pointer}
+.hg-library-card strong{font-size:1.03rem;line-height:1.18}.hg-library-card small{color:#647267;font-size:.78rem}.hg-library-icon{font-size:1.8rem;line-height:1.1}.hg-library-pending{background:#f5f3eb;cursor:default}.hg-library-card:focus-visible{outline:3px solid #347457;outline-offset:2px}
+@media(min-width:1050px){.hg-library-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+</style>
 </head>
 <body>
 <div id="startupOverlay" class="startup-overlay" role="status" aria-live="polite" aria-busy="true">
@@ -167,11 +173,11 @@ nav button:nth-child(n+6){grid-column:span 4!important}
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.48 · Catalogue : Nom · Catégorie · Rayon</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.49 · Catalogue : Nom · Catégorie · Rayon</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
-  <button class="active" data-view="home">Accueil</button><button data-view="recipes">Recettes</button><button data-view="planner">Planning</button><button data-view="shopping">Courses</button><button data-view="stock">Stock</button><button data-view="restaurants">Sorties</button><button data-view="producers">Producteurs</button><button data-view="herbs">Plantes & Épices</button><button data-view="produce">Fruits & Légumes</button><button data-view="more">Plus…</button>
+  <button class="active" data-view="home">Accueil</button><button data-view="recipes">Recettes</button><button data-view="planner">Planning</button><button data-view="shopping">Courses</button><button data-view="stock">Stock</button><button data-view="restaurants">Sorties</button><button data-view="producers">Producteurs</button><button data-view="library">Bibliothèque</button><button data-view="more">Plus…</button>
 </nav>
 <main>
 <section id="home" class="view active">
@@ -179,8 +185,21 @@ nav button:nth-child(n+6){grid-column:span 4!important}
   <div id="surpriseCard"></div>
   <section class="outing-home-card"><div><h2>Envie d’une sortie ?</h2><p>Retrouver une bonne adresse, explorer par lieu, pays ou spécialité.</p></div><button class="primary" data-go="restaurants">Choisir un restaurant</button></section>
   <section class="outing-home-card producer-home-card"><div><h2>Producteurs locaux</h2><p>Marchés, artisans et vente directe près de chez toi.</p></div><button class="primary" data-go="producers">Découvrir les producteurs</button></section>
-  <section class="outing-home-card herb-home-card"><div><h2>Plantes & Épices</h2><p>Accords, usages, substitutions, mélanges et techniques pour éveiller la curiosité.</p></div><button class="primary" data-go="herbs">Ouvrir le Grand Herbier</button></section>
-  <section class="outing-home-card produce-home-card"><div><h2>Fruits & Légumes</h2><p>Saisons, conservation, préparation, accords et recettes autour de 120 produits.</p></div><button class="primary" data-go="produce">Explorer la récolte</button></section>
+  <section class="outing-home-card herb-home-card" style="display:none"><div><h2>Plantes & Épices</h2><p>Accords, usages, substitutions, mélanges et techniques pour éveiller la curiosité.</p></div><button class="primary" data-go="herbs">Ouvrir le Grand Herbier</button></section>
+  <section class="outing-home-card produce-home-card" style="display:none"><div><h2>Fruits & Légumes</h2><p>Saisons, conservation, préparation, accords et recettes autour de 120 produits.</p></div><button class="primary" data-go="produce">Explorer la récolte</button></section>
+</section>
+
+<section id="library" class="view">
+  <div class="section-title"><div><h2>Bibliothèque gourmande</h2><span class="muted">Catalogue maître et six encyclopédies culinaires</span></div></div>
+  <div class="hg-library-grid">
+    <button type="button" class="hg-library-card" id="libraryOpenCatalog"><span class="hg-library-icon">📇</span><strong>Catalogue</strong><small>Index maître des ingrédients</small></button>
+    <button type="button" class="hg-library-card" data-go="herbs"><span class="hg-library-icon">🌿</span><strong>Plantes & Épices</strong><small>Encyclopédie existante</small></button>
+    <button type="button" class="hg-library-card" data-go="produce"><span class="hg-library-icon">🍎</span><strong>Fruits & Légumes</strong><small>Encyclopédie existante</small></button>
+    <article class="hg-library-card hg-library-pending"><span class="hg-library-icon">🫙</span><strong>Condiments & Sauces</strong><small>À construire</small></article>
+    <article class="hg-library-card hg-library-pending"><span class="hg-library-icon">🍹</span><strong>Boissons & Cocktails</strong><small>À construire</small></article>
+    <article class="hg-library-card hg-library-pending"><span class="hg-library-icon">🥩</span><strong>Viandes & Volailles</strong><small>À construire</small></article>
+    <article class="hg-library-card hg-library-pending"><span class="hg-library-icon">🐟</span><strong>Poissons & Crustacés</strong><small>À construire</small></article>
+  </div>
 </section>
 
 <section id="more" class="view">
@@ -190,11 +209,6 @@ nav button:nth-child(n+6){grid-column:span 4!important}
     <p>Le bouton ci-dessous met à jour <code>herbier-latest.hgbak</code> dans ce dépôt. Le mode lecture seule charge automatiquement ce fichier.</p>
     <div class="button-row"><button id="saveToGithub" class="primary">Sauvegarder sur GitHub</button><button id="openReadonly">Ouvrir en lecture seule</button><button id="githubSettings">Configurer</button></div>
     <p id="githubStatus" class="muted" aria-live="polite"></p>
-  </section>
-  <section class="panel catalog-launch-panel" aria-labelledby="catalogLaunchTitle">
-    <div class="section-title"><div><h2 id="catalogLaunchTitle">Catalogue ingrédients</h2><span class="muted">529 ingrédients du catalogue maître validé.</span></div></div>
-    <p>Le catalogue est indépendant des autres rubriques pour l’instant. Tu peux corriger les noms, rayons et groupes, ou supprimer les éléments inutiles.</p>
-    <div class="button-row"><button id="openIngredientCatalog" class="primary" type="button">Ouvrir le catalogue</button></div>
   </section>
   <section class="panel data-transfer-panel" aria-labelledby="dataTransferTitle">
     <div class="section-title"><div><h2 id="dataTransferTitle">Sauvegarde et transfert</h2><span class="muted">Pour retrouver tes données sur un autre appareil.</span></div></div>
@@ -210,7 +224,7 @@ nav button:nth-child(n+6){grid-column:span 4!important}
 </section>
 
 <section id="ingredientCatalog" class="view">
-  <div class="section-title"><div><h2>Catalogue ingrédients</h2><span id="ingredientCatalogCount" class="muted"></span></div><div class="button-row"><button id="exportIngredientCatalog" type="button">Sauvegarder catalogue</button><label class="secondary import-label">Restaurer catalogue<input id="ingredientCatalogImportFile" type="file" accept=".hgcat,.json,application/json" hidden></label><button id="backFromIngredientCatalog" type="button">← Plus…</button></div></div>
+  <div class="section-title"><div><h2>Catalogue ingrédients</h2><span id="ingredientCatalogCount" class="muted"></span></div><div class="button-row"><button id="exportIngredientCatalog" type="button">Sauvegarder catalogue</button><label class="secondary import-label">Restaurer catalogue<input id="ingredientCatalogImportFile" type="file" accept=".hgcat,.json,application/json" hidden></label><button id="backFromIngredientCatalog" type="button">← Bibliothèque</button></div></div>
   <p id="ingredientCatalogBackupStatus" class="muted" aria-live="polite"></p>
   <div class="catalog-toolbar"><input id="ingredientCatalogSearch" type="search" placeholder="Rechercher un nom…"><select id="ingredientCatalogAisle"><option value="">Tous les rayons</option></select><select id="ingredientCatalogGroup"><option value="">Toutes les catégories</option></select></div>
   <div id="ingredientCatalogList" class="ingredient-catalog-list"></div>
@@ -447,6 +461,6 @@ nav button:nth-child(n+6){grid-column:span 4!important}
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
 <script src="frigo-catalog-data.js?v=2981140"></script>
-<script src="app-v282.js?v=2981148"></script>
+<script src="app-v282.js?v=2981149"></script>
 <script src="media-v1.js?v=2981125"></script>
 </body></html>
