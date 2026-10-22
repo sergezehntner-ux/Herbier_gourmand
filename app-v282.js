@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.11.53';
+const APP_VERSION='2.9.8.11.54';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
