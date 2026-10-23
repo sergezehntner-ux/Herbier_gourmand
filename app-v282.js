@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.11.57';
+const APP_VERSION='2.9.8.11.60';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -26,10 +26,17 @@ function hgOpenDb(){return new Promise((resolve,reject)=>{const req=indexedDB.op
 function hgIdbGetAll(db){return new Promise((resolve,reject)=>{const tx=db.transaction(HG_DB_STORE,'readonly'),store=tx.objectStore(HG_DB_STORE),req=store.openCursor(),out=[];req.onsuccess=()=>{const c=req.result;if(c){out.push([c.key,c.value]);c.continue()}else resolve(out)};req.onerror=()=>reject(req.error)})}
 function hgIdbPut(key,value){if(!hgDb)return Promise.reject(new Error('IndexedDB Herbier non initialisé'));return new Promise((resolve,reject)=>{const tx=hgDb.transaction(HG_DB_STORE,'readwrite');tx.objectStore(HG_DB_STORE).put(String(value),String(key));tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error('Écriture IndexedDB annulée'))})}
 function hgIdbDelete(key){if(!hgDb)return Promise.reject(new Error('IndexedDB Herbier non initialisé'));return new Promise((resolve,reject)=>{const tx=hgDb.transaction(HG_DB_STORE,'readwrite');tx.objectStore(HG_DB_STORE).delete(String(key));tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error)})}
-function hgQueue(job){hgWriteQueue=hgWriteQueue.then(job).catch(err=>{console.error('Stockage IndexedDB Herbier',err);throw err});return hgWriteQueue}
+function hgQueue(job){
+  // An earlier failure must not permanently poison subsequent writes.
+  const attempt=hgWriteQueue.catch(()=>{}).then(job);
+  hgWriteQueue=attempt.catch(err=>{console.error('Stockage IndexedDB Herbier',err);hgStorageError=err;});
+  return attempt;
+}
+let hgStorageError=null;
+
 function hgGet(key){key=String(key);return hgIsLocalKey(key)?hgLocal.getItem(key):(hgCache.has(key)?hgCache.get(key):null)}
-function hgSet(key,value){key=String(key);value=String(value);if(hgIsLocalKey(key)){hgLocal.setItem(key,value);return}hgCache.set(key,value);hgQueue(()=>hgIdbPut(key,value))}
-function hgRemove(key){key=String(key);if(hgIsLocalKey(key)){hgLocal.removeItem(key);return}hgCache.delete(key);hgQueue(()=>hgIdbDelete(key))}
+function hgSet(key,value){key=String(key);value=String(value);if(hgIsLocalKey(key)){hgLocal.setItem(key,value);return Promise.resolve()}hgCache.set(key,value);return hgQueue(()=>hgIdbPut(key,value))}
+function hgRemove(key){key=String(key);if(hgIsLocalKey(key)){hgLocal.removeItem(key);return Promise.resolve()}hgCache.delete(key);return hgQueue(()=>hgIdbDelete(key))}
 async function hgFlush(){await hgWriteQueue}
 function hgAllEntries(){const out=new Map(hgCache);for(let i=0;i<hgLocal.length;i++){const k=hgLocal.key(i);if(k?.startsWith('hg-'))out.set(k,hgLocal.getItem(k))}return [...out.entries()]}
 async function hgStorageInit(){
@@ -1444,6 +1451,56 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  $('#ingredientCatalogGroup')?.addEventListener('change',render);
  $('#exportIngredientCatalog')?.addEventListener('click',exportCatalog);
  $('#ingredientCatalogImportFile')?.addEventListener('change',e=>{const f=e.target.files?.[0];if(f)importCatalogFile(f);e.target.value=''});
+
+ // Recovery is deliberately distinct from full restore: only missing pictures are added.
+ const repairInput=document.createElement('input');
+ repairInput.type='file';repairInput.accept='.json,.hgcat,application/json';repairInput.hidden=true;
+ repairInput.id='catalogRepairPhotosFile';
+ const repairButton=document.createElement('button');repairButton.type='button';
+ repairButton.id='catalogRepairPhotos';repairButton.textContent='Récupérer photos';
+ const backupButton=$('#exportIngredientCatalog');
+ if(backupButton?.parentNode){backupButton.parentNode.insertBefore(repairButton,backupButton.nextSibling);backupButton.parentNode.appendChild(repairInput)}
+ repairButton.addEventListener('click',()=>repairInput.click());
+ repairInput.addEventListener('change',async e=>{
+  const file=e.target.files?.[0];e.target.value='';if(!file)return;
+  const status=$('#ingredientCatalogBackupStatus');
+  repairButton.disabled=true;
+  try{
+   const data=JSON.parse(await file.text());
+   if(data?.format!=='HerbierGourmandIngredientCatalog'||!Array.isArray(data.catalog))throw new Error('Fichier de catalogue non reconnu.');
+   // Refresh from persisted storage before calculating the merge.
+   const persisted=await new Promise((resolve,reject)=>{const tx=hgDb.transaction(HG_DB_STORE,'readonly'),req=tx.objectStore(HG_DB_STORE).get(STORE);req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)});
+   const current=Array.isArray(JSON.parse(persisted||'null'))?JSON.parse(persisted):catalog;
+   const byId=new Map(data.catalog.filter(x=>x?.id).map(x=>[String(x.id),x]));
+   const byName=new Map();
+   for(const x of data.catalog){if(!x?.name)continue;const k=norm(x.name);if(!byName.has(k))byName.set(k,[]);byName.get(k).push(x)}
+   let added=0,ambiguous=0;
+   const updated=current.map(x=>{
+    if(x.image)return x;
+    let source=byId.get(String(x.id));
+    if(source&&norm(source.name)!==norm(x.name))source=null;
+    if(!source){const matches=byName.get(norm(x.name))||[];if(matches.length===1)source=matches[0];else if(matches.length>1)ambiguous++}
+    if(!source?.image)return x;
+    added++;return {...x,image:source.image,filename:source.filename||x.filename||''};
+   });
+   if(!added){status.textContent=`Aucune photo manquante récupérable · ${ambiguous} correspondances ambiguës.`;return}
+   if(!confirm(`${added} photos manquantes retrouvées.\n\nUne sauvegarde du Catalogue ACTUEL sera d'abord téléchargée. Vérifie sa présence dans Téléchargements avant de confirmer la réparation.\n\nContinuer ?`))return;
+   const stamp=new Date().toISOString().replace(/[:.]/g,'-');
+   downloadTextFile(`Herbier_Gourmand_Catalogue_AVANT_reparation_${stamp}.hgcat.json`,JSON.stringify({format:'HerbierGourmandIngredientCatalog',formatVersion:1,appVersion:APP_VERSION,exportedAt:new Date().toISOString(),catalog:current}));
+   if(!confirm('La sauvegarde AVANT réparation est-elle bien présente dans Téléchargements ?\n\nOK = enregistrer les photos récupérées ; Annuler = ne rien modifier.'))return;
+   status.textContent=`Enregistrement de ${added} photos en cours…`;await new Promise(r=>setTimeout(r,30));
+   const serialized=JSON.stringify(updated);
+   await hgQueue(()=>hgIdbPut(STORE,serialized));
+   const verified=await new Promise((resolve,reject)=>{const tx=hgDb.transaction(HG_DB_STORE,'readonly'),req=tx.objectStore(HG_DB_STORE).get(STORE);req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)});
+   if(verified!==serialized)throw new Error('Vérification de lecture IndexedDB échouée.');
+   hgCache.set(STORE,serialized);catalog=updated.map(x=>normalizeItem(x));render();
+   registerProtectedChange();markDirty();
+   status.textContent=`✓ ${added} photos récupérées et vérifiées dans IndexedDB. ${ambiguous} correspondances ambiguës ignorées. Fais maintenant une sauvegarde du Catalogue.`;
+   alert(`${added} photos récupérées et enregistrement vérifié. Les autres informations des articles sont inchangées.`);
+  }catch(err){console.error(err);status.textContent='Échec de récupération : '+err.message;alert('Récupération interrompue : '+err.message)}
+  finally{repairButton.disabled=false}
+ });
+
 })();;
 
 
