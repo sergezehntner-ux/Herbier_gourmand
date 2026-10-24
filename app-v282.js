@@ -1620,6 +1620,26 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  function init(){try{const x=JSON.parse(hgGet(STORE)||'null');if(x&&typeof x==='object')for(const k of Object.keys(labels))if(Array.isArray(x[k]))db[k]=x[k]}catch(e){console.error('Encyclopédies',e)}
   if(!hgGet(STORE)){db.condiments=SEED.map(x=>({...x,needsCatalogLink:!catalog().some(c=>clean(c.name)===clean(x.name))}));hgSet(STORE,JSON.stringify(db));}
  }
+ // v70 : retrait unique des anciennes fiches locales de Condiments & Sauces.
+ // Les produits du Catalogue et les recettes originales ne sont jamais effacés.
+ const CLEANUP_KEY='hg-condiments-legacy-cleanup-2981170';
+ function clearLegacyCondiments(){
+  if(hgGet(CLEANUP_KEY))return;
+  const old=db.condiments;
+  if(!Array.isArray(old))return;
+  try{
+   if(old.length){
+    const backupKey='hg-condiments-legacy-backup-2981170';
+    hgSet(backupKey,JSON.stringify(old));
+    if(hgGet(backupKey)!==JSON.stringify(old))return;
+    db.condiments=[];
+    hgSet(STORE,JSON.stringify(db));
+    if(JSON.parse(hgGet(STORE)||'{}').condiments?.length!==0)return;
+    registerProtectedChange();markDirty();
+   }
+   hgSet(CLEANUP_KEY,'done');
+  }catch(e){console.error('Nettoyage anciennes sauces',e)}
+ }
  function save(){hgSet(STORE,JSON.stringify(db));registerProtectedChange();markDirty()}
  function item(){return sourceItems().find(x=>x.id===chosen)}
  function back(){switchView('hgEncyclopedia',{top:true})}
@@ -1665,7 +1685,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  get('hgEncyPrint').onclick=()=>{const x=item();if(x)printDocument(x.name,`<h1>${esc(x.name)}</h1>`+get('hgEncyDetailContent').innerHTML)};
  get('hgEncyPrintList').onclick=()=>{const rows=[...get('hgEncyList').querySelectorAll('[data-id]')].map(b=>sourceItems().find(x=>x.id===b.dataset.id)).filter(Boolean);if(!rows.length)return alert('Aucune fiche à imprimer.');printDocument(labels[active],`<h1>${esc(labels[active])}</h1><p>${rows.length} fiche(s)</p>`+rows.map(x=>`<div class="day"><h2>${esc(x.name)}</h2><p>${esc(x.category||'')}</p><p>${esc(x.uses||x.description||'')}</p></div>`).join(''))};
  document.querySelectorAll('[data-encyclopedia]').forEach(b=>b.onclick=()=>open(b.dataset.encyclopedia));
- init();
+ init();clearLegacyCondiments();
 })();
 
 /* v2.9.8.11.59 — bouton de retour unique, commun aux six encyclopédies et au Catalogue */
