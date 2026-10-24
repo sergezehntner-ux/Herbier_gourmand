@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.11.63';
+const APP_VERSION='2.9.8.11.64';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -85,7 +85,7 @@ async function init(){
   setStartupStatus('Chargement des sorties et producteurs…');
   await initRestaurants(); await initProducers();
   setStartupStatus('Chargement du Grand Herbier…');
-  await initHerbs(); await initProduce(); initStock();
+  await initHerbs(); await initProduce(); await harmoniseValidatedStock(); initStock();
   applyReadonlyMode(); checkForUpdate();
   finishStartup();
 }
@@ -804,6 +804,45 @@ function produceStockProducts(){return (produceItems||[]).map(p=>({name:p.name,g
 function mergedStockProducts(){const map=new Map();[...produceStockProducts(),...stockProducts].forEach(p=>{const k=norm(p.name);if(k&&!map.has(k))map.set(k,p);else if(k&&p.source!=='produce')map.set(k,{...map.get(k),...p})});return [...map.values()].sort((a,b)=>a.name.localeCompare(b.name,'fr',{sensitivity:'base'}))}
 function saveStock(){hgSet(stockStore,JSON.stringify(stock));markDirty();renderStock()}
 function saveStockProducts(){hgSet(stockProductStore,JSON.stringify(stockProducts));markDirty()}
+ 
+// Harmonisation Stock validée : 14 articles, sans modifier le Catalogue ni les autres rubriques.
+const STOCK_HARMONISATION_KEY='hg-stock-harmonisation-2981164';
+const STOCK_HARMONISATION_ROWS=[{"id":"01123ff4-939f-497f-a91b-e111eddee166","oldName":"Viande haché ","name":"Viande hachée de bœuf","aisle":"Boucherie","group":"Bœuf"},{"id":"190726aa-cc2e-4b5c-a7cd-605303b863ab","oldName":"Bourrata","name":"Burrata","aisle":"Laiterie","group":"Produits laitiers"},{"id":"28e2f139-16de-4b1d-81ba-92a16a0da10a","oldName":"Salade","name":"Salade","aisle":"Herbes fraîches / Salades","group":"Salades"},{"id":"551686c0-f535-467e-842b-c9f2d9f259ea","oldName":"Vin blanc","name":"Vin blanc","aisle":"Vin","group":"Vins blancs"},{"id":"e680b984-5093-4499-83d8-e0d7d598eb6f","oldName":"Chêvre frais","name":"Chèvre frais","aisle":"Laiterie","group":"Produits laitiers"},{"id":"44006702-0429-48ee-9571-7b97b889159f","oldName":"Feta","name":"Feta","aisle":"Laiterie","group":"Produits laitiers"},{"id":"8274383f-28e0-4f94-ac68-6047554b2938","oldName":"Fondue","name":"Fondue","aisle":"Laiterie","group":"Produits laitiers"},{"id":"927f40ca-74bd-4128-93a6-f2e7ebdb3844","oldName":"Jambon cuit","name":"Jambon cuit","aisle":"Boucherie","group":"Charcuterie"},{"id":"95f59c61-1556-4587-995e-1f79725a21ca","oldName":"Jambon cru","name":"Jambon cru","aisle":"Boucherie","group":"Charcuterie"},{"id":"28344d3d-e720-4229-af96-0e66d7a8da43","oldName":"Lard fumé","name":"Lard fumé","aisle":"Boucherie","group":"Charcuterie"},{"id":"b867d630-b0ff-4037-bc70-6c089641fb8a","oldName":"Courge musquée","name":"Courge musquée","aisle":"Légume","group":"Légumes"},{"id":"c83e5003-3a14-447e-9507-3204d0b64156","oldName":"Pâte à gâteau rectangulaire ","name":"Pâte à gâteau rectangulaire","aisle":"Produits frais","group":"Gâteaux / Gratins"},{"id":"5e9fcea4-f2c4-4596-b4cd-12e73856e3a7","oldName":"Ricotta","name":"Ricotta","aisle":"Laiterie","group":"Produits laitiers"},{"id":"62c4f926-90b5-4670-8465-d6444dcdae80","oldName":"Yoghourt grecque ","name":"Yoghourt grec","aisle":"Laiterie","group":"Produits laitiers"}];
+async function harmoniseValidatedStock(){
+  if(hgGet(STOCK_HARMONISATION_KEY)==='done')return;
+  let entries,products;
+  try{
+    entries=JSON.parse(hgGet(stockStore)||'[]');
+    products=JSON.parse(hgGet(stockProductStore)||'[]');
+    if(!Array.isArray(entries)||!Array.isArray(products))return;
+  }catch(e){console.warn('Harmonisation Stock non appliquée : données illisibles',e);return}
+  // Sécurité : 14 lignes Stock et 13 fiches Produits du Stock correspondantes.
+  // Courge musquée n'a pas de fiche produit dans la sauvegarde ; 'Jambon' est distinct.
+  const matches=STOCK_HARMONISATION_ROWS.filter(r=>entries.some(e=>e.id===r.id&&
+    (e.name===r.oldName||e.name===r.name)));
+  const pMatches=STOCK_HARMONISATION_ROWS.filter(r=>products.some(p=>
+    (p.name||'').trim()===r.oldName.trim()||(p.name||'')===r.name));
+  if(matches.length!==14||pMatches.length!==13){
+    console.warn('Harmonisation Stock reportée : données différentes de la sauvegarde validée',
+      matches.length,pMatches.length);return;
+  }
+  const changedEntries=entries.map(e=>{
+    const r=STOCK_HARMONISATION_ROWS.find(x=>x.id===e.id);
+    return r?{...e,name:r.name,aisle:r.aisle,group:r.group}:e;
+  });
+  const changedProducts=products.map(p=>{
+    const r=STOCK_HARMONISATION_ROWS.find(x=>(p.name||'').trim()===x.oldName.trim()||
+      (p.name||'')===x.name);
+    return r?{...p,name:r.name,aisle:r.aisle,group:r.group}:p;
+  });
+  // Conserver la copie originale pour permettre un retour en arrière.
+  await hgSet('hg-stock-before-harmonisation-2981164',
+    JSON.stringify({stock:entries,stockProducts:products}));
+  await hgSet(stockStore,JSON.stringify(changedEntries));
+  await hgSet(stockProductStore,JSON.stringify(changedProducts));
+  await hgSet(STOCK_HARMONISATION_KEY,'done');
+}
+
 function initStock(){try{stock=JSON.parse(hgGet(stockStore)||'[]')||[];stockProducts=JSON.parse(hgGet(stockProductStore)||'[]')||[]}catch{stock=[];stockProducts=[]}renderStock()}
 function fillStockSelect(field,values,current='',other=false){if(!field)return;const clean=[...new Set(values.filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));if(field.tagName==='INPUT'){const listId=field.getAttribute('list'),list=listId&&document.getElementById(listId);if(list)list.innerHTML=clean.map(v=>`<option value="${esc(v)}"></option>`).join('');field.value=current||'';return}field.innerHTML='<option value="">Choisir…</option>'+clean.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('')+(other?'<option value="__other__">Autre…</option>':'');if(current&&!clean.includes(current)){const o=document.createElement('option');o.value=current;o.textContent=current;field.insertBefore(o,other?field.lastElementChild:null)}field.value=current||''}
 function productForStockName(name){return mergedStockProducts().find(p=>norm(p.name)===norm(name))}
