@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.11.64';
+const APP_VERSION='2.9.8.11.65';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -1600,7 +1600,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  }
  function options(current){const all=catalog().sort((a,b)=>a.name.localeCompare(b.name,'fr'));const values=all.map(x=>x.name);if(current&&!values.some(x=>clean(x)===clean(current)))values.unshift(current);return values.map(n=>`<option value="${esc(n)}">${esc(n)}${n===current&&!all.some(x=>clean(x.name)===clean(current))?' (à relier)':''}</option>`).join('')}
  function edit(id=null){editing=id;const x=id?db[active].find(v=>v.id===id):null;get('hgEncyDialogTitle').textContent=x?'Modifier la fiche':'Nouvelle fiche';get('hgEncyName').innerHTML='<option value="">— Choisir dans le Catalogue —</option>'+options(x?.name||'');get('hgEncyName').value=x?.name||'';
-  for(const [k,field] of Object.entries(fields)){const el=get(field);if(el.type==='checkbox')el.checked=!!x?.[k];else el.value=x?.[k]||''}
+  for(const [k,field] of Object.entries(fields)){const el=get(field);if(!el)continue;if(el.type==='checkbox')el.checked=!!x?.[k];else el.value=x?.[k]||''}
   updateFreezing();get('hgEncyDelete').hidden=!x;get('hgEncyDialog').showModal();
  }
  const freeze=get('hgEncyFreezable'),raw=get('hgEncyRaw'),cooked=get('hgEncyCooked');
@@ -1611,10 +1611,12 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   if(db[active].some(y=>y!==x&&clean(y.name)===clean(name)))return alert('Une fiche porte déjà ce nom dans cette encyclopédie.');
   x.name=name;x.needsCatalogLink=!match;
   updateFreezing();
-  for(const [k,field] of Object.entries(fields)){const el=get(field);x[k]=el.type==='checkbox'?el.checked:el.value.trim()}
+  for(const [k,field] of Object.entries(fields)){const el=get(field);if(!el)continue;x[k]=el.type==='checkbox'?el.checked:el.value.trim()}
   if(!editing)db[active].push(x);save();get('hgEncyDialog').close();render();detail(x.id)
  });
- get('hgEncyDelete').onclick=()=>{if(!editing)return;const x=db[active].find(v=>v.id===editing);if(!x||!confirm(`Supprimer la fiche « ${x.name} » ? La recette originale sera conservée.`))return;db[active]=db[active].filter(v=>v!==x);save();get('hgEncyDialog').close();render();back()};
+ function deleteEncyclopediaItem(id){const x=db[active].find(v=>v.id===id);if(!x||!confirm(`Supprimer la fiche « ${x.name} » ? La recette originale sera conservée.`))return;db[active]=db[active].filter(v=>v!==x);save();get('hgEncyDialog').close();chosen=null;editing=null;render();back()}
+ get('hgEncyDelete').onclick=()=>{if(editing)deleteEncyclopediaItem(editing)};
+ get('hgEncyDeleteDetail').onclick=()=>{if(chosen)deleteEncyclopediaItem(chosen)};
  get('hgEncyClose').onclick=get('hgEncyCancel').onclick=()=>get('hgEncyDialog').close();
  get('hgEncyBack').onclick=()=>switchView('library',{top:true});get('hgEncyDetailBack').onclick=back;
  get('hgEncyAdd').onclick=()=>edit();get('hgEncyEdit').onclick=()=>edit(chosen);
