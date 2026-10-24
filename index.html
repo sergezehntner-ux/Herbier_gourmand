@@ -175,6 +175,15 @@ body:has(dialog[open]) #hgLibraryFloatingBack{display:none!important}
 #backFromIngredientCatalog,#backHerbsToLibrary,#backProduceToLibrary,#hgEncyBack{display:none!important}
 @media(max-width:700px){#hgLibraryFloatingBack{right:12px!important;bottom:14px!important;padding:10px 15px}}
 </style>
+<style id="hg-v61-catalog-floating">
+#hgCatalogFloating{position:fixed;left:14px;bottom:max(16px,env(safe-area-inset-bottom));z-index:410;display:none;gap:8px;flex-wrap:wrap;max-width:calc(100vw - 190px)}
+body:has(#ingredientCatalog.view.active) #hgCatalogFloating{display:flex}
+body:has(dialog[open]) #hgCatalogFloating{display:none}
+#hgCatalogFloating button{border-radius:999px;padding:10px 14px;box-shadow:0 5px 17px #0003;font-weight:700;background:#315d48;color:#fff;border:0}
+#hgCatalogFloating #hgCatalogQuickName{background:#f7e5a6;color:#233d30;display:none}
+body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:block!important}
+@media(max-width:700px){#hgCatalogFloating{left:9px;bottom:12px;gap:5px;max-width:calc(100vw - 162px)}#hgCatalogFloating button{padding:9px 11px;font-size:13px}}
+</style>
 </head>
 <body>
 <div id="startupOverlay" class="startup-overlay" role="status" aria-live="polite" aria-busy="true">
@@ -187,7 +196,7 @@ body:has(dialog[open]) #hgLibraryFloatingBack{display:none!important}
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.60 · Catalogue : Nom · Catégorie · Rayon</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.61 · Catalogue : Nom · Catégorie · Rayon</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -237,6 +246,7 @@ body:has(dialog[open]) #hgLibraryFloatingBack{display:none!important}
   </section>
 </section>
 
+<div id="hgCatalogFloating"><button id="hgCatalogQuickName" type="button">✏️ Corriger nom</button><button id="hgCatalogQuickBackup" type="button">💾 Sauvegarder</button></div>
 <section id="ingredientCatalog" class="view">
   <div class="section-title"><div><h2>Catalogue ingrédients</h2><span id="ingredientCatalogCount" class="muted"></span></div><div class="button-row"><button id="addIngredientCatalog" class="primary" type="button">+ Ajouter</button><button id="exportIngredientCatalog" type="button">Sauvegarder catalogue</button><label class="secondary import-label">Restaurer catalogue<input id="ingredientCatalogImportFile" type="file" accept=".hgcat,.json,application/json" hidden></label><button hidden id="backFromIngredientCatalog" type="button">← Bibliothèque</button></div></div>
   <p id="ingredientCatalogBackupStatus" class="muted" aria-live="polite"></p>
