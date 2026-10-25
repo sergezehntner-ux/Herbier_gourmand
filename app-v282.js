@@ -1624,7 +1624,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
    const drinksCatalog=catalog().filter(c=>/^(jus de fruits|boissons|sirops|cocktails|jus)$/i.test(String(c.group||'').trim())||/boissons|jus/i.test(String(c.aisle||'')));
    const linked=drinksCatalog.map(c=>{
     const existing=saved.find(v=>v.catalogId===c.id||v.catalogueId===c.id||clean(v.name)===clean(c.name));
-    return {...existing,id:existing?.id||'catalog:'+c.id,name:c.name,category:existing?.category||c.group||'Boissons',catalogId:c.id,catalogue:c};
+    return {...existing,id:existing?.id||'catalog:'+c.id,name:c.name,category:c.group||existing?.category||'Boissons',catalogId:c.id,catalogue:c};
    });
    return [...linked,...saved.filter(v=>!linked.some(x=>x.id===v.id||clean(x.name)===clean(v.name)))];
   }
@@ -1636,7 +1636,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   const allCatalog=catalog(), saved=Array.isArray(db.condiments)?db.condiments:[];
   const linked=allCatalog.filter(c=>clean(c.group)==='sauces'||saved.some(v=>v.catalogId===c.id||v.catalogueId===c.id||v.id==='catalog:'+c.id))
    .map(c=>{const existing=saved.find(v=>v.catalogId===c.id||v.catalogueId===c.id||v.id==='catalog:'+c.id);
-    return {...existing,id:existing?.id||'catalog:'+c.id,name:c.name,category:existing?.category||c.group||'Sauces',catalogId:c.id,catalogue:c};});
+    return {...existing,id:existing?.id||'catalog:'+c.id,name:c.name,category:c.group||existing?.category||'Sauces',catalogId:c.id,catalogue:c};});
   return [...linked,...saved.filter(v=>!linked.some(x=>x.id===v.id||(v.catalogId&&x.catalogId===v.catalogId)))];
  }
  function showPreparation(r){chosen='recipe:'+r.id;showRecipe(r.id,'hgEncyclopedia');}
@@ -1686,9 +1686,25 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   get('hgEncyDetailContent').innerHTML=`<h2>${esc(x.name)}</h2><p class="muted">${esc(x.category||'')}${x.needsCatalogLink?' · Nom à relier au Catalogue':''}</p>${sharedPhotoHtml}${catalogInfo}${sections}${ingredients}${x.sourceRecipeId?'<p class="muted">Recette originale conservée dans Recettes.</p>':''}`;
   switchView('hgEncyclopediaDetail',{top:true})
  }
+ // v78 : catégories dynamiques, reprise de la catégorie du Catalogue et « Autre… ».
+ function refreshEncyCategoryChoices(){
+  const list=get('hgEncyCategorySuggestions');if(!list)return;
+  const values=[...new Set(sourceItems().map(x=>x.category).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr'));
+  list.innerHTML=values.map(v=>`<option value="${esc(v)}"></option>`).join('')+'<option value="Autre…"></option>';
+ }
+ const categoryField=get('hgEncyFieldCategory');
+ categoryField?.addEventListener('change',()=>{
+  if(categoryField.value!=='Autre…')return;
+  const v=prompt('Nouvelle catégorie :','')?.trim();categoryField.value=v||'';
+ });
+ get('hgEncyName')?.addEventListener('change',()=>{
+  const c=catalog().find(x=>x.name===get('hgEncyName').value);
+  if(c&&categoryField)categoryField.value=c.group||'';
+ });
  function options(current){const all=catalog().sort((a,b)=>a.name.localeCompare(b.name,'fr'));const values=all.map(x=>x.name);if(current&&!values.some(x=>clean(x)===clean(current)))values.unshift(current);return values.map(n=>`<option value="${esc(n)}">${esc(n)}${n===current&&!all.some(x=>clean(x.name)===clean(current))?' (à relier)':''}</option>`).join('')}
  function edit(id=null){if(active==='condiments'&&id?.startsWith('recipe:'))return openRecipe(id.slice(7));editing=id;const x=id?(db[active].find(v=>v.id===id)||sourceItems().find(v=>v.id===id)):null;get('hgEncyDialogTitle').textContent=x?'Modifier la fiche':'Nouvelle fiche';get('hgEncyName').innerHTML='<option value="">— Choisir dans le Catalogue —</option>'+options(x?.name||'');get('hgEncyName').value=x?.name||'';
   for(const [k,field] of Object.entries(fields)){const el=get(field);if(!el)continue;if(el.type==='checkbox')el.checked=!!x?.[k];else el.value=x?.[k]||''}
+  refreshEncyCategoryChoices();const selected=catalog().find(c=>clean(c.name)===clean(get('hgEncyName').value));if(selected&&categoryField)categoryField.value=selected.group||'';
   updateFreezing();get('hgEncyDelete').hidden=!x||!!x.catalogue;get('hgEncyDialog').showModal();
  }
  const freeze=get('hgEncyFreezable'),raw=get('hgEncyRaw'),cooked=get('hgEncyCooked');
@@ -1700,7 +1716,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   x.name=name;x.needsCatalogLink=!match;
   updateFreezing();
   for(const [k,field] of Object.entries(fields)){const el=get(field);if(!el)continue;x[k]=el.type==='checkbox'?el.checked:el.value.trim()}
-  if(x.catalogue){x.category=x.catalogue.group;x.catalogId=x.catalogue.id;delete x.catalogue;}if(!db[active].some(v=>v.id===x.id))db[active].push(x);save();get('hgEncyDialog').close();render();detail(x.id)
+  if(match){x.category=match.group||'';x.catalogId=match.id;}if(x.catalogue){delete x.catalogue;}if(!db[active].some(v=>v.id===x.id))db[active].push(x);save();get('hgEncyDialog').close();render();detail(x.id)
  });
  function deleteEncyclopediaItem(id){const x=db[active].find(v=>v.id===id);if(!x||!confirm(`Supprimer la fiche « ${x.name} » ? La recette originale sera conservée.`))return;db[active]=db[active].filter(v=>v!==x);save();get('hgEncyDialog').close();chosen=null;editing=null;render();back()}
  get('hgEncyDelete').onclick=()=>{if(editing)deleteEncyclopediaItem(editing)};
