@@ -196,7 +196,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.74 · Catalogue : Nom · Catégorie · Rayon</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.75 · Catalogue : Nom · Catégorie · Rayon</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -250,9 +250,9 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <section id="ingredientCatalog" class="view">
   <div class="section-title"><div><h2>Catalogue ingrédients</h2><span id="ingredientCatalogCount" class="muted"></span></div><div class="button-row"><button id="addIngredientCatalog" class="primary" type="button">+ Ajouter</button><button id="manageCatalogLists" type="button">Rayons / Catégories</button><button id="exportIngredientCatalog" type="button">Sauvegarder catalogue</button><label class="secondary import-label">Restaurer catalogue<input id="ingredientCatalogImportFile" type="file" accept=".hgcat,.json,application/json" hidden></label><button hidden id="backFromIngredientCatalog" type="button">← Bibliothèque</button></div></div>
   <p id="ingredientCatalogBackupStatus" class="muted" aria-live="polite"></p>
-  <div class="catalog-toolbar"><input id="ingredientCatalogSearch" type="search" placeholder="Rechercher un nom…"><select id="ingredientCatalogAisle"><option value="">Tous les rayons</option></select><select id="ingredientCatalogGroup"><option value="">Toutes les catégories</option></select></div>
+  <div class="catalog-toolbar"><input id="ingredientCatalogSearch" type="search" placeholder="Rechercher un nom…"><select id="ingredientCatalogAisle"><option value="">Tous les rayons</option></select><select id="ingredientCatalogGroup"><option value="">Toutes les catégories</option></select><button type="button" id="clearIngredientCatalogFilters">Vider la recherche</button></div>
   <dialog id="catalogListsDialog"><div class="dialog-head"><h2>Gérer rayons et catégories</h2><button id="catalogListsClose" type="button">×</button></div><div class="grid"><label>Liste<select id="catalogListKind"><option value="aisle">Rayons</option><option value="group">Catégories</option></select></label><label>Élément<select id="catalogListValue"></select></label></div><p id="catalogListCount" class="muted"></p><div class="dialog-actions"><button id="catalogListAdd" type="button">+ Ajouter</button><button id="catalogListRename" type="button">✏️ Renommer</button></div><p class="muted">Renommer met à jour tous les articles concernés.</p></dialog>
-  <dialog id="catalogAddDialog"><form id="catalogAddForm"><div class="dialog-head"><h2>Nouvel article du Catalogue</h2><button type="button" id="catalogAddClose">×</button></div><div class="grid"><label>Nom<input id="catalogAddName" required maxlength="200"></label><label>Rayon<input id="catalogAddAisle" list="catalogAisleSuggestions" required><datalist id="catalogAisleSuggestions"></datalist></label><label>Catégorie<input id="catalogAddGroup" list="catalogGroupSuggestions"><datalist id="catalogGroupSuggestions"></datalist></label></div><div class="dialog-actions"><button type="button" id="catalogAddCancel">Annuler</button><button class="primary" type="submit">Enregistrer</button></div></form></dialog><input id="ingredientCatalogPhotoFile" type="file" accept="image/*" hidden><div id="ingredientCatalogList" class="ingredient-catalog-list"></div>
+  <dialog id="catalogAddDialog"><form id="catalogAddForm"><div class="dialog-head"><h2>Nouvel article du Catalogue</h2><button type="button" id="catalogAddClose">×</button></div><div class="grid"><label>Nom<input id="catalogAddName" required maxlength="200"></label><label>Rayon<input id="catalogAddAisle" list="catalogAisleSuggestions" required><datalist id="catalogAisleSuggestions"></datalist></label><label>Catégorie<input id="catalogAddGroup" list="catalogGroupSuggestions"><datalist id="catalogGroupSuggestions"></datalist></label></div><label style="display:flex;align-items:center;gap:12px;margin-top:10px">Photo <input id="catalogAddPhoto" type="file" accept="image/*" style="max-width:65%"><img id="catalogAddPhotoPreview" alt="Aperçu" hidden style="width:64px;height:64px;object-fit:contain;border-radius:8px"></label><div class="dialog-actions"><button type="button" id="catalogAddCancel">Annuler</button><button class="primary" type="submit">Enregistrer</button></div></form></dialog><input id="ingredientCatalogPhotoFile" type="file" accept="image/*" hidden><div id="ingredientCatalogList" class="ingredient-catalog-list"></div>
 </section>
 <section id="recipes" class="view">
   <div id="recipeReturnBar" class="return-bar hidden"><span id="selectionHint"></span><button id="returnPlanner">Reprendre au planning</button></div>
@@ -381,7 +381,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <section id="hgEncyclopedia" class="view">
   <div class="section-title"><div><h2 id="hgEncyTitle">Encyclopédie</h2><span class="muted" id="hgEncyCount"></span></div><div class="button-row"><button id="hgEncyAdd" class="primary">Ajouter</button><button id="hgEncyPrintList" type="button">Imprimer la liste</button><button hidden id="hgEncyBack">← Bibliothèque</button></div></div>
   <div id="hgCondimentModes" class="button-row" hidden><button type="button" id="hgCondimentProducts" class="primary">Produits du Catalogue</button><button type="button" id="hgCondimentPreparations">Préparations des Recettes</button></div>
-  <div class="produce-search-grid"><label>Recherche<input id="hgEncySearch" type="search" placeholder="Nom, utilisation, préparation…"></label><label>Catégorie<select id="hgEncyCategory"><option value="">Toutes les catégories</option></select></label></div>
+  <div class="produce-search-grid"><label>Recherche<input id="hgEncySearch" type="search" placeholder="Nom, utilisation, préparation…"></label><label>Catégorie<select id="hgEncyCategory"><option value="">Toutes les catégories</option></select></label><button type="button" id="hgEncyClearFilters">Vider la recherche</button></div>
   <div id="hgEncyList" class="produce-list"></div>
 </section>
 <section id="hgEncyclopediaDetail" class="view recipe-screen"><div class="recipe-screen-actions"><button id="hgEncyDetailBack">← Retour</button><div><button id="hgEncyPrint">Imprimer</button><button id="hgEncyEdit">Modifier</button><button id="hgEncyDeleteDetail" type="button" class="danger-soft">Supprimer</button></div></div><article id="hgEncyDetailContent"></article></section>
@@ -499,6 +499,6 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
 <script src="frigo-catalog-data.js?v=2981140"></script>
-<script src="app-v282.js?v=2981174"></script>
+<script src="app-v282.js?v=2981175"></script>
 <script src="media-v1.js?v=2981173"></script>
 </body></html>

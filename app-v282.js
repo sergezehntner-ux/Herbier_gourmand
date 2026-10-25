@@ -1522,16 +1522,19 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  $('#catalogListAdd')?.addEventListener('click',()=>{const field=kindEl.value,label=field==='aisle'?'rayon':'catégorie',v=prompt(`Nouveau ${label} :`)?.trim();if(!v)return;if(listValues(field).some(x=>norm(x)===norm(v)))return alert('Ce nom existe déjà.');extraLists[field].push(v);saveLists();refreshListManager(v);render()});
  $('#catalogListRename')?.addEventListener('click',()=>{const field=kindEl.value,old=valueEl.value;if(!old)return alert('Choisis un élément.');const v=prompt('Nouveau nom :',old)?.trim();if(!v||v===old)return;if(listValues(field).some(x=>x!==old&&norm(x)===norm(v)))return alert('Ce nom existe déjà.');const affected=catalog.filter(x=>x[field]===old).length;if(!confirm(`Renommer « ${old} » en « ${v} » pour ${affected} article(s) ?`))return;catalog.forEach(x=>{if(x[field]===old)x[field]=v});extraLists[field]=extraLists[field].filter(x=>x!==old);extraLists[field].push(v);saveLists();save();refreshListManager(v);render()});
  const addDialog=$('#catalogAddDialog');
- $('#addIngredientCatalog')?.addEventListener('click',()=>{if(READONLY)return;for(const [field,values] of [['catalogAisleSuggestions',aisles()],['catalogGroupSuggestions',groups()]]){$('#'+field).innerHTML=values.map(v=>`<option value="${esc(v)}"></option>`).join('')}$('#catalogAddForm').reset();addDialog.showModal();$('#catalogAddName').focus()});
+ $('#addIngredientCatalog')?.addEventListener('click',()=>{if(READONLY)return;for(const [field,values] of [['catalogAisleSuggestions',aisles()],['catalogGroupSuggestions',groups()]]){$('#'+field).innerHTML=values.map(v=>`<option value="${esc(v)}"></option>`).join('')}$('#catalogAddForm').reset();const preview=$('#catalogAddPhotoPreview');if(preview){preview.hidden=true;preview.removeAttribute('src')}addDialog.showModal();$('#catalogAddName').focus()});
  $('#catalogAddClose')?.addEventListener('click',()=>addDialog.close());
  $('#catalogAddCancel')?.addEventListener('click',()=>addDialog.close());
- $('#catalogAddForm')?.addEventListener('submit',e=>{e.preventDefault();const name=$('#catalogAddName').value.trim(),aisle=$('#catalogAddAisle').value.trim(),group=$('#catalogAddGroup').value.trim();if(!name||!aisle)return;if(catalog.some(x=>norm(x.name)===norm(name)))return alert(`« ${name} » existe déjà dans le Catalogue.`);const id='catalog-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);catalog.push({id,name,aisle,group,image:'',filename:''});save();$('#ingredientCatalogSearch').value='';$('#ingredientCatalogAisle').value='';$('#ingredientCatalogGroup').value='';addDialog.close();render();window.dispatchEvent(new CustomEvent('hg:catalog-created',{detail:{id,name,aisle,group}}));});
+ const addPhoto=$('#catalogAddPhoto'),addPreview=$('#catalogAddPhotoPreview');
+ addPhoto?.addEventListener('change',async()=>{const f=addPhoto.files?.[0];if(addPreview){addPreview.hidden=true;addPreview.removeAttribute('src')}if(!f)return;try{const data=await imageToDataURL(f);if(addPreview){addPreview.src=data;addPreview.hidden=false}}catch(e){alert('Photo non reconnue : '+e.message);addPhoto.value=''}});
+ $('#catalogAddForm')?.addEventListener('submit',async e=>{e.preventDefault();const name=$('#catalogAddName').value.trim(),aisle=$('#catalogAddAisle').value.trim(),group=$('#catalogAddGroup').value.trim();if(!name||!aisle)return;if(catalog.some(x=>norm(x.name)===norm(name)))return alert(`« ${name} » existe déjà dans le Catalogue.`);const id='catalog-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);let image='',filename='';const file=addPhoto?.files?.[0];if(file){try{image=await imageToDataURL(file);filename=file.name}catch(err){alert('Photo non enregistrée : '+err.message);return}}catalog.push({id,name,aisle,group,image,filename});save();$('#ingredientCatalogSearch').value='';$('#ingredientCatalogAisle').value='';$('#ingredientCatalogGroup').value='';addDialog.close();render();window.dispatchEvent(new CustomEvent('hg:catalog-created',{detail:{id,name,aisle,group}}));});
  $('#libraryOpenCatalog')?.addEventListener('click',openCatalogFromLibrary);
  $('#openIngredientCatalog')?.addEventListener('click',openCatalogFromLibrary);
  $('#backFromIngredientCatalog')?.addEventListener('click',()=>switchView('library'));
  $('#ingredientCatalogSearch')?.addEventListener('input',render);
  $('#ingredientCatalogAisle')?.addEventListener('change',render);
  $('#ingredientCatalogGroup')?.addEventListener('change',render);
+ $('#clearIngredientCatalogFilters')?.addEventListener('click',()=>{$('#ingredientCatalogSearch').value='';$('#ingredientCatalogAisle').value='';$('#ingredientCatalogGroup').value='';render()});
  $('#exportIngredientCatalog')?.addEventListener('click',exportCatalog);
  $('#hgCatalogQuickBackup')?.addEventListener('click',exportCatalog);
  $('#hgCatalogQuickName')?.addEventListener('click',()=>{
@@ -1654,8 +1657,11 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  }
  function detail(id){chosen=id;const x=item();if(!x)return;if(x.recipe)return showPreparation(x.recipe);get('hgEncyEdit').hidden=false;get('hgEncyDeleteDetail').hidden=!!x.catalogue;const sections=Object.entries(names).filter(([k])=>k!=='category'&&x[k]).map(([k,n])=>`<section class="hg-ency-block"><h3>${esc(n)}</h3><p style="white-space:pre-wrap">${esc(x[k])}</p></section>`).join('');
   const catalogInfo=x.catalogue?`<section class="hg-ency-block"><h3>Produit du Catalogue</h3><p>Catégorie : ${esc(x.catalogue.group||'Sauces')} · Rayon : ${esc(x.catalogue.aisle||'Non renseigné')}</p>${x.catalogue.image?`<img src="${x.catalogue.image}" alt="" style="max-width:180px;max-height:160px;object-fit:contain;border-radius:10px">`:''}<p class="muted">Complète les informations avec Modifier. La fiche du Catalogue reste inchangée.</p></section>`:'';
-  const ingredients=Array.isArray(x.ingredients)&&x.ingredients.length?`<section class="hg-ency-block"><h3>Ingrédients de la recette source</h3><p>${x.ingredients.map(i=>esc(Array.isArray(i)?i.filter(v=>v!==null&&v!=='').join(' '):String(i))).join(' · ')}</p></section>`:'';
-  get('hgEncyDetailContent').innerHTML=`<h2>${esc(x.name)}</h2><p class="muted">${esc(x.category||'')}${x.needsCatalogLink?' · Nom à relier au Catalogue':''}</p>${catalogInfo}${sections}${ingredients}${x.sourceRecipeId?'<p class="muted">Recette originale conservée dans Recettes.</p>':''}`;
+  const linkedCatalog=x.catalogue||catalog().find(c=>(x.catalogId&&c.id===x.catalogId)||(x.catalogueId&&c.id===x.catalogueId)||clean(c.name)===clean(x.name));
+ const sharedPhoto=(x.image||x.photo||linkedCatalog?.image||'');
+ const sharedPhotoHtml=sharedPhoto&&!x.catalogue?`<img src="${sharedPhoto}" alt="Photo de ${esc(x.name)}" style="max-width:180px;max-height:160px;object-fit:contain;border-radius:10px">`:'';
+ const ingredients=Array.isArray(x.ingredients)&&x.ingredients.length?`<section class="hg-ency-block"><h3>Ingrédients de la recette source</h3><p>${x.ingredients.map(i=>esc(Array.isArray(i)?i.filter(v=>v!==null&&v!=='').join(' '):String(i))).join(' · ')}</p></section>`:'';
+  get('hgEncyDetailContent').innerHTML=`<h2>${esc(x.name)}</h2><p class="muted">${esc(x.category||'')}${x.needsCatalogLink?' · Nom à relier au Catalogue':''}</p>${sharedPhotoHtml}${catalogInfo}${sections}${ingredients}${x.sourceRecipeId?'<p class="muted">Recette originale conservée dans Recettes.</p>':''}`;
   switchView('hgEncyclopediaDetail',{top:true})
  }
  function options(current){const all=catalog().sort((a,b)=>a.name.localeCompare(b.name,'fr'));const values=all.map(x=>x.name);if(current&&!values.some(x=>clean(x)===clean(current)))values.unshift(current);return values.map(n=>`<option value="${esc(n)}">${esc(n)}${n===current&&!all.some(x=>clean(x.name)===clean(current))?' (à relier)':''}</option>`).join('')}
@@ -1682,7 +1688,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  get('hgEncyAdd').onclick=()=>{if(active==='condiments'&&condimentMode==='preparations'){openRecipe();ensureSelectValue(document.getElementById('recipeCategory'),'Sauce');document.getElementById('recipeCategory').value='Sauce';}else edit()};get('hgEncyEdit').onclick=()=>edit(chosen);
  get('hgCondimentProducts').onclick=()=>{condimentMode='products';chosen=null;showMode();render()};
  get('hgCondimentPreparations').onclick=()=>{condimentMode='preparations';chosen=null;showMode();render()};
- get('hgEncySearch').oninput=render;get('hgEncyCategory').onchange=render;
+ get('hgEncySearch').oninput=render;get('hgEncyCategory').onchange=render;get('hgEncyClearFilters').onclick=()=>{get('hgEncySearch').value='';get('hgEncyCategory').value='';render()};
  get('hgEncyPrint').onclick=()=>{const x=item();if(x)printDocument(x.name,`<h1>${esc(x.name)}</h1>`+get('hgEncyDetailContent').innerHTML)};
  get('hgEncyPrintList').onclick=()=>{const rows=[...get('hgEncyList').querySelectorAll('[data-id]')].map(b=>sourceItems().find(x=>x.id===b.dataset.id)).filter(Boolean);if(!rows.length)return alert('Aucune fiche à imprimer.');printDocument(labels[active],`<h1>${esc(labels[active])}</h1><p>${rows.length} fiche(s)</p>`+rows.map(x=>`<div class="day"><h2>${esc(x.name)}</h2><p>${esc(x.category||'')}</p><p>${esc(x.uses||x.description||'')}</p></div>`).join(''))};
  document.querySelectorAll('[data-encyclopedia]').forEach(b=>b.onclick=()=>open(b.dataset.encyclopedia));
@@ -1690,7 +1696,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  init();clearLegacyCondiments();
 })();
 
-/* v2.9.8.11.74 — référencement volontaire Catalogue → Encyclopédies.
+/* v2.9.8.11.75 — référencement volontaire Catalogue → Encyclopédies.
    Les données du Catalogue ne sont jamais réécrites par cette opération. */
 window.addEventListener('hg:catalog-created',event=>{
  const article=event.detail;if(!article?.id)return;
