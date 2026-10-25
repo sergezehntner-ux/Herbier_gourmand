@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.12.01';
+const APP_VERSION='2.9.8.12.02';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -915,7 +915,7 @@ if($('#stockForm'))$('#stockForm').onsubmit=e=>{e.preventDefault();const id=$('#
 if($('#deleteStock'))$('#deleteStock').onclick=()=>{const id=$('#stockId').value;if(id&&confirm('Supprimer ce produit du stock ?')){stock=stock.filter(x=>x.id!==id);saveStock();$('#stockDialog').close()}};
 function printStockGrouped(kind){
   if(!stock.length)return alert('Le stock est vide.');
-  const field=kind==='group'?'group':'aisle',label=kind==='group'?'Groupe':'Rayon';
+  const field=kind==='group'?'group':'aisle',label=kind==='group'?'Catégorie':'Rayon';
   const groups={};
   [...stock].sort((a,b)=>a.name.localeCompare(b.name,'fr',{sensitivity:'base'})).forEach(x=>{const key=(x[field]||'Non défini').trim()||'Non défini';(groups[key]??=[]).push(x)});
   const entries=Object.entries(groups).sort((a,b)=>a[0].localeCompare(b[0],'fr',{sensitivity:'base'}));
