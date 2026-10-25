@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.11.67';
+const APP_VERSION='2.9.8.11.81';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -72,6 +72,8 @@ async function init(){
   hgSet(weekStore,currentWeekStart);
   setStartupStatus('Chargement de vos données partagées…');
   await autoLoadSharedBackup();
+  // Initialiser les encyclopédies seulement après chargement IndexedDB et sauvegarde partagée.
+  window.dispatchEvent(new Event('hg:storage-ready'));
   migrateLegacyWeekSlots();
   renderDaySlotChoices();
   if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=2981130', {updateViaCache:'none'});
@@ -1731,19 +1733,9 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  get('hgEncyPrintList').onclick=()=>{const rows=[...get('hgEncyList').querySelectorAll('[data-id]')].map(b=>sourceItems().find(x=>x.id===b.dataset.id)).filter(Boolean);if(!rows.length)return alert('Aucune fiche à imprimer.');printDocument(labels[active],`<h1>${esc(labels[active])}</h1><p>${rows.length} fiche(s)</p>`+rows.map(x=>`<div class="day"><h2>${esc(x.name)}</h2><p>${esc(x.category||'')}</p><p>${esc(x.uses||x.description||'')}</p></div>`).join(''))};
  document.querySelectorAll('[data-encyclopedia]').forEach(b=>b.onclick=()=>open(b.dataset.encyclopedia));
  window.addEventListener('hg:encyclopedia-linked',e=>{if(labels[e.detail?.kind]){try{const latest=JSON.parse(hgGet(STORE)||'{}');if(Array.isArray(latest[e.detail.kind]))db[e.detail.kind]=latest[e.detail.kind]}catch(err){console.error(err)}}});
- init();clearLegacyCondiments();
- // v80 : réparation ciblée et idempotente d'une association vérifiée dans
- // la sauvegarde du 25.10.2026. Ne touche jamais au Catalogue.
- // Ne crée la fiche que si le produit correspondant existe encore et que
- // l'association n'est pas déjà présente dans Condiments & Sauces.
- try{
-  const id='catalog-1792920688150-za3w64';
-  const product=catalog().find(c=>c.id===id&&clean(c.name)===clean('Crème fraîche aux herbes'));
-  if(product&&!db.condiments.some(v=>v.catalogId===id||v.catalogueId===id||v.id==='catalog:'+id)){
-   db.condiments.push({id:'catalog:'+id,name:product.name,catalogId:id,category:product.group||'Produits laitiers'});
-   save();
-  }
- }catch(err){console.error('Réparation association Crème fraîche aux herbes',err)}
+ window.addEventListener('hg:storage-ready',()=>{init();clearLegacyCondiments();});
+ // Les associations sont chargées depuis les données persistées, sans injection spécifique.
+
 })();
 
 /* v2.9.8.11.75 — référencement volontaire Catalogue → Encyclopédies.
