@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.11.81';
+const APP_VERSION='2.9.8.12.01';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -803,7 +803,10 @@ function stockLocations(){try{const a=JSON.parse(hgGet(stockLocationStore)||'nul
 function saveStockLocations(a){hgSet(stockLocationStore,JSON.stringify([...new Set(a.filter(Boolean))]));markDirty()}
 function knownAisles(){const set=new Set(['Fruits et légumes','Boucherie','Poissonnerie','Produits laitiers','Épicerie','Surgelés']);try{Object.values(aisleOrders()||{}).flat().forEach(x=>x&&set.add(x))}catch{}shopping.forEach(x=>x.aisle&&set.add(x.aisle));return [...set].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}))}
 function produceStockProducts(){return (produceItems||[]).map(p=>({name:p.name,group:/fruit/i.test(p.category||'')?'Fruit':/l[eé]gume/i.test(p.category||'')?'Légume':(p.category||''),aisle:'Fruits et légumes',alias:'',source:'produce'}))}
-function mergedStockProducts(){const map=new Map();[...produceStockProducts(),...stockProducts].forEach(p=>{const k=norm(p.name);if(k&&!map.has(k))map.set(k,p);else if(k&&p.source!=='produce')map.set(k,{...map.get(k),...p})});return [...map.values()].sort((a,b)=>a.name.localeCompare(b.name,'fr',{sensitivity:'base'}))}
+// Phase B : lecture seule du Catalogue maître pour les propositions du Stock.
+// Aucun ajout ni correction automatique dans le Catalogue ou dans le Stock existant.
+function catalogStockProducts(){try{const rows=JSON.parse(hgGet('hg-ingredient-catalog-v1')||'[]');return Array.isArray(rows)?rows.filter(p=>p&&String(p.name||'').trim()).map(p=>({name:String(p.name).trim(),group:p.group||'',aisle:p.aisle||'',alias:stockProducts.find(x=>norm(x.name)===norm(p.name))?.alias||'',catalogId:p.id,source:'catalog'})):[]}catch(e){console.warn('Catalogue indisponible pour le Stock',e);return []}}
+function mergedStockProducts(){const map=new Map();[...produceStockProducts(),...stockProducts,...catalogStockProducts()].forEach(p=>{const k=norm(p.name);if(k)map.set(k,{...(map.get(k)||{}),...p})});return [...map.values()].sort((a,b)=>a.name.localeCompare(b.name,'fr',{sensitivity:'base'}))}
 function saveStock(){hgSet(stockStore,JSON.stringify(stock));markDirty();renderStock()}
 function saveStockProducts(){hgSet(stockProductStore,JSON.stringify(stockProducts));markDirty()}
  
@@ -908,7 +911,7 @@ function deleteStockListValue(){
   hgSet(stockStore,JSON.stringify(stock));markDirty();renderStock();renderStockListManager();
 }
 if($('#addStock'))$('#addStock').onclick=()=>openStock();if($('#closeStockDialog'))$('#closeStockDialog').onclick=()=>$('#stockDialog').close();if($('#stockProduct'))$('#stockProduct').onchange=refreshStockProductFields;if($('#stockLocation'))$('#stockLocation').onchange=()=>handleStockOther($('#stockLocation'),'lieu');if($('#stockGroup'))$('#stockGroup').onchange=()=>handleStockOther($('#stockGroup'),'groupe');if($('#stockAisle'))$('#stockAisle').onchange=()=>handleStockOther($('#stockAisle'),'rayon');
-if($('#stockForm'))$('#stockForm').onsubmit=e=>{e.preventDefault();const id=$('#stockId').value,name=$('#stockProduct').value;if(!name)return;const item={id:id||uid(),name,location:$('#stockLocation').value,group:$('#stockGroup').value,aisle:$('#stockAisle').value,alias:$('#stockSearchAlso').value.trim(),checked:false};const old=stock.find(x=>x.id===id);if(old)Object.assign(old,item);else stock.push(item);const p=productForStockName(name);if(!p||p.source!=='produce'){const i=stockProducts.findIndex(x=>norm(x.name)===norm(name)),def={name,group:item.group,aisle:item.aisle,alias:item.alias};if(i>=0)stockProducts[i]=def;else stockProducts.push(def);saveStockProducts()}saveStock();$('#stockDialog').close()};
+if($('#stockForm'))$('#stockForm').onsubmit=e=>{e.preventDefault();const id=$('#stockId').value,name=$('#stockProduct').value;if(!name)return;const item={id:id||uid(),name,location:$('#stockLocation').value,group:$('#stockGroup').value,aisle:$('#stockAisle').value,alias:$('#stockSearchAlso').value.trim(),checked:false};const old=stock.find(x=>x.id===id);if(old)Object.assign(old,item);else stock.push(item);const p=productForStockName(name);if(!p||!['produce','catalog'].includes(p.source)){const i=stockProducts.findIndex(x=>norm(x.name)===norm(name)),def={name,group:item.group,aisle:item.aisle,alias:item.alias};if(i>=0)stockProducts[i]=def;else stockProducts.push(def);saveStockProducts()}saveStock();$('#stockDialog').close()};
 if($('#deleteStock'))$('#deleteStock').onclick=()=>{const id=$('#stockId').value;if(id&&confirm('Supprimer ce produit du stock ?')){stock=stock.filter(x=>x.id!==id);saveStock();$('#stockDialog').close()}};
 function printStockGrouped(kind){
   if(!stock.length)return alert('Le stock est vide.');
