@@ -209,7 +209,18 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 @media(max-width:700px){.ingredient-catalog-row{grid-template-columns:58px minmax(0,1fr) auto;gap:7px}.ingredient-catalog-info{grid-column:2;grid-row:1}.ingredient-catalog-actions{grid-column:3;grid-row:1;flex-direction:column;max-width:150px}.ingredient-catalog-actions button{max-width:100%;white-space:normal}.ingredient-catalog-meta-sep{display:none}.ingredient-catalog-meta{column-gap:8px}}
 </style>
 <style id="hg-producer-1208">.producer-compact-detail{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:8px}.producer-compact-detail section{padding:10px 12px;border:1px solid var(--border,#ddd);border-radius:10px;align-self:start}.producer-compact-detail h3{margin:0 0 5px;font-size:1rem}.producer-compact-detail p{margin:0;overflow-wrap:anywhere;line-height:1.35}.producer-linked-view{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}.producer-link-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:16px;border:1px solid #aab8a9;background:#edf4ed;color:#23442e;font:inherit}.producer-link-chip button{border:0;background:transparent;font-size:1.2em;cursor:pointer}.producer-picker{display:flex;gap:6px}.producer-picker select{width:115px;flex:none}.producer-picker input{flex:1;min-width:0}.producer-suggestions{display:flex;flex-wrap:wrap;gap:4px;max-height:125px;overflow:auto;margin-top:5px}.producer-suggestions button{padding:5px 8px;border:1px solid #ccc;border-radius:8px;background:#f6f6f6}.producer-association{margin:8px 0}#producerNotes,#producerHours,#producerAddress{field-sizing:content;min-height:2.5em;max-height:45vh}</style>
-</head>
+<style id="hg-producer-1210">
+.producer-search-compact{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 12px}
+.producer-search-compact>label{display:grid;grid-template-columns:105px minmax(0,1fr);align-items:center;gap:8px;margin:0}
+.producer-search-compact>label:first-child{grid-column:1/-1}
+.producer-search-compact input,.producer-search-compact select{min-width:0;width:100%;margin:0}
+@media(max-width:680px){.producer-search-compact{grid-template-columns:1fr}.producer-search-compact>label:first-child{grid-column:auto}.producer-search-compact>label{grid-template-columns:90px minmax(0,1fr)}}
+.catalog-pick-wrap{position:relative;min-width:0}.catalog-pick-wrap>input{width:100%}
+.catalog-pick-list{display:none;position:absolute;top:100%;left:0;right:0;max-height:180px;overflow:auto;z-index:100000;background:white;border:1px solid #aebcaf;border-radius:8px;box-shadow:0 5px 15px #0002}
+.catalog-pick-list.open{display:block}.catalog-pick-list button{display:block;width:100%;text-align:left;background:white;border:0;border-bottom:1px solid #eee;padding:8px 10px;color:#233e2e}
+.catalog-pick-list button:focus,.catalog-pick-list button:hover{background:#edf4ed}
+#catalogAddDialog{max-height:min(90dvh,780px);overflow:visible}#catalogAddDialog form{max-height:calc(90dvh - 36px);overflow-y:auto}
+</style></head>
 <body>
 <div id="startupOverlay" class="startup-overlay" role="status" aria-live="polite" aria-busy="true">
   <div class="startup-card">
@@ -221,7 +232,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.12.07 · Catalogue : Nom · Catégorie · Rayon</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.12.10 · Producteurs : recherche compacte et listes</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -277,7 +288,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   <p id="ingredientCatalogBackupStatus" class="muted" aria-live="polite"></p>
   <div class="catalog-toolbar"><input id="ingredientCatalogSearch" type="search" placeholder="Rechercher un nom…"><select id="ingredientCatalogAisle"><option value="">Tous les rayons</option></select><select id="ingredientCatalogGroup"><option value="">Toutes les catégories</option></select><button type="button" id="clearIngredientCatalogFilters">Vider la recherche</button></div>
   <dialog id="catalogListsDialog"><div class="dialog-head"><h2>Gérer rayons et catégories</h2><button id="catalogListsClose" type="button">×</button></div><div class="grid"><label>Liste<select id="catalogListKind"><option value="aisle">Rayons</option><option value="group">Catégories</option></select></label><label>Élément<select id="catalogListValue"></select></label></div><p id="catalogListCount" class="muted"></p><div class="dialog-actions"><button id="catalogListAdd" type="button">+ Ajouter</button><button id="catalogListRename" type="button">✏️ Renommer</button></div><p class="muted">Renommer met à jour tous les articles concernés.</p></dialog>
-  <dialog id="catalogAddDialog"><form id="catalogAddForm"><div class="dialog-head"><h2>Nouvel article du Catalogue</h2><button type="button" id="catalogAddClose">×</button></div><div class="grid"><label>Nom<input id="catalogAddName" required maxlength="200"></label><label>Rayon<input id="catalogAddAisle" list="catalogAisleSuggestions" required><datalist id="catalogAisleSuggestions"></datalist></label><label>Catégorie<input id="catalogAddGroup" list="catalogGroupSuggestions"><datalist id="catalogGroupSuggestions"></datalist></label></div><label style="display:flex;align-items:center;gap:12px;margin-top:10px">Photo <input id="catalogAddPhoto" type="file" accept="image/*" style="max-width:65%"><img id="catalogAddPhotoPreview" alt="Aperçu" hidden style="width:64px;height:64px;object-fit:contain;border-radius:8px"></label><div class="dialog-actions"><button type="button" id="catalogAddCancel">Annuler</button><button class="primary" type="submit">Enregistrer</button></div></form></dialog><input id="ingredientCatalogPhotoFile" type="file" accept="image/*" hidden><div id="ingredientCatalogList" class="ingredient-catalog-list"></div>
+  <dialog id="catalogAddDialog"><form id="catalogAddForm"><div class="dialog-head"><h2>Nouvel article du Catalogue</h2><button type="button" id="catalogAddClose">×</button></div><div class="grid"><label>Nom<input id="catalogAddName" required maxlength="200"></label><label>Rayon<div class="catalog-pick-wrap"><input id="catalogAddAisle" list="catalogAisleSuggestions" autocomplete="off" required><datalist id="catalogAisleSuggestions"></datalist><div class="catalog-pick-list" id="catalogAislePick"></div></div></label><label>Catégorie<div class="catalog-pick-wrap"><input id="catalogAddGroup" list="catalogGroupSuggestions" autocomplete="off"><datalist id="catalogGroupSuggestions"></datalist><div class="catalog-pick-list" id="catalogGroupPick"></div></div></label></div><label style="display:flex;align-items:center;gap:12px;margin-top:10px">Photo <input id="catalogAddPhoto" type="file" accept="image/*" style="max-width:65%"><img id="catalogAddPhotoPreview" alt="Aperçu" hidden style="width:64px;height:64px;object-fit:contain;border-radius:8px"></label><div class="dialog-actions"><button type="button" id="catalogAddCancel">Annuler</button><button class="primary" type="submit">Enregistrer</button></div></form></dialog><input id="ingredientCatalogPhotoFile" type="file" accept="image/*" hidden><div id="ingredientCatalogList" class="ingredient-catalog-list"></div>
 </section>
 <section id="recipes" class="view">
   <div id="recipeReturnBar" class="return-bar hidden"><span id="selectionHint"></span><button id="returnPlanner">Reprendre au planning</button></div>
@@ -353,7 +364,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 
 <section id="producers" class="view">
   <div class="section-title"><div><h2>Producteurs locaux</h2><span id="producerCount" class="muted"></span></div><button id="newProducer" class="primary">+ Nouveau</button></div>
-  <div class="producer-search-grid">
+  <div class="producer-search-grid producer-search-compact">
     <label>Nom<input id="producerSearch" type="search" placeholder="Nom du producteur ou marché…"></label>
     <label>Région<select id="producerRegion"><option value="">Toutes les régions</option></select></label>
     <label>Lieu<select id="producerCity"><option value="">Tous les lieux</option></select></label>

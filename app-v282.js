@@ -1635,6 +1635,14 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  $('#catalogListRename')?.addEventListener('click',()=>{const field=kindEl.value,old=valueEl.value;if(!old)return alert('Choisis un élément.');const v=prompt('Nouveau nom :',old)?.trim();if(!v||v===old)return;if(listValues(field).some(x=>x!==old&&norm(x)===norm(v)))return alert('Ce nom existe déjà.');const affected=catalog.filter(x=>x[field]===old).length;if(!confirm(`Renommer « ${old} » en « ${v} » pour ${affected} article(s) ?`))return;catalog.forEach(x=>{if(x[field]===old)x[field]=v});extraLists[field]=extraLists[field].filter(x=>x!==old);extraLists[field].push(v);saveLists();save();refreshListManager(v);render()});
  const addDialog=$('#catalogAddDialog');if(addDialog&&addDialog.parentElement!==document.body)document.body.appendChild(addDialog);
  $('#addIngredientCatalog')?.addEventListener('click',()=>{if(READONLY)return;for(const [field,values] of [['catalogAisleSuggestions',aisles()],['catalogGroupSuggestions',groups()]]){$('#'+field).innerHTML=values.map(v=>`<option value="${esc(v)}"></option>`).join('')}$('#catalogAddForm').reset();const preview=$('#catalogAddPhotoPreview');if(preview){preview.hidden=true;preview.removeAttribute('src')}addDialog.showModal();$('#catalogAddName').focus()});
+ // Suggestions visibles également dans les navigateurs qui masquent les datalists.
+ for(const [fieldId,listId,valuesFn] of [['catalogAddAisle','catalogAislePick',aisles],['catalogAddGroup','catalogGroupPick',groups]]){
+  const field=$('#'+fieldId),list=$('#'+listId);if(!field||!list)continue;
+  const refresh=()=>{const query=norm(field.value.trim());const vals=valuesFn().filter(v=>!query||norm(v).includes(query)).slice(0,45);
+   list.replaceChildren();for(const v of vals){const b=document.createElement('button');b.type='button';b.textContent=v;b.addEventListener('mousedown',e=>e.preventDefault());b.addEventListener('click',()=>{field.value=v;list.classList.remove('open');field.dispatchEvent(new Event('change',{bubbles:true}))});list.appendChild(b)}list.classList.toggle('open',vals.length>0)};
+  field.addEventListener('focus',refresh);field.addEventListener('input',refresh);
+  field.addEventListener('blur',()=>setTimeout(()=>list.classList.remove('open'),180));
+ }
  $('#catalogAddClose')?.addEventListener('click',()=>addDialog.close());
  $('#catalogAddCancel')?.addEventListener('click',()=>addDialog.close());
  const addPhoto=$('#catalogAddPhoto'),addPreview=$('#catalogAddPhotoPreview');
