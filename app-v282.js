@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.12.06';
+const APP_VERSION='2.9.8.12.07';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -1819,7 +1819,24 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
 /* v2.9.8.11.75 — référencement volontaire Catalogue → Encyclopédies.
    Les données du Catalogue ne sont jamais réécrites par cette opération. */
 function hgAssociateFromCatalog(article,ask=true,chosenKind=null){if(!article?.id)return;
- if(ask&&!confirm(`Voulez-vous également intégrer « ${article.name} » dans une encyclopédie ?`))return;
+ if(ask){
+  // Boîte de dialogue interne : libellés explicites « Non » et « Oui ».
+  const dialog=document.createElement('dialog');
+  dialog.setAttribute('aria-label','Association à une encyclopédie');
+  dialog.style.cssText='border:0;border-radius:16px;padding:0;max-width:min(440px,calc(100vw - 32px));width:100%;box-shadow:0 16px 50px #0004;color:#20382a;background:#fffdf7';
+  const panel=document.createElement('div');panel.style.cssText='padding:22px;display:flex;flex-direction:column;gap:18px';
+  const question=document.createElement('p');question.style.cssText='margin:0;font-size:1.1rem;line-height:1.5';
+  question.textContent=`Voulez-vous également intégrer « ${article.name} » dans une encyclopédie ?`;
+  const actions=document.createElement('div');actions.style.cssText='display:flex;justify-content:flex-end;gap:10px';
+  const no=document.createElement('button');no.type='button';no.textContent='Non';
+  const yes=document.createElement('button');yes.type='button';yes.textContent='Oui';yes.className='primary';
+  const close=()=>{if(dialog.open)dialog.close();dialog.remove()};
+  no.addEventListener('click',close);
+  yes.addEventListener('click',()=>{close();hgAssociateFromCatalog(article,false,chosenKind)});
+  dialog.addEventListener('close',()=>dialog.remove(),{once:true});
+  actions.append(no,yes);panel.append(question,actions);dialog.append(panel);document.body.append(dialog);
+  dialog.showModal();return;
+ }
  const choices=[['produce','Fruits & Légumes'],['herbs','Plantes & Épices'],['meat','Viandes & Volailles'],['fish','Poissons & Crustacés'],['condiments','Condiments & Sauces'],['drinks','Boissons & Cocktails']];
  const answer=chosenKind===null?prompt('Dans quelle encyclopédie ?\n'+choices.map((c,i)=>`${i+1}. ${c[1]}`).join('\n')+'\n\nIndiquez un numéro (Annuler = plus tard) :'):null;
  if(chosenKind===null&&answer===null)return;
