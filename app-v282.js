@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.12.09';
+const APP_VERSION='2.9.8.12.11';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -1166,9 +1166,22 @@ function renderProducers(){const list=filteredProducers();$('#producerCount').te
 function showProducer(id,from=''){const p=producers.find(x=>x.id===id);if(!p)return;if(from){rememberScroll(from);previousProducerView=from}else if(!previousProducerView)previousProducerView='producers';viewedProducerId=id;const lines=[p.address,[p.postalCode,p.city].filter(Boolean).join(' '),p.country].filter(Boolean);const details=[['Coordonnées',lines.join('\n')+(p.phone?'\n'+p.phone:'')+(p.website?'\n'+p.website:'')],['Horaires',p.hours],['Vente directe',p.directSale],['Produits proposés',''],['Remarques',p.notes]];$('#producerViewContent').innerHTML=`<div class="restaurant-detail-head"><div class="meta">${esc([p.type,p.region].filter(Boolean).join(' · '))}</div><h2>${esc(p.name)}</h2></div><div class="producer-compact-detail">${details.map(([title,value])=>`<section><h3>${title}</h3>${title==='Produits proposés'?`<div class="producer-linked-view">${(p.catalogLinks||[]).map((l,i)=>`<button type="button" data-open-producer-link="${i}" class="producer-link-chip">${l.kind==='category'?'▦':'◈'} ${esc(producerLinkName(l))}</button>`).join('')||'À compléter'}</div>`:`<p>${esc(value||'—').replace(/\n/g,'<br>')}</p>`}</section>`).join('')}</div>`;$$('[data-open-producer-link]').forEach(b=>b.onclick=()=>producerOpenLink(p,Number(b.dataset.openProducerLink)));switchView('producerView')}
 $('#backFromProducer').onclick=()=>switchView(previousProducerView);$('#editViewedProducer').onclick=()=>openProducer(viewedProducerId);
 function openProducer(id){if(READONLY)return;const p=producers.find(x=>x.id===id);$('#producerDialogTitle').textContent=p?'Modifier le producteur':'Nouveau producteur';$('#producerId').value=p?.id||'';$('#producerName').value=p?.name||'';fillEditableSelect($('#producerTypeField'),producerValues('type'),p?.type||'','Choisir…');fillEditableSelect($('#producerRegionField'),producerValues('region'),p?.region||'','Choisir…');refreshProducerCitySuggestions();$('#producerCityField').value=p?.city||'';$('#producerAddress').value=p?.address||'';$('#producerPostal').value=p?.postalCode||'';$('#producerCountry').value=p?.country||'Suisse';$('#producerPhone').value=p?.phone||'';$('#producerWebsite').value=p?.website||'';$('#producerDirectSale').value=p?.directSale||'';$('#producerHours').value=p?.hours||'';producerDraftLinks=(p?.catalogLinks||[]).map(x=>({...x}));$('#producerCatalogQuery').value='';$('#producerCatalogSuggestions').innerHTML='';producerRenderDraft();$('#producerNotes').value=p?.notes||'';$('#deleteProducer').classList.toggle('hidden',!p);$('#duplicateProducer').classList.toggle('hidden',!p);$('#producerDialog').showModal()}
+// Confirmation intégrée : libellés Non / Oui indépendants du navigateur.
+function producerConfirmCreate(name){
+ return new Promise(resolve=>{
+  const dialog=document.createElement('dialog');dialog.className='hg-producer-confirm';
+  const message=document.createElement('p');message.textContent=`« ${name} » n'existe pas dans le Catalogue.\nVoulez-vous l'enregistrer ?`;
+  const actions=document.createElement('div');actions.className='hg-confirm-actions';
+  const no=document.createElement('button');no.type='button';no.textContent='Non';
+  const yes=document.createElement('button');yes.type='button';yes.textContent='Oui';yes.className='primary';
+  actions.append(no,yes);dialog.append(message,actions);document.body.appendChild(dialog);
+  let result=false;no.onclick=()=>dialog.close();yes.onclick=()=>{result=true;dialog.close()};
+  dialog.addEventListener('close',()=>{dialog.remove();resolve(result)},{once:true});dialog.showModal();
+ });
+}
 // Création explicite dans le Catalogue : conserver le brouillon Producteur tant que la création n'est pas validée.
 let producerCatalogPending=false;
-function producerCreateUnknown(){
+async function producerCreateUnknown(){
  const input=$('#producerCatalogQuery'),name=input.value.trim();
  if($('#producerCatalogKind').value!=='product'||!name)return;
  const found=producerCatalog().find(x=>norm(x.name)===norm(name));
@@ -1635,13 +1648,34 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  $('#catalogListRename')?.addEventListener('click',()=>{const field=kindEl.value,old=valueEl.value;if(!old)return alert('Choisis un élément.');const v=prompt('Nouveau nom :',old)?.trim();if(!v||v===old)return;if(listValues(field).some(x=>x!==old&&norm(x)===norm(v)))return alert('Ce nom existe déjà.');const affected=catalog.filter(x=>x[field]===old).length;if(!confirm(`Renommer « ${old} » en « ${v} » pour ${affected} article(s) ?`))return;catalog.forEach(x=>{if(x[field]===old)x[field]=v});extraLists[field]=extraLists[field].filter(x=>x!==old);extraLists[field].push(v);saveLists();save();refreshListManager(v);render()});
  const addDialog=$('#catalogAddDialog');if(addDialog&&addDialog.parentElement!==document.body)document.body.appendChild(addDialog);
  $('#addIngredientCatalog')?.addEventListener('click',()=>{if(READONLY)return;for(const [field,values] of [['catalogAisleSuggestions',aisles()],['catalogGroupSuggestions',groups()]]){$('#'+field).innerHTML=values.map(v=>`<option value="${esc(v)}"></option>`).join('')}$('#catalogAddForm').reset();const preview=$('#catalogAddPhotoPreview');if(preview){preview.hidden=true;preview.removeAttribute('src')}addDialog.showModal();$('#catalogAddName').focus()});
- // Suggestions visibles également dans les navigateurs qui masquent les datalists.
+ // Suggestions internes, sans datalist native : adaptées au clavier mobile et au dialogue modal.
  for(const [fieldId,listId,valuesFn] of [['catalogAddAisle','catalogAislePick',aisles],['catalogAddGroup','catalogGroupPick',groups]]){
   const field=$('#'+fieldId),list=$('#'+listId);if(!field||!list)continue;
-  const refresh=()=>{const query=norm(field.value.trim());const vals=valuesFn().filter(v=>!query||norm(v).includes(query)).slice(0,45);
-   list.replaceChildren();for(const v of vals){const b=document.createElement('button');b.type='button';b.textContent=v;b.addEventListener('mousedown',e=>e.preventDefault());b.addEventListener('click',()=>{field.value=v;list.classList.remove('open');field.dispatchEvent(new Event('change',{bubbles:true}))});list.appendChild(b)}list.classList.toggle('open',vals.length>0)};
+  field.removeAttribute('list');
+  const place=()=>{
+   if(!list.classList.contains('open'))return;
+   const r=field.getBoundingClientRect(),vv=window.visualViewport;
+   const top=vv?vv.offsetTop:0,height=vv?vv.height:window.innerHeight;
+   const bottom=top+height,below=bottom-r.bottom-8,above=r.top-top-8;
+   const useAbove=below<115&&above>below;
+   const max=Math.min(210,Math.max(65,useAbove?above:below)-8);
+   list.style.position='fixed';list.style.left=Math.max(6,r.left)+'px';
+   list.style.width=Math.min(r.width,window.innerWidth-12)+'px';list.style.right='auto';
+   list.style.top=(useAbove?Math.max(top+4,r.top-max-4):r.bottom+3)+'px';
+   list.style.maxHeight=max+'px';list.style.zIndex='2147483000';
+  };
+  const refresh=()=>{
+   const query=norm(field.value.trim()),vals=valuesFn().filter(v=>!query||norm(v).includes(query)).slice(0,30);
+   list.replaceChildren();for(const v of vals){const b=document.createElement('button');b.type='button';b.textContent=v;
+    b.addEventListener('pointerdown',e=>e.preventDefault());
+    b.addEventListener('click',()=>{field.value=v;list.classList.remove('open');field.dispatchEvent(new Event('change',{bubbles:true}));field.focus()});list.appendChild(b)}
+   list.classList.toggle('open',vals.length>0);place();
+  };
   field.addEventListener('focus',refresh);field.addEventListener('input',refresh);
-  field.addEventListener('blur',()=>setTimeout(()=>list.classList.remove('open'),180));
+  field.addEventListener('blur',()=>setTimeout(()=>list.classList.remove('open'),220));
+  field.addEventListener('keydown',e=>{if(e.key==='Escape')list.classList.remove('open');if(e.key==='Enter'&&list.classList.contains('open')){const first=list.querySelector('button');if(first){e.preventDefault();first.click()}}});
+  window.visualViewport?.addEventListener('resize',place);window.visualViewport?.addEventListener('scroll',place);
+  addDialog.addEventListener('scroll',place,true);
  }
  $('#catalogAddClose')?.addEventListener('click',()=>addDialog.close());
  $('#catalogAddCancel')?.addEventListener('click',()=>addDialog.close());

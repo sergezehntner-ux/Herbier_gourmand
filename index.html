@@ -158,6 +158,16 @@
 #hgEncyList .hg-ency-pills{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
 #hgEncyList .hg-ency-pills span{background:#e9f0e8;border-radius:12px;padding:2px 7px;font-size:.8rem}
 @media(max-width:640px){#hgEncyList{grid-template-columns:1fr}#hgEncyList .hg-ency-card{padding:11px}}
+
+/* v11 : listes visibles dans la fenêtre modale et confirmation compacte. */
+.catalog-pick-wrap{position:static!important}
+.catalog-pick-list{position:fixed;right:auto;max-height:210px;overflow-y:auto;overscroll-behavior:contain;z-index:2147483000;background:#fff;box-shadow:0 8px 24px #0004}
+.catalog-pick-list button{min-height:38px;touch-action:manipulation}
+.hg-producer-confirm{width:min(380px,calc(100vw - 28px));max-width:380px;max-height:70vh;min-height:0;padding:16px 18px;border:1px solid #c7cec5;border-radius:14px;box-shadow:0 12px 40px #0003}
+.hg-producer-confirm::backdrop{background:#0005}
+.hg-producer-confirm p{white-space:pre-line;margin:0 0 14px;line-height:1.4}
+.hg-confirm-actions{display:flex;justify-content:flex-end;gap:9px}
+.hg-confirm-actions button{min-width:64px}
 </style>
 
 <style id="hg-nav-4plus5-fix">
@@ -232,7 +242,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.12.10 · Producteurs : recherche compacte et listes</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.12.11 · Producteurs : suggestions et confirmations</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -288,7 +298,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   <p id="ingredientCatalogBackupStatus" class="muted" aria-live="polite"></p>
   <div class="catalog-toolbar"><input id="ingredientCatalogSearch" type="search" placeholder="Rechercher un nom…"><select id="ingredientCatalogAisle"><option value="">Tous les rayons</option></select><select id="ingredientCatalogGroup"><option value="">Toutes les catégories</option></select><button type="button" id="clearIngredientCatalogFilters">Vider la recherche</button></div>
   <dialog id="catalogListsDialog"><div class="dialog-head"><h2>Gérer rayons et catégories</h2><button id="catalogListsClose" type="button">×</button></div><div class="grid"><label>Liste<select id="catalogListKind"><option value="aisle">Rayons</option><option value="group">Catégories</option></select></label><label>Élément<select id="catalogListValue"></select></label></div><p id="catalogListCount" class="muted"></p><div class="dialog-actions"><button id="catalogListAdd" type="button">+ Ajouter</button><button id="catalogListRename" type="button">✏️ Renommer</button></div><p class="muted">Renommer met à jour tous les articles concernés.</p></dialog>
-  <dialog id="catalogAddDialog"><form id="catalogAddForm"><div class="dialog-head"><h2>Nouvel article du Catalogue</h2><button type="button" id="catalogAddClose">×</button></div><div class="grid"><label>Nom<input id="catalogAddName" required maxlength="200"></label><label>Rayon<div class="catalog-pick-wrap"><input id="catalogAddAisle" list="catalogAisleSuggestions" autocomplete="off" required><datalist id="catalogAisleSuggestions"></datalist><div class="catalog-pick-list" id="catalogAislePick"></div></div></label><label>Catégorie<div class="catalog-pick-wrap"><input id="catalogAddGroup" list="catalogGroupSuggestions" autocomplete="off"><datalist id="catalogGroupSuggestions"></datalist><div class="catalog-pick-list" id="catalogGroupPick"></div></div></label></div><label style="display:flex;align-items:center;gap:12px;margin-top:10px">Photo <input id="catalogAddPhoto" type="file" accept="image/*" style="max-width:65%"><img id="catalogAddPhotoPreview" alt="Aperçu" hidden style="width:64px;height:64px;object-fit:contain;border-radius:8px"></label><div class="dialog-actions"><button type="button" id="catalogAddCancel">Annuler</button><button class="primary" type="submit">Enregistrer</button></div></form></dialog><input id="ingredientCatalogPhotoFile" type="file" accept="image/*" hidden><div id="ingredientCatalogList" class="ingredient-catalog-list"></div>
+  <dialog id="catalogAddDialog"><form id="catalogAddForm"><div class="dialog-head"><h2>Nouvel article du Catalogue</h2><button type="button" id="catalogAddClose">×</button></div><div class="grid"><label>Nom<input id="catalogAddName" required maxlength="200"></label><label>Rayon<div class="catalog-pick-wrap"><input id="catalogAddAisle" autocomplete="off" required><datalist id="catalogAisleSuggestions"></datalist><div class="catalog-pick-list" id="catalogAislePick"></div></div></label><label>Catégorie<div class="catalog-pick-wrap"><input id="catalogAddGroup" autocomplete="off"><datalist id="catalogGroupSuggestions"></datalist><div class="catalog-pick-list" id="catalogGroupPick"></div></div></label></div><label style="display:flex;align-items:center;gap:12px;margin-top:10px">Photo <input id="catalogAddPhoto" type="file" accept="image/*" style="max-width:65%"><img id="catalogAddPhotoPreview" alt="Aperçu" hidden style="width:64px;height:64px;object-fit:contain;border-radius:8px"></label><div class="dialog-actions"><button type="button" id="catalogAddCancel">Annuler</button><button class="primary" type="submit">Enregistrer</button></div></form></dialog><input id="ingredientCatalogPhotoFile" type="file" accept="image/*" hidden><div id="ingredientCatalogList" class="ingredient-catalog-list"></div>
 </section>
 <section id="recipes" class="view">
   <div id="recipeReturnBar" class="return-bar hidden"><span id="selectionHint"></span><button id="returnPlanner">Reprendre au planning</button></div>
@@ -535,7 +545,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
 <script src="frigo-catalog-data.js?v=2981140"></script>
-<script src="app-v282.js?v=2981209"></script>
+<script src="app-v282.js?v=2981211"></script>
 <script src="media-v1.js?v=2981173"></script>
 </body></html>
 
