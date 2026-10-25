@@ -81,6 +81,15 @@ async function init(){
   const stored=JSON.parse(hgGet(recipeStore)||'null');
   if(stored) recipes=stored; else recipes=await fetch(`recipes.json?_=${Date.now()}`,{cache:'no-store'}).then(r=>r.json());
   recipes=recipes.map(normalizeRecipe);
+  // Migration unique : toutes les recettes non « à préparer la veille » deviennent Standard.
+  // Ne pas répéter : l'utilisateur peut ensuite choisir « non défini » volontairement.
+  const specialMigrationKey='hg-recipe-special-standard-v1';
+  if(hgGet(specialMigrationKey)!=='done'){
+    let changed=0;
+    recipes.forEach(r=>{if(r.special!=='veille'&&r.special!=='standard'){r.special='standard';changed++}});
+    if(changed) saveRecipes();
+    hgSet(specialMigrationKey,'done');
+  }
   fillCategories(); renderRecipes();
   setStartupStatus('Chargement du planning et des courses…');
   loadSaved();
@@ -194,7 +203,7 @@ function normalizeRecipe(r){return {id:String(r.id||r.uid||slug(r.title||r.name|
 function recipeTypeLabel(v){return ({viande:'viande',poisson:'poisson',vegetarien:'végétarien',vegane:'végane'})[v]||'Type non défini'}
 function recipeEffortLabel(v){return ({faible:'Effort faible',moyen:'Effort moyen',important:'Effort important'})[v]||'Effort non défini'}
 function recipeDifficultyLabel(v){return ({facile:'facile',moyenne:'moyenne',difficile:'difficile',expert:'expert'})[v]||'non définie'}
-function recipeSpecialLabel(v){return ({veille:'à préparer la veille'})[v]||'non défini'}
+function recipeSpecialLabel(v){return ({veille:'à préparer la veille',standard:'Standard'})[v]||'non défini'}
 function recipeTemperatureLabel(v){return ({chaud:'chaud',froid:'froid','les-deux':'les deux'})[v]||'non définie'}
 function recipeSeasonLabel(v){return ({'printemps':'printemps','ete':'été','automne':'automne','hiver':'hiver','toute-annee':'toute l’année'})[v]||'toute l’année'}
 function recipePeriodLabel(v){return ({indifferente:'indifférente',chaude:'chaude',froide:'froide'})[v]||'indifférente'}
@@ -327,7 +336,7 @@ const RECIPE_TABLE_ALLOWED={
   type:new Set(['','viande','poisson','vegetarien','vegane']),
   effort:new Set(['','faible','moyen','important']),
   difficulty:new Set(['','facile','moyenne','difficile','expert']),
-  special:new Set(['','veille']),
+  special:new Set(['','standard','veille']),
   temperature:new Set(['chaud','froid','les-deux']),
   servings:null,
   tags:null
@@ -354,7 +363,7 @@ const RECIPE_TABLE_DISPLAY={
   type:{'':'',viande:'viande',poisson:'poisson',vegetarien:'végétarien',vegane:'végane'},
   effort:{'':'',faible:'faible',moyen:'moyen',important:'important'},
   difficulty:{'':'',facile:'facile',moyenne:'moyenne',difficile:'difficile',expert:'expert'},
-  special:{'':'',veille:'à préparer la veille'},
+  special:{'':'',standard:'Standard',veille:'à préparer la veille'},
   temperature:{chaud:'chaud',froid:'froid','les-deux':'les deux'}
 };
 function recipeTableDisplayValue(r,key){const value=recipeTableValue(r,key);return RECIPE_TABLE_DISPLAY[key]?.[value]??value}
