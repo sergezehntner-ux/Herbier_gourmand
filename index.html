@@ -248,7 +248,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.12.15 · Phase C : fiches en suspens</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.12.16 · Phase C : fiches en suspens</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -285,12 +285,6 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
     <div class="button-row"><button id="saveToGithub" class="primary">Sauvegarder sur GitHub</button><button id="openReadonly">Ouvrir en lecture seule</button><button id="githubSettings">Configurer</button></div>
     <p id="githubStatus" class="muted" aria-live="polite"></p>
   </section>
-  <section class="panel" id="pendingPanel">
-    <div class="section-title"><div><h2>Fiches en suspens</h2><span class="muted">Champs liés à une liste déroulante et non renseignés</span></div><button type="button" id="pendingRefresh">Actualiser</button></div>
-    <div id="pendingSummary" class="pending-summary"></div>
-    <div class="producer-search-grid producer-search-compact" style="margin:.45rem 0"><label>Rubrique<select id="pendingModule"><option value="">Toutes les rubriques</option></select></label><label>Recherche<input id="pendingSearch" type="search" placeholder="Nom ou champ manquant…"></label></div>
-    <div id="pendingCount" class="muted"></div><div id="pendingList" class="pending-list"></div>
-  </section>
   <section class="panel data-transfer-panel" aria-labelledby="dataTransferTitle">
     <div class="section-title"><div><h2 id="dataTransferTitle">Sauvegarde et transfert</h2><span class="muted">Pour retrouver tes données sur un autre appareil.</span></div></div>
     <p class="muted">Dossier conseillé : OneDrive → Apps → Herbier Gourmand → Sauvegardes</p>
@@ -301,6 +295,12 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
     </div>
     <div id="dataTransferStatus" class="notice subtle" aria-live="polite">Les sauvegardes sont horodatées. « Exporter une sauvegarde » essaie d’abord d’ouvrir « Enregistrer sous… » afin de choisir l’emplacement du fichier. Si le navigateur ne le permet pas, Herbier Gourmand utilise automatiquement le téléchargement classique.</div>
     <p id="backupReminder" class="backup-reminder muted" aria-live="polite"></p>
+  </section>
+  <section class="panel" id="pendingPanel">
+    <div class="section-title"><div><h2>Fiches en suspens</h2><span class="muted">Champs liés à une liste déroulante et non renseignés</span></div><div class="button-row"><button type="button" id="pendingPrint">Imprimer</button><button type="button" id="pendingRefresh">Actualiser</button></div></div>
+    <div id="pendingSummary" class="pending-summary"></div>
+    <div class="producer-search-grid producer-search-compact" style="margin:.45rem 0"><label>Rubrique<select id="pendingModule"><option value="">Toutes les rubriques</option></select></label><label>Recherche<input id="pendingSearch" type="search" placeholder="Nom ou champ manquant…"></label></div>
+    <div id="pendingCount" class="muted"></div><div id="pendingList" class="pending-list"></div>
   </section>
 </section>
 
@@ -557,7 +557,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
 <script src="frigo-catalog-data.js?v=2981140"></script>
-<script src="app-v282.js?v=2981215"></script>
+<script src="app-v282.js?v=2981216"></script>
 <script src="media-v1.js?v=2981173"></script>
 <script id="hg-catalog-picker-v13">
 /* Les listes du Catalogue existent déjà sous forme de <select> : les réutiliser
