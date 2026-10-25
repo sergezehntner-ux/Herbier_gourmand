@@ -1732,6 +1732,21 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  document.querySelectorAll('[data-encyclopedia]').forEach(b=>b.onclick=()=>open(b.dataset.encyclopedia));
  window.addEventListener('hg:encyclopedia-linked',e=>{if(labels[e.detail?.kind]){try{const latest=JSON.parse(hgGet(STORE)||'{}');if(Array.isArray(latest[e.detail.kind]))db[e.detail.kind]=latest[e.detail.kind]}catch(err){console.error(err)}}});
  init();clearLegacyCondiments();
+ // v79 : récupérer les associations Catalogue supprimées par le nettoyage v70.
+ // Le nettoyage avait sauvegardé les anciennes fiches avant de les vider.
+ // Restaurer uniquement les fiches possédant un lien Catalogue vérifiable ;
+ // ne jamais réintroduire les anciennes fiches de recettes/sauces.
+ try{
+  const old=JSON.parse(hgGet('hg-condiments-legacy-backup-2981170')||'[]');
+  const current=Array.isArray(db.condiments)?db.condiments:[];
+  const products=catalog();
+  const restored=Array.isArray(old)?old.filter(v=>{
+   if(!v||(!v.catalogId&&!v.catalogueId&&!String(v.id||'').startsWith('catalog:')))return false;
+   const id=v.catalogId||v.catalogueId||String(v.id).slice(8);
+   return products.some(c=>c.id===id)&&!current.some(x=>x.catalogId===id||x.catalogueId===id||x.id==='catalog:'+id);
+  }):[];
+  if(restored.length){db.condiments=[...current,...restored];save();}
+ }catch(err){console.error('Restauration des liens Catalogue',err)}
 })();
 
 /* v2.9.8.11.75 — référencement volontaire Catalogue → Encyclopédies.
