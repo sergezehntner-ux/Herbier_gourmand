@@ -2016,3 +2016,28 @@ window.addEventListener('hg:catalog-associate',event=>hgOpenCatalogAssociations(
   f.addEventListener('submit',()=>{pending.delete(d);allowClose.add(d)},true);
  }
 })();
+
+
+// Phase C v2.9.8.12.15 — lecture seule, aucun changement aux fiches.
+// Critère unique : champs à sélection (simple ou multiple) vides.
+(function(){
+ const $p=id=>document.getElementById(id);
+ const isEmpty=v=>v==null||String(v).trim()===''||v==='__new__'||v==='__other__'||Array.isArray(v)&&v.length===0;
+ const specs=[
+  ['Catalogue','catalog',()=>shoppingCatalogEntries(),[['Rayon','aisle'],['Catégorie','group']]],
+  ['Recettes','recipe',()=>recipes,[['Catégorie','category'],['Type','type'],['Effort','effort'],['Difficulté','difficulty'],['Spécial','special'],['Température','temperature'],['Saison','season'],['Période','period']]],
+  ['Producteurs','producer',()=>producers,[['Type','type'],['Région','region'],['Produits proposés','catalogLinks']]],
+  ['Sorties','restaurant',()=>restaurants,[['Région','region'],['Lieu','city'],['Pays','country']]],
+  ['Plantes & Épices','herb',()=>herbs,[['Catégorie botanique','family'],['Catégorie Catalogue','catalogCategory'],['Saison','season'],['Intensité','intensity'],['Formes','forms']]],
+  ['Fruits & Légumes','produce',()=>produceItems,[['Catégorie botanique','category'],['Catégorie Catalogue','catalogCategory'],['Saison','season']]]
+ ];
+ let pending=[];
+ function collect(){pending=[];for(const [module,kind,get,fields] of specs){let rows=[];try{rows=get()||[]}catch(e){console.warn('Suspens',module,e)}for(const item of rows){if(!item||!item.id&& !item.name)continue;const missing=fields.filter(([label,key])=>isEmpty(item[key])).map(x=>x[0]);if(missing.length)pending.push({module,kind,id:String(item.id||''),name:String(item.title||item.name||'Sans nom'),missing})}}}
+ function render(){collect();const module=$p('pendingModule'),search=$p('pendingSearch'),summary=$p('pendingSummary'),list=$p('pendingList');if(!list)return;const keep=module.value;module.innerHTML='<option value="">Toutes les rubriques</option>'+specs.map(([name])=>`<option value="${esc(name)}">${esc(name)}</option>`).join('');module.value=keep;summary.innerHTML=specs.map(([name])=>{const n=pending.filter(x=>x.module===name).length;return `<button type="button" data-pending-module="${esc(name)}">${esc(name)} : ${n}</button>`}).join('');summary.querySelectorAll('[data-pending-module]').forEach(b=>b.onclick=()=>{module.value=b.dataset.pendingModule;renderList()});renderList()}
+ function renderList(){const module=$p('pendingModule').value,q=norm($p('pendingSearch').value),list=$p('pendingList');const rows=pending.filter(x=>(!module||x.module===module)&&(!q||norm(x.name+' '+x.missing.join(' ')).includes(q)));$p('pendingCount').textContent=`${rows.length} fiche${rows.length!==1?'s':''} en suspens${module?' dans '+module:''} · ${pending.length} au total`;list.innerHTML=rows.map((x,i)=>`<div class="pending-row"><div class="pending-info"><strong>${esc(x.name)}</strong><small>${esc(x.module)} · ${esc(x.missing.join(', '))}</small></div><button type="button" data-pending-open="${i}">Ouvrir</button></div>`).join('')||'<div class="pending-empty">Aucune fiche en suspens pour cette recherche.</div>';list.querySelectorAll('[data-pending-open]').forEach(b=>b.onclick=()=>open(rows[Number(b.dataset.pendingOpen)]))}
+ function open(x){if(!x)return;try{switch(x.kind){case 'recipe':openRecipe(x.id);break;case 'producer':openProducer(x.id);break;case 'restaurant':openRestaurant(x.id);break;case 'herb':openHerbEditor(x.id);break;case 'produce':openProduceEditor(x.id);break;case 'catalog':{switchView('ingredientCatalog');const input=$p('ingredientCatalogSearch');if(input){input.value=x.name;input.dispatchEvent(new Event('input',{bubbles:true}))}break}}}catch(e){console.error(e);alert('Ouverture indisponible pour cette fiche.')}}
+ $p('pendingRefresh')?.addEventListener('click',render);$p('pendingModule')?.addEventListener('change',renderList);$p('pendingSearch')?.addEventListener('input',renderList);
+ document.querySelectorAll('nav button[data-view="more"], [data-go="more"]').forEach(b=>b.addEventListener('click',()=>setTimeout(render,0)));
+ // Le tableau est recalculé lors de chaque retour à « Plus… » et sur Actualiser.
+ window.hgRenderPending=render;
+})();
