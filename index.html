@@ -145,6 +145,19 @@
     #stockDialog .hg-touch-choice-list button,#stockProductDialog .hg-touch-choice-list button{min-height:46px}
 
   #hgEncyList .hg-ency-row{display:flex;align-items:center;gap:12px;padding:9px 12px;border-bottom:1px solid #ddd;cursor:pointer;min-height:50px}#hgEncyList .hg-ency-row strong{flex:1}#hgEncyList .hg-ency-row small{color:#68736b}#hgEncyDialog{max-width:min(800px,96vw);max-height:90vh;overflow:auto}#hgEncyDialog form{padding:16px}#hgEncyDialog textarea{min-height:52px}#hgEncyDetailContent .hg-ency-block{padding:10px 0;border-bottom:1px solid #ddd}#hgEncyDetailContent .hg-ency-block h3{margin:0 0 5px}#hgEncyDialog .grid{gap:8px}#hgEncyDialog .dialog-actions{position:sticky;bottom:0;background:#fff;padding:8px 0}
+
+/* v83 — Cartes harmonisées, présentation compacte */
+#hgEncyList{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:stretch}
+#hgEncyList .hg-ency-card{display:flex;text-align:left;align-items:center;justify-content:space-between;gap:12px;min-width:0;padding:16px;border:1px solid #d8d3c6;border-radius:16px;background:transparent;color:inherit;cursor:pointer;font:inherit}
+#hgEncyList .hg-ency-card-main{min-width:0;flex:1}
+#hgEncyList .hg-ency-card-heading{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px}
+#hgEncyList .hg-ency-card strong{font-family:Georgia,serif;font-size:1.3rem}
+#hgEncyList .hg-ency-card small{color:#68736b;font-size:.87rem}
+#hgEncyList .hg-ency-card p{margin:8px 0 0;font-size:.96rem;line-height:1.35;white-space:normal}
+#hgEncyList .hg-ency-card img{width:78px;height:78px;object-fit:contain;border:1px solid #d7ded7;border-radius:12px;background:white;flex-shrink:0}
+#hgEncyList .hg-ency-pills{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
+#hgEncyList .hg-ency-pills span{background:#e9f0e8;border-radius:12px;padding:2px 7px;font-size:.8rem}
+@media(max-width:640px){#hgEncyList{grid-template-columns:1fr}#hgEncyList .hg-ency-card{padding:11px}}
 </style>
 
 <style id="hg-nav-4plus5-fix">
@@ -196,7 +209,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.82 · Catalogue : Nom · Catégorie · Rayon</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.11.83 · Catalogue : Nom · Catégorie · Rayon</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
