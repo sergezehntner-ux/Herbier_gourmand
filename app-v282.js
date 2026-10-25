@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.12.03';
+const APP_VERSION='2.9.8.12.06';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -1539,7 +1539,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  const source=Array.isArray(window.HG_FRIGO_CATALOG_SOURCE)?window.HG_FRIGO_CATALOG_SOURCE:[];
  let catalog=[];
  const normalizeItem=(x={},migrate=false)=>{const y={...x};delete y._editing;if(migrate&&y.aisle==null){y.aisle=String(y.group||'À classer');y.group=''}else{y.aisle=String(y.aisle||'À classer');y.group=String(y.group||'')}return y};
- const load=()=>{try{const raw=hgGet(STORE),saved=raw?JSON.parse(raw):null;if(Array.isArray(saved)){const needsMigration=saved.some(x=>x.aisle==null);catalog=saved.map(x=>normalizeItem(x,true));if(needsMigration)hgSet(STORE,JSON.stringify(catalog));return true}catalog=source.map(x=>normalizeItem(x,true));hgSet(STORE,JSON.stringify(catalog));return false}catch(_){catalog=source.map(x=>normalizeItem(x,true));return false}};
+ const load=()=>{try{const raw=hgGet(STORE),saved=raw?JSON.parse(raw):null;if(Array.isArray(saved)){const needsMigration=saved.some(x=>x.aisle==null);catalog=saved.map(x=>normalizeItem(x,true));if(needsMigration)hgSet(STORE,JSON.stringify(catalog));return true}catalog=source.map(x=>normalizeItem(x,true));return false}catch(err){console.error('Lecture Catalogue',err);catalog=[];return false}};
  const save=()=>{const stable=catalog.map(x=>normalizeItem(x));catalog=stable;hgSet(STORE,JSON.stringify(stable));registerProtectedChange();markDirty()};
  const unique=field=>[...new Set(catalog.map(x=>String(x[field]||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr'));
  const listValues=field=>[...new Set([...unique(field),...(extraLists[field]||[])])].sort((a,b)=>a.localeCompare(b,'fr'));
@@ -1560,7 +1560,32 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  window.addEventListener('hg:catalog-associations-changed',()=>{if(document.getElementById('ingredientCatalogList'))render()});
  function catalogBackupName(){return `Herbier-Gourmand_Catalogue_${backupStamp()}.hgcat`}
  function exportCatalog(){const stable=catalog.map(x=>normalizeItem(x)),payload={format:'HerbierGourmandIngredientCatalog',formatVersion:1,appVersion:APP_VERSION,exportedAt:new Date().toISOString(),catalog:stable,lists:extraLists};downloadTextFile(catalogBackupName(),JSON.stringify(payload,null,2));const st=$('#ingredientCatalogBackupStatus');if(st)st.textContent=`Sauvegarde du catalogue créée · ${stable.length} éléments.`}
- async function importCatalogFile(file){try{const parsed=JSON.parse(await file.text());if(parsed?.format!=='HerbierGourmandIngredientCatalog'||parsed?.formatVersion!==1||!Array.isArray(parsed.catalog))throw new Error('format de sauvegarde du catalogue non reconnu');if(!confirm(`Restaurer ce catalogue (${parsed.catalog.length} éléments) ? Le catalogue actuel sera remplacé.`))return;catalog=parsed.catalog.map(x=>normalizeItem(x,true));if(parsed.lists){extraLists={aisle:Array.isArray(parsed.lists.aisle)?parsed.lists.aisle:[],group:Array.isArray(parsed.lists.group)?parsed.lists.group:[]};saveLists()}save();render();const st=$('#ingredientCatalogBackupStatus');if(st)st.textContent=`Catalogue restauré · ${catalog.length} éléments.`}catch(e){alert(`Restauration impossible : ${e.message}`)}}
+ async function importCatalogFile(file){
+  try{
+   const parsed=JSON.parse(await file.text());
+   if(parsed?.format!=='HerbierGourmandIngredientCatalog'||parsed.formatVersion!==1||!Array.isArray(parsed.catalog))throw new Error('format de sauvegarde du catalogue non reconnu');
+   // Récupération non destructive : les produits actuels ont toujours priorité.
+   await hgFlush();load();
+   const before=catalog.map(x=>normalizeItem(x));
+   const keys=new Set(before.map(x=>norm(x.name)));
+   const additions=[];
+   for(const raw of parsed.catalog){if(!raw||!String(raw.name||'').trim())continue;const item=normalizeItem(raw,true),key=norm(item.name);if(keys.has(key))continue;keys.add(key);additions.push(item)}
+   const incomingLists=parsed.lists||{};
+   const mergedLists={aisle:[...new Set([...(extraLists.aisle||[]),...(Array.isArray(incomingLists.aisle)?incomingLists.aisle:[])])],group:[...new Set([...(extraLists.group||[]),...(Array.isArray(incomingLists.group)?incomingLists.group:[])])]};
+   if(!confirm(`Fusionner ${parsed.catalog.length} produits de la sauvegarde avec les ${before.length} produits actuels ?\n\n${additions.length} produits manquants seront ajoutés. Les produits actuels (et leurs photos) seront conservés.\n\nUne sauvegarde de sécurité sera téléchargée avant la fusion.`))return;
+   const stamp=new Date().toISOString().replace(/[:.]/g,'-');
+   downloadTextFile(`Herbier_Gourmand_Catalogue_AVANT_fusion_${stamp}.hgcat.json`,JSON.stringify({format:'HerbierGourmandIngredientCatalog',formatVersion:1,appVersion:APP_VERSION,exportedAt:new Date().toISOString(),catalog:before,lists:extraLists},null,2));
+   if(!confirm('La sauvegarde AVANT fusion est-elle bien présente dans Téléchargements ?\n\nOK = lancer la fusion ; Annuler = ne rien modifier.'))return;
+   const merged=[...before,...additions];const serialized=JSON.stringify(merged);
+   await hgQueue(()=>hgIdbPut(STORE,serialized));
+   const verified=await new Promise((resolve,reject)=>{const tx=hgDb.transaction(HG_DB_STORE,'readonly'),req=tx.objectStore(HG_DB_STORE).get(STORE);req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)});
+   if(verified!==serialized)throw new Error('Vérification IndexedDB échouée.');
+   hgCache.set(STORE,serialized);catalog=merged;extraLists=mergedLists;await hgSet(LIST_STORE,JSON.stringify(extraLists));registerProtectedChange();markDirty();render();
+   const st=$('#ingredientCatalogBackupStatus');if(st)st.textContent=`✓ Fusion vérifiée : ${catalog.length} produits (${additions.length} récupérés), listes conservées.`;
+   alert(`Fusion réussie : ${catalog.length} produits. Les ${before.length} produits actuels ont été conservés.`);
+  }catch(e){console.error('Fusion Catalogue',e);alert(`Fusion interrompue : ${e.message}`)}
+ }
+
  const openCatalogFromLibrary=()=>{const recovered=load();render();switchView('ingredientCatalog',{top:true});const st=$('#ingredientCatalogBackupStatus');if(st&&recovered)st.textContent='Catalogue chargé depuis le stockage permanent.'};
  const listsDialog=$('#catalogListsDialog');
  const kindEl=$('#catalogListKind'), valueEl=$('#catalogListValue');
@@ -1576,7 +1601,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  $('#catalogAddCancel')?.addEventListener('click',()=>addDialog.close());
  const addPhoto=$('#catalogAddPhoto'),addPreview=$('#catalogAddPhotoPreview');
  addPhoto?.addEventListener('change',async()=>{const f=addPhoto.files?.[0];if(addPreview){addPreview.hidden=true;addPreview.removeAttribute('src')}if(!f)return;try{const data=await imageToDataURL(f);if(addPreview){addPreview.src=data;addPreview.hidden=false}}catch(e){alert('Photo non reconnue : '+e.message);addPhoto.value=''}});
- $('#catalogAddForm')?.addEventListener('submit',async e=>{e.preventDefault();const name=$('#catalogAddName').value.trim(),aisle=$('#catalogAddAisle').value.trim(),group=$('#catalogAddGroup').value.trim();if(!name||!aisle)return;if(catalog.some(x=>norm(x.name)===norm(name)))return alert(`« ${name} » existe déjà dans le Catalogue.`);const id='catalog-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);let image='',filename='';const file=addPhoto?.files?.[0];if(file){try{image=await imageToDataURL(file);filename=file.name}catch(err){alert('Photo non enregistrée : '+err.message);return}}catalog.push({id,name,aisle,group,image,filename});save();$('#ingredientCatalogSearch').value='';$('#ingredientCatalogAisle').value='';$('#ingredientCatalogGroup').value='';addDialog.close();render();if(window.hgEncyCatalogReturn){const cb=window.hgEncyCatalogReturn;window.hgEncyCatalogReturn=null;cb({id,name,aisle,group});}else window.dispatchEvent(new CustomEvent('hg:catalog-created',{detail:{id,name,aisle,group}}));});
+ $('#catalogAddForm')?.addEventListener('submit',async e=>{e.preventDefault();await hgFlush();load();const name=$('#catalogAddName').value.trim(),aisle=$('#catalogAddAisle').value.trim(),group=$('#catalogAddGroup').value.trim();if(!name||!aisle)return;if(catalog.some(x=>norm(x.name)===norm(name)))return alert(`« ${name} » existe déjà dans le Catalogue.`);const id='catalog-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);let image='',filename='';const file=addPhoto?.files?.[0];if(file){try{image=await imageToDataURL(file);filename=file.name}catch(err){alert('Photo non enregistrée : '+err.message);return}}catalog.push({id,name,aisle,group,image,filename});save();$('#ingredientCatalogSearch').value='';$('#ingredientCatalogAisle').value='';$('#ingredientCatalogGroup').value='';addDialog.close();render();if(window.hgEncyCatalogReturn){const cb=window.hgEncyCatalogReturn;window.hgEncyCatalogReturn=null;cb({id,name,aisle,group});}else window.dispatchEvent(new CustomEvent('hg:catalog-created',{detail:{id,name,aisle,group}}));});
  window.addEventListener('hg:open-catalog-create',e=>{const name=e.detail?.name||'';$('#addIngredientCatalog')?.click();$('#catalogAddName').value=name;$('#catalogAddName').focus()});
  $('#libraryOpenCatalog')?.addEventListener('click',openCatalogFromLibrary);
  $('#openIngredientCatalog')?.addEventListener('click',openCatalogFromLibrary);
