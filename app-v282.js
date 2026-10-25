@@ -1630,7 +1630,14 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   }
   if(active!=='condiments')return db[active];
   if(condimentMode==='preparations')return preparationSauces().map(r=>({id:'recipe:'+r.id,name:r.title,category:'Sauce',recipe:r}));
-  return productSauces().map(c=>({...db.condiments.find(v=>v.id==='catalog:'+c.id),id:'catalog:'+c.id,name:c.name,category:c.group,catalogue:c}));
+  // v77 : les associations explicites priment sur la catégorie du Catalogue.
+  // Une fiche liée à Condiments & Sauces reste visible même si son produit
+  // est classé, par exemple, dans « Produits laitiers ».
+  const allCatalog=catalog(), saved=Array.isArray(db.condiments)?db.condiments:[];
+  const linked=allCatalog.filter(c=>clean(c.group)==='sauces'||saved.some(v=>v.catalogId===c.id||v.catalogueId===c.id||v.id==='catalog:'+c.id))
+   .map(c=>{const existing=saved.find(v=>v.catalogId===c.id||v.catalogueId===c.id||v.id==='catalog:'+c.id);
+    return {...existing,id:existing?.id||'catalog:'+c.id,name:c.name,category:existing?.category||c.group||'Sauces',catalogId:c.id,catalogue:c};});
+  return [...linked,...saved.filter(v=>!linked.some(x=>x.id===v.id||(v.catalogId&&x.catalogId===v.catalogId)))];
  }
  function showPreparation(r){chosen='recipe:'+r.id;showRecipe(r.id,'hgEncyclopedia');}
 
