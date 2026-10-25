@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.12.13';
+const APP_VERSION='2.9.8.12.14';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -1187,26 +1187,20 @@ async function producerCreateUnknown(){
  const found=producerCatalog().find(x=>norm(x.name)===norm(name));
  if(found){if(!producerDraftLinks.some(l=>l.kind==='product'&&String(l.id)===String(found.id)))producerDraftLinks.push({kind:'product',id:String(found.id),name:found.name});input.value='';$('#producerCatalogSuggestions').innerHTML='';producerRenderDraft();return}
  if(!await producerConfirmCreate(name))return;
- producerCatalogPending=true;
- // Le dialogue du Catalogue possède son propre formulaire de validation.
- $('#producerDialog').close();
- window.dispatchEvent(new CustomEvent('hg:open-catalog-create',{detail:{name}}));
- const catalogDialog=$('#catalogAddDialog');
- if(!catalogDialog?.open){producerCatalogPending=false;$('#producerDialog').showModal();return}
- catalogDialog.addEventListener('close',()=>{if(!producerCatalogPending)return;producerCatalogPending=false;if(!$('#producerDialog').open)$('#producerDialog').showModal()},{once:true});
+ // Réutiliser exactement le parcours Courses : ouverture, attente de l'enregistrement,
+ // et restauration du dialogue Producteurs même en cas d'annulation.
+ const producerDialog=$('#producerDialog');producerDialog.close();
+ let created=null;
+ try{created=await shoppingCatalogCreate(name)}finally{if(!producerDialog.open)producerDialog.showModal()}
+ if(created?.id){
+  if(!producerDraftLinks.some(l=>l.kind==='product'&&String(l.id)===String(created.id)))producerDraftLinks.push({kind:'product',id:String(created.id),name:created.name});
+  input.value='';$('#producerCatalogSuggestions').innerHTML='';producerRenderDraft();
+ }
 }
 $('#producerCatalogQuery').addEventListener('input',producerSuggest);
 $('#producerCatalogKind').addEventListener('change',producerSuggest);
 $('#producerCatalogCreate').addEventListener('click',producerCreateUnknown);
 $('#producerCatalogQuery').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();producerCreateUnknown()}});
-window.addEventListener('hg:catalog-created',e=>{
- if(!producerCatalogPending)return;
- const item=e.detail;if(!item?.id)return;
- if(!producerDraftLinks.some(l=>l.kind==='product'&&String(l.id)===String(item.id)))producerDraftLinks.push({kind:'product',id:String(item.id),name:item.name});
- $('#producerCatalogQuery').value='';$('#producerCatalogSuggestions').innerHTML='';producerRenderDraft();
- producerCatalogPending=false;
- if(!$('#producerDialog').open)$('#producerDialog').showModal();
-});
 $('#newProducer').onclick=()=>openProducer();$('#closeProducer').onclick=()=>$('#producerDialog').close();
 function producerFromForm(newId=''){const old=producers.find(x=>x.id===$('#producerId').value);return normalizeProducer({...old,id:newId||$('#producerId').value||slug($('#producerName').value),name:$('#producerName').value.trim(),type:$('#producerTypeField').value.trim(),region:$('#producerRegionField').value.trim(),city:$('#producerCityField').value.trim(),address:$('#producerAddress').value.trim(),postalCode:$('#producerPostal').value.trim(),country:$('#producerCountry').value.trim(),phone:$('#producerPhone').value.trim(),website:$('#producerWebsite').value.trim(),directSale:$('#producerDirectSale').value.trim(),hours:$('#producerHours').value.trim(),catalogLinks:producerDraftLinks.map(x=>({...x})),notes:$('#producerNotes').value.trim()})}
 $('#producerForm').onsubmit=e=>{e.preventDefault();const p=producerFromForm(),i=producers.findIndex(x=>x.id===p.id);if(i>=0)producers[i]=p;else producers.push(p);saveProducers();renderProducerFilters();refreshProducerCitySuggestions();renderProducers();$('#producerDialog').close();if(viewedProducerId===p.id)showProducer(p.id)};
@@ -1647,7 +1641,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  $('#catalogListAdd')?.addEventListener('click',()=>{const field=kindEl.value,label=field==='aisle'?'rayon':'catégorie',v=prompt(`Nouveau ${label} :`)?.trim();if(!v)return;if(listValues(field).some(x=>norm(x)===norm(v)))return alert('Ce nom existe déjà.');extraLists[field].push(v);saveLists();refreshListManager(v);render()});
  $('#catalogListRename')?.addEventListener('click',()=>{const field=kindEl.value,old=valueEl.value;if(!old)return alert('Choisis un élément.');const v=prompt('Nouveau nom :',old)?.trim();if(!v||v===old)return;if(listValues(field).some(x=>x!==old&&norm(x)===norm(v)))return alert('Ce nom existe déjà.');const affected=catalog.filter(x=>x[field]===old).length;if(!confirm(`Renommer « ${old} » en « ${v} » pour ${affected} article(s) ?`))return;catalog.forEach(x=>{if(x[field]===old)x[field]=v});extraLists[field]=extraLists[field].filter(x=>x!==old);extraLists[field].push(v);saveLists();save();refreshListManager(v);render()});
  const addDialog=$('#catalogAddDialog');if(addDialog&&addDialog.parentElement!==document.body)document.body.appendChild(addDialog);
- $('#addIngredientCatalog')?.addEventListener('click',()=>{if(READONLY)return;for(const [field,values] of [['catalogAisleSuggestions',aisles()],['catalogGroupSuggestions',groups()]]){$('#'+field).innerHTML=values.map(v=>`<option value="${esc(v)}"></option>`).join('')}$('#catalogAddForm').reset();const preview=$('#catalogAddPhotoPreview');if(preview){preview.hidden=true;preview.removeAttribute('src')}addDialog.showModal();$('#catalogAddName').focus()});
+ $('#addIngredientCatalog')?.addEventListener('click',()=>{if(READONLY)return;load();for(const [field,values] of [['catalogAisleSuggestions',aisles()],['catalogGroupSuggestions',groups()]]){$('#'+field).innerHTML=values.map(v=>`<option value="${esc(v)}"></option>`).join('')}$('#catalogAddForm').reset();const preview=$('#catalogAddPhotoPreview');if(preview){preview.hidden=true;preview.removeAttribute('src')}addDialog.showModal();$('#catalogAddName').focus()});
  // Suggestions sous le champ, dans le flux du dialogue : compatibles avec le clavier mobile.
  for(const [fieldId,listId,valuesFn] of [['catalogAddAisle','catalogAislePick',aisles],['catalogAddGroup','catalogGroupPick',groups]]){
   const field=$('#'+fieldId),list=$('#'+listId);if(!field||!list)continue;
