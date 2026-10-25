@@ -208,6 +208,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 .ingredient-catalog-info select{max-width:100%}
 @media(max-width:700px){.ingredient-catalog-row{grid-template-columns:58px minmax(0,1fr) auto;gap:7px}.ingredient-catalog-info{grid-column:2;grid-row:1}.ingredient-catalog-actions{grid-column:3;grid-row:1;flex-direction:column;max-width:150px}.ingredient-catalog-actions button{max-width:100%;white-space:normal}.ingredient-catalog-meta-sep{display:none}.ingredient-catalog-meta{column-gap:8px}}
 </style>
+<style id="hg-producer-1208">.producer-compact-detail{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:8px}.producer-compact-detail section{padding:10px 12px;border:1px solid var(--border,#ddd);border-radius:10px;align-self:start}.producer-compact-detail h3{margin:0 0 5px;font-size:1rem}.producer-compact-detail p{margin:0;overflow-wrap:anywhere;line-height:1.35}.producer-linked-view{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}.producer-link-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:16px;border:1px solid #aab8a9;background:#edf4ed;color:#23442e;font:inherit}.producer-link-chip button{border:0;background:transparent;font-size:1.2em;cursor:pointer}.producer-picker{display:flex;gap:6px}.producer-picker select{width:115px;flex:none}.producer-picker input{flex:1;min-width:0}.producer-suggestions{display:flex;flex-wrap:wrap;gap:4px;max-height:125px;overflow:auto;margin-top:5px}.producer-suggestions button{padding:5px 8px;border:1px solid #ccc;border-radius:8px;background:#f6f6f6}.producer-association{margin:8px 0}#producerNotes,#producerHours,#producerAddress{field-sizing:content;min-height:2.5em;max-height:45vh}</style>
 </head>
 <body>
 <div id="startupOverlay" class="startup-overlay" role="status" aria-live="polite" aria-busy="true">
@@ -506,7 +507,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <label>Pays<input id="producerCountry" value="Suisse"></label><label>Téléphone<input id="producerPhone" type="tel" placeholder="+41 XX XXX XX XX"></label>
 <label>Site internet<input id="producerWebsite" type="url" placeholder="https://…"></label><label>Vente directe<input id="producerDirectSale" placeholder="Oui / Non"></label>
 </div><label>Horaires<textarea id="producerHours" rows="4"></textarea></label>
-<label>Produits proposés / tags<input id="producerProducts" placeholder="Gruyère AOP, miel, légumes…"></label>
+<div class="producer-association"><strong>Produits proposés — liens au Catalogue</strong><div id="producerLinkedChips" class="producer-linked-view"></div><div class="producer-picker"><select id="producerCatalogKind"><option value="product">Produit</option><option value="category">Catégorie</option></select><input id="producerCatalogQuery" autocomplete="off" placeholder="Commencer à écrire…"></div><div id="producerCatalogSuggestions" class="producer-suggestions"></div></div>
 <label>Remarques<textarea id="producerNotes" rows="5"></textarea></label>
 <div class="dialog-actions"><button type="button" id="deleteProducer" class="danger">Supprimer</button><button type="button" id="duplicateProducer">Dupliquer</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 
@@ -523,6 +524,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
 <script src="frigo-catalog-data.js?v=2981140"></script>
-<script src="app-v282.js?v=2981207"></script>
+<script src="app-v282.js?v=2981208"></script>
 <script src="media-v1.js?v=2981173"></script>
 </body></html>
+
