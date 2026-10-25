@@ -1732,6 +1732,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  get('hgEncyPrint').onclick=()=>{const x=item();if(x)printDocument(x.name,`<h1>${esc(x.name)}</h1>`+get('hgEncyDetailContent').innerHTML)};
  get('hgEncyPrintList').onclick=()=>{const rows=[...get('hgEncyList').querySelectorAll('[data-id]')].map(b=>sourceItems().find(x=>x.id===b.dataset.id)).filter(Boolean);if(!rows.length)return alert('Aucune fiche à imprimer.');printDocument(labels[active],`<h1>${esc(labels[active])}</h1><p>${rows.length} fiche(s)</p>`+rows.map(x=>`<div class="day"><h2>${esc(x.name)}</h2><p>${esc(x.category||'')}</p><p>${esc(x.uses||x.description||'')}</p></div>`).join(''))};
  document.querySelectorAll('[data-encyclopedia]').forEach(b=>b.onclick=()=>open(b.dataset.encyclopedia));
+ window.addEventListener('hg:encyclopedia-edit-target',e=>{const {kind,id}=e.detail||{};if(!labels[kind])return;open(kind);edit(id);window.hgMarkEncyPending?.('hgEncyDialog');});
  window.addEventListener('hg:encyclopedia-linked',e=>{if(labels[e.detail?.kind]){try{const latest=JSON.parse(hgGet(STORE)||'{}');if(Array.isArray(latest[e.detail.kind]))db[e.detail.kind]=latest[e.detail.kind]}catch(err){console.error(err)}}});
  window.addEventListener('hg:storage-ready',()=>{init();clearLegacyCondiments();});
  // Les associations sont chargées depuis les données persistées, sans injection spécifique.
@@ -1765,13 +1766,42 @@ window.addEventListener('hg:catalog-created',event=>{
   rows.push(item);
  }else if(!item.catalogId){item.catalogId=article.id;}
  try{hgSet(store,JSON.stringify(saved));if(kind==='produce')produceItems=saved;else if(kind==='herbs')herbs=saved;window.dispatchEvent(new CustomEvent('hg:encyclopedia-linked',{detail:{kind}}));registerProtectedChange();markDirty()}catch(e){console.error(e);alert('Impossible d’enregistrer le lien : vérifiez votre sauvegarde.');return;}
- alert(existed?`« ${article.name} » était déjà présent dans ${label}. Le lien est établi.`:`« ${article.name} » est maintenant inscrit dans ${label} (fiche à compléter).`);
- if(confirm('Voulez-vous compléter cette fiche maintenant ?')){
-  if(kind==='produce'){renderProduceFilters();renderProduce();openProduceEditor(item.id)}
-  else if(kind==='herbs'){renderHerbFilters();renderHerbs();openHerbEditor(item.id)}
-  else {const btn=document.querySelector(`[data-encyclopedia="${kind}"]`);if(btn){btn.click();setTimeout(()=>{const row=[...document.querySelectorAll('#hgEncyList [data-id]')].find(b=>b.dataset.id===item.id);row?.click();document.getElementById('hgEncyEdit')?.click()},0)}}
- }
+ // Ouvrir directement la fiche, sans troisième confirmation.
+ const openEditor=()=>{
+  if(kind==='produce'){renderProduceFilters();renderProduce();openProduceEditor(item.id);window.hgMarkEncyPending?.('produceDialog');}
+  else if(kind==='herbs'){renderHerbFilters();renderHerbs();openHerbEditor(item.id);window.hgMarkEncyPending?.('herbDialog');}
+  else {window.dispatchEvent(new CustomEvent('hg:encyclopedia-edit-target',{detail:{kind,id:item.id}}));}
+ };
+ openEditor();
 });
 
 /* v2.9.8.11.59 — bouton de retour unique, commun aux six encyclopédies et au Catalogue */
 (()=>{const b=document.getElementById('hgLibraryFloatingBack');if(b)b.addEventListener('click',()=>switchView('library',{top:true}));})();
+
+/* v2.9.8.11.82 — protection des saisies des six encyclopédies. */
+(()=>{
+ const pairs=[['produceDialog','produceForm'],['herbDialog','herbForm'],['hgEncyDialog','hgEncyForm']];
+ const initial=new WeakMap(),pending=new WeakSet(),allowClose=new WeakSet();
+ const snapshot=form=>Array.from(form.querySelectorAll('input,select,textarea')).map(x=>JSON.stringify([x.id||x.name,x.type==='checkbox'?x.checked:x.value])).join('|');
+ const changed=(dialog,form)=>pending.has(dialog)||snapshot(form)!==initial.get(dialog);
+ function attempt(dialog,form){
+  if(!changed(dialog,form)){allowClose.add(dialog);dialog.close();return;}
+  const save=confirm('Vous n’avez pas encore enregistré votre saisie.\n\nOK : continuer la saisie pour enregistrer.\nAnnuler : choisir de quitter sans enregistrer.');
+  if(save)return;
+  if(!confirm('Quitter sans enregistrer les modifications de cette fiche ?\nLe produit enregistré dans le Catalogue est conservé.'))return;
+  pending.delete(dialog);allowClose.add(dialog);dialog.close();
+ }
+ window.hgMarkEncyPending=id=>{const d=document.getElementById(id);if(d?.open)pending.add(d)};
+ for(const [did,fid] of pairs){
+  const d=document.getElementById(did),f=document.getElementById(fid);if(!d||!f)continue;
+  new MutationObserver(()=>{if(d.open){initial.set(f,snapshot(f));allowClose.delete(d)}else{pending.delete(d)}}).observe(d,{attributes:true,attributeFilter:['open']});
+  d.addEventListener('cancel',e=>{e.preventDefault();attempt(d,f)});
+  d.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;
+   if(t.type==='submit'||/supprimer/i.test(t.textContent||''))return;
+   if(t.id===({produceDialog:'closeProduceDialog',herbDialog:'closeHerbDialog',hgEncyDialog:'hgEncyClose'}[did])||t.id==='hgEncyCancel'){
+    e.preventDefault();e.stopImmediatePropagation();attempt(d,f);
+   }
+  },true);
+  f.addEventListener('submit',()=>{pending.delete(d);allowClose.add(d)},true);
+ }
+})();
