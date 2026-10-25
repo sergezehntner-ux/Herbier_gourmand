@@ -284,3 +284,8 @@ nav button{grid-column:span 4!important;font-size:.78rem;padding-inline:2px}
 .producer-search-grid.producer-search-compact>label:first-child{grid-column:1/-1}
 .producer-search-grid.producer-search-compact input,.producer-search-grid.producer-search-compact select{margin:0;min-width:0;width:100%}
 @media(max-width:680px){.producer-search-grid.producer-search-compact{grid-template-columns:1fr}.producer-search-grid.producer-search-compact>label:first-child{grid-column:auto}.producer-search-grid.producer-search-compact>label{grid-template-columns:90px minmax(0,1fr)}}
+
+/* v12 : propositions dans le flux du formulaire, non superposées au clavier. */
+#catalogAddDialog .catalog-pick-wrap{position:relative!important}
+#catalogAddDialog .catalog-pick-list{position:static!important;top:auto!important;left:auto!important;right:auto!important;width:100%!important;max-height:155px!important;margin-top:4px;overflow-y:auto;box-sizing:border-box}
+#catalogAddDialog .catalog-pick-list.open{display:block!important}

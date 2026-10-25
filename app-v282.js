@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.12.11';
+const APP_VERSION='2.9.8.12.12';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -1186,7 +1186,7 @@ async function producerCreateUnknown(){
  if($('#producerCatalogKind').value!=='product'||!name)return;
  const found=producerCatalog().find(x=>norm(x.name)===norm(name));
  if(found){if(!producerDraftLinks.some(l=>l.kind==='product'&&String(l.id)===String(found.id)))producerDraftLinks.push({kind:'product',id:String(found.id),name:found.name});input.value='';$('#producerCatalogSuggestions').innerHTML='';producerRenderDraft();return}
- if(!confirm(`« ${name} » n'existe pas dans le Catalogue.\nVoulez-vous l'enregistrer ?`))return;
+ if(!await producerConfirmCreate(name))return;
  producerCatalogPending=true;
  // Le dialogue du Catalogue possède son propre formulaire de validation.
  $('#producerDialog').close();
@@ -1648,34 +1648,32 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  $('#catalogListRename')?.addEventListener('click',()=>{const field=kindEl.value,old=valueEl.value;if(!old)return alert('Choisis un élément.');const v=prompt('Nouveau nom :',old)?.trim();if(!v||v===old)return;if(listValues(field).some(x=>x!==old&&norm(x)===norm(v)))return alert('Ce nom existe déjà.');const affected=catalog.filter(x=>x[field]===old).length;if(!confirm(`Renommer « ${old} » en « ${v} » pour ${affected} article(s) ?`))return;catalog.forEach(x=>{if(x[field]===old)x[field]=v});extraLists[field]=extraLists[field].filter(x=>x!==old);extraLists[field].push(v);saveLists();save();refreshListManager(v);render()});
  const addDialog=$('#catalogAddDialog');if(addDialog&&addDialog.parentElement!==document.body)document.body.appendChild(addDialog);
  $('#addIngredientCatalog')?.addEventListener('click',()=>{if(READONLY)return;for(const [field,values] of [['catalogAisleSuggestions',aisles()],['catalogGroupSuggestions',groups()]]){$('#'+field).innerHTML=values.map(v=>`<option value="${esc(v)}"></option>`).join('')}$('#catalogAddForm').reset();const preview=$('#catalogAddPhotoPreview');if(preview){preview.hidden=true;preview.removeAttribute('src')}addDialog.showModal();$('#catalogAddName').focus()});
- // Suggestions internes, sans datalist native : adaptées au clavier mobile et au dialogue modal.
+ // Suggestions sous le champ, dans le flux du dialogue : compatibles avec le clavier mobile.
  for(const [fieldId,listId,valuesFn] of [['catalogAddAisle','catalogAislePick',aisles],['catalogAddGroup','catalogGroupPick',groups]]){
   const field=$('#'+fieldId),list=$('#'+listId);if(!field||!list)continue;
   field.removeAttribute('list');
-  const place=()=>{
-   if(!list.classList.contains('open'))return;
-   const r=field.getBoundingClientRect(),vv=window.visualViewport;
-   const top=vv?vv.offsetTop:0,height=vv?vv.height:window.innerHeight;
-   const bottom=top+height,below=bottom-r.bottom-8,above=r.top-top-8;
-   const useAbove=below<115&&above>below;
-   const max=Math.min(210,Math.max(65,useAbove?above:below)-8);
-   list.style.position='fixed';list.style.left=Math.max(6,r.left)+'px';
-   list.style.width=Math.min(r.width,window.innerWidth-12)+'px';list.style.right='auto';
-   list.style.top=(useAbove?Math.max(top+4,r.top-max-4):r.bottom+3)+'px';
-   list.style.maxHeight=max+'px';list.style.zIndex='2147483000';
-  };
+  list.style.position='static';list.style.width='100%';list.style.maxHeight='155px';
+  list.style.overflowY='auto';list.style.zIndex='1';
+  const close=()=>list.classList.remove('open');
   const refresh=()=>{
-   const query=norm(field.value.trim()),vals=valuesFn().filter(v=>!query||norm(v).includes(query)).slice(0,30);
-   list.replaceChildren();for(const v of vals){const b=document.createElement('button');b.type='button';b.textContent=v;
+   const q=norm(field.value.trim());
+   const matches=valuesFn().filter(v=>!q||norm(v).includes(q)).slice(0,25);
+   list.replaceChildren();
+   for(const v of matches){
+    const b=document.createElement('button');b.type='button';b.textContent=v;
     b.addEventListener('pointerdown',e=>e.preventDefault());
-    b.addEventListener('click',()=>{field.value=v;list.classList.remove('open');field.dispatchEvent(new Event('change',{bubbles:true}));field.focus()});list.appendChild(b)}
-   list.classList.toggle('open',vals.length>0);place();
+    b.addEventListener('click',()=>{field.value=v;close();field.dispatchEvent(new Event('change',{bubbles:true}));field.focus()});
+    list.appendChild(b);
+   }
+   list.classList.toggle('open',matches.length>0);
+   if(matches.length&&document.activeElement===field){
+    requestAnimationFrame(()=>{const rect=list.getBoundingClientRect();const vv=window.visualViewport;const visibleBottom=(vv?.offsetTop||0)+(vv?.height||window.innerHeight);if(rect.top>visibleBottom-55)field.scrollIntoView({block:'center',behavior:'smooth'})});
+   }
   };
   field.addEventListener('focus',refresh);field.addEventListener('input',refresh);
-  field.addEventListener('blur',()=>setTimeout(()=>list.classList.remove('open'),220));
-  field.addEventListener('keydown',e=>{if(e.key==='Escape')list.classList.remove('open');if(e.key==='Enter'&&list.classList.contains('open')){const first=list.querySelector('button');if(first){e.preventDefault();first.click()}}});
-  window.visualViewport?.addEventListener('resize',place);window.visualViewport?.addEventListener('scroll',place);
-  addDialog.addEventListener('scroll',place,true);
+  field.addEventListener('blur',()=>setTimeout(close,240));
+  field.addEventListener('keydown',e=>{if(e.key==='Escape')close();if(e.key==='Enter'&&list.classList.contains('open')){const first=list.querySelector('button');if(first){e.preventDefault();first.click()}}});
+  addDialog.addEventListener('close',close);
  }
  $('#catalogAddClose')?.addEventListener('click',()=>addDialog.close());
  $('#catalogAddCancel')?.addEventListener('click',()=>addDialog.close());
