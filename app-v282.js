@@ -1525,7 +1525,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  $('#addIngredientCatalog')?.addEventListener('click',()=>{if(READONLY)return;for(const [field,values] of [['catalogAisleSuggestions',aisles()],['catalogGroupSuggestions',groups()]]){$('#'+field).innerHTML=values.map(v=>`<option value="${esc(v)}"></option>`).join('')}$('#catalogAddForm').reset();addDialog.showModal();$('#catalogAddName').focus()});
  $('#catalogAddClose')?.addEventListener('click',()=>addDialog.close());
  $('#catalogAddCancel')?.addEventListener('click',()=>addDialog.close());
- $('#catalogAddForm')?.addEventListener('submit',e=>{e.preventDefault();const name=$('#catalogAddName').value.trim(),aisle=$('#catalogAddAisle').value.trim(),group=$('#catalogAddGroup').value.trim();if(!name||!aisle)return;if(catalog.some(x=>norm(x.name)===norm(name)))return alert(`« ${name} » existe déjà dans le Catalogue.`);const id='catalog-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);catalog.push({id,name,aisle,group,image:'',filename:''});save();$('#ingredientCatalogSearch').value='';$('#ingredientCatalogAisle').value='';$('#ingredientCatalogGroup').value='';addDialog.close();render();});
+ $('#catalogAddForm')?.addEventListener('submit',e=>{e.preventDefault();const name=$('#catalogAddName').value.trim(),aisle=$('#catalogAddAisle').value.trim(),group=$('#catalogAddGroup').value.trim();if(!name||!aisle)return;if(catalog.some(x=>norm(x.name)===norm(name)))return alert(`« ${name} » existe déjà dans le Catalogue.`);const id='catalog-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);catalog.push({id,name,aisle,group,image:'',filename:''});save();$('#ingredientCatalogSearch').value='';$('#ingredientCatalogAisle').value='';$('#ingredientCatalogGroup').value='';addDialog.close();render();window.dispatchEvent(new CustomEvent('hg:catalog-created',{detail:{id,name,aisle,group}}));});
  $('#libraryOpenCatalog')?.addEventListener('click',openCatalogFromLibrary);
  $('#openIngredientCatalog')?.addEventListener('click',openCatalogFromLibrary);
  $('#backFromIngredientCatalog')?.addEventListener('click',()=>switchView('library'));
@@ -1686,8 +1686,44 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  get('hgEncyPrint').onclick=()=>{const x=item();if(x)printDocument(x.name,`<h1>${esc(x.name)}</h1>`+get('hgEncyDetailContent').innerHTML)};
  get('hgEncyPrintList').onclick=()=>{const rows=[...get('hgEncyList').querySelectorAll('[data-id]')].map(b=>sourceItems().find(x=>x.id===b.dataset.id)).filter(Boolean);if(!rows.length)return alert('Aucune fiche à imprimer.');printDocument(labels[active],`<h1>${esc(labels[active])}</h1><p>${rows.length} fiche(s)</p>`+rows.map(x=>`<div class="day"><h2>${esc(x.name)}</h2><p>${esc(x.category||'')}</p><p>${esc(x.uses||x.description||'')}</p></div>`).join(''))};
  document.querySelectorAll('[data-encyclopedia]').forEach(b=>b.onclick=()=>open(b.dataset.encyclopedia));
+ window.addEventListener('hg:encyclopedia-linked',e=>{if(labels[e.detail?.kind]){try{const latest=JSON.parse(hgGet(STORE)||'{}');if(Array.isArray(latest[e.detail.kind]))db[e.detail.kind]=latest[e.detail.kind]}catch(err){console.error(err)}}});
  init();clearLegacyCondiments();
 })();
+
+/* v2.9.8.11.74 — référencement volontaire Catalogue → Encyclopédies.
+   Les données du Catalogue ne sont jamais réécrites par cette opération. */
+window.addEventListener('hg:catalog-created',event=>{
+ const article=event.detail;if(!article?.id)return;
+ if(!confirm(`Voulez-vous également intégrer « ${article.name} » dans une encyclopédie ?`))return;
+ const choices=[['produce','Fruits & Légumes'],['herbs','Plantes & Épices'],['meat','Viandes & Volailles'],['fish','Poissons & Crustacés'],['condiments','Condiments & Sauces'],['drinks','Boissons & Cocktails']];
+ const answer=prompt('Dans quelle encyclopédie ?\n'+choices.map((c,i)=>`${i+1}. ${c[1]}`).join('\n')+'\n\nIndiquez un numéro (Annuler = plus tard) :');
+ if(answer===null)return;
+ const choice=choices[Number(answer)-1];if(!choice){alert('Choix non reconnu : aucune fiche créée.');return;}
+ const [kind,label]=choice;
+ const normName=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+ const store=kind==='produce'?'hg-fruits-vegetables-v282':kind==='herbs'?'hg-herbs-spices-v28':'hg-encyclopedias-v1';
+ let saved;try{saved=JSON.parse(hgGet(store)||'null')}catch{saved=null}
+ const isGeneral=!['produce','herbs'].includes(kind);
+ if(isGeneral){if(!saved||typeof saved!=='object'||Array.isArray(saved)){alert('Données de l’encyclopédie indisponibles : aucune modification.');return;}if(!Array.isArray(saved[kind]))saved[kind]=[];}
+ else if(!Array.isArray(saved)){alert('Encyclopédie non chargée : aucune modification.');return;}
+ const rows=isGeneral?saved[kind]:saved;
+ let item=rows.find(x=>x.catalogId===article.id||x.catalogueId===article.id||normName(x.name)===normName(article.name));
+ const existed=!!item;
+ if(!item){
+  item={id:isGeneral?'catalog:'+article.id:'catalog-'+article.id,name:article.name,catalogId:article.id};
+  if(kind==='produce')item.catalogCategory=article.group||'';
+  else if(kind==='herbs')item.catalogCategory=article.group||'';
+  else item.category=article.group||'';
+  rows.push(item);
+ }else if(!item.catalogId){item.catalogId=article.id;}
+ try{hgSet(store,JSON.stringify(saved));if(kind==='produce')produceItems=saved;else if(kind==='herbs')herbs=saved;window.dispatchEvent(new CustomEvent('hg:encyclopedia-linked',{detail:{kind}}));registerProtectedChange();markDirty()}catch(e){console.error(e);alert('Impossible d’enregistrer le lien : vérifiez votre sauvegarde.');return;}
+ alert(existed?`« ${article.name} » était déjà présent dans ${label}. Le lien est établi.`:`« ${article.name} » est maintenant inscrit dans ${label} (fiche à compléter).`);
+ if(confirm('Voulez-vous compléter cette fiche maintenant ?')){
+  if(kind==='produce'){renderProduceFilters();renderProduce();openProduceEditor(item.id)}
+  else if(kind==='herbs'){renderHerbFilters();renderHerbs();openHerbEditor(item.id)}
+  else {const btn=document.querySelector(`[data-encyclopedia="${kind}"]`);if(btn){btn.click();setTimeout(()=>{const row=[...document.querySelectorAll('#hgEncyList [data-id]')].find(b=>b.dataset.id===item.id);row?.click();document.getElementById('hgEncyEdit')?.click()},0)}}
+ }
+});
 
 /* v2.9.8.11.59 — bouton de retour unique, commun aux six encyclopédies et au Catalogue */
 (()=>{const b=document.getElementById('hgLibraryFloatingBack');if(b)b.addEventListener('click',()=>switchView('library',{top:true}));})();
