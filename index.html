@@ -247,7 +247,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.12.12 · Producteurs : corrections formulaires</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.12.13 · Producteurs : listes Catalogue</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -550,8 +550,45 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
 <script src="frigo-catalog-data.js?v=2981140"></script>
-<script src="app-v282.js?v=2981212"></script>
+<script src="app-v282.js?v=2981213"></script>
 <script src="media-v1.js?v=2981173"></script>
+<script id="hg-catalog-picker-v13">
+/* Les listes du Catalogue existent déjà sous forme de <select> : les réutiliser
+   depuis le formulaire ouvert par Producteurs, sans dépendre d'un datalist. */
+(()=>{
+ const configs=[['catalogAddAisle','catalogAislePick','ingredientCatalogAisle'],['catalogAddGroup','catalogGroupPick','ingredientCatalogGroup']];
+ const normal=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('fr').trim();
+ function refresh(input,list,source){
+  const sel=document.getElementById(source),q=normal(input.value);
+  const options=sel?[...sel.options].map(o=>o.value).filter(Boolean):[];
+  const unique=[...new Set(options)].filter(v=>!q||normal(v).includes(q)).slice(0,35);
+  list.replaceChildren();
+  if(!unique.length){const msg=document.createElement('div');msg.textContent='Aucune correspondance — saisie libre possible';msg.style.padding='8px';list.appendChild(msg)}
+  else for(const value of unique){const btn=document.createElement('button');btn.type='button';btn.textContent=value;btn.addEventListener('pointerdown',e=>e.preventDefault());btn.addEventListener('click',()=>{input.value=value;list.classList.remove('open');input.dispatchEvent(new Event('change',{bubbles:true}));input.focus()});list.appendChild(btn)}
+  list.classList.add('open');
+ }
+ function init(){
+  for(const [id,listId,source] of configs){
+   const input=document.getElementById(id),list=document.getElementById(listId);if(!input||!list||input.dataset.hgPicker13)return;
+   input.dataset.hgPicker13='1';input.removeAttribute('list');
+   input.addEventListener('focus',()=>refresh(input,list,source));
+   input.addEventListener('input',()=>refresh(input,list,source));
+   input.addEventListener('blur',()=>setTimeout(()=>list.classList.remove('open'),250));
+   const toggle=document.createElement('button');toggle.type='button';toggle.className='hg-picker-toggle';toggle.textContent='▾';toggle.setAttribute('aria-label','Afficher les choix existants');
+   toggle.addEventListener('pointerdown',e=>e.preventDefault());toggle.addEventListener('click',()=>{if(list.classList.contains('open'))list.classList.remove('open');else refresh(input,list,source)});
+   input.insertAdjacentElement('afterend',toggle);
+  }
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+<style id="hg-catalog-picker-v13-css">
+#catalogAddDialog .catalog-pick-wrap{display:grid!important;grid-template-columns:minmax(0,1fr) 36px;gap:4px;align-items:center}
+#catalogAddDialog .catalog-pick-wrap>input{grid-column:1;min-width:0}
+#catalogAddDialog .hg-picker-toggle{grid-column:2;padding:4px;min-height:38px;border:1px solid #c6c9be;border-radius:8px;background:#eef3ed;color:#294d38}
+#catalogAddDialog .catalog-pick-list{grid-column:1/-1;position:static!important;display:none;max-height:145px!important;overflow:auto!important;z-index:5;background:white;border:1px solid #bdc7bc;border-radius:8px}
+#catalogAddDialog .catalog-pick-list.open{display:block!important}
+</style>
 </body></html>
 
 <style>.producer-create-unknown{margin-top:5px;padding:5px 9px;font-size:.9em}</style>
