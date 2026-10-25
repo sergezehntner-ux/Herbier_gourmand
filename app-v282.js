@@ -1616,7 +1616,22 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  const productSauces=()=>catalog().filter(x=>clean(x.group)==='sauces');
  const preparationSauces=()=>recipes.filter(isSauce);
  function showMode(){const bar=get('hgCondimentModes');if(bar)bar.hidden=active!=='condiments';get('hgEncyAdd').hidden=false;const a=get('hgCondimentProducts'),b=get('hgCondimentPreparations');if(a){a.classList.toggle('primary',condimentMode==='products');b.classList.toggle('primary',condimentMode==='preparations')}}
- function sourceItems(){if(active!=='condiments')return db[active];if(condimentMode==='preparations')return preparationSauces().map(r=>({id:'recipe:'+r.id,name:r.title,category:'Sauce',recipe:r}));const entries=productSauces().map(c=>({...db.condiments.find(v=>v.id==='catalog:'+c.id),id:'catalog:'+c.id,name:c.name,category:c.group,catalogue:c}));return entries}
+ function sourceItems(){
+  if(active==='drinks'){
+   // Le Catalogue reste la source des produits; compléter uniquement l'affichage.
+   // Aucune écriture ni création automatique dans les données sauvegardées.
+   const saved=Array.isArray(db.drinks)?db.drinks:[];
+   const drinksCatalog=catalog().filter(c=>/^(jus de fruits|boissons|sirops|cocktails|jus)$/i.test(String(c.group||'').trim())||/boissons|jus/i.test(String(c.aisle||'')));
+   const linked=drinksCatalog.map(c=>{
+    const existing=saved.find(v=>v.catalogId===c.id||v.catalogueId===c.id||clean(v.name)===clean(c.name));
+    return {...existing,id:existing?.id||'catalog:'+c.id,name:c.name,category:existing?.category||c.group||'Boissons',catalogId:c.id,catalogue:c};
+   });
+   return [...linked,...saved.filter(v=>!linked.some(x=>x.id===v.id||clean(x.name)===clean(v.name)))];
+  }
+  if(active!=='condiments')return db[active];
+  if(condimentMode==='preparations')return preparationSauces().map(r=>({id:'recipe:'+r.id,name:r.title,category:'Sauce',recipe:r}));
+  return productSauces().map(c=>({...db.condiments.find(v=>v.id==='catalog:'+c.id),id:'catalog:'+c.id,name:c.name,category:c.group,catalogue:c}));
+ }
  function showPreparation(r){chosen='recipe:'+r.id;showRecipe(r.id,'hgEncyclopedia');}
 
  function catalog(){try{return JSON.parse(hgGet(CATALOG)||'[]')}catch{return []}}
@@ -1678,7 +1693,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   x.name=name;x.needsCatalogLink=!match;
   updateFreezing();
   for(const [k,field] of Object.entries(fields)){const el=get(field);if(!el)continue;x[k]=el.type==='checkbox'?el.checked:el.value.trim()}
-  if(x.catalogue)x.category=x.catalogue.group;if(!db[active].some(v=>v.id===x.id))db[active].push(x);save();get('hgEncyDialog').close();render();detail(x.id)
+  if(x.catalogue){x.category=x.catalogue.group;x.catalogId=x.catalogue.id;delete x.catalogue;}if(!db[active].some(v=>v.id===x.id))db[active].push(x);save();get('hgEncyDialog').close();render();detail(x.id)
  });
  function deleteEncyclopediaItem(id){const x=db[active].find(v=>v.id===id);if(!x||!confirm(`Supprimer la fiche « ${x.name} » ? La recette originale sera conservée.`))return;db[active]=db[active].filter(v=>v!==x);save();get('hgEncyDialog').close();chosen=null;editing=null;render();back()}
  get('hgEncyDelete').onclick=()=>{if(editing)deleteEncyclopediaItem(editing)};
