@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.12.21';
+const APP_VERSION='2.9.8.12.25';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -2114,7 +2114,31 @@ window.addEventListener('hg:catalog-associate',event=>hgOpenCatalogAssociations(
   ['Fruits & Légumes','produce',()=>produceItems,[['Catégorie botanique','category'],['Catégorie Catalogue','catalogCategory'],['Saison','season']]]
  ];
  let pending=[];
- function collect(){pending=[];for(const [module,kind,get,fields] of specs){let rows=[];try{rows=get()||[]}catch(e){console.warn('Suspens',module,e)}for(const item of rows){if(!item||!item.id&& !item.name)continue;const missing=fields.filter(([label,key])=>isEmpty(item[key])).map(x=>x[0]);if(missing.length)pending.push({module,kind,id:String(item.id||''),name:String(item.title||item.name||'Sans nom'),missing})}}}
+ // Diagnostic en lecture seule. Les imports anciens ont déjà converti les lignes
+ // en triplets : une structure originale perdue ne peut pas être reconstituée.
+ function ingredientIssues(recipe,maps){
+  const issues=[];
+  (recipe.ingredients||[]).forEach((row,index)=>{
+   const number=index+1;
+   if(!Array.isArray(row)||row.length!==3){issues.push(`Structure à corriger — ligne ${number}`);return}
+   const [name,quantity,unit]=row;
+   const n=String(name??'').trim(),u=String(unit??'').trim();
+   if(!n||n.endsWith(':')||n.includes('/')||typeof quantity==='string'&&quantity.trim()!==''&&!Number.isFinite(Number(quantity))){
+    issues.push(`Structure à corriger — ligne ${number} : ${n||'(sans nom)'}`);return;
+   }
+   // Les quantités 0 et les unités vides sont autorisées (sel, poivre, etc.).
+   // Détecter uniquement les inversions manifestes : une unité avec description.
+   if(/^(?:g|kg|mg|ml|cl|dl|l|u)\s+\S/i.test(u)){
+    issues.push(`Structure à vérifier — ligne ${number} : ${n} / ${quantity??''} / ${u}`);return;
+   }
+   const linked=(recipe.ingredientCatalogIds||[])[index];
+   if(linked&&maps.byId.has(String(linked)))return;
+   const matches=maps.byName.get(norm(n))||[];
+   if(matches.length!==1)issues.push(`Association à effectuer — ligne ${number} : ${n}${matches.length>1?' (doublon Catalogue)':''}`);
+  });
+  return issues;
+ }
+ function collect(){pending=[];const maps=recipeCatalogNameMap();for(const [module,kind,get,fields] of specs){let rows=[];try{rows=get()||[]}catch(e){console.warn('Suspens',module,e)}for(const item of rows){if(!item||!item.id&&!item.name)continue;const missing=fields.filter(([label,key])=>isEmpty(item[key])).map(x=>x[0]);if(kind==='recipe')missing.push(...ingredientIssues(item,maps));if(missing.length)pending.push({module,kind,id:String(item.id||''),name:String(item.title||item.name||'Sans nom'),missing})}}}
  function render(){collect();const module=$p('pendingModule'),search=$p('pendingSearch'),summary=$p('pendingSummary'),list=$p('pendingList');if(!list)return;const keep=module.value;module.innerHTML='<option value="">Toutes les rubriques</option>'+specs.map(([name])=>`<option value="${esc(name)}">${esc(name)}</option>`).join('');module.value=keep;summary.innerHTML=specs.map(([name])=>{const n=pending.filter(x=>x.module===name).length;return `<button type="button" data-pending-module="${esc(name)}">${esc(name)} : ${n}</button>`}).join('');summary.querySelectorAll('[data-pending-module]').forEach(b=>b.onclick=()=>{module.value=b.dataset.pendingModule;renderList()});renderList()}
  function renderList(){const module=$p('pendingModule').value,q=norm($p('pendingSearch').value),list=$p('pendingList');const rows=pending.filter(x=>(!module||x.module===module)&&(!q||norm(x.name+' '+x.missing.join(' ')).includes(q)));$p('pendingCount').textContent=`${rows.length} fiche${rows.length!==1?'s':''} en suspens${module?' dans '+module:''} · ${pending.length} au total`;list.innerHTML=rows.map((x,i)=>`<div class="pending-row"><div class="pending-info"><strong>${esc(x.name)}</strong><small>${esc(x.module)} · ${esc(x.missing.join(', '))}</small></div><button type="button" data-pending-open="${i}">Ouvrir</button></div>`).join('')||'<div class="pending-empty">Aucune fiche en suspens pour cette recherche.</div>';list.querySelectorAll('[data-pending-open]').forEach(b=>b.onclick=()=>open(rows[Number(b.dataset.pendingOpen)]))}
  function open(x){if(!x)return;try{switch(x.kind){case 'recipe':openRecipe(x.id);break;case 'producer':openProducer(x.id);break;case 'restaurant':openRestaurant(x.id);break;case 'herb':openHerbEditor(x.id);break;case 'produce':openProduceEditor(x.id);break;case 'catalog':{switchView('ingredientCatalog');const input=$p('ingredientCatalogSearch');if(input){input.value=x.name;input.dispatchEvent(new Event('input',{bubbles:true}))}break}}}catch(e){console.error(e);alert('Ouverture indisponible pour cette fiche.')}}
