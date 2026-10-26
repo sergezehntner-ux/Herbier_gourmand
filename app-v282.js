@@ -2160,3 +2160,64 @@ window.addEventListener('hg:catalog-associate',event=>hgOpenCatalogAssociations(
 
 // Diagnostic à la demande : aucune analyse globale au chargement.
 document.getElementById("recipeIngredientCheck")?.addEventListener("click",recipeIngredientDiagnostic);
+
+
+/* v2.9.8.12.26 — Harmonisation groupée, explicitement validée, sans modification des quantités. */
+(function(){
+ const el=id=>document.getElementById(id),state={groups:[],catalog:[],filter:''};
+ const normKey=v=>norm(String(v||'').trim());
+ function scan(){
+  const groups=new Map();const maps=recipeCatalogNameMap();
+  state.catalog=shoppingCatalogEntries().filter(x=>x&&x.id&&x.name).sort((a,b)=>String(a.name).localeCompare(String(b.name),'fr'));
+  recipes.forEach(recipe=>(recipe.ingredients||[]).forEach((line,index)=>{
+   if(!Array.isArray(line)||line.length!==3)return;
+   const [raw,quantity,unit]=line,name=String(raw||'').trim();
+   if(!name||name.endsWith(':')||name.includes('/')||typeof quantity==='string'&&quantity.trim()!==''&&!Number.isFinite(Number(quantity)))return;
+   if(/^(?:g|kg|mg|ml|cl|dl|l|u)\s+\S/i.test(String(unit||'').trim()))return;
+   const linked=(recipe.ingredientCatalogIds||[])[index];
+   if(linked&&maps.byId.has(String(linked)))return;
+   const matches=maps.byName.get(normKey(name))||[];
+   if(matches.length===1)return; // déjà reconnu à l'affichage
+   const key=normKey(name);if(!key)return;
+   if(!groups.has(key))groups.set(key,{key,name,occurrences:[],ambiguous:matches.length>1});
+   groups.get(key).occurrences.push({recipe,index});
+  }));
+  state.groups=[...groups.values()].sort((a,b)=>b.occurrences.length-a.occurrences.length||a.name.localeCompare(b.name,'fr'));
+ }
+ function render(){
+  const root=el('hgBulkRows');if(!root)return;
+  const q=normKey(el('hgBulkSearch')?.value);const shown=state.groups.filter(g=>!q||normKey(g.name).includes(q));
+  el('hgBulkStats').textContent=`${state.groups.length} noms distincts non associés · ${state.groups.reduce((n,g)=>n+g.occurrences.length,0)} occurrences · ${shown.length} noms affichés`;
+  const limited=shown.slice(0,60);
+  root.replaceChildren();
+  for(const g of limited){
+   const row=document.createElement('div');row.className='pending-row';row.style.cssText='display:flex;align-items:center;flex-wrap:wrap;gap:8px';
+   const label=document.createElement('div');label.style.cssText='flex:1;min-width:180px';
+   const title=document.createElement('strong');title.textContent=g.name;
+   const meta=document.createElement('small');meta.style.display='block';meta.textContent=`${g.occurrences.length} occurrence(s)${g.ambiguous?' · doublon Catalogue':''}`;
+   label.append(title,meta);row.append(label);
+   const select=document.createElement('select');select.style.cssText='flex:1;min-width:190px;max-width:330px';select.add(new Option('— Choisir dans le Catalogue —',''));
+   state.catalog.forEach(item=>select.add(new Option(item.name,item.id)));row.append(select);
+   const btn=document.createElement('button');btn.type='button';btn.textContent='Appliquer';btn.onclick=()=>{
+    if(typeof READONLY!=='undefined'&&READONLY)return alert('Mode lecture seule.');
+    const item=state.catalog.find(x=>String(x.id)===select.value);if(!item)return alert('Choisis un produit du Catalogue.');
+    const count=g.occurrences.length;
+    if(!confirm(`Associer « ${g.name} » à « ${item.name} » dans ${count} ligne(s) de recettes ?\n\nLes quantités et unités resteront inchangées. Cette opération modifiera les recettes enregistrées.`))return;
+    let changed=0;
+    for(const {recipe,index} of g.occurrences){
+     const line=recipe.ingredients?.[index];if(!Array.isArray(line)||normKey(line[0])!==g.key)continue;
+     if(!Array.isArray(recipe.ingredientCatalogIds))recipe.ingredientCatalogIds=[];
+     const existing=recipe.ingredientCatalogIds[index];if(existing&&recipeCatalogNameMap().byId.has(String(existing)))continue;
+     recipe.ingredients[index]=[item.name,line[1],line[2]];recipe.ingredientCatalogIds[index]=item.id;changed++;
+    }
+    if(changed){saveRecipes();scan();render();window.hgRenderPending?.();alert(`${changed} ligne(s) harmonisée(s) avec « ${item.name} ». Pense à exporter une sauvegarde.`)}
+   };row.append(btn);root.append(row);
+  }
+  if(shown.length>60){const note=document.createElement('p');note.className='muted';note.textContent='60 premiers noms affichés. Utilise la recherche pour trouver les autres.';root.append(note)}
+  if(!shown.length)root.textContent='Aucun ingrédient à associer pour cette recherche.';
+ }
+ el('hgBulkRefresh')?.addEventListener('click',()=>{scan();render()});
+ el('hgBulkSearch')?.addEventListener('input',render);
+ document.querySelectorAll('nav button[data-view="more"], [data-go="more"]').forEach(b=>b.addEventListener('click',()=>setTimeout(()=>{scan();render()},0)));
+ scan();render();
+})();
