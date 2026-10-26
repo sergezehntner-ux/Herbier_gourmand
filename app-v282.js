@@ -2196,11 +2196,31 @@ document.getElementById("recipeIngredientCheck")?.addEventListener("click",recip
    const title=document.createElement('strong');title.textContent=g.name;
    const meta=document.createElement('small');meta.style.display='block';meta.textContent=`${g.occurrences.length} occurrence(s)${g.ambiguous?' · doublon Catalogue':''}`;
    label.append(title,meta);row.append(label);
-   const select=document.createElement('select');select.style.cssText='flex:1;min-width:190px;max-width:330px';select.add(new Option('— Choisir dans le Catalogue —',''));
-   state.catalog.forEach(item=>select.add(new Option(item.name,item.id)));row.append(select);
+   const picker=document.createElement('div');picker.className='hg-bulk-picker';
+   const input=document.createElement('input');input.type='search';input.placeholder='Taper un nom du Catalogue…';input.setAttribute('aria-label','Rechercher dans le Catalogue pour '+g.name);input.autocomplete='off';
+   const suggestions=document.createElement('div');suggestions.className='hg-bulk-suggestions';suggestions.setAttribute('role','listbox');
+   let selectedId='';
+   function suggest(){
+    selectedId='';
+    const q=normKey(input.value);suggestions.replaceChildren();
+    if(!q){suggestions.hidden=true;return}
+    const found=state.catalog.filter(item=>normKey(item.name).includes(q)).slice(0,12);
+    for(const item of found){
+     const option=document.createElement('button');option.type='button';option.textContent=item.name;option.setAttribute('role','option');
+     option.addEventListener('pointerdown',e=>e.preventDefault());
+     option.addEventListener('click',()=>{selectedId=String(item.id);input.value=item.name;suggestions.hidden=true;input.focus()});
+     suggestions.append(option);
+    }
+    if(!found.length){const note=document.createElement('div');note.className='muted';note.textContent='Aucun produit correspondant';suggestions.append(note)}
+    suggestions.hidden=false;
+   }
+   input.addEventListener('input',suggest);
+   input.addEventListener('focus',()=>{if(input.value&&!selectedId)suggest()});
+   input.addEventListener('blur',()=>setTimeout(()=>{suggestions.hidden=true},180));
+   suggestions.hidden=true;picker.append(input,suggestions);row.append(picker);
    const btn=document.createElement('button');btn.type='button';btn.textContent='Appliquer';btn.onclick=()=>{
     if(typeof READONLY!=='undefined'&&READONLY)return alert('Mode lecture seule.');
-    const item=state.catalog.find(x=>String(x.id)===select.value);if(!item)return alert('Choisis un produit du Catalogue.');
+    const item=state.catalog.find(x=>String(x.id)===selectedId);if(!item)return alert('Tape un nom et sélectionne le produit proposé dans le Catalogue.');
     const count=g.occurrences.length;
     if(!confirm(`Associer « ${g.name} » à « ${item.name} » dans ${count} ligne(s) de recettes ?\n\nLes quantités et unités resteront inchangées. Cette opération modifiera les recettes enregistrées.`))return;
     let changed=0;
