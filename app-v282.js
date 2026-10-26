@@ -235,7 +235,24 @@ function recipeIngredientDiagnostic(){
    if(parts.length!==3||!parts[0]||!parts[1])return alert('Structure à corriger avant association.');
    parts[0]=item.name;current[index]=parts.join(' / ');field.value=current.join('\n');recipeIngredientLinks[index]=item.id;
    recipeIngredientDiagnostic();
-  };row.append(btn);target.append(row)
+  };row.append(btn);
+  const add=document.createElement('button');add.type='button';add.textContent='Ajouter au Catalogue';
+  add.onclick=()=>{
+   if(READONLY)return;
+   const dialog=document.getElementById('catalogAddDialog');
+   if(!dialog||dialog.open)return;
+   const callback=item=>{
+    if(!item||!field.isConnected)return;
+    const current=field.value.split(/\r?\n/),parts=(current[index]||'').split('/').map(x=>x.trim());
+    if(parts.length!==3||!parts[0]||!parts[1])return;
+    parts[0]=item.name;current[index]=parts.join(' / ');field.value=current.join('\n');
+    recipeIngredientLinks[index]=item.id;recipeIngredientDiagnostic();
+   };
+   window.hgEncyCatalogReturn=callback;
+   dialog.addEventListener('close',()=>{if(window.hgEncyCatalogReturn===callback)window.hgEncyCatalogReturn=null},{once:true});
+   window.dispatchEvent(new CustomEvent('hg:open-catalog-create',{detail:{name}}));
+  };
+  row.append(add);target.append(row)
  });
  const note=document.createElement('div');note.style.cssText='font-size:.9em;color:#666;margin-top:5px';note.textContent='Les associations sont conservées lorsque tu enregistres la recette. Aucun ingrédient n’est créé automatiquement.';target.append(note);
 }
