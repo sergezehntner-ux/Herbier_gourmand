@@ -2216,6 +2216,7 @@ document.getElementById("recipeIngredientCheck")?.addEventListener("click",recip
   if(shown.length>60){const note=document.createElement('p');note.className='muted';note.textContent='60 premiers noms affichés. Utilise la recherche pour trouver les autres.';root.append(note)}
   if(!shown.length)root.textContent='Aucun ingrédient à associer pour cette recherche.';
  }
+ el('hgBulkJump')?.addEventListener('click',()=>{scan();render();el('hgBulkPanel')?.scrollIntoView({behavior:'smooth',block:'start'})});
  el('hgBulkRefresh')?.addEventListener('click',()=>{scan();render()});
  el('hgBulkSearch')?.addEventListener('input',render);
  document.querySelectorAll('nav button[data-view="more"], [data-go="more"]').forEach(b=>b.addEventListener('click',()=>setTimeout(()=>{scan();render()},0)));
