@@ -225,12 +225,33 @@ function recipeIngredientDiagnostic(){
  unknown.forEach(({index,name,ambiguous})=>{
   const row=document.createElement('div');row.style.cssText='display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:5px 0';
   const label=document.createElement('span');label.textContent=(ambiguous?'Nom ambigu : ':'Non associé : ')+name;label.style.minWidth='170px';row.append(label);
-  const select=document.createElement('select');select.style.cssText='max-width:320px;min-width:180px;flex:1';
-  select.add(new Option('— Choisir dans le Catalogue —',''));
-  entries.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name),'fr')).forEach(item=>select.add(new Option(item.name,item.id)));
-  row.append(select);
+  const picker=document.createElement('div');picker.className='hg-recipe-catalog-picker';
+  const input=document.createElement('input');input.type='search';input.placeholder='Taper un nom du Catalogue…';input.autocomplete='off';input.setAttribute('aria-label','Rechercher un produit pour '+name);
+  const suggestions=document.createElement('div');suggestions.className='hg-recipe-catalog-suggestions';suggestions.hidden=true;suggestions.setAttribute('role','listbox');
+  let selectedId='';
+  const normalized=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('fr').trim();
+  const ordered=entries.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name),'fr'));
+  function suggest(){
+   selectedId='';
+   suggestions.replaceChildren();
+   const q=normalized(input.value);
+   if(!q){suggestions.hidden=true;return}
+   const found=ordered.filter(item=>normalized(item.name).includes(q)).slice(0,12);
+   for(const item of found){
+    const option=document.createElement('button');option.type='button';option.textContent=item.name;option.setAttribute('role','option');
+    option.addEventListener('pointerdown',e=>e.preventDefault());
+    option.addEventListener('click',()=>{selectedId=String(item.id);input.value=item.name;suggestions.hidden=true;input.focus()});
+    suggestions.append(option);
+   }
+   if(!found.length){const msg=document.createElement('div');msg.className='muted';msg.textContent='Aucun produit correspondant';suggestions.append(msg)}
+   suggestions.hidden=false;
+  }
+  input.addEventListener('input',suggest);
+  input.addEventListener('focus',()=>{if(input.value&&!selectedId)suggest()});
+  input.addEventListener('blur',()=>setTimeout(()=>{suggestions.hidden=true},180));
+  picker.append(input,suggestions);row.append(picker);
   const btn=document.createElement('button');btn.type='button';btn.textContent='Associer';btn.onclick=()=>{
-   const item=byId.get(select.value);if(!item)return alert('Choisis un article du Catalogue.');
+   const item=byId.get(selectedId);if(!item)return alert('Tape un nom et sélectionne un produit dans les suggestions du Catalogue.');
    const current=field.value.split(/\r?\n/);const parts=(current[index]||'').split('/').map(x=>x.trim());
    if(parts.length!==3||!parts[0]||!parts[1])return alert('Structure à corriger avant association.');
    parts[0]=item.name;current[index]=parts.join(' / ');field.value=current.join('\n');recipeIngredientLinks[index]=item.id;
