@@ -245,6 +245,18 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 .hg-bulk-suggestions button:hover,.hg-bulk-suggestions button:focus{background:#eaf4ea}
 .hg-bulk-suggestions .muted{padding:10px}
 </style>
+<style id="hg-bulk-context-v29">
+.hg-bulk-context{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hg-bulk-context>button{font-size:.9em;padding:7px 10px}
+#hgBulkContextDialog{width:min(880px,96vw);max-height:88dvh;overflow:auto;border:1px solid #c7d4c8;border-radius:14px;padding:16px;background:#fffdf7;color:#263e31}
+#hgBulkContextDialog::backdrop{background:#0007}
+.hg-bulk-context-top{display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:-16px;background:#fffdf7;padding:8px 0;z-index:2}
+.hg-bulk-context-list{display:grid;gap:6px;margin:12px 0}
+.hg-bulk-context-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;padding:9px;border:1px solid #d8e2da;border-radius:9px}
+.hg-bulk-context-row label{min-width:0;overflow-wrap:anywhere}.hg-bulk-context-row small{display:block;color:#65746b;margin-top:3px}
+.hg-bulk-context-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;position:sticky;bottom:-16px;background:#fffdf7;padding:10px 0}
+@media(max-width:600px){.hg-bulk-context-row{grid-template-columns:auto minmax(0,1fr)}.hg-bulk-context-row>button{grid-column:2;justify-self:start}}
+</style>
 </head>
 <body>
 <div id="startupOverlay" class="startup-overlay" role="status" aria-live="polite" aria-busy="true">
@@ -257,7 +269,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.12.28 · Harmonisation groupée des ingrédients</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.12.29 · Harmonisation groupée des ingrédients</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -465,13 +477,14 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <div class="dialog-actions"><button type="button" id="hgEncyDelete" class="danger">Supprimer la fiche</button><button type="button" id="hgEncyCancel">Annuler</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 </main>
 <button id="hgLibraryFloatingBack" type="button" class="primary" aria-label="Retour à la Bibliothèque">← Bibliothèque</button>
-<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v2.9.8.12.28</span></footer>
+<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v2.9.8.12.29</span></footer>
 <button id="recipeFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des recettes">🔍 Rechercher</button>
 <button id="restaurantFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des sorties">🔍 Rechercher</button>
 <button id="producerFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des producteurs">🔍 Rechercher</button>
 <button id="herbFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des plantes et épices">🔍 Rechercher</button>
 <button id="produceFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des fruits et légumes">🔍 Rechercher</button>
 
+<dialog id="hgBulkContextDialog" aria-labelledby="hgBulkContextTitle"><div class="hg-bulk-context-top"><h2 id="hgBulkContextTitle">Recettes concernées</h2><button type="button" id="hgBulkContextClose">Fermer ×</button></div><p id="hgBulkContextInfo" class="muted"></p><div class="button-row"><button type="button" id="hgBulkSelectAll">Tout sélectionner</button><button type="button" id="hgBulkSelectNone">Tout désélectionner</button></div><div id="hgBulkContextList" class="hg-bulk-context-list"></div><div class="hg-bulk-context-actions"><button type="button" id="hgBulkContextCancel">Retour à l’harmonisation</button><button type="button" class="primary" id="hgBulkContextUse">Utiliser cette sélection</button></div></dialog>
 <dialog id="recipeDialog"><form id="recipeForm" method="dialog"><div class="dialog-head"><h2 id="recipeDialogTitle">Recette</h2><button type="button" id="closeRecipe">×</button></div><input type="hidden" id="recipeId">
 <div class="recipe-form-fields">
 <label class="recipe-field-wide">Titre<input id="recipeTitle" required></label>
@@ -572,7 +585,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
 <script src="frigo-catalog-data.js?v=2981140"></script>
-<script src="app-v282.js?v=2981228"></script>
+<script src="app-v282.js?v=2981229"></script>
 <script src="media-v1.js?v=2981173"></script>
 <script id="hg-catalog-picker-v13">
 /* Les listes du Catalogue existent déjà sous forme de <select> : les réutiliser

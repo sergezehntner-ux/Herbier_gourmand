@@ -2184,6 +2184,30 @@ document.getElementById("recipeIngredientCheck")?.addEventListener("click",recip
   }));
   state.groups=[...groups.values()].sort((a,b)=>b.occurrences.length-a.occurrences.length||a.name.localeCompare(b.name,'fr'));
  }
+ function openContext(g,chosen){
+  const dialog=el('hgBulkContextDialog'),list=el('hgBulkContextList');if(!dialog||!list)return;
+  el('hgBulkContextTitle').textContent=`Recettes contenant « ${g.name} »`;
+  el('hgBulkContextInfo').textContent=`${g.occurrences.length} ligne(s) dans ${new Set(g.occurrences.map(o=>String(o.recipe.id))).size} recette(s). Décoche les lignes qui ne correspondent pas au même ingrédient.`;
+  list.replaceChildren();const checks=[];
+  for(const {recipe,index} of g.occurrences){
+   const key=`${String(recipe.id)}:${index}`,line=recipe.ingredients?.[index]||[];
+   const row=document.createElement('div');row.className='hg-bulk-context-row';
+   const cb=document.createElement('input');cb.type='checkbox';cb.checked=chosen.has(key);cb.setAttribute('aria-label','Sélectionner '+recipe.title);checks.push({cb,key});
+   const label=document.createElement('label');const title=document.createElement('strong');title.textContent=recipe.title||'Recette sans titre';
+   const detail=document.createElement('small');detail.textContent=line.map(v=>String(v??'')).join(' / ');label.append(title,detail);
+   cb.addEventListener('change',()=>{if(cb.checked)chosen.add(key);else chosen.delete(key)});
+   label.addEventListener('click',()=>{cb.checked=!cb.checked;cb.dispatchEvent(new Event('change'))});
+   const open=document.createElement('button');open.type='button';open.textContent='Ouvrir';
+   open.onclick=()=>{dialog.close();showRecipe(recipe.id,'more')};
+   row.append(cb,label,open);list.append(row);
+  }
+  el('hgBulkSelectAll').onclick=()=>{checks.forEach(({cb,key})=>{cb.checked=true;chosen.add(key)})};
+  el('hgBulkSelectNone').onclick=()=>{checks.forEach(({cb,key})=>{cb.checked=false;chosen.delete(key)})};
+  el('hgBulkContextClose').onclick=()=>dialog.close();
+  el('hgBulkContextCancel').onclick=()=>dialog.close();
+  el('hgBulkContextUse').onclick=()=>dialog.close();
+  dialog.showModal();
+ }
  function render(){
   const root=el('hgBulkRows');if(!root)return;
   const q=normKey(el('hgBulkSearch')?.value);const shown=state.groups.filter(g=>!q||normKey(g.name).includes(q));
@@ -2196,6 +2220,10 @@ document.getElementById("recipeIngredientCheck")?.addEventListener("click",recip
    const title=document.createElement('strong');title.textContent=g.name;
    const meta=document.createElement('small');meta.style.display='block';meta.textContent=`${g.occurrences.length} occurrence(s)${g.ambiguous?' · doublon Catalogue':''}`;
    label.append(title,meta);row.append(label);
+   const chosen=new Set(g.occurrences.map(o=>`${String(o.recipe.id)}:${o.index}`));
+   const context=document.createElement('button');context.type='button';context.textContent=`Recettes (${new Set(g.occurrences.map(o=>String(o.recipe.id))).size})`;
+   context.onclick=()=>openContext(g,chosen);row.append(context);
+
    const picker=document.createElement('div');picker.className='hg-bulk-picker';
    const input=document.createElement('input');input.type='search';input.placeholder='Taper un nom du Catalogue…';input.setAttribute('aria-label','Rechercher dans le Catalogue pour '+g.name);input.autocomplete='off';
    const suggestions=document.createElement('div');suggestions.className='hg-bulk-suggestions';suggestions.setAttribute('role','listbox');
@@ -2221,10 +2249,11 @@ document.getElementById("recipeIngredientCheck")?.addEventListener("click",recip
    const btn=document.createElement('button');btn.type='button';btn.textContent='Appliquer';btn.onclick=()=>{
     if(typeof READONLY!=='undefined'&&READONLY)return alert('Mode lecture seule.');
     const item=state.catalog.find(x=>String(x.id)===selectedId);if(!item)return alert('Tape un nom et sélectionne le produit proposé dans le Catalogue.');
-    const count=g.occurrences.length;
+    const targets=g.occurrences.filter(o=>chosen.has(`${String(o.recipe.id)}:${o.index}`));
+    const count=targets.length;if(!count)return alert('Sélectionne au moins une ligne de recette.');
     if(!confirm(`Associer « ${g.name} » à « ${item.name} » dans ${count} ligne(s) de recettes ?\n\nLes quantités et unités resteront inchangées. Cette opération modifiera les recettes enregistrées.`))return;
     let changed=0;
-    for(const {recipe,index} of g.occurrences){
+    for(const {recipe,index} of targets){
      const line=recipe.ingredients?.[index];if(!Array.isArray(line)||normKey(line[0])!==g.key)continue;
      if(!Array.isArray(recipe.ingredientCatalogIds))recipe.ingredientCatalogIds=[];
      const existing=recipe.ingredientCatalogIds[index];if(existing&&recipeCatalogNameMap().byId.has(String(existing)))continue;
