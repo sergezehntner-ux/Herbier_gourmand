@@ -81,15 +81,16 @@ async function init(){
   const stored=JSON.parse(hgGet(recipeStore)||'null');
   if(stored) recipes=stored; else recipes=await fetch(`recipes.json?_=${Date.now()}`,{cache:'no-store'}).then(r=>r.json());
   recipes=recipes.map(normalizeRecipe);
-  // Corriger seulement les abréviations d'unités anglaises dans les ingrédients.
+  // Corriger les unités structurées [nom, quantité, unité] sans toucher aux noms,
+  // aux quantités, ni aux identifiants du Catalogue. Sauvegarder une seule fois.
   let correctedUnits=0;
   for(const recipe of recipes){
-    recipe.ingredients=recipe.ingredients.map(ingredient=>{
-      if(typeof ingredient!=='string')return ingredient;
-      const updated=ingredient.replace(/\btbsp\b/gi,'c. à soupe').replace(/\btsp\b/gi,'c. à café');
-      if(updated!==ingredient)correctedUnits++;
-      return updated;
-    });
+    for(const ingredient of (recipe.ingredients||[])){
+      if(!Array.isArray(ingredient)||typeof ingredient[2]!=='string')continue;
+      const unit=ingredient[2];
+      const updated=unit.replace(/\btbsp\b/gi,'c. à soupe').replace(/\btsp\b/gi,'c. à café');
+      if(updated!==unit){ingredient[2]=updated;correctedUnits++}
+    }
   }
   if(correctedUnits)saveRecipes();
   // Phase C : compléter uniquement les valeurs Effort/Difficulté non définies.
