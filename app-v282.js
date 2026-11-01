@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.12.25';
+const APP_VERSION='2.9.8.12.33';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -1754,6 +1754,59 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  $('#catalogListsClose')?.addEventListener('click',()=>listsDialog.close());
  kindEl?.addEventListener('change',()=>refreshListManager());
  $('#catalogListAdd')?.addEventListener('click',()=>{const field=kindEl.value,label=field==='aisle'?'rayon':'catégorie',v=prompt(`Nouveau ${label} :`)?.trim();if(!v)return;if(listValues(field).some(x=>norm(x)===norm(v)))return alert('Ce nom existe déjà.');extraLists[field].push(v);saveLists();refreshListManager(v);render()});
+ // v2.9.8.12.33 — Fusions contrôlées du Catalogue.
+ const mergeDialog=$('#catalogMergeDialog');
+ const mergeType=$('#catalogMergeType'),mergeFrom=$('#catalogMergeFrom'),mergeTo=$('#catalogMergeTo'),mergeSearch=$('#catalogMergeSearch'),mergePreview=$('#catalogMergePreview');
+ const mergeChoices=()=>mergeType.value==='product'?catalog.map(x=>({id:x.id,name:x.name})).sort((a,b)=>a.name.localeCompare(b.name,'fr')):listValues(mergeType.value).map(x=>({id:x,name:x}));
+ function mergeRefresh(){const choices=mergeChoices(),q=norm(mergeSearch.value),from=mergeFrom.value,to=mergeTo.value;const opts=(selected)=>'<option value="">— Choisir —</option>'+choices.filter(x=>!q||norm(x.name).includes(q)||x.id===selected).map(x=>`<option value="${esc(x.id)}"${x.id===selected?' selected':''}>${esc(x.name)}</option>`).join('');mergeFrom.innerHTML=opts(from);mergeTo.innerHTML=opts(to);mergeShowPreview()}
+ function mergeShowPreview(){const a=mergeFrom.value,b=mergeTo.value,type=mergeType.value;if(!a||!b||a===b){mergePreview.textContent='Choisis deux éléments différents. Le second sera conservé.';return}const src=mergeChoices().find(x=>x.id===a),dst=mergeChoices().find(x=>x.id===b);if(!src||!dst){mergePreview.textContent='Sélection invalide.';return}if(type==='product'){const old=catalog.find(x=>x.id===a),keep=catalog.find(x=>x.id===b);mergePreview.textContent=`« ${old.name} » → « ${keep.name} ». L’identifiant conservé sera celui de « ${keep.name} ». Les références explicites seront transférées. ${old.image&&!keep.image?'La photo manquante sera récupérée.':old.image&&keep.image?'Deux photos existent : celle du produit conservé sera gardée.':''} Une sauvegarde complète sera téléchargée avant l’opération.`}else{const n=catalog.filter(x=>x[type]===a).length;mergePreview.textContent=`« ${a} » → « ${b} » : ${n} article(s) du Catalogue à mettre à jour. L’ancien libellé sera retiré des listes. Une sauvegarde complète sera téléchargée.`}}
+ $('#openCatalogMerge')?.addEventListener('click',()=>{if(READONLY)return;load();mergeType.value='product';mergeSearch.value='';mergeRefresh();mergeDialog.showModal()});
+ $('#catalogMergeClose')?.addEventListener('click',()=>mergeDialog.close());
+ mergeType?.addEventListener('change',()=>{mergeSearch.value='';mergeFrom.value='';mergeTo.value='';mergeRefresh()});
+ mergeSearch?.addEventListener('input',mergeRefresh);
+ mergeFrom?.addEventListener('change',mergeShowPreview);
+ mergeTo?.addEventListener('change',mergeShowPreview);
+ $('#catalogMergeApply')?.addEventListener('click',async()=>{
+  if(READONLY)return;
+  const type=mergeType.value,a=mergeFrom.value,b=mergeTo.value;
+  if(!a||!b||a===b)return alert('Choisis deux éléments différents.');
+  const choices=mergeChoices();if(!choices.some(x=>x.id===a)||!choices.some(x=>x.id===b))return alert('Éléments introuvables.');
+  const sourceItem=catalog.find(x=>x.id===a),targetItem=catalog.find(x=>x.id===b);
+  if(type==='product'&&(!sourceItem||!targetItem))return alert('Produit introuvable.');
+  const description=type==='product'?`Fusionner « ${sourceItem.name} » dans « ${targetItem.name} » ?`:`Fusionner « ${a} » dans « ${b} » ?`;
+  if(!confirm(description+'\nUne sauvegarde complète sera téléchargée AVANT modification.\nCette opération nécessite ensuite un rechargement de la page.'))return;
+  const before=hgAllEntries();
+  try{
+   const stamp=backupStamp();
+   downloadTextFile(`Herbier_Gourmand_AVANT_fusion_${stamp}.hgbak.json`,JSON.stringify({format:'HerbierGourmandBackup',formatVersion:1,appVersion:APP_VERSION,exportedAt:new Date().toISOString(),data:Object.fromEntries(before)},null,2));
+   // Transform only explicit Catalogue references, never arbitrary text or unrelated IDs.
+   const modified=[];
+   if(type==='product'){
+    const replace=(obj)=>{if(!obj||typeof obj!=='object')return false;let changed=false;if(Array.isArray(obj)){for(const item of obj)changed=replace(item)||changed;return changed}
+     let linked=false;for(const key of ['catalogId','catalogueId','ingredientCatalogId'])if(obj[key]===a){obj[key]=b;linked=true;changed=true}
+     if(typeof obj.id==='string'&&(obj.id==='catalog:'+a||obj.id==='catalog-'+a)){obj.id=obj.id.replace(a,b);changed=true}
+     if(linked&&typeof obj.name==='string'&&norm(obj.name)===norm(sourceItem.name)){obj.name=targetItem.name;changed=true}
+     for(const [key,val] of Object.entries(obj))if(val&&typeof val==='object'&&key!=='catalogue')changed=replace(val)||changed;
+     if(obj.catalogue&&typeof obj.catalogue==='object'&&obj.catalogue.id===a){obj.catalogue={...targetItem};changed=true}
+     return changed};
+    for(const [key,raw] of before){if(key===STORE||key===LIST_STORE||!raw||!raw.trim().startsWith('[')&&!raw.trim().startsWith('{'))continue;let obj;try{obj=JSON.parse(raw)}catch{continue}if(replace(obj))modified.push([key,JSON.stringify(obj)])}
+    if(!targetItem.image&&sourceItem.image){targetItem.image=sourceItem.image;targetItem.filename=sourceItem.filename||''}
+    // Preserve destination metadata; only fill empty fields from the source.
+    for(const key of ['group','aisle'])if(!targetItem[key]&&sourceItem[key])targetItem[key]=sourceItem[key];
+    catalog=catalog.filter(x=>x.id!==a);
+   }else{
+    for(const x of catalog)if(x[type]===a)x[type]=b;
+    extraLists[type]=[...new Set(extraLists[type].filter(x=>x!==a).concat(b))];
+   }
+   modified.push([STORE,JSON.stringify(catalog.map(x=>normalizeItem(x)))]);
+   if(type!=='product')modified.push([LIST_STORE,JSON.stringify(extraLists)]);
+   // Verify storage writes and restore originals on any failure.
+   try{for(const [key,value] of modified){await hgSet(key,value);if(hgGet(key)!==value)throw new Error('Vérification échouée : '+key)}await hgFlush()}catch(err){for(const [key] of modified){const original=before.find(x=>x[0]===key);if(original)await hgSet(key,original[1])}await hgFlush();load();loadLists();throw err}
+   registerProtectedChange();markDirty();mergeDialog.close();
+   alert(`Fusion enregistrée (${modified.length} zone(s) de données actualisée(s)).\nLa sauvegarde AVANT fusion a été téléchargée.\nLa page va être rechargée pour actualiser toutes les rubriques.`);
+   location.reload();
+  }catch(err){console.error('Fusion Catalogue',err);alert('Fusion interrompue : '+err.message+'\nConserve la sauvegarde téléchargée.');}
+ });
  $('#catalogListRename')?.addEventListener('click',()=>{const field=kindEl.value,old=valueEl.value;if(!old)return alert('Choisis un élément.');const v=prompt('Nouveau nom :',old)?.trim();if(!v||v===old)return;if(listValues(field).some(x=>x!==old&&norm(x)===norm(v)))return alert('Ce nom existe déjà.');const affected=catalog.filter(x=>x[field]===old).length;if(!confirm(`Renommer « ${old} » en « ${v} » pour ${affected} article(s) ?`))return;catalog.forEach(x=>{if(x[field]===old)x[field]=v});extraLists[field]=extraLists[field].filter(x=>x!==old);extraLists[field].push(v);saveLists();save();refreshListManager(v);render()});
  const addDialog=$('#catalogAddDialog');if(addDialog&&addDialog.parentElement!==document.body)document.body.appendChild(addDialog);
  $('#addIngredientCatalog')?.addEventListener('click',()=>{if(READONLY)return;load();for(const [field,values] of [['catalogAisleSuggestions',aisles()],['catalogGroupSuggestions',groups()]]){$('#'+field).innerHTML=values.map(v=>`<option value="${esc(v)}"></option>`).join('')}$('#catalogAddForm').reset();const preview=$('#catalogAddPhotoPreview');if(preview){preview.hidden=true;preview.removeAttribute('src')}addDialog.showModal();$('#catalogAddName').focus()});
