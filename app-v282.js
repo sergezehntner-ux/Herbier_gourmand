@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.12.40';
+const APP_VERSION='2.9.8.12.41';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -1207,6 +1207,33 @@ const hgChatPanel=$('#hgChatOptions'),hgChatChoices=$('#hgChatChoices');
 if(hgChatChoices){hgChatChoices.innerHTML=Object.keys(HG_CHAT_GROUPS).map(k=>`<label style="display:inline-flex;align-items:center;gap:5px;margin-right:10px"><input type="checkbox" data-chat-group="${k}" ${['catalogue','encyclopedies','plantes','fruits'].includes(k)?'checked':''}>${HG_CHAT_LABELS[k]}</label>`).join('')}
 $('#hgChatExport').onclick=()=>{hgChatPanel.hidden=false;hgChatPanel.scrollIntoView({block:'nearest',behavior:'smooth'})};
 $('#hgChatCancel').onclick=()=>{hgChatPanel.hidden=true};
+// ZIP autonome (sans bibliothèque externe) : un JSON UTF-8 par archive.
+// Entrées ZIP « stored » : compatible avec les outils ZIP usuels, même hors ligne.
+function hgChatZip(jsonFilename,jsonText){
+  const encoder=new TextEncoder(),name=encoder.encode(jsonFilename),content=encoder.encode(jsonText);
+  if(name.length>65535||content.length>0xffffffff)throw Error('Export trop volumineux pour le ZIP.');
+  let crc=0xffffffff;
+  for(const byte of content){crc^=byte;for(let j=0;j<8;j++)crc=(crc>>>1)^((crc&1)?0xedb88320:0)}
+  crc=(crc^0xffffffff)>>>0;
+  const local=new Uint8Array(30+name.length),lh=new DataView(local.buffer);
+  lh.setUint32(0,0x04034b50,true);lh.setUint16(4,20,true);lh.setUint16(6,0x0800,true);
+  lh.setUint16(8,0,true);lh.setUint32(14,crc,true);lh.setUint32(18,content.length,true);
+  lh.setUint32(22,content.length,true);lh.setUint16(26,name.length,true);local.set(name,30);
+  const central=new Uint8Array(46+name.length),ch=new DataView(central.buffer);
+  ch.setUint32(0,0x02014b50,true);ch.setUint16(4,20,true);ch.setUint16(6,20,true);
+  ch.setUint16(8,0x0800,true);ch.setUint16(10,0,true);ch.setUint32(16,crc,true);
+  ch.setUint32(20,content.length,true);ch.setUint32(24,content.length,true);
+  ch.setUint16(28,name.length,true);central.set(name,46);
+  const end=new Uint8Array(22),eh=new DataView(end.buffer);
+  eh.setUint32(0,0x06054b50,true);eh.setUint16(8,1,true);eh.setUint16(10,1,true);
+  eh.setUint32(12,central.length,true);eh.setUint32(16,local.length+content.length,true);
+  return new Blob([local,content,central,end],{type:'application/zip'});
+}
+function hgChatDownloadZip(filename,blob){
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
 $('#hgChatDownload').onclick=()=>{
   try{
     const selected=[...hgChatChoices.querySelectorAll('input:checked')].map(x=>x.dataset.chatGroup);
@@ -1218,9 +1245,11 @@ $('#hgChatDownload').onclick=()=>{
       data[key]=hgChatClean(parsed);
     }
     const payload={format:'HerbierGourmandChatExport',formatVersion:1,appVersion:APP_VERSION,exportedAt:new Date().toISOString(),groups:selected,data};
-    const filename=`Herbier-Gourmand_ChatGPT_${backupStamp()}.json`;
-    downloadTextFile(filename,JSON.stringify(payload));
-    $('#hgChatStatus').textContent=`Export léger créé : ${filename} · ${Math.round(new Blob([JSON.stringify(payload)]).size/1024)} Ko. Ne remplace pas une sauvegarde complète.`;
+    const basename=`Herbier-Gourmand_ChatGPT_${backupStamp()}`;
+    const json=JSON.stringify(payload),zip=hgChatZip(`${basename}.json`,json);
+    const filename=`${basename}.zip`;
+    hgChatDownloadZip(filename,zip);
+    $('#hgChatStatus').textContent=`Export ZIP créé : ${filename} · ${Math.round(zip.size/1024)} Ko (JSON sans images). Ne remplace pas une sauvegarde complète.`;
   }catch(err){$('#hgChatStatus').textContent=`Export impossible : ${err.message}`}
 };
 $('#hgChatImport').onchange=async event=>{

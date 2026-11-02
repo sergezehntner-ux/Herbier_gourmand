@@ -1,4 +1,4 @@
 {
-  "version": "2.9.8.12.40",
-  "label": "Correction du blocage au démarrage de l’export ChatGPT"
+  "version": "2.9.8.12.41",
+  "label": "Export ChatGPT directement en ZIP (JSON léger)"
 }
