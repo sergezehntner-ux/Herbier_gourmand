@@ -289,3 +289,12 @@ nav button{grid-column:span 4!important;font-size:.78rem;padding-inline:2px}
 #catalogAddDialog .catalog-pick-wrap{position:relative!important}
 #catalogAddDialog .catalog-pick-list{position:static!important;top:auto!important;left:auto!important;right:auto!important;width:100%!important;max-height:155px!important;margin-top:4px;overflow-y:auto;box-sizing:border-box}
 #catalogAddDialog .catalog-pick-list.open{display:block!important}
+
+/* v2.9.8.12.34 — sélecteur avec recherche */
+.hg-search-select{position:relative;display:block;min-width:0;width:100%;}
+.hg-search-select>select{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;overflow:hidden!important;left:0;bottom:0;}
+.hg-search-select-input{width:100%;min-width:0;box-sizing:border-box;background:#fff;border:1px solid #d4d2c8;border-radius:9px;padding:10px 12px;color:#27392e;font:inherit;}
+.hg-search-select-options{position:absolute;z-index:1100;top:100%;left:0;right:0;max-height:250px;overflow-y:auto;background:#fff;border:1px solid #b9c7bd;border-radius:8px;box-shadow:0 8px 20px #0002;}
+.hg-search-select-choice{display:block;width:100%;padding:9px 12px;text-align:left;border:0;border-bottom:1px solid #eee;background:white;color:#26382d;font:inherit;cursor:pointer;}
+.hg-search-select-choice:hover,.hg-search-select-choice:focus{background:#e6f0e9;}
+.hg-search-select-empty{padding:10px;color:#777;}
