@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.12.35';
+const APP_VERSION='2.9.8.12.37';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -2060,7 +2060,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
 
 /* v2.9.8.11.75 — référencement volontaire Catalogue → Encyclopédies.
    Les données du Catalogue ne sont jamais réécrites par cette opération. */
-function hgAssociateFromCatalog(article,ask=true,chosenKind=null){if(!article?.id)return;
+function hgAssociateFromCatalog(article,ask=true,chosenKind=null,openAfter=true){if(!article?.id)return;
  if(ask){
   // Boîte de dialogue interne : libellés explicites « Non » et « Oui ».
   const dialog=document.createElement('dialog');
@@ -2092,7 +2092,7 @@ function hgAssociateFromCatalog(article,ask=true,chosenKind=null){if(!article?.i
  else if(!Array.isArray(saved)){alert('Encyclopédie non chargée : aucune modification.');return;}
  const rows=isGeneral?saved[kind]:saved;
  // Une association retirée auparavant peut être rétablie explicitement.
- if(isGeneral){try{const excluded=JSON.parse(hgGet('hg-encyclopedias-unlinked-v83')||'{}');if(Array.isArray(excluded[kind])){excluded[kind]=excluded[kind].filter(id=>id!==article.id);hgSet('hg-encyclopedias-unlinked-v83',JSON.stringify(excluded));}}catch(e){console.error(e)}}
+ try{const excluded=JSON.parse(hgGet('hg-encyclopedias-unlinked-v83')||'{}');if(Array.isArray(excluded[kind])){excluded[kind]=excluded[kind].filter(id=>id!==article.id);hgSet('hg-encyclopedias-unlinked-v83',JSON.stringify(excluded));}}catch(e){console.error(e)}
  let item=rows.find(x=>x.catalogId===article.id||x.catalogueId===article.id||normName(x.name)===normName(article.name));
  const existed=!!item;
  if(!item){
@@ -2109,7 +2109,8 @@ function hgAssociateFromCatalog(article,ask=true,chosenKind=null){if(!article?.i
   else if(kind==='herbs'){renderHerbFilters();renderHerbs();openHerbEditor(item.id);window.hgMarkEncyPending?.('herbDialog');}
   else {window.dispatchEvent(new CustomEvent('hg:encyclopedia-edit-target',{detail:{kind,id:item.id}}));}
  };
- openEditor();
+ if(openAfter){openEditor();return true;}
+ return true;
 }
 /* v85 — associations consultables et modifiables sans toucher au Catalogue. */
 const HG_ASSOC_CHOICES=[['produce','Fruits & Légumes'],['herbs','Plantes & Épices'],['meat','Viandes & Volailles'],['fish','Poissons & Crustacés'],['condiments','Condiments & Sauces'],['drinks','Boissons & Cocktails']];
@@ -2129,17 +2130,37 @@ function hgCatalogAssociationLabel(article){const kinds=hgCatalogAssociations(ar
 function hgOpenCatalogAssociations(article){
  if(!article?.id)return;
  let dialog=document.getElementById('hgCatalogAssociationsDialog');
- if(!dialog){dialog=document.createElement('dialog');dialog.id='hgCatalogAssociationsDialog';dialog.style.cssText='border:1px solid #d7d4c9;border-radius:16px;padding:20px;max-width:min(94vw,480px);width:100%;background:#f6f1e6;color:#24372b';document.body.append(dialog)}
+ if(!dialog){dialog=document.createElement('dialog');dialog.id='hgCatalogAssociationsDialog';dialog.style.cssText='border:1px solid #d7d4c9;border-radius:16px;padding:20px;max-width:min(94vw,570px);width:100%;background:#f6f1e6;color:#24372b';document.body.append(dialog)}
  const escText=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const draw=()=>{const selected=hgCatalogAssociations(article);dialog.innerHTML=`<h2 style="margin:0 0 8px;font-size:1.35rem">Associations — ${escText(article.name)}</h2><p style="margin:0 0 12px">Cocher pour associer, décocher pour dissocier.</p><div class="hg-assoc-options">${HG_ASSOC_CHOICES.map(([kind,label])=>`<label class="hg-assoc-option ${selected.includes(kind)?'is-selected':''}"><input type="checkbox" data-assoc-kind="${kind}" ${selected.includes(kind)?'checked':''}><span class="hg-assoc-name">${label}</span><span class="hg-assoc-status">${selected.includes(kind)?'Associé':'Non associé'}</span></label>`).join('')}</div><div style="display:flex;justify-content:flex-end;margin-top:18px"><button type="button" data-assoc-close>Fermer</button></div>`;
- dialog.querySelector('[data-assoc-close]').onclick=()=>dialog.close();
- dialog.querySelectorAll('[data-assoc-kind]').forEach(box=>box.onchange=()=>{
-  const kind=box.dataset.assocKind;
-  if(box.checked){dialog.close();hgAssociateFromCatalog(article,false,kind);window.dispatchEvent(new Event('hg:catalog-associations-changed'));return}
-  if(!confirm(`Dissocier « ${article.name} » de « ${HG_ASSOC_CHOICES.find(([k])=>k===kind)[1]} » ?\nLe produit du Catalogue sera conservé.`)){draw();return}
-  if(!hgDissociateCatalog(article,kind)){draw();return}
-  window.dispatchEvent(new Event('hg:catalog-associations-changed'));draw();
- });};draw();dialog.showModal();
+ const initial=new Set(hgCatalogAssociations(article));
+ const chosen=new Set(initial);
+ let target=HG_ASSOC_CHOICES.find(([k])=>chosen.has(k))?.[0]||'produce';
+ const draw=()=>{
+  dialog.innerHTML=`<h2 style="margin:0 0 8px;font-size:1.35rem">Associations — ${escText(article.name)}</h2><p style="margin:0 0 12px">Choisis les encyclopédies, puis enregistre. Les coches restent visibles.</p><div class="hg-assoc-options">${HG_ASSOC_CHOICES.map(([kind,label])=>`<label class="hg-assoc-option ${chosen.has(kind)?'is-selected':''}"><input type="checkbox" data-assoc-kind="${kind}" ${chosen.has(kind)?'checked':''}><span class="hg-assoc-name">${label}</span><span class="hg-assoc-status">${chosen.has(kind)?'✓ Sélectionné':'Non sélectionné'}</span></label>`).join('')}</div><div class="hg-assoc-editor-target"><label for="hgAssocTarget">Fiche à ouvrir après enregistrement</label><select id="hgAssocTarget">${HG_ASSOC_CHOICES.filter(([kind])=>chosen.has(kind)).map(([kind,label])=>`<option value="${kind}" ${target===kind?'selected':''}>${label}</option>`).join('')}</select></div><div class="hg-assoc-actions"><button type="button" data-assoc-save>Enregistrer → Catalogue</button><button type="button" class="primary" data-assoc-edit>Enregistrer et ouvrir la fiche</button><button type="button" data-assoc-cancel>Annuler → Catalogue</button></div>`;
+  dialog.querySelectorAll('[data-assoc-kind]').forEach(box=>box.onchange=()=>{if(box.checked){chosen.add(box.dataset.assocKind);target=box.dataset.assocKind}else chosen.delete(box.dataset.assocKind);draw()});
+  dialog.querySelector('#hgAssocTarget').onchange=e=>target=e.target.value;
+  dialog.querySelector('[data-assoc-cancel]').onclick=()=>dialog.close();
+  dialog.querySelector('[data-assoc-save]').onclick=()=>commit(false);
+  dialog.querySelector('[data-assoc-edit]').onclick=()=>commit(true);
+  dialog.querySelector('[data-assoc-edit]').disabled=!chosen.size;
+ };
+ const commit=openEditor=>{
+  const removed=[...initial].filter(k=>!chosen.has(k));
+  if(removed.length&&!confirm(`Dissocier « ${article.name} » de ${removed.length} encyclopédie(s) ?\nLes fiches existantes seront conservées.`))return;
+  const added=[...chosen].filter(k=>!initial.has(k));
+  for(const kind of added){if(!hgAssociateFromCatalog(article,false,kind,false)){alert('Association interrompue. Vérifie les données avant de réessayer.');return}}
+  for(const kind of removed){if(!hgDissociateCatalog(article,kind))return}
+  window.dispatchEvent(new Event('hg:catalog-associations-changed'));
+  dialog.close();
+  if(openEditor){
+   const kind=chosen.has(target)?target:[...chosen][0];
+   // Ouvrir la fiche après la sauvegarde, même si elle était déjà associée.
+   const editor=document.getElementById(kind==='produce'?'produceDialog':kind==='herbs'?'herbDialog':'hgEncyDialog');
+   if(editor){const back=()=>{editor.removeEventListener('close',back);setTimeout(()=>{switchView('ingredientCatalog');window.dispatchEvent(new Event('hg:catalog-associations-changed'))},0)};editor.addEventListener('close',back,{once:true})}
+   hgAssociateFromCatalog(article,false,kind,true);
+  }else switchView('ingredientCatalog');
+ };
+ draw();dialog.showModal();
 }
 function hgDissociateCatalog(article,kind){
  const key=kind==='produce'?'hg-fruits-vegetables-v282':kind==='herbs'?'hg-herbs-spices-v28':'hg-encyclopedias-v1';

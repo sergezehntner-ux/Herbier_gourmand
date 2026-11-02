@@ -309,3 +309,11 @@ nav button{grid-column:span 4!important;font-size:.78rem;padding-inline:2px}
 #hgCatalogAssociationsDialog .hg-assoc-name{flex:1}
 #hgCatalogAssociationsDialog .hg-assoc-status{font-size:.78em;color:#66736b}
 #hgCatalogAssociationsDialog .is-selected .hg-assoc-status{color:#24513a;font-weight:700}
+
+/* v2.9.8.12.37 — choix différé, actions explicites */
+#hgCatalogAssociationsDialog .hg-assoc-editor-target{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+#hgCatalogAssociationsDialog .hg-assoc-editor-target select{flex:1;min-width:180px}
+#hgCatalogAssociationsDialog .hg-assoc-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px}
+#hgCatalogAssociationsDialog .hg-assoc-actions button{flex:1 1 170px}
+#hgCatalogAssociationsDialog .hg-assoc-option.is-selected{box-shadow:inset 0 0 0 2px #355e48}
+#hgCatalogAssociationsDialog .hg-assoc-option.is-selected .hg-assoc-status{color:#175432;font-weight:800}
