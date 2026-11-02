@@ -1,1 +1,4 @@
-{"version":"2.9.8.12.35","label":"Cases à cocher visibles dans les associations"}
+{
+  "version": "2.9.8.12.38",
+  "label": "Retour au même article du Catalogue après association"
+}
