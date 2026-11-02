@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.12.34';
+const APP_VERSION='2.9.8.12.35';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -2131,7 +2131,7 @@ function hgOpenCatalogAssociations(article){
  let dialog=document.getElementById('hgCatalogAssociationsDialog');
  if(!dialog){dialog=document.createElement('dialog');dialog.id='hgCatalogAssociationsDialog';dialog.style.cssText='border:1px solid #d7d4c9;border-radius:16px;padding:20px;max-width:min(94vw,480px);width:100%;background:#f6f1e6;color:#24372b';document.body.append(dialog)}
  const escText=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const draw=()=>{const selected=hgCatalogAssociations(article);dialog.innerHTML=`<h2 style="margin:0 0 8px;font-size:1.35rem">Associations — ${escText(article.name)}</h2><p style="margin:0 0 12px">Cocher pour associer, décocher pour dissocier.</p><div style="display:grid;gap:12px">${HG_ASSOC_CHOICES.map(([kind,label])=>`<label style="display:flex;align-items:center;gap:12px;cursor:pointer"><input type="checkbox" data-assoc-kind="${kind}" ${selected.includes(kind)?'checked':''} style="width:20px;height:20px"><span>${label}</span></label>`).join('')}</div><div style="display:flex;justify-content:flex-end;margin-top:18px"><button type="button" data-assoc-close>Fermer</button></div>`;
+ const draw=()=>{const selected=hgCatalogAssociations(article);dialog.innerHTML=`<h2 style="margin:0 0 8px;font-size:1.35rem">Associations — ${escText(article.name)}</h2><p style="margin:0 0 12px">Cocher pour associer, décocher pour dissocier.</p><div style="display:grid;gap:12px">${HG_ASSOC_CHOICES.map(([kind,label])=>`<label style="display:flex;align-items:center;gap:12px;cursor:pointer"><input type="checkbox" data-assoc-kind="${kind}" ${selected.includes(kind)?'checked':''} style="appearance:auto;-webkit-appearance:checkbox;accent-color:#355e48;width:24px;height:24px;min-width:24px;min-height:24px;padding:0;border-radius:4px;flex:0 0 24px"><span>${label}</span></label>`).join('')}</div><div style="display:flex;justify-content:flex-end;margin-top:18px"><button type="button" data-assoc-close>Fermer</button></div>`;
  dialog.querySelector('[data-assoc-close]').onclick=()=>dialog.close();
  dialog.querySelectorAll('[data-assoc-kind]').forEach(box=>box.onchange=()=>{
   const kind=box.dataset.assocKind;
