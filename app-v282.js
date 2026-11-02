@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.12.38';
+const APP_VERSION='2.9.8.12.39';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -1184,6 +1184,75 @@ async function exportBackupNow(){
   }catch(err){console.error(err);alert('Impossible de créer la sauvegarde.');return false;}
 }
 $('#exportData').onclick=()=>exportBackupNow();
+// Échanges légers ChatGPT : jamais une sauvegarde de sécurité.
+const HG_CHAT_GROUPS={
+  catalogue:['hg-ingredient-catalog-v1','hg-ingredient-catalog-lists-v1'],
+  encyclopedies:['hg-encyclopedias-v1','hg-encyclopedias-unlinked-v83'],
+  plantes:[herbStore], fruits:[produceStore], recettes:[recipeStore],
+  sorties:['hg-restaurants-v26'], producteurs:['hg-producers-v27'],
+  stock:[stockStore,stockProductStore], courses:[shoppingStore]
+};
+const HG_CHAT_LABELS={catalogue:'Catalogue',encyclopedies:'Six encyclopédies',plantes:'Plantes & Épices',fruits:'Fruits & Légumes',recettes:'Recettes',sorties:'Sorties',producteurs:'Producteurs',stock:'Stock',courses:'Courses'};
+function hgChatClean(v){
+  if(Array.isArray(v))return v.map(hgChatClean);
+  if(v&&typeof v==='object'){
+    const out={};for(const [k,x] of Object.entries(v)){
+      if(/^(image|images|photo|photos|thumbnail|avatar|media|blob|dataurl|base64|photoid|imageid|cover|photourl|imageurl|_importphotourl)$/i.test(k))continue;
+      if(typeof x==='string'&&(/^(data:image\/|blob:)/i.test(x)||/^https?:\/\/[^\s]+\.(png|jpe?g|webp|gif)(\?|$)/i.test(x)))continue;
+      out[k]=hgChatClean(x);
+    }return out;
+  }return v;
+}
+const hgChatPanel=$('#hgChatOptions'),hgChatChoices=$('#hgChatChoices');
+if(hgChatChoices){hgChatChoices.innerHTML=Object.keys(HG_CHAT_GROUPS).map(k=>`<label style="display:inline-flex;align-items:center;gap:5px;margin-right:10px"><input type="checkbox" data-chat-group="${k}" ${['catalogue','encyclopedies','plantes','fruits'].includes(k)?'checked':''}>${HG_CHAT_LABELS[k]}</label>`).join('')}
+$('#hgChatExport').onclick=()=>{hgChatPanel.hidden=false;hgChatPanel.scrollIntoView({block:'nearest',behavior:'smooth'})};
+$('#hgChatCancel').onclick=()=>{hgChatPanel.hidden=true};
+$('#hgChatDownload').onclick=()=>{
+  try{
+    const selected=[...hgChatChoices.querySelectorAll('input:checked')].map(x=>x.dataset.chatGroup);
+    if(!selected.length)throw Error('Sélectionne au moins une rubrique.');
+    const data={},snap=herbierStorageSnapshot().data;
+    for(const group of selected)for(const key of HG_CHAT_GROUPS[group]){
+      if(typeof snap[key]!=='string')continue;
+      let parsed;try{parsed=JSON.parse(snap[key])}catch{continue}
+      data[key]=hgChatClean(parsed);
+    }
+    const payload={format:'HerbierGourmandChatExport',formatVersion:1,appVersion:APP_VERSION,exportedAt:new Date().toISOString(),groups:selected,data};
+    const filename=`Herbier-Gourmand_ChatGPT_${backupStamp()}.json`;
+    downloadTextFile(filename,JSON.stringify(payload));
+    $('#hgChatStatus').textContent=`Export léger créé : ${filename} · ${Math.round(new Blob([JSON.stringify(payload)]).size/1024)} Ko. Ne remplace pas une sauvegarde complète.`;
+  }catch(err){$('#hgChatStatus').textContent=`Export impossible : ${err.message}`}
+};
+$('#hgChatImport').onchange=async event=>{
+  const file=event.target.files?.[0];event.target.value='';if(!file)return;
+  try{
+    const patch=JSON.parse(await file.text());
+    if(patch.format!=='HerbierGourmandChatPatch'||patch.formatVersion!==1||!Array.isArray(patch.changes)||!patch.changes.length)throw Error('Fichier de corrections non reconnu.');
+    const allowed=new Set(Object.values(HG_CHAT_GROUPS).flat());
+    const staged=new Map(),issues=[];
+    for(const change of patch.changes){
+      if(!change||!allowed.has(change.store)||typeof change.id!=='string'||!change.id||!change.fields||typeof change.fields!=='object'||Array.isArray(change.fields))throw Error('Correction invalide : clé, identifiant ou champs.');
+      if(!staged.has(change.store)){
+        const raw=hgGet(change.store);if(!raw)throw Error(`Rubrique absente : ${change.store}`);
+        const records=JSON.parse(raw);if(!Array.isArray(records))throw Error(`Rubrique non compatible avec une correction par fiche : ${change.store}`);
+        staged.set(change.store,records);
+      }
+      const records=staged.get(change.store),row=records.find(x=>String(x?.id)===change.id);
+      if(!row){issues.push(`${change.store} / ${change.id} introuvable`);continue}
+      for(const [field,value] of Object.entries(change.fields)){
+        if(!Object.prototype.hasOwnProperty.call(row,field)||/^(id|image|photo|media|photoid|imageid)$/i.test(field)||value!==null&&typeof value==='object')throw Error(`Champ interdit ou absent : ${field}`);
+        if(change.before&&Object.prototype.hasOwnProperty.call(change.before,field)&&JSON.stringify(row[field])!==JSON.stringify(change.before[field])){issues.push(`Conflit ${change.id} / ${field}`);continue}
+        row[field]=value;
+      }
+    }
+    if(issues.length)throw Error(`Aucune correction importée : ${issues.slice(0,5).join(' ; ')}`);
+    if(!confirm(`${patch.changes.length} correction(s) dans ${staged.size} rubrique(s). Une sauvegarde complète récente est indispensable. Continuer ?`))return;
+    createEmergencyCheckpoint('avant corrections ChatGPT');
+    for(const [key,records] of staged)await hgSet(key,JSON.stringify(records));
+    await hgFlush();alert('Corrections intégrées. La page va être rechargée.');location.reload();
+  }catch(err){console.error(err);alert(`Import ChatGPT annulé : ${err.message}`)}
+};
+
 $('#leaveGuardStay').onclick=()=>{leaveGuardTarget=null;$('#leaveGuardDialog').close()};
 $('#leaveGuardLeave').onclick=()=>finishGuardedLeave(false);
 $('#leaveGuardSave').onclick=async()=>{const btn=$('#leaveGuardSave');btn.disabled=true;const ok=await exportBackupNow();btn.disabled=false;if(ok)finishGuardedLeave(true)};
