@@ -174,6 +174,17 @@
 #catalogAddDialog .catalog-pick-list{position:static!important;left:auto!important;top:auto!important;width:100%!important;max-height:155px!important;margin-top:4px;overflow-y:auto;box-sizing:border-box}
 #catalogAddDialog .catalog-pick-list.open{display:block!important}
   .pending-summary{display:flex;gap:.4rem;flex-wrap:wrap;margin:.4rem 0}.pending-summary button{font-size:.86rem;padding:.4rem .65rem}.pending-list{display:grid;gap:.3rem;margin-top:.5rem}.pending-row{display:flex;align-items:center;gap:.5rem;border:1px solid #dce5dd;border-radius:.5rem;padding:.4rem .55rem}.pending-row .pending-info{flex:1;min-width:0}.pending-row strong{display:block;overflow-wrap:anywhere}.pending-row small{color:#65746b;display:block}.pending-row button{white-space:nowrap;padding:.4rem .6rem}.pending-empty{padding:1rem;color:#65746b}
+
+/* v2.9.8.12.47 — filtres d’encyclopédies avec saisie et suggestions */
+.hg-filter-combo{position:relative;min-width:0;width:100%}
+.hg-filter-combo>select{display:none!important}
+.hg-filter-combo>input{width:100%;box-sizing:border-box;padding-right:2.2em!important}
+.hg-filter-arrow{position:absolute;right:.35em;top:50%;transform:translateY(-50%);border:0;background:transparent;padding:.3em .4em;cursor:pointer;color:#315a46;font-size:1em}
+.hg-filter-options{display:none;position:absolute;left:0;right:0;top:calc(100% + 2px);max-height:240px;overflow:auto;overscroll-behavior:contain;background:#fff;border:1px solid #c9c9c1;border-radius:9px;box-shadow:0 8px 18px #0002;z-index:1100}
+.hg-filter-combo.hg-open .hg-filter-options{display:block}
+.hg-filter-options button{display:block;width:100%;text-align:left;background:#fff;border:0;border-bottom:1px solid #eee;padding:10px 12px;color:#26392d;font:inherit;cursor:pointer;white-space:normal}
+.hg-filter-options button:hover,.hg-filter-options button:focus{background:#e7f1e9}
+.hg-filter-options .hg-filter-empty{padding:10px 12px;color:#777}
 </style>
 
 <style id="hg-nav-4plus5-fix">
@@ -278,7 +289,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.12.46 · Harmonisation groupée des ingrédients</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.12.47 · Harmonisation groupée des ingrédients</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -490,7 +501,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <div class="dialog-actions"><button type="button" id="hgEncyDelete" class="danger">Supprimer la fiche</button><button type="button" id="hgEncyCancel">Annuler</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 </main>
 <button id="hgLibraryFloatingBack" type="button" class="primary" aria-label="Retour à la Bibliothèque">← Bibliothèque</button>
-<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v2.9.8.12.46</span></footer>
+<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v2.9.8.12.47</span></footer>
 <button id="recipeFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des recettes">🔍 Rechercher</button>
 <button id="restaurantFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des sorties">🔍 Rechercher</button>
 <button id="producerFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des producteurs">🔍 Rechercher</button>
@@ -637,6 +648,49 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 #catalogAddDialog .catalog-pick-list{grid-column:1/-1;position:static!important;display:none;max-height:145px!important;overflow:auto!important;z-index:5;background:white;border:1px solid #bdc7bc;border-radius:8px}
 #catalogAddDialog .catalog-pick-list.open{display:block!important}
 </style>
+
+<script id="hg-ency-searchable-filters-47">
+/* Select natif conservé comme source de vérité pour les filtres existants. */
+(()=>{
+ const ids=['herbFamily','herbSeason','herbIntensity','produceCategory','produceSeason','produceAvailability','hgEncyCategory'];
+ const normalize=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('fr').trim();
+ function setup(select){
+  if(!select||select.dataset.hgCombo47)return;
+  select.dataset.hgCombo47='1';
+  const wrapper=document.createElement('div');wrapper.className='hg-filter-combo';
+  select.parentNode.insertBefore(wrapper,select);wrapper.appendChild(select);
+  const input=document.createElement('input');input.type='search';input.autocomplete='off';input.setAttribute('aria-label',select.closest('label')?.firstChild?.textContent?.trim()||'Filtrer');
+  input.setAttribute('aria-autocomplete','list');input.placeholder=select.options[0]?.textContent||'Toutes les valeurs';
+  const arrow=document.createElement('button');arrow.type='button';arrow.className='hg-filter-arrow';arrow.textContent='▾';arrow.setAttribute('aria-label','Afficher toutes les propositions');
+  const list=document.createElement('div');list.className='hg-filter-options';list.setAttribute('role','listbox');
+  wrapper.append(input,arrow,list);
+  let lastOptions='';let editing=false;
+  function options(){return Array.from(select.options).map(o=>({value:o.value,label:o.textContent}));}
+  function close(){wrapper.classList.remove('hg-open');editing=false;}
+  function show(query=''){
+   const values=options();const filtered=values.filter((o,i)=>i===0||normalize(o.label).includes(normalize(query)));
+   list.replaceChildren();
+   for(const opt of filtered){const b=document.createElement('button');b.type='button';b.textContent=opt.label;b.setAttribute('role','option');b.setAttribute('aria-selected',String(opt.value===select.value));
+    b.addEventListener('pointerdown',e=>e.preventDefault());
+    b.addEventListener('click',()=>{select.value=opt.value;input.value=opt.value?opt.label:'';close();select.dispatchEvent(new Event('change',{bubbles:true}));});list.appendChild(b);}
+   if(!filtered.length){const d=document.createElement('div');d.className='hg-filter-empty';d.textContent='Aucune proposition';list.appendChild(d);}
+   wrapper.classList.add('hg-open');
+  }
+  function sync(){const v=select.value;const match=options().find(o=>o.value===v);input.placeholder=select.options[0]?.textContent||'Toutes les valeurs';if(!editing)input.value=v?(match?.label||v):'';}
+  input.addEventListener('focus',()=>{editing=true;show('');});
+  input.addEventListener('click',()=>{editing=true;show(input.value===select.selectedOptions[0]?.textContent?'':input.value);});
+  input.addEventListener('input',()=>{editing=true;show(input.value);if(!input.value&&select.value){select.value='';select.dispatchEvent(new Event('change',{bubbles:true}));}});
+  input.addEventListener('keydown',e=>{if(e.key==='Escape'){close();sync();input.blur();}else if(e.key==='Enter'){const b=list.querySelector('button');if(wrapper.classList.contains('hg-open')&&b){e.preventDefault();b.click();input.blur();}}else if(e.key==='ArrowDown'){e.preventDefault();show(input.value);list.querySelector('button')?.focus();}});
+  arrow.addEventListener('click',()=>{if(wrapper.classList.contains('hg-open')){close();sync();}else{editing=true;show('');input.focus();}});
+  select.addEventListener('change',()=>{editing=false;sync();});
+  new MutationObserver(()=>{const key=Array.from(select.options).map(o=>o.value+'|'+o.textContent).join('\n');if(key!==lastOptions){lastOptions=key;sync();if(wrapper.classList.contains('hg-open'))show(input.value);}}).observe(select,{childList:true,subtree:true,characterData:true});
+  sync();
+  document.addEventListener('pointerdown',e=>{if(!wrapper.contains(e.target)){close();sync();}});
+ }
+ function init(){ids.forEach(id=>setup(document.getElementById(id)));}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
 </body></html>
 
 <style>.producer-create-unknown{margin-top:5px;padding:5px 9px;font-size:.9em}</style>
