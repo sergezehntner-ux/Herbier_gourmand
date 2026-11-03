@@ -175,9 +175,9 @@
 #catalogAddDialog .catalog-pick-list.open{display:block!important}
   .pending-summary{display:flex;gap:.4rem;flex-wrap:wrap;margin:.4rem 0}.pending-summary button{font-size:.86rem;padding:.4rem .65rem}.pending-list{display:grid;gap:.3rem;margin-top:.5rem}.pending-row{display:flex;align-items:center;gap:.5rem;border:1px solid #dce5dd;border-radius:.5rem;padding:.4rem .55rem}.pending-row .pending-info{flex:1;min-width:0}.pending-row strong{display:block;overflow-wrap:anywhere}.pending-row small{color:#65746b;display:block}.pending-row button{white-space:nowrap;padding:.4rem .6rem}.pending-empty{padding:1rem;color:#65746b}
 
-/* v2.9.8.12.48 — filtres d’encyclopédies avec saisie et suggestions */
+/* v2.9.8.12.49 — filtres d’encyclopédies avec saisie et suggestions */
 .hg-filter-combo{position:relative;min-width:0;width:100%}
-.hg-filter-combo>select{display:none!important}
+.hg-filter-combo>select,.hg-filter-combo select[hidden]{display:none!important;visibility:hidden!important;position:absolute!important;width:0!important;height:0!important;overflow:hidden!important}
 .hg-filter-combo>input{width:100%;box-sizing:border-box;padding-right:2.2em!important}
 .hg-filter-arrow{position:absolute;right:.35em;top:50%;transform:translateY(-50%);border:0;background:transparent;padding:.3em .4em;cursor:pointer;color:#315a46;font-size:1em}
 .hg-filter-options{display:none;position:absolute;left:0;right:0;top:calc(100% + 2px);max-height:240px;overflow:auto;overscroll-behavior:contain;background:#fff;border:1px solid #c9c9c1;border-radius:9px;box-shadow:0 8px 18px #0002;z-index:1100}
@@ -289,7 +289,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.12.48 · Harmonisation groupée des ingrédients</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.12.49 · Harmonisation groupée des ingrédients</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -501,7 +501,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <div class="dialog-actions"><button type="button" id="hgEncyDelete" class="danger">Supprimer la fiche</button><button type="button" id="hgEncyCancel">Annuler</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 </main>
 <button id="hgLibraryFloatingBack" type="button" class="primary" aria-label="Retour à la Bibliothèque">← Bibliothèque</button>
-<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v2.9.8.12.48</span></footer>
+<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v2.9.8.12.49</span></footer>
 <button id="recipeFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des recettes">🔍 Rechercher</button>
 <button id="restaurantFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des sorties">🔍 Rechercher</button>
 <button id="producerFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des producteurs">🔍 Rechercher</button>
@@ -659,6 +659,8 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   select.dataset.hgCombo47='1';
   const wrapper=document.createElement('div');wrapper.className='hg-filter-combo';
   select.parentNode.insertBefore(wrapper,select);wrapper.appendChild(select);
+  // Le select natif reste la source de vérité, mais ne doit jamais créer un second champ.
+  select.hidden=true;select.setAttribute('aria-hidden','true');select.tabIndex=-1;select.style.setProperty('display','none','important');
   const input=document.createElement('input');input.type='search';input.autocomplete='off';input.setAttribute('aria-label',select.closest('label')?.firstChild?.textContent?.trim()||'Filtrer');
   input.setAttribute('aria-autocomplete','list');input.placeholder=select.options[0]?.textContent||'Toutes les valeurs';
   const arrow=document.createElement('button');arrow.type='button';arrow.className='hg-filter-arrow';arrow.textContent='▾';arrow.setAttribute('aria-label','Afficher toutes les propositions');
@@ -688,7 +690,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   input.addEventListener('click',()=>{editing=true;show('');});
   input.addEventListener('input',()=>{editing=true;show(input.value);if(!input.value&&select.value){select.value='';select.dispatchEvent(new Event('change',{bubbles:true}));}});
   input.addEventListener('keydown',e=>{if(e.key==='Escape'){close();sync();input.blur();}else if(e.key==='Enter'){const b=list.querySelector('button');if(wrapper.classList.contains('hg-open')&&b){e.preventDefault();b.click();input.blur();}}else if(e.key==='ArrowDown'){e.preventDefault();show(input.value);list.querySelector('button')?.focus();}});
-  arrow.addEventListener('click',()=>{if(wrapper.classList.contains('hg-open')){close();sync();}else{editing=true;input.focus();show('');}});
+  arrow.addEventListener('click',()=>{if(wrapper.classList.contains('hg-open')){close();sync();}else{editing=true;show('');}});
   select.addEventListener('change',()=>{editing=false;sync();});
   new MutationObserver(()=>{const key=Array.from(select.options).map(o=>o.value+'|'+o.textContent).join('\n');if(key!==lastOptions){lastOptions=key;sync();if(wrapper.classList.contains('hg-open'))show(input.value);}}).observe(select,{childList:true,subtree:true,characterData:true});
   sync();
