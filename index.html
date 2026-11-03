@@ -175,7 +175,7 @@
 #catalogAddDialog .catalog-pick-list.open{display:block!important}
   .pending-summary{display:flex;gap:.4rem;flex-wrap:wrap;margin:.4rem 0}.pending-summary button{font-size:.86rem;padding:.4rem .65rem}.pending-list{display:grid;gap:.3rem;margin-top:.5rem}.pending-row{display:flex;align-items:center;gap:.5rem;border:1px solid #dce5dd;border-radius:.5rem;padding:.4rem .55rem}.pending-row .pending-info{flex:1;min-width:0}.pending-row strong{display:block;overflow-wrap:anywhere}.pending-row small{color:#65746b;display:block}.pending-row button{white-space:nowrap;padding:.4rem .6rem}.pending-empty{padding:1rem;color:#65746b}
 
-/* v2.9.8.12.49 — filtres d’encyclopédies avec saisie et suggestions */
+/* v2.9.8.12.50 — filtres d’encyclopédies avec saisie et suggestions */
 .hg-filter-combo{position:relative;min-width:0;width:100%}
 .hg-filter-combo>select,.hg-filter-combo select[hidden]{display:none!important;visibility:hidden!important;position:absolute!important;width:0!important;height:0!important;overflow:hidden!important}
 .hg-filter-combo>input{width:100%;box-sizing:border-box;padding-right:2.2em!important}
@@ -289,7 +289,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.12.49 · Harmonisation groupée des ingrédients</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.12.50 · Harmonisation groupée des ingrédients</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -501,7 +501,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <div class="dialog-actions"><button type="button" id="hgEncyDelete" class="danger">Supprimer la fiche</button><button type="button" id="hgEncyCancel">Annuler</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 </main>
 <button id="hgLibraryFloatingBack" type="button" class="primary" aria-label="Retour à la Bibliothèque">← Bibliothèque</button>
-<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v2.9.8.12.49</span></footer>
+<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v2.9.8.12.50</span></footer>
 <button id="recipeFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des recettes">🔍 Rechercher</button>
 <button id="restaurantFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des sorties">🔍 Rechercher</button>
 <button id="producerFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des producteurs">🔍 Rechercher</button>
@@ -609,7 +609,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
 <script src="frigo-catalog-data.js?v=2981140"></script>
-<script src="app-v282.js?v=2981248"></script>
+<script src="app-v282.js?v=2981250"></script>
 <script src="media-v1.js?v=2981173"></script>
 <script id="hg-catalog-picker-v13">
 /* Les listes du Catalogue existent déjà sous forme de <select> : les réutiliser
@@ -657,6 +657,11 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
  function setup(select){
   if(!select||select.dataset.hgCombo47)return;
   select.dataset.hgCombo47='1';
+  // Défaire l'ancien champ de recherche si le moteur générique l'a déjà ajouté.
+  const oldHolder=select.parentElement;
+  if(oldHolder?.classList.contains('hg-search-select')){
+   oldHolder.parentNode.insertBefore(select,oldHolder);oldHolder.remove();
+  }
   const wrapper=document.createElement('div');wrapper.className='hg-filter-combo';
   select.parentNode.insertBefore(wrapper,select);wrapper.appendChild(select);
   // Le select natif reste la source de vérité, mais ne doit jamais créer un second champ.

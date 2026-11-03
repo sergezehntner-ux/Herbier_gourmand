@@ -2580,7 +2580,8 @@ document.getElementById("recipeIngredientCheck")?.addEventListener("click",recip
 /* v2.9.8.12.34 — Recherche clavier dans les listes longues, sans changer leurs valeurs. */
 (()=>{
  const normSearch=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
- const skip=sel=>sel.multiple||sel.size>1||sel.dataset.hgSearch==='off'||(sel.options.length<=3&&!sel.classList.contains('catalog-edit-aisle')&&!sel.classList.contains('catalog-edit-group'))||[...sel.options].every(o=>/^\d+$/.test(o.value));
+ const encyclopediaFilterIds=new Set(['herbFamily','herbSeason','herbIntensity','produceCategory','produceSeason','produceAvailability','hgEncyCategory']);
+ const skip=sel=>encyclopediaFilterIds.has(sel.id)||sel.multiple||sel.size>1||sel.dataset.hgSearch==='off'||(sel.options.length<=3&&!sel.classList.contains('catalog-edit-aisle')&&!sel.classList.contains('catalog-edit-group'))||[...sel.options].every(o=>/^\d+$/.test(o.value));
  function enhance(sel){
   if(sel.dataset.hgSearch||skip(sel))return;
   sel.dataset.hgSearch='yes';
