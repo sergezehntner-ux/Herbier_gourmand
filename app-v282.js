@@ -2131,6 +2131,26 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  function showPreparation(r){chosen='recipe:'+r.id;showRecipe(r.id,'hgEncyclopedia');}
 
  function catalog(){try{return JSON.parse(hgGet(CATALOG)||'[]')}catch{return []}}
+ // v2.9.8.12.57 : importer une seule fois les articles du rayon Boucherie.
+ // Association par ID stable : le Catalogue et ses photos restent inchangés.
+ const MEAT_IMPORT_FLAG='hg-meat-boucherie-import-v57';
+ function importBoucherieOnce(){
+  if(hgGet(MEAT_IMPORT_FLAG)==='done')return;
+  const articles=catalog().filter(c=>clean(c.aisle)==='boucherie'&&c.id&&c.name);
+  if(!articles.length)return; // Attendre que le stockage permanent soit prêt.
+  const current=Array.isArray(db.meat)?db.meat:[];
+  const knownIds=new Set(current.map(x=>String(x.catalogId||x.catalogueId||'').trim()).filter(Boolean));
+  const knownNames=new Set(current.map(x=>clean(x.name)));
+  let added=0;
+  for(const c of articles){
+   if(knownIds.has(c.id)||knownNames.has(clean(c.name))||excluded('meat',c.id))continue;
+   current.push({id:'catalog:'+c.id,name:c.name,catalogId:c.id,category:c.group||''});
+   knownIds.add(c.id);knownNames.add(clean(c.name));added++;
+  }
+  db.meat=current;
+  if(added)hgSet(STORE,JSON.stringify(db));
+  hgSet(MEAT_IMPORT_FLAG,'done');
+ }
  function init(){try{const x=JSON.parse(hgGet(STORE)||'null');if(x&&typeof x==='object')for(const k of Object.keys(labels))if(Array.isArray(x[k]))db[k]=x[k]}catch(e){console.error('Encyclopédies',e)}
   if(!hgGet(STORE)){db.condiments=SEED.map(x=>({...x,needsCatalogLink:!catalog().some(c=>clean(c.name)===clean(x.name))}));hgSet(STORE,JSON.stringify(db));}
  }
@@ -2222,7 +2242,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  document.querySelectorAll('[data-encyclopedia]').forEach(b=>b.onclick=()=>open(b.dataset.encyclopedia));
  window.addEventListener('hg:encyclopedia-edit-target',e=>{const {kind,id}=e.detail||{};if(!labels[kind])return;open(kind);edit(id);window.hgMarkEncyPending?.('hgEncyDialog');});
  window.addEventListener('hg:encyclopedia-linked',e=>{if(labels[e.detail?.kind]){try{const latest=JSON.parse(hgGet(STORE)||'{}');if(Array.isArray(latest[e.detail.kind]))db[e.detail.kind]=latest[e.detail.kind]}catch(err){console.error(err)}}});
- window.addEventListener('hg:storage-ready',()=>{init();clearLegacyCondiments();});
+ window.addEventListener('hg:storage-ready',()=>{init();clearLegacyCondiments();importBoucherieOnce();});
  // Les associations sont chargées depuis les données persistées, sans injection spécifique.
 
 })();
