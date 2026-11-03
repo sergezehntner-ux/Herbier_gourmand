@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.12.46';
+const APP_VERSION='2.9.8.12.59';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -2199,12 +2199,14 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  function back(){switchView('hgEncyclopedia',{top:true})}
  function open(k){active=k;chosen=null;get('hgEncySearch').value='';get('hgEncyCategory').value='';get('hgEncyTitle').textContent=labels[k];if(k==='condiments')condimentMode='products';showMode();render();switchView('hgEncyclopedia',{top:true})}
  function render(){const q=clean(get('hgEncySearch').value),sel=get('hgEncyCategory'),prev=sel.value;
-  const cats=[...new Set(sourceItems().map(x=>x.category).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr'));
+  const items=sourceItems();
+  const catalogById=new Map(catalog().map(c=>[c.id,c]));
+  const cats=[...new Set(items.map(x=>x.category).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr'));
   window.hgEncyFacets48=()=>[...new Set(sourceItems().map(x=>String(x.category||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr'));
   sel.innerHTML='<option value="">Toutes les catégories</option>'+cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');sel.value=cats.includes(prev)?prev:'';
-  const filtered=sourceItems().filter(x=>(!sel.value||x.category===sel.value)&&(!q||clean(Object.values(x).filter(v=>typeof v==='string').join(' ')).includes(q))).sort((a,b)=>a.name.localeCompare(b.name,'fr'));
-  get('hgEncyCount').textContent=`${filtered.length} fiche${filtered.length>1?'s':''} · ${sourceItems().length} au total`;
-  get('hgEncyList').innerHTML=filtered.map(x=>{const c=x.catalogue||catalog().find(v=>v.id===(x.catalogId||x.catalogueId));const photo=x.image||x.photo||c?.image||'';const summary=x.description||x.uses||x.preparation||'';const meta=[x.part,x.season,x.availability].filter(Boolean).join(' · ');const pills=[x.conservation,x.forms,x.flavor].filter(Boolean);return `<button type="button" class="hg-ency-card" data-id="${esc(x.id)}"><div class="hg-ency-card-main"><div class="hg-ency-card-heading"><strong>${esc(x.name)}</strong><small>${esc([x.category,meta].filter(Boolean).join(' · '))}</small></div>${summary?`<p>${esc(summary.length>130?summary.slice(0,127)+'…':summary)}</p>`:''}${pills.length?`<div class="hg-ency-pills">${pills.map(v=>`<span>${esc(v)}</span>`).join('')}</div>`:''}</div>${photo?`<img src="${esc(photo)}" alt="" loading="lazy">`:''}</button>`}).join('')||'<p class="muted">Aucune fiche.</p>';
+  const filtered=items.filter(x=>(!sel.value||x.category===sel.value)&&(!q||clean(Object.values(x).filter(v=>typeof v==='string').join(' ')).includes(q))).sort((a,b)=>a.name.localeCompare(b.name,'fr'));
+  get('hgEncyCount').textContent=`${filtered.length} fiche${filtered.length>1?'s':''} · ${items.length} au total`;
+  get('hgEncyList').innerHTML=filtered.map(x=>{const c=x.catalogue||catalogById.get(x.catalogId||x.catalogueId);const photo=x.image||x.photo||c?.image||'';const summary=x.description||x.uses||x.preparation||'';const meta=[x.part,x.season,x.availability].filter(Boolean).join(' · ');const pills=[x.conservation,x.forms,x.flavor].filter(Boolean);return `<button type="button" class="hg-ency-card" data-id="${esc(x.id)}"><div class="hg-ency-card-main"><div class="hg-ency-card-heading"><strong>${esc(x.name)}</strong><small>${esc([x.category,meta].filter(Boolean).join(' · '))}</small></div>${summary?`<p>${esc(summary.length>130?summary.slice(0,127)+'…':summary)}</p>`:''}${pills.length?`<div class="hg-ency-pills">${pills.map(v=>`<span>${esc(v)}</span>`).join('')}</div>`:''}</div>${photo?`<img src="${esc(photo)}" alt="" loading="lazy">`:''}</button>`}).join('')||'<p class="muted">Aucune fiche.</p>';
   get('hgEncyList').querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>detail(b.dataset.id));
  }
  function detail(id){chosen=id;const x=item();if(!x)return;if(x.recipe)return showPreparation(x.recipe);get('hgEncyEdit').hidden=false;get('hgEncyDeleteDetail').hidden=!!x.recipe;get('hgEncyDeleteDetail').textContent=(x.catalogId||x.catalogueId||x.catalogue||x.id.startsWith('catalog:'))?'Dissocier':'Supprimer';const sections=Object.entries(names).filter(([k])=>k!=='category'&&x[k]).map(([k,n])=>`<section class="hg-ency-block"><h3>${esc(n)}</h3><p style="white-space:pre-wrap">${esc(x[k])}</p></section>`).join('');
