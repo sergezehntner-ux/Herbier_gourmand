@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.12.64';
+const APP_VERSION='2.9.8.12.66';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -1269,8 +1269,24 @@ $('#hgChatImport').onchange=async event=>{
         staged.set(change.store,records);
       }
       const records=staged.get(change.store);
-      const target=Array.isArray(records)?records:(change.store==='hg-encyclopedias-v1'&&['meat','fish'].includes(change.kind)?records[change.kind]:null);
+      const target=Array.isArray(records)?records:(change.store==='hg-encyclopedias-v1'&&['meat','fish','condiments','drinks','dairyPasta','baking'].includes(change.kind)?(records[change.kind] ||= []):null);
       if(!Array.isArray(target))throw Error(`Rubrique ou encyclopédie invalide : ${change.kind||change.store}`);
+      // v66 : création contrôlée des fiches liées au Catalogue, sans écriture au Catalogue.
+      if(change.action==='create'){
+        if(change.store!=='hg-encyclopedias-v1'||!['dairyPasta','baking'].includes(change.kind))throw Error('Création limitée aux deux nouvelles encyclopédies.');
+        const permitted=['category','part','season','uses','pairings','preparation','conservation','description','benefits','benefitPairings','notes','freezable','raw','cooked'];
+        if(Object.keys(change.fields).some(k=>!permitted.includes(k)))throw Error('Champ de création interdit.');
+        const cid=change.catalogId;
+        if(!cid||change.id!=='catalog:'+cid)throw Error('Identifiant Catalogue incohérent.');
+        const catalogue=staged.get('hg-ingredient-catalog-v1')||JSON.parse(hgGet('hg-ingredient-catalog-v1')||'[]');
+        const source=catalogue.find(c=>c.id===cid&&c.name===change.name);
+        if(!source)throw Error('Article absent ou renommé dans le Catalogue : '+change.name);
+        if(target.some(x=>x.id===change.id||x.catalogId===cid)){
+          issues.push('Fiche déjà présente : '+change.name);continue;
+        }
+        target.push({id:change.id,name:source.name,catalogId:cid,category:source.group||'',...change.fields});
+        continue;
+      }
       const matches=target.filter(x=>String(x?.id)===change.id);
       const row=change.name!==undefined
         ?matches.find(x=>String(x?.name||'')===change.name)
@@ -1278,7 +1294,7 @@ $('#hgChatImport').onchange=async event=>{
       if(matches.length>1&&change.name===undefined){issues.push(`Identifiant ambigu ${change.id} : nom de fiche requis`);continue}
       if(!row){issues.push(`${change.store} / ${change.id} introuvable`);continue}
       for(const [field,value] of Object.entries(change.fields)){
-        const enriched=change.store==='hg-encyclopedias-v1'&&['meat','fish'].includes(change.kind)&&['season','description','uses','pairings','preparation','conservation','benefits','benefitPairings','notes'].includes(field);
+        const enriched=change.store==='hg-encyclopedias-v1'&&['meat','fish','dairyPasta','baking'].includes(change.kind)&&['season','description','uses','pairings','preparation','conservation','benefits','benefitPairings','notes'].includes(field);
         if((!Object.prototype.hasOwnProperty.call(row,field)&&!enriched)||/^(id|image|photo|media|photoid|imageid)$/i.test(field)||value!==null&&typeof value==='object')throw Error(`Champ interdit ou absent : ${field}`);
         if(change.before&&Object.prototype.hasOwnProperty.call(change.before,field)&&JSON.stringify(row[field])!==JSON.stringify(change.before[field])){issues.push(`Conflit ${change.id} / ${field}`);continue}
         row[field]=value;
