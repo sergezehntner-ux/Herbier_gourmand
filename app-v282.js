@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.12.59';
+const APP_VERSION='2.9.8.12.60';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -2416,12 +2416,39 @@ window.addEventListener('hg:catalog-associate',event=>hgOpenCatalogAssociations(
  const initial=new WeakMap(),pending=new WeakSet(),allowClose=new WeakSet();
  const snapshot=form=>Array.from(form.querySelectorAll('input,select,textarea')).map(x=>JSON.stringify([x.id||x.name,x.type==='checkbox'?x.checked:x.value])).join('|');
  const changed=(dialog,form)=>pending.has(dialog)||snapshot(form)!==initial.get(dialog);
- function attempt(dialog,form){
+ let decisionDialog=null;
+ function askUnsaved(){
+  return new Promise(resolve=>{
+   if(!decisionDialog){
+    decisionDialog=document.createElement('dialog');decisionDialog.id='hgUnsavedDecision';
+    decisionDialog.setAttribute('aria-labelledby','hgUnsavedTitle');
+    decisionDialog.innerHTML=`<div style="padding:22px;max-width:460px;box-sizing:border-box;color:#243b30;font-family:inherit">
+     <h2 id="hgUnsavedTitle" style="margin:0 0 12px;font-size:1.4rem">Modifications non enregistrées</h2>
+     <p style="margin:0 0 18px;line-height:1.45">Vous n’avez pas encore enregistré votre saisie. Que souhaitez-vous faire ?</p>
+     <button type="button" data-choice="continue" style="display:block;width:100%;text-align:left;padding:15px 17px;margin-bottom:10px;border-radius:12px;border:2px solid #315e49;background:#e6f1e9;color:#203b2c;font:inherit;cursor:pointer"><strong style="display:block;font-size:1.08rem">✎ Continuer la saisie</strong><span style="display:block;margin-top:4px;font-size:.89rem">Pour terminer et enregistrer les modifications</span></button>
+     <button type="button" data-choice="quit" style="display:block;width:100%;text-align:left;padding:15px 17px;border-radius:12px;border:1px solid #bb7772;background:#fff5f3;color:#83352f;font:inherit;cursor:pointer"><strong style="display:block;font-size:1.08rem">✕ Quitter sans enregistrer</strong><span style="display:block;margin-top:4px;font-size:.89rem">Les modifications de cette fiche seront abandonnées</span></button>
+    </div>`;
+    decisionDialog.style.cssText='border:0;border-radius:18px;padding:0;max-width:calc(100vw - 32px);width:460px;box-shadow:0 18px 65px #0005;';
+    document.body.appendChild(decisionDialog);
+   }
+   const popup=decisionDialog;
+   const finish=value=>{popup.removeEventListener('click',choose);popup.removeEventListener('cancel',cancel);popup.close();resolve(value)};
+   const choose=e=>{const button=e.target.closest('button[data-choice]');if(button)finish(button.dataset.choice)};
+   const cancel=e=>{e.preventDefault();finish('continue')};
+   popup.addEventListener('click',choose);popup.addEventListener('cancel',cancel);
+   popup.showModal();
+  });
+ }
+ const checking=new WeakSet();
+ async function attempt(dialog,form){
+  if(checking.has(dialog))return;
   if(!changed(dialog,form)){allowClose.add(dialog);dialog.close();return;}
-  const save=confirm('Vous n’avez pas encore enregistré votre saisie.\n\nOK : continuer la saisie pour enregistrer.\nAnnuler : choisir de quitter sans enregistrer.');
-  if(save)return;
-  if(!confirm('Quitter sans enregistrer les modifications de cette fiche ?\nLe produit enregistré dans le Catalogue est conservé.'))return;
-  pending.delete(dialog);allowClose.add(dialog);dialog.close();
+  checking.add(dialog);
+  try{
+   const choice=await askUnsaved();
+   if(choice!=='quit')return;
+   pending.delete(dialog);allowClose.add(dialog);dialog.close();
+  }finally{checking.delete(dialog)}
  }
  window.hgMarkEncyPending=id=>{const d=document.getElementById(id);if(d?.open)pending.add(d)};
  for(const [did,fid] of pairs){
