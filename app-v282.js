@@ -241,14 +241,16 @@ function recipeIngredientDiagnostic(){
   const input=document.createElement('input');input.type='search';input.placeholder='Taper un nom du Catalogue…';input.autocomplete='off';input.setAttribute('aria-label','Rechercher un produit pour '+name);
   const suggestions=document.createElement('div');suggestions.className='hg-recipe-catalog-suggestions';suggestions.hidden=true;suggestions.setAttribute('role','listbox');
   let selectedId='';
-  const normalized=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('fr').trim();
+  const normalized=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('fr').replace(/œ/g,'oe').replace(/æ/g,'ae').trim();
   const ordered=entries.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name),'fr'));
   function suggest(){
    selectedId='';
    suggestions.replaceChildren();
    const q=normalized(input.value);
    if(!q){suggestions.hidden=true;return}
-   const found=ordered.filter(item=>normalized(item.name).includes(q)).slice(0,12);
+   // Exact, début du nom, début d'un mot, puis présence dans un mot (ex. bœuf pour œuf).
+   const rank=n=>n===q?0:n.startsWith(q)?1:n.split(/[^a-z0-9]+/).some(word=>word.startsWith(q))?2:3;
+   const found=ordered.filter(item=>normalized(item.name).includes(q)).sort((a,b)=>rank(normalized(a.name))-rank(normalized(b.name))||String(a.name).localeCompare(String(b.name),'fr')).slice(0,12);
    for(const item of found){
     const option=document.createElement('button');option.type='button';option.textContent=item.name;option.setAttribute('role','option');
     option.addEventListener('pointerdown',e=>e.preventDefault());
