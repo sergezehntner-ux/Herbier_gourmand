@@ -175,7 +175,7 @@
 #catalogAddDialog .catalog-pick-list.open{display:block!important}
   .pending-summary{display:flex;gap:.4rem;flex-wrap:wrap;margin:.4rem 0}.pending-summary button{font-size:.86rem;padding:.4rem .65rem}.pending-list{display:grid;gap:.3rem;margin-top:.5rem}.pending-row{display:flex;align-items:center;gap:.5rem;border:1px solid #dce5dd;border-radius:.5rem;padding:.4rem .55rem}.pending-row .pending-info{flex:1;min-width:0}.pending-row strong{display:block;overflow-wrap:anywhere}.pending-row small{color:#65746b;display:block}.pending-row button{white-space:nowrap;padding:.4rem .6rem}.pending-empty{padding:1rem;color:#65746b}
 
-/* v2.9.8.12.47 — filtres d’encyclopédies avec saisie et suggestions */
+/* v2.9.8.12.48 — filtres d’encyclopédies avec saisie et suggestions */
 .hg-filter-combo{position:relative;min-width:0;width:100%}
 .hg-filter-combo>select{display:none!important}
 .hg-filter-combo>input{width:100%;box-sizing:border-box;padding-right:2.2em!important}
@@ -289,7 +289,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.12.47 · Harmonisation groupée des ingrédients</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.12.48 · Harmonisation groupée des ingrédients</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -501,7 +501,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <div class="dialog-actions"><button type="button" id="hgEncyDelete" class="danger">Supprimer la fiche</button><button type="button" id="hgEncyCancel">Annuler</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 </main>
 <button id="hgLibraryFloatingBack" type="button" class="primary" aria-label="Retour à la Bibliothèque">← Bibliothèque</button>
-<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v2.9.8.12.47</span></footer>
+<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v2.9.8.12.48</span></footer>
 <button id="recipeFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des recettes">🔍 Rechercher</button>
 <button id="restaurantFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des sorties">🔍 Rechercher</button>
 <button id="producerFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des producteurs">🔍 Rechercher</button>
@@ -609,7 +609,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
 <script src="frigo-catalog-data.js?v=2981140"></script>
-<script src="app-v282.js?v=2981246"></script>
+<script src="app-v282.js?v=2981248"></script>
 <script src="media-v1.js?v=2981173"></script>
 <script id="hg-catalog-picker-v13">
 /* Les listes du Catalogue existent déjà sous forme de <select> : les réutiliser
@@ -665,23 +665,30 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   const list=document.createElement('div');list.className='hg-filter-options';list.setAttribute('role','listbox');
   wrapper.append(input,arrow,list);
   let lastOptions='';let editing=false;
-  function options(){return Array.from(select.options).map(o=>({value:o.value,label:o.textContent}));}
+  function options(){
+   // Les suggestions viennent directement des fiches, pas des <option> parfois vides.
+   let values=[];
+   try{const h=window.hgHerbFacets48?.(),p=window.hgProduceFacets48?.();values=(h&&h[select.id])||(p&&p[select.id])||(select.id==='hgEncyCategory'?window.hgEncyFacets48?.():null)||[];}catch(e){console.warn('Suggestions',e);}
+   const native=Array.from(select.options).slice(1).map(o=>o.value).filter(Boolean);
+   const unique=[...new Set([...values,...native].map(x=>String(x||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));
+   return [{value:'',label:select.options[0]?.textContent||'Toutes les valeurs'},...unique.map(v=>({value:v,label:v}))];
+  }
   function close(){wrapper.classList.remove('hg-open');editing=false;}
   function show(query=''){
    const values=options();const filtered=values.filter((o,i)=>i===0||normalize(o.label).includes(normalize(query)));
    list.replaceChildren();
    for(const opt of filtered){const b=document.createElement('button');b.type='button';b.textContent=opt.label;b.setAttribute('role','option');b.setAttribute('aria-selected',String(opt.value===select.value));
     b.addEventListener('pointerdown',e=>e.preventDefault());
-    b.addEventListener('click',()=>{select.value=opt.value;input.value=opt.value?opt.label:'';close();select.dispatchEvent(new Event('change',{bubbles:true}));});list.appendChild(b);}
-   if(!filtered.length){const d=document.createElement('div');d.className='hg-filter-empty';d.textContent='Aucune proposition';list.appendChild(d);}
+    b.addEventListener('click',()=>{if(opt.value&&!Array.from(select.options).some(o=>o.value===opt.value)){const o=document.createElement('option');o.value=opt.value;o.textContent=opt.label;select.appendChild(o);}select.value=opt.value;input.value=opt.value?opt.label:'';close();select.dispatchEvent(new Event('change',{bubbles:true}));});list.appendChild(b);}
+   if(filtered.length===1){const d=document.createElement('div');d.className='hg-filter-empty';d.textContent=values.length===1?'Aucune valeur renseignée dans les fiches':'Aucune autre proposition';list.appendChild(d);}
    wrapper.classList.add('hg-open');
   }
   function sync(){const v=select.value;const match=options().find(o=>o.value===v);input.placeholder=select.options[0]?.textContent||'Toutes les valeurs';if(!editing)input.value=v?(match?.label||v):'';}
   input.addEventListener('focus',()=>{editing=true;show('');});
-  input.addEventListener('click',()=>{editing=true;show(input.value===select.selectedOptions[0]?.textContent?'':input.value);});
+  input.addEventListener('click',()=>{editing=true;show('');});
   input.addEventListener('input',()=>{editing=true;show(input.value);if(!input.value&&select.value){select.value='';select.dispatchEvent(new Event('change',{bubbles:true}));}});
   input.addEventListener('keydown',e=>{if(e.key==='Escape'){close();sync();input.blur();}else if(e.key==='Enter'){const b=list.querySelector('button');if(wrapper.classList.contains('hg-open')&&b){e.preventDefault();b.click();input.blur();}}else if(e.key==='ArrowDown'){e.preventDefault();show(input.value);list.querySelector('button')?.focus();}});
-  arrow.addEventListener('click',()=>{if(wrapper.classList.contains('hg-open')){close();sync();}else{editing=true;show('');input.focus();}});
+  arrow.addEventListener('click',()=>{if(wrapper.classList.contains('hg-open')){close();sync();}else{editing=true;input.focus();show('');}});
   select.addEventListener('change',()=>{editing=false;sync();});
   new MutationObserver(()=>{const key=Array.from(select.options).map(o=>o.value+'|'+o.textContent).join('\n');if(key!==lastOptions){lastOptions=key;sync();if(wrapper.classList.contains('hg-open'))show(input.value);}}).observe(select,{childList:true,subtree:true,characterData:true});
   sync();
