@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.12.61';
+const APP_VERSION='2.9.8.12.62';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -1265,13 +1265,17 @@ $('#hgChatImport').onchange=async event=>{
       if(!change||!allowed.has(change.store)||typeof change.id!=='string'||!change.id||!change.fields||typeof change.fields!=='object'||Array.isArray(change.fields))throw Error('Correction invalide : clé, identifiant ou champs.');
       if(!staged.has(change.store)){
         const raw=hgGet(change.store);if(!raw)throw Error(`Rubrique absente : ${change.store}`);
-        const records=JSON.parse(raw);if(!Array.isArray(records))throw Error(`Rubrique non compatible avec une correction par fiche : ${change.store}`);
+        const records=JSON.parse(raw);if(!Array.isArray(records)&&!(change.store==='hg-encyclopedias-v1'&&records&&typeof records==='object'))throw Error(`Rubrique non compatible avec une correction par fiche : ${change.store}`);
         staged.set(change.store,records);
       }
-      const records=staged.get(change.store),row=records.find(x=>String(x?.id)===change.id);
+      const records=staged.get(change.store);
+      const target=Array.isArray(records)?records:(change.store==='hg-encyclopedias-v1'&&['meat','fish'].includes(change.kind)?records[change.kind]:null);
+      if(!Array.isArray(target))throw Error(`Rubrique ou encyclopédie invalide : ${change.kind||change.store}`);
+      const row=target.find(x=>String(x?.id)===change.id);
       if(!row){issues.push(`${change.store} / ${change.id} introuvable`);continue}
       for(const [field,value] of Object.entries(change.fields)){
-        if(!Object.prototype.hasOwnProperty.call(row,field)||/^(id|image|photo|media|photoid|imageid)$/i.test(field)||value!==null&&typeof value==='object')throw Error(`Champ interdit ou absent : ${field}`);
+        const enriched=change.store==='hg-encyclopedias-v1'&&['meat','fish'].includes(change.kind)&&['season','description','uses','pairings','preparation','conservation','benefits','benefitPairings','notes'].includes(field);
+        if((!Object.prototype.hasOwnProperty.call(row,field)&&!enriched)||/^(id|image|photo|media|photoid|imageid)$/i.test(field)||value!==null&&typeof value==='object')throw Error(`Champ interdit ou absent : ${field}`);
         if(change.before&&Object.prototype.hasOwnProperty.call(change.before,field)&&JSON.stringify(row[field])!==JSON.stringify(change.before[field])){issues.push(`Conflit ${change.id} / ${field}`);continue}
         row[field]=value;
       }
