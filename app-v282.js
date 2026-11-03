@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.12.62';
+const APP_VERSION='2.9.8.12.63';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -76,7 +76,7 @@ async function init(){
   window.dispatchEvent(new Event('hg:storage-ready'));
   migrateLegacyWeekSlots();
   renderDaySlotChoices();
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=2981130', {updateViaCache:'none'});
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=2981263', {updateViaCache:'none'});
   setStartupStatus('Chargement de vos recettes…');
   const stored=JSON.parse(hgGet(recipeStore)||'null');
   if(stored) recipes=stored; else recipes=await fetch(`recipes.json?_=${Date.now()}`,{cache:'no-store'}).then(r=>r.json());
@@ -1271,7 +1271,11 @@ $('#hgChatImport').onchange=async event=>{
       const records=staged.get(change.store);
       const target=Array.isArray(records)?records:(change.store==='hg-encyclopedias-v1'&&['meat','fish'].includes(change.kind)?records[change.kind]:null);
       if(!Array.isArray(target))throw Error(`Rubrique ou encyclopédie invalide : ${change.kind||change.store}`);
-      const row=target.find(x=>String(x?.id)===change.id);
+      const matches=target.filter(x=>String(x?.id)===change.id);
+      const row=change.name!==undefined
+        ?matches.find(x=>String(x?.name||'')===change.name)
+        :(matches.length===1?matches[0]:null);
+      if(matches.length>1&&change.name===undefined){issues.push(`Identifiant ambigu ${change.id} : nom de fiche requis`);continue}
       if(!row){issues.push(`${change.store} / ${change.id} introuvable`);continue}
       for(const [field,value] of Object.entries(change.fields)){
         const enriched=change.store==='hg-encyclopedias-v1'&&['meat','fish'].includes(change.kind)&&['season','description','uses','pairings','preparation','conservation','benefits','benefitPairings','notes'].includes(field);
