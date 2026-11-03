@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.12.43';
+const APP_VERSION='2.9.8.12.46';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -1821,7 +1821,58 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  const listValues=field=>[...new Set([...unique(field),...(extraLists[field]||[])])].sort((a,b)=>a.localeCompare(b,'fr'));
  const aisles=()=>listValues('aisle'),groups=()=>listValues('group'),names=()=>unique('name');
  function refreshFilters(){const a=$('#ingredientCatalogAisle'),g=$('#ingredientCatalogGroup');if(a){const keep=a.value;a.innerHTML='<option value="">Tous les rayons</option>'+aisles().map(v=>`<option>${esc(v)}</option>`).join('');if([...a.options].some(o=>o.value===keep))a.value=keep}if(g){const keep=g.value;g.innerHTML='<option value="">Toutes les catégories</option>'+groups().map(v=>`<option>${esc(v)}</option>`).join('');if([...g.options].some(o=>o.value===keep))g.value=keep}}
- function filtered(){const q=norm($('#ingredientCatalogSearch')?.value||''),a=$('#ingredientCatalogAisle')?.value||'',g=$('#ingredientCatalogGroup')?.value||'';return catalog.filter(x=>(!a||x.aisle===a)&&(!g||x.group===g)&&(!q||norm(x.name).includes(q)||norm(x.aisle).includes(q)||norm(x.group).includes(q))).sort((x,y)=>x.name.localeCompare(y.name,'fr'))}
+ // Vérification réelle des photos (une URL enregistrée n'est pas nécessairement affichable).
+ const catalogPhotoState=new Map();
+ let catalogPhotoQueue=[],catalogPhotoRunning=0,catalogPhotoTimer=0;
+ const catalogPhotoKey=x=>String(x.image||'');
+ function catalogPhotoStatus(x){
+  if(!x.image)return 'missing';
+  const v=catalogPhotoState.get(x.id);
+  return v&&v.src===catalogPhotoKey(x)?v.status:'pending';
+ }
+ function updateCatalogPhotoCount(){
+  const count=$('#ingredientCatalogCount');if(!count)return;
+  const found=filtered(),ok=catalog.filter(x=>catalogPhotoStatus(x)==='ok').length;
+  const missing=catalog.filter(x=>catalogPhotoStatus(x)==='missing').length;
+  const pending=catalog.length-ok-missing;
+  count.textContent=`${catalog.length} articles · ${ok} photos présentes · ${missing} photos manquantes${pending?' · '+pending+' à vérifier':''}${found.length!==catalog.length?' · '+found.length+' affichés':''}`;
+ }
+ function scheduleCatalogPhotoRefresh(){
+  if(catalogPhotoTimer)return;
+  catalogPhotoTimer=setTimeout(()=>{catalogPhotoTimer=0;updateCatalogPhotoCount();
+   if($('#ingredientCatalogPhotoFilter')?.value==='missing')render();
+  },180);
+ }
+ function processCatalogPhotoQueue(){
+  while(catalogPhotoRunning<5&&catalogPhotoQueue.length){
+   const {id,src}=catalogPhotoQueue.shift();
+   const current=catalog.find(x=>x.id===id);
+   if(!current||catalogPhotoKey(current)!==src)continue;
+   catalogPhotoRunning++;
+   const img=new Image();
+   let finished=false;
+   const finish=ok=>{if(finished)return;finished=true;catalogPhotoRunning--;
+    const item=catalog.find(x=>x.id===id);
+    if(item&&catalogPhotoKey(item)===src)catalogPhotoState.set(id,{src,status:ok?'ok':'missing'});
+    scheduleCatalogPhotoRefresh();processCatalogPhotoQueue();
+   };
+   img.onload=()=>finish(img.naturalWidth>0&&img.naturalHeight>0);
+   img.onerror=()=>finish(false);
+   img.src=src;
+   if(img.complete)finish(img.naturalWidth>0&&img.naturalHeight>0);
+  }
+ }
+ function verifyCatalogPhotos(){
+  for(const x of catalog){
+   const src=catalogPhotoKey(x),known=catalogPhotoState.get(x.id);
+   if(!src){catalogPhotoState.set(x.id,{src,status:'missing'});continue;}
+   if(known?.src===src)continue;
+   catalogPhotoState.set(x.id,{src,status:'pending'});
+   catalogPhotoQueue.push({id:x.id,src});
+  }
+  processCatalogPhotoQueue();
+ }
+ function filtered(){const q=norm($('#ingredientCatalogSearch')?.value||''),a=$('#ingredientCatalogAisle')?.value||'',g=$('#ingredientCatalogGroup')?.value||'',photo=$('#ingredientCatalogPhotoFilter')?.value||'';return catalog.filter(x=>(photo!=='missing'||catalogPhotoStatus(x)==='missing')&&(!a||x.aisle===a)&&(!g||x.group===g)&&(!q||norm(x.name).includes(q)||norm(x.aisle).includes(q)||norm(x.group).includes(q))).sort((x,y)=>x.name.localeCompare(y.name,'fr'))}
  function optionList(values,current,specialLabel,emptyLabel=''){let out=emptyLabel?`<option value=""${!current?' selected':''}>${esc(emptyLabel)}</option>`:'';out+=`<option value="__new__">${esc(specialLabel)}</option>`;out+=values.map(v=>`<option value="${esc(v)}"${v===current?' selected':''}>${esc(v)}</option>`).join('');return out}
  function row(x){const editing=x._editing;return `<div class="ingredient-catalog-row" data-catalog-id="${esc(x.id)}"><button type="button" class="ingredient-catalog-photo-hit" data-catalog-photo aria-label="${x.image?'Modifier la photo de ':'Ajouter une photo à '}${esc(x.name)}" title="${x.image?'Changer ou retirer la photo':'Ajouter une photo'}"><img class="ingredient-catalog-thumb" src="${x.image||''}" alt=""></button><div class="ingredient-catalog-info"><div class="ingredient-catalog-name">${editing?`<textarea class="catalog-edit-name" aria-label="Nom" rows="2" maxlength="200">${esc(x.name)}</textarea>`:esc(x.name)}</div><div class="ingredient-catalog-meta"><span class="ingredient-catalog-aisle"><strong>Rayon : </strong>${editing?`<select class="catalog-edit-aisle" aria-label="Rayon">${optionList(aisles(),x.aisle||'À classer','➕ Nouveau rayon…')}</select>`:esc(x.aisle||'À classer')}</span><span class="ingredient-catalog-meta-sep" aria-hidden="true"> · </span><span class="ingredient-catalog-group"><strong>Catégorie : </strong>${editing?`<select class="catalog-edit-group" aria-label="Catégorie">${optionList(groups(),x.group||'','➕ Nouvelle catégorie…','— Catégorie —')}</select>`:esc(x.group||'—')}</span></div></div><div class="ingredient-catalog-actions">${READONLY?'':`<button type="button" data-catalog-edit>${editing?'Enregistrer':'Modifier'}</button><button type="button" data-catalog-associate>${hgCatalogAssociationLabel(x)}</button><button type="button" data-catalog-delete class="danger">Supprimer</button>`}</div></div>`}
 
@@ -1832,7 +1883,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  let photoTargetId='';
  function imageToDataURL(file){return new Promise((resolve,reject)=>{if(!file.type.startsWith('image/'))return reject(new Error('Sélectionne une image.'));const reader=new FileReader();reader.onerror=()=>reject(new Error('Lecture de la photo impossible.'));reader.onload=()=>{const img=new Image();img.onerror=()=>reject(new Error('Format image non reconnu.'));img.onload=()=>{try{const scale=Math.min(1,600/Math.max(img.width,img.height)),canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));const ctx=canvas.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);resolve(canvas.toDataURL('image/jpeg',.84))}catch(e){reject(e)}};img.src=reader.result};reader.readAsDataURL(file)})}
  photoInput?.addEventListener('change',async e=>{const file=e.target.files?.[0],id=photoTargetId;e.target.value='';photoTargetId='';if(!file||!id)return;const item=catalog.find(x=>x.id===id);if(!item)return;try{const data=await imageToDataURL(file);item.image=data;item.filename=file.name;save();render()}catch(err){alert('Photo non enregistrée : '+err.message)}});
- function render(){const previousY=window.scrollY;refreshFilters();const list=$('#ingredientCatalogList'),count=$('#ingredientCatalogCount');if(!list||!count)return;const found=filtered();count.textContent=`${found.length} image${found.length>1?'s':''} affichée${found.length>1?'s':''} · ${catalog.length} au catalogue`;list.innerHTML=found.map(row).join('')||'<p class="ingredient-catalog-empty">Aucun élément trouvé.</p>';bindSpecialSelects(list);list.querySelectorAll('[data-catalog-photo]').forEach(b=>b.onclick=()=>{const r=b.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r?.dataset.catalogId);if(!x)return;let choice='1';if(x.image){choice=prompt(`Photo de « ${x.name} » :\n1 — Changer la photo\n2 — Retirer la photo\n0 — Annuler`,'1');if(choice===null||choice==='0')return;}if(choice==='2'){if(!confirm(`Retirer la photo de « ${x.name} » ? L'article sera conservé.`))return;x.image='';x.filename='';save();render();return;}if(choice!=='1')return;photoTargetId=x.id;if(photoInput){photoInput.value='';photoInput.click()}});list.querySelectorAll('[data-catalog-edit]').forEach(b=>b.onclick=()=>{const r=b.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r.dataset.catalogId);if(!x)return;if(x._editing){const n=r.querySelector('.catalog-edit-name').value.trim(),a=r.querySelector('.catalog-edit-aisle').value.trim(),g=r.querySelector('.catalog-edit-group').value.trim();if(!n||n==='__new__')return alert('Choisissez un nom.');if(!a||a==='__new__')return alert('Choisissez un rayon.');if(g==='__new__')return alert('Choisissez une catégorie.');const dup=catalog.find(y=>y.id!==x.id&&norm(y.name)===norm(n));if(dup)return alert(`« ${n} » existe déjà dans le catalogue.`);x.name=n;x.aisle=a;x.group=g;delete x._editing;save()}else{x._editing=true}render()});list.querySelectorAll('[data-catalog-associate]').forEach(b=>b.onclick=()=>{const r=b.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r?.dataset.catalogId);if(x)window.dispatchEvent(new CustomEvent('hg:catalog-associate',{detail:{...x}}))});list.querySelectorAll('[data-catalog-delete]').forEach(b=>b.onclick=()=>{const r=b.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r.dataset.catalogId);if(!x)return;if(!confirm(`Supprimer « ${x.name} » du catalogue ?`))return;catalog=catalog.filter(y=>y.id!==x.id);save();render()})}
+ function render(){const previousY=window.scrollY;refreshFilters();const list=$('#ingredientCatalogList'),count=$('#ingredientCatalogCount');if(!list||!count)return;const found=filtered();verifyCatalogPhotos();updateCatalogPhotoCount();list.innerHTML=found.map(row).join('')||'<p class="ingredient-catalog-empty">Aucun élément trouvé.</p>';bindSpecialSelects(list);list.querySelectorAll('[data-catalog-photo]').forEach(b=>b.onclick=()=>{const r=b.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r?.dataset.catalogId);if(!x)return;let choice='1';if(x.image){choice=prompt(`Photo de « ${x.name} » :\n1 — Changer la photo\n2 — Retirer la photo\n0 — Annuler`,'1');if(choice===null||choice==='0')return;}if(choice==='2'){if(!confirm(`Retirer la photo de « ${x.name} » ? L'article sera conservé.`))return;x.image='';x.filename='';save();render();return;}if(choice!=='1')return;photoTargetId=x.id;if(photoInput){photoInput.value='';photoInput.click()}});list.querySelectorAll('[data-catalog-edit]').forEach(b=>b.onclick=()=>{const r=b.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r.dataset.catalogId);if(!x)return;if(x._editing){const n=r.querySelector('.catalog-edit-name').value.trim(),a=r.querySelector('.catalog-edit-aisle').value.trim(),g=r.querySelector('.catalog-edit-group').value.trim();if(!n||n==='__new__')return alert('Choisissez un nom.');if(!a||a==='__new__')return alert('Choisissez un rayon.');if(g==='__new__')return alert('Choisissez une catégorie.');const dup=catalog.find(y=>y.id!==x.id&&norm(y.name)===norm(n));if(dup)return alert(`« ${n} » existe déjà dans le catalogue.`);x.name=n;x.aisle=a;x.group=g;delete x._editing;save()}else{x._editing=true}render()});list.querySelectorAll('[data-catalog-associate]').forEach(b=>b.onclick=()=>{const r=b.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r?.dataset.catalogId);if(x)window.dispatchEvent(new CustomEvent('hg:catalog-associate',{detail:{...x}}))});list.querySelectorAll('[data-catalog-delete]').forEach(b=>b.onclick=()=>{const r=b.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r.dataset.catalogId);if(!x)return;if(!confirm(`Supprimer « ${x.name} » du catalogue ?`))return;catalog=catalog.filter(y=>y.id!==x.id);save();render()})}
  window.addEventListener('hg:catalog-associations-changed',()=>{if(document.getElementById('ingredientCatalogList'))render()});
  function catalogBackupName(){return `Herbier-Gourmand_Catalogue_${backupStamp()}.hgcat`}
  function exportCatalog(){const stable=catalog.map(x=>normalizeItem(x)),payload={format:'HerbierGourmandIngredientCatalog',formatVersion:1,appVersion:APP_VERSION,exportedAt:new Date().toISOString(),catalog:stable,lists:extraLists};downloadTextFile(catalogBackupName(),JSON.stringify(payload,null,2));const st=$('#ingredientCatalogBackupStatus');if(st)st.textContent=`Sauvegarde du catalogue créée · ${stable.length} éléments.`}
@@ -1963,9 +2014,10 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  $('#openIngredientCatalog')?.addEventListener('click',openCatalogFromLibrary);
  $('#backFromIngredientCatalog')?.addEventListener('click',()=>switchView('library'));
  $('#ingredientCatalogSearch')?.addEventListener('input',render);
+ $('#ingredientCatalogPhotoFilter')?.addEventListener('change',render);
  $('#ingredientCatalogAisle')?.addEventListener('change',render);
  $('#ingredientCatalogGroup')?.addEventListener('change',render);
- $('#clearIngredientCatalogFilters')?.addEventListener('click',()=>{$('#ingredientCatalogSearch').value='';$('#ingredientCatalogAisle').value='';$('#ingredientCatalogGroup').value='';render()});
+ $('#clearIngredientCatalogFilters')?.addEventListener('click',()=>{$('#ingredientCatalogSearch').value='';$('#ingredientCatalogAisle').value='';$('#ingredientCatalogGroup').value='';$('#ingredientCatalogPhotoFilter').value='';render()});
  $('#exportIngredientCatalog')?.addEventListener('click',exportCatalog);
  $('#hgCatalogQuickBackup')?.addEventListener('click',exportCatalog);
  $('#hgCatalogQuickName')?.addEventListener('click',()=>{
