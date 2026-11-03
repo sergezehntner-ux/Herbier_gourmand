@@ -2151,6 +2151,26 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   if(added)hgSet(STORE,JSON.stringify(db));
   hgSet(MEAT_IMPORT_FLAG,'done');
  }
+ // v2.9.8.12.58 : importer une seule fois le rayon Poissonnerie.
+ // Les fiches sont liées au Catalogue par leur identifiant, sans modifier ses données.
+ const FISH_IMPORT_FLAG='hg-fish-poissonnerie-import-v58';
+ function importPoissonnerieOnce(){
+  if(hgGet(FISH_IMPORT_FLAG)==='done')return;
+  const articles=catalog().filter(c=>clean(c.aisle)==='poissonnerie'&&c.id&&c.name);
+  if(!articles.length)return;
+  const current=Array.isArray(db.fish)?db.fish:[];
+  const knownIds=new Set(current.map(x=>String(x.catalogId||x.catalogueId||'').trim()).filter(Boolean));
+  const knownNames=new Set(current.map(x=>clean(x.name)));
+  let added=0;
+  for(const c of articles){
+   if(knownIds.has(c.id)||knownNames.has(clean(c.name))||excluded('fish',c.id))continue;
+   current.push({id:'catalog:'+c.id,name:c.name,catalogId:c.id,category:c.group||''});
+   knownIds.add(c.id);knownNames.add(clean(c.name));added++;
+  }
+  db.fish=current;
+  if(added)hgSet(STORE,JSON.stringify(db));
+  hgSet(FISH_IMPORT_FLAG,'done');
+ }
  function init(){try{const x=JSON.parse(hgGet(STORE)||'null');if(x&&typeof x==='object')for(const k of Object.keys(labels))if(Array.isArray(x[k]))db[k]=x[k]}catch(e){console.error('Encyclopédies',e)}
   if(!hgGet(STORE)){db.condiments=SEED.map(x=>({...x,needsCatalogLink:!catalog().some(c=>clean(c.name)===clean(x.name))}));hgSet(STORE,JSON.stringify(db));}
  }
@@ -2242,7 +2262,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  document.querySelectorAll('[data-encyclopedia]').forEach(b=>b.onclick=()=>open(b.dataset.encyclopedia));
  window.addEventListener('hg:encyclopedia-edit-target',e=>{const {kind,id}=e.detail||{};if(!labels[kind])return;open(kind);edit(id);window.hgMarkEncyPending?.('hgEncyDialog');});
  window.addEventListener('hg:encyclopedia-linked',e=>{if(labels[e.detail?.kind]){try{const latest=JSON.parse(hgGet(STORE)||'{}');if(Array.isArray(latest[e.detail.kind]))db[e.detail.kind]=latest[e.detail.kind]}catch(err){console.error(err)}}});
- window.addEventListener('hg:storage-ready',()=>{init();clearLegacyCondiments();importBoucherieOnce();});
+ window.addEventListener('hg:storage-ready',()=>{init();clearLegacyCondiments();importBoucherieOnce();importPoissonnerieOnce();});
  // Les associations sont chargées depuis les données persistées, sans injection spécifique.
 
 })();
