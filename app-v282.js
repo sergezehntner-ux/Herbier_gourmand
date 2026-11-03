@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.12.42';
+const APP_VERSION='2.9.8.12.43';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -2349,6 +2349,10 @@ window.addEventListener('hg:catalog-associate',event=>hgOpenCatalogAssociations(
    if(!Array.isArray(row)||row.length!==3){issues.push(`Structure à corriger — ligne ${number}`);return}
    const [name,quantity,unit]=row;
    const n=String(name??'').trim(),u=String(unit??'').trim();
+   // Une précision facultative n'est acceptée que sous forme de parenthèses
+   // fermées en toute fin de l'unité (ex. « kg (différentes couleurs) »).
+   // Le texte avant la parenthèse reste soumis au contrôle habituel.
+   const unitWithoutFinalNote=u.replace(/\s+\([^()]+\)\s*$/u,'').trim();
    // Les intertitres des ingrédients (ex. « Sorbet : / 0 / ») ne sont pas des anomalies.
    // Ne masquer que les intertitres purs, sans quantité ni unité significative.
    if(isIntertitleText(n)&&(quantity==null||String(quantity).trim()===''||Number(quantity)===0)&&!u)return;
@@ -2357,7 +2361,7 @@ window.addEventListener('hg:catalog-associate',event=>hgOpenCatalogAssociations(
    }
    // Les quantités 0 et les unités vides sont autorisées (sel, poivre, etc.).
    // Détecter uniquement les inversions manifestes : une unité avec description.
-   if(/^(?:g|kg|mg|ml|cl|dl|l|u)\s+\S/i.test(u)){
+   if(/^(?:g|kg|mg|ml|cl|dl|l|u)\s+\S/i.test(unitWithoutFinalNote)){
     issues.push(`Structure à vérifier — ligne ${number} : ${n} / ${quantity??''} / ${u}`);return;
    }
    const linked=(recipe.ingredientCatalogIds||[])[index];
