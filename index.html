@@ -121,7 +121,7 @@
     }
 
   
-    /* v2.9.8.2 — Bienfaits Fruits & Légumes */
+    /* v2.9.8.2 — Bienfaits Végétaux & Dérivés */
     .recipe,.herb-card,.produce-card,.recipe-title,.herb-detail-head,.produce-detail-head{position:relative}
     .recipe>.hg-photo-slot,.herb-card>.hg-photo-slot,.produce-card>.hg-photo-slot{position:absolute;right:.75rem;top:50%;transform:translateY(-50%);z-index:3}
     .recipe{padding-right:5.7rem}.herb-card,.produce-card{padding-right:5.7rem}
@@ -175,7 +175,7 @@
 #catalogAddDialog .catalog-pick-list.open{display:block!important}
   .pending-summary{display:flex;gap:.4rem;flex-wrap:wrap;margin:.4rem 0}.pending-summary button{font-size:.86rem;padding:.4rem .65rem}.pending-list{display:grid;gap:.3rem;margin-top:.5rem}.pending-row{display:flex;align-items:center;gap:.5rem;border:1px solid #dce5dd;border-radius:.5rem;padding:.4rem .55rem}.pending-row .pending-info{flex:1;min-width:0}.pending-row strong{display:block;overflow-wrap:anywhere}.pending-row small{color:#65746b;display:block}.pending-row button{white-space:nowrap;padding:.4rem .6rem}.pending-empty{padding:1rem;color:#65746b}
 
-/* v2.9.8.12.71 — filtres des encyclopédies, Catalogue et Recettes */
+/* v2.9.8.12.72 — filtres des encyclopédies, Catalogue et Recettes */
 .hg-filter-combo{position:relative;min-width:0;width:100%}
 #recipes .recipe-search-grid>.hg-filter-combo>input{min-height:40px;padding:8px 30px 8px 10px;font:inherit}
 .catalog-toolbar>.hg-filter-combo{min-width:0;align-self:stretch}
@@ -189,6 +189,12 @@
 .hg-filter-options button{display:block;width:100%;text-align:left;background:#fff;border:0;border-bottom:1px solid #eee;padding:10px 12px;color:#26392d;font:inherit;cursor:pointer;white-space:normal}
 .hg-filter-options button:hover,.hg-filter-options button:focus{background:#e7f1e9}
 .hg-filter-options .hg-filter-empty{padding:10px 12px;color:#777}
+
+.catalog-bulk-dialog{width:min(94vw,650px);max-width:650px;border-radius:18px;padding:20px;background:#faf8f1;color:#24372b}
+.catalog-bulk-check{width:22px;height:22px;flex:0 0 auto;accent-color:#245e42}
+.catalog-bulk-toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:8px 0}
+.catalog-bulk-toolbar button{padding:6px 12px}
+.catalog-bulk-active .ingredient-catalog-row{gap:8px}
 </style>
 
 <style id="hg-nav-4plus5-fix">
@@ -207,7 +213,7 @@ nav button:nth-child(n+6){grid-column:span 4!important}
 .hg-library-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:8px 0 10px}
 .hg-library-card{box-sizing:border-box;min-width:0;display:flex;flex-direction:row;align-items:center;justify-content:center;text-align:center;gap:9px;padding:10px 12px;border:1px solid #d7d9ce;border-radius:12px;background:#fffefa;color:#263e31;font:inherit;min-height:66px;cursor:pointer}
 .hg-library-card strong{font-size:1rem;line-height:1.15}.hg-library-card small{color:#647267;font-size:.78rem;line-height:1.15}.hg-library-icon{font-size:1.5rem;line-height:1;flex-shrink:0}
-.hg-library-copy{display:flex;align-items:baseline;justify-content:center;gap:7px;flex-wrap:wrap;min-width:0}
+.hg-library-copy{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;text-align:center}.hg-library-copy small{font-size:.72rem;line-height:1.2;font-weight:400;color:#476453}
 .hg-library-catalog{grid-column:1/-1;background:#eaf1e9;min-height:58px}
 .hg-library-pending{background:#f5f3eb;cursor:default}.hg-library-card:focus-visible{outline:3px solid #347457;outline-offset:2px}
 @media(max-width:650px){.hg-library-card{padding:8px 6px;gap:5px;min-height:62px}.hg-library-copy{gap:3px}.hg-library-card strong{font-size:.88rem}.hg-library-card small{font-size:.69rem}.hg-library-icon{font-size:1.25rem}}
@@ -293,7 +299,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.12.71 · Harmonisation groupée des ingrédients</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.12.72 · Harmonisation groupée des ingrédients</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -305,22 +311,22 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   <div id="surpriseCard"></div>
   <section class="outing-home-card"><div><h2>Envie d’une sortie ?</h2><p>Retrouver une bonne adresse, explorer par lieu, pays ou spécialité.</p></div><button class="primary" data-go="restaurants">Choisir un restaurant</button></section>
   <section class="outing-home-card producer-home-card"><div><h2>Producteurs locaux</h2><p>Marchés, artisans et vente directe près de chez toi.</p></div><button class="primary" data-go="producers">Découvrir les producteurs</button></section>
-  <section class="outing-home-card herb-home-card" style="display:none"><div><h2>Plantes & Épices</h2><p>Accords, usages, substitutions, mélanges et techniques pour éveiller la curiosité.</p></div><button class="primary" data-go="herbs">Ouvrir le Grand Herbier</button></section>
-  <section class="outing-home-card produce-home-card" style="display:none"><div><h2>Fruits & Légumes</h2><p>Saisons, conservation, préparation, accords et recettes autour de 120 produits.</p></div><button class="primary" data-go="produce">Explorer la récolte</button></section>
+  <section class="outing-home-card herb-home-card" style="display:none"><div><h2>Herbes & Épices</h2><p>Accords, usages, substitutions, mélanges et techniques pour éveiller la curiosité.</p></div><button class="primary" data-go="herbs">Ouvrir le Grand Herbier</button></section>
+  <section class="outing-home-card produce-home-card" style="display:none"><div><h2>Végétaux & Dérivés</h2><p>Saisons, conservation, préparation, accords et recettes autour de 120 produits.</p></div><button class="primary" data-go="produce">Explorer la récolte</button></section>
 </section>
 
 <section id="library" class="view">
   <div class="section-title"><div><h2>Bibliothèque gourmande</h2><span class="muted">Catalogue maître et huit encyclopédies culinaires</span></div></div>
   <div class="hg-library-grid">
     <button class="hg-library-card hg-library-catalog" type="button" id="libraryOpenCatalog"><span class="hg-library-icon">📇</span><span class="hg-library-copy"><strong>Catalogue</strong></span></button>
-    <button class="hg-library-card" type="button" data-encyclopedia="meat"><span class="hg-library-icon">🥩</span><span class="hg-library-copy"><strong>Viandes & Volailles</strong></span></button>
-    <button class="hg-library-card" type="button" data-encyclopedia="fish"><span class="hg-library-icon">🐟</span><span class="hg-library-copy"><strong>Poissons & Crustacés</strong></span></button>
-    <button class="hg-library-card" type="button" data-go="produce"><span class="hg-library-icon">🍎</span><span class="hg-library-copy"><strong>Fruits & Légumes</strong></span></button>
-    <button class="hg-library-card" type="button" data-go="herbs"><span class="hg-library-icon">🌿</span><span class="hg-library-copy"><strong>Plantes & Épices</strong></span></button>
-    <button class="hg-library-card" type="button" data-encyclopedia="condiments"><span class="hg-library-icon">🫙</span><span class="hg-library-copy"><strong>Condiments & Sauces</strong></span></button>
-    <button class="hg-library-card" type="button" data-encyclopedia="drinks"><span class="hg-library-icon">🍹</span><span class="hg-library-copy"><strong>Boissons & Cocktails</strong></span></button>
-    <button class="hg-library-card" type="button" data-encyclopedia="dairyPasta"><span class="hg-library-icon">🧀</span><span class="hg-library-copy"><strong>Laitages & Pâtes alimentaires</strong></span></button>
-    <button class="hg-library-card" type="button" data-encyclopedia="baking"><span class="hg-library-icon">🥐</span><span class="hg-library-copy"><strong>Fournées & Préparations basiques</strong></span></button>
+    <button class="hg-library-card" type="button" data-encyclopedia="meat"><span class="hg-library-icon">🥩</span><span class="hg-library-copy"><strong>Viandes & Volailles</strong><small>Ce qui marche et vole</small></span></button>
+    <button class="hg-library-card" type="button" data-encyclopedia="fish"><span class="hg-library-icon">🐟</span><span class="hg-library-copy"><strong>Produits aquatiques</strong><small>Ce qui vit dans l’eau</small></span></button>
+    <button class="hg-library-card" type="button" data-go="produce"><span class="hg-library-icon">🍎</span><span class="hg-library-copy"><strong>Végétaux & Dérivés</strong><small>Ce qui pousse et ce qu’on en tire</small></span></button>
+    <button class="hg-library-card" type="button" data-go="herbs"><span class="hg-library-icon">🌿</span><span class="hg-library-copy"><strong>Herbes & Épices</strong><small>Ce qui parfume</small></span></button>
+    <button class="hg-library-card" type="button" data-encyclopedia="condiments"><span class="hg-library-icon">🫙</span><span class="hg-library-copy"><strong>Condiments & Sauces</strong><small>Ce qui assaisonne et enrichit</small></span></button>
+    <button class="hg-library-card" type="button" data-encyclopedia="drinks"><span class="hg-library-icon">🍹</span><span class="hg-library-copy"><strong>Boissons & Cocktails</strong><small>Ce qui se boit, hors produits animaux</small></span></button>
+    <button class="hg-library-card" type="button" data-encyclopedia="dairyPasta"><span class="hg-library-icon">🧀</span><span class="hg-library-copy"><strong>Produits animaux, Laitages & Dérivés</strong><small>Ce que produisent les animaux et ce qu’on en fabrique</small></span></button>
+    <button class="hg-library-card" type="button" data-encyclopedia="baking"><span class="hg-library-icon">🥐</span><span class="hg-library-copy"><strong>Préparations culinaires</strong><small>Ce qui ne trouve pas sa place ailleurs</small></span></button>
   </div>
 </section>
 
@@ -363,7 +369,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 
 <div id="hgCatalogFloating"><button id="hgCatalogQuickName" type="button">✏️ Corriger nom</button><button id="hgCatalogQuickBackup" type="button">💾 Sauvegarder</button></div>
 <section id="ingredientCatalog" class="view">
-  <div class="section-title"><div><h2>Catalogue ingrédients</h2><span id="ingredientCatalogCount" class="muted"></span></div><div class="button-row"><button id="addIngredientCatalog" class="primary" type="button">+ Ajouter</button><button id="manageCatalogLists" type="button">Rayons / Catégories</button><button id="openCatalogMerge" type="button">Fusionner</button><button id="exportIngredientCatalog" type="button">Sauvegarder catalogue</button><label class="secondary import-label">Fusionner une sauvegarde<input id="ingredientCatalogImportFile" type="file" accept=".hgcat,.json,application/json" hidden></label><button hidden id="backFromIngredientCatalog" type="button">← Bibliothèque</button></div></div>
+  <div class="section-title"><div><h2>Catalogue ingrédients</h2><span id="ingredientCatalogCount" class="muted"></span></div><div class="button-row"><button id="addIngredientCatalog" class="primary" type="button">+ Ajouter</button><button id="manageCatalogLists" type="button">Rayons / Catégories</button><button id="catalogBulkOpen" type="button">Choix multiples</button><button id="openCatalogMerge" type="button">Fusionner</button><button id="exportIngredientCatalog" type="button">Sauvegarder catalogue</button><label class="secondary import-label">Fusionner une sauvegarde<input id="ingredientCatalogImportFile" type="file" accept=".hgcat,.json,application/json" hidden></label><button hidden id="backFromIngredientCatalog" type="button">← Bibliothèque</button></div></div>
   <p id="ingredientCatalogBackupStatus" class="muted" aria-live="polite"></p>
   <div class="catalog-toolbar"><input id="ingredientCatalogSearch" type="search" placeholder="Rechercher un nom…"><select id="ingredientCatalogAisle"><option value="">Tous les rayons</option></select><select id="ingredientCatalogGroup"><option value="">Toutes les catégories</option></select><select id="ingredientCatalogPhotoFilter" aria-label="Filtre des photos"><option value="">Toutes les photos</option><option value="missing">Photos manquantes</option></select><select id="ingredientCatalogEncyclopedia" aria-label="Filtrer par encyclopédie"><option value="">Toutes les encyclopédies</option></select><button type="button" id="clearIngredientCatalogFilters">Vider la recherche</button></div>
   <dialog id="catalogMergeDialog" style="width:min(94vw,720px);max-height:88vh"><div class="dialog-head"><h2>Fusionner des éléments du Catalogue</h2><button id="catalogMergeClose" type="button">×</button></div><div class="grid"><label>Type de fusion<select id="catalogMergeType"><option value="product">Produits</option><option value="group">Catégories</option><option value="aisle">Rayons</option></select></label><label>Rechercher<input id="catalogMergeSearch" type="search" placeholder="Taper pour filtrer…"></label><label>Élément à fusionner<select id="catalogMergeFrom"></select></label><label>Élément à conserver<select id="catalogMergeTo"></select></label></div><p id="catalogMergePreview" class="muted" aria-live="polite"></p><p class="muted">Une sauvegarde est téléchargée avant chaque fusion. Pour les produits, les références explicites sont réorientées vers l’identifiant conservé. Les noms non liés ne sont pas modifiés automatiquement.</p><div class="dialog-actions"><button id="catalogMergeApply" class="primary" type="button">Confirmer la fusion</button></div></dialog>
@@ -460,7 +466,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 </section>
 
 <section id="herbs" class="view">
-  <div class="section-title"><div><h2>Plantes & Épices</h2><span id="herbCount" class="muted"></span></div><div class="button-row"><button id="newHerb" class="primary">Ajouter</button><button id="printHerbList">Imprimer la liste</button><button id="randomHerb" class="secondary">Découverte surprise</button><button hidden id="backHerbsToLibrary" type="button">← Bibliothèque</button></div></div>
+  <div class="section-title"><div><h2>Herbes & Épices</h2><span id="herbCount" class="muted"></span></div><div class="button-row"><button id="newHerb" class="primary">Ajouter</button><button id="printHerbList">Imprimer la liste</button><button id="randomHerb" class="secondary">Découverte surprise</button><button hidden id="backHerbsToLibrary" type="button">← Bibliothèque</button></div></div>
   <p class="lead">Chercher une plante, une saveur, un aliment, une cuisine ou une utilisation.</p>
   <div class="herb-search-grid">
     <label>Recherche<input id="herbSearch" type="search" placeholder="Basilic, poisson, citron, curry…"></label>
@@ -478,7 +484,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 
 
 <section id="produce" class="view">
-  <div class="section-title"><div><h2>Fruits & Légumes</h2><span id="produceCount" class="muted"></span></div><div class="button-row"><button id="newProduce" class="primary">Ajouter</button><button id="printProduceList">Imprimer la liste</button><button id="randomProduce" class="secondary">Découverte surprise</button><button hidden id="backProduceToLibrary" type="button">← Bibliothèque</button></div></div>
+  <div class="section-title"><div><h2>Végétaux & Dérivés</h2><span id="produceCount" class="muted"></span></div><div class="button-row"><button id="newProduce" class="primary">Ajouter</button><button id="printProduceList">Imprimer la liste</button><button id="randomProduce" class="secondary">Découverte surprise</button><button hidden id="backProduceToLibrary" type="button">← Bibliothèque</button></div></div>
   <p class="lead">Chercher un produit, une saison, une préparation, un accord ou une utilisation culinaire.</p>
   <div class="produce-search-grid">
     <label>Recherche<input id="produceSearch" type="search" placeholder="Tomate, hiver, rôti, salade…"></label>
@@ -508,7 +514,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <div class="dialog-actions"><button type="button" id="hgEncyDelete" class="danger">Supprimer la fiche</button><button type="button" id="hgEncyCancel">Annuler</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 </main>
 <button id="hgLibraryFloatingBack" type="button" class="primary" aria-label="Retour à la Bibliothèque">← Bibliothèque</button>
-<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v2.9.8.12.71</span></footer>
+<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v2.9.8.12.72</span></footer>
 <button id="recipeFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des recettes">🔍 Rechercher</button>
 <button id="restaurantFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des sorties">🔍 Rechercher</button>
 <button id="producerFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des producteurs">🔍 Rechercher</button>
@@ -719,6 +725,11 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 </script>
+
+<dialog id="catalogBulkDialog" class="catalog-bulk-dialog"><div class="dialog-head"><h2>Choix multiples</h2><button id="catalogBulkClose" type="button" aria-label="Fermer">×</button></div>
+<p id="catalogBulkCount" class="muted"></p><div class="grid"><label>Champ à modifier<select id="catalogBulkField"><option value="ency">Encyclopédie</option><option value="group">Catégorie</option><option value="aisle">Rayon</option></select></label><label>Nouvelle valeur<select id="catalogBulkValue"></select></label></div>
+<p class="muted">Les autres champs et les photos ne changent pas. Les fiches encyclopédiques existantes restent conservées.</p>
+<div class="dialog-actions"><button id="catalogBulkCancel" type="button">Annuler</button><button id="catalogBulkApply" class="primary" type="button">Appliquer aux produits sélectionnés</button></div></dialog>
 </body></html>
 
 <style>.producer-create-unknown{margin-top:5px;padding:5px 9px;font-size:.9em}</style>
