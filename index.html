@@ -639,8 +639,12 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <dialog id="leftoverChoiceDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2 id="leftoverChoiceTitle">Utiliser des restes</h2><p id="leftoverChoiceMessage"></p><div id="leftoverChoiceButtons" class="leftover-choice-buttons"></div><div class="leftover-choice-actions"><button id="leftoverChoiceCancel" type="button">Annuler</button></div></div></dialog>
 <dialog id="leftoverDateDialog" class="leftover-choice-dialog"><div class="leftover-choice-card"><h2>Choisir la date</h2><p>Quand veux-tu utiliser ces restes ?</p><input id="leftoverDateInput" class="leftover-date-input" type="date"><div class="dialog-actions"><button id="leftoverDateCancel" type="button">Annuler</button><button id="leftoverDateOk" type="button" class="primary">Choisir cette date</button></div></div></dialog>
 
+<dialog id="catalogBulkDialog" class="catalog-bulk-dialog"><div class="dialog-head"><h2>Choix multiples</h2><button id="catalogBulkClose" type="button" aria-label="Fermer">×</button></div>
+<p id="catalogBulkCount" class="muted"></p><div class="grid"><label>Champ à modifier<select id="catalogBulkField"><option value="ency">Encyclopédie</option><option value="group">Catégorie</option><option value="aisle">Rayon</option></select></label><label>Nouvelle valeur<select id="catalogBulkValue"></select></label></div>
+<p class="muted">Les autres champs et les photos ne changent pas. Les fiches encyclopédiques existantes restent conservées.</p>
+<div class="dialog-actions"><button id="catalogBulkCancel" type="button">Annuler</button><button id="catalogBulkApply" class="primary" type="button">Appliquer aux produits sélectionnés</button></div></dialog>
 <script src="frigo-catalog-data.js?v=2981140"></script>
-<script src="app-v282.js?v=2981270"></script>
+<script src="app-v282.js?v=3002"></script>
 <script src="media-v1.js?v=2981173"></script>
 <script id="hg-catalog-picker-v13">
 /* Les listes du Catalogue existent déjà sous forme de <select> : les réutiliser
@@ -744,10 +748,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 })();
 </script>
 
-<dialog id="catalogBulkDialog" class="catalog-bulk-dialog"><div class="dialog-head"><h2>Choix multiples</h2><button id="catalogBulkClose" type="button" aria-label="Fermer">×</button></div>
-<p id="catalogBulkCount" class="muted"></p><div class="grid"><label>Champ à modifier<select id="catalogBulkField"><option value="ency">Encyclopédie</option><option value="group">Catégorie</option><option value="aisle">Rayon</option></select></label><label>Nouvelle valeur<select id="catalogBulkValue"></select></label></div>
-<p class="muted">Les autres champs et les photos ne changent pas. Les fiches encyclopédiques existantes restent conservées.</p>
-<div class="dialog-actions"><button id="catalogBulkCancel" type="button">Annuler</button><button id="catalogBulkApply" class="primary" type="button">Appliquer aux produits sélectionnés</button></div></dialog>
+
 </body></html>
 
 <style>.producer-create-unknown{margin-top:5px;padding:5px 9px;font-size:.9em}</style>
