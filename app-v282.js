@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.12.67';
+const APP_VERSION='2.9.8.12.68';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -2157,6 +2157,18 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  const productSauces=()=>catalog().filter(x=>clean(x.group)==='sauces');
  const preparationSauces=()=>recipes.filter(isSauce);
  function showMode(){const bar=get('hgCondimentModes');if(bar)bar.hidden=active!=='condiments';get('hgEncyAdd').hidden=false;const a=get('hgCondimentProducts'),b=get('hgCondimentPreparations');if(a){a.classList.toggle('primary',condimentMode==='products');b.classList.toggle('primary',condimentMode==='preparations')}}
+ // v68 : le Catalogue maître fournit toujours le nom et la catégorie des fiches liées.
+ // Projection sans écriture : les données encyclopédiques restent intactes.
+ function masterView(rows){
+  const entries=catalog(),byId=new Map(entries.map(c=>[String(c.id),c]));
+  const byName=new Map();for(const c of entries){const key=clean(c.name);if(!byName.has(key))byName.set(key,c);}
+  return rows.map(x=>{
+   if(x.recipe)return x;
+   const id=x.catalogId||x.catalogueId||x.catalogue?.id||(String(x.id||'').startsWith('catalog:')?String(x.id).slice(8):'');
+   const c=(id&&byId.get(String(id)))||(!id&&byName.get(clean(x.name)));
+   return c?{...x,name:c.name,category:c.group||'',catalogId:c.id,catalogue:c}:x;
+  });
+ }
  function sourceItems(){
   if(active==='drinks'){
    // Le Catalogue reste la source des produits; compléter uniquement l'affichage.
@@ -2167,9 +2179,9 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
     const existing=saved.find(v=>v.catalogId===c.id||v.catalogueId===c.id||clean(v.name)===clean(c.name));
     return {...existing,id:existing?.id||'catalog:'+c.id,name:c.name,category:c.group||existing?.category||'Boissons',catalogId:c.id,catalogue:c};
    });
-   return [...linked,...saved.filter(v=>!excluded('drinks',v.catalogId||v.catalogueId||v.id.replace(/^catalog:/,''))&&!linked.some(x=>x.id===v.id||clean(x.name)===clean(v.name)))];
+   return masterView([...linked,...saved.filter(v=>!excluded('drinks',v.catalogId||v.catalogueId||v.id.replace(/^catalog:/,''))&&!linked.some(x=>x.id===v.id||clean(x.name)===clean(v.name)))]);
   }
-  if(active!=='condiments')return db[active];
+  if(active!=='condiments')return masterView(db[active]);
   if(condimentMode==='preparations')return preparationSauces().map(r=>({id:'recipe:'+r.id,name:r.title,category:'Sauce',recipe:r}));
   // v77 : les associations explicites priment sur la catégorie du Catalogue.
   // Une fiche liée à Condiments & Sauces reste visible même si son produit
@@ -2178,7 +2190,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   const linked=allCatalog.filter(c=>!excluded('condiments',c.id)&&(clean(c.group)==='sauces'||saved.some(v=>v.catalogId===c.id||v.catalogueId===c.id||v.id==='catalog:'+c.id)))
    .map(c=>{const existing=saved.find(v=>v.catalogId===c.id||v.catalogueId===c.id||v.id==='catalog:'+c.id);
     return {...existing,id:existing?.id||'catalog:'+c.id,name:c.name,category:c.group||existing?.category||'Sauces',catalogId:c.id,catalogue:c};});
-  return [...linked,...saved.filter(v=>!excluded('condiments',v.catalogId||v.catalogueId||v.id.replace(/^catalog:/,''))&&!linked.some(x=>x.id===v.id||(v.catalogId&&x.catalogId===v.catalogId)))];
+  return masterView([...linked,...saved.filter(v=>!excluded('condiments',v.catalogId||v.catalogueId||v.id.replace(/^catalog:/,''))&&!linked.some(x=>x.id===v.id||(v.catalogId&&x.catalogId===v.catalogId)))]);
  }
  function showPreparation(r){chosen='recipe:'+r.id;showRecipe(r.id,'hgEncyclopedia');}
 
@@ -2286,15 +2298,15 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   if(c&&categoryField)categoryField.value=c.group||'';
  });
  function options(current){const all=catalog().sort((a,b)=>a.name.localeCompare(b.name,'fr'));const values=all.map(x=>x.name);if(current&&!values.some(x=>clean(x)===clean(current)))values.unshift(current);return values.map(n=>`<option value="${esc(n)}">${esc(n)}${n===current&&!all.some(x=>clean(x.name)===clean(current))?' (à relier)':''}</option>`).join('')}
- function edit(id=null){const partInput=get('hgEncyPart');if(partInput){const label=partInput.closest('label');if(label)label.firstChild.textContent=active==='dairyPasta'?'Origine / type de pâte':active==='baking'?'Type de préparation':'Partie utilisée';partInput.placeholder=active==='dairyPasta'?'Ex. Lait de vache, pâte fraîche, blé dur…':active==='baking'?'Ex. Pâte levée, pâte feuilletée, appareil…':'Ex. Filet, feuille, fruit…';}const seasonInput=get('hgEncySeason');const anatomical=active==='meat'||active==='fish';if(seasonInput){const seasonLabel=seasonInput.closest('label');if(seasonLabel)seasonLabel.firstChild.textContent=anatomical?'Localisation':active==='dairyPasta'?'Variété / fabrication':active==='baking'?'Levée / cuisson':'Saison';seasonInput.placeholder=anatomical?'Ex. Dos, côtes, flancs… (laisser vide pour un animal entier)':active==='dairyPasta'?'Ex. Affinage, fermentation, séchage…':active==='baking'?'Ex. Temps de repos, four, température…':'Ex. Été, toute l’année…';}if(active==='condiments'&&id?.startsWith('recipe:'))return openRecipe(id.slice(7));editing=id;const x=id?(db[active].find(v=>v.id===id)||sourceItems().find(v=>v.id===id)):null;get('hgEncyDialogTitle').textContent=x?'Modifier la fiche':'Nouvelle fiche';get('hgEncyName').value=x?.name||'';get('hgEncyNameSuggestions').innerHTML=options(x?.name||'');
+ function edit(id=null){const partInput=get('hgEncyPart');if(partInput){const label=partInput.closest('label');if(label)label.firstChild.textContent=active==='dairyPasta'?'Origine / type de pâte':active==='baking'?'Type de préparation':'Partie utilisée';partInput.placeholder=active==='dairyPasta'?'Ex. Lait de vache, pâte fraîche, blé dur…':active==='baking'?'Ex. Pâte levée, pâte feuilletée, appareil…':'Ex. Filet, feuille, fruit…';}const seasonInput=get('hgEncySeason');const anatomical=active==='meat'||active==='fish';if(seasonInput){const seasonLabel=seasonInput.closest('label');if(seasonLabel)seasonLabel.firstChild.textContent=anatomical?'Localisation':active==='dairyPasta'?'Variété / fabrication':active==='baking'?'Levée / cuisson':'Saison';seasonInput.placeholder=anatomical?'Ex. Dos, côtes, flancs… (laisser vide pour un animal entier)':active==='dairyPasta'?'Ex. Affinage, fermentation, séchage…':active==='baking'?'Ex. Temps de repos, four, température…':'Ex. Été, toute l’année…';}if(active==='condiments'&&id?.startsWith('recipe:'))return openRecipe(id.slice(7));editing=id;const x=id?(sourceItems().find(v=>v.id===id)||db[active].find(v=>v.id===id)):null;get('hgEncyDialogTitle').textContent=x?'Modifier la fiche':'Nouvelle fiche';get('hgEncyName').value=x?.name||'';get('hgEncyNameSuggestions').innerHTML=options(x?.name||'');
   for(const [k,field] of Object.entries(fields)){const el=get(field);if(!el)continue;if(el.type==='checkbox')el.checked=!!x?.[k];else el.value=x?.[k]||''}
-  refreshEncyCategoryChoices();const selected=catalog().find(c=>clean(c.name)===clean(get('hgEncyName').value));if(selected&&categoryField)categoryField.value=selected.group||'';
+  refreshEncyCategoryChoices();const selected=catalog().find(c=>clean(c.name)===clean(get('hgEncyName').value))||(x?.catalogId&&catalog().find(c=>c.id===x.catalogId));if(selected&&categoryField)categoryField.value=selected.group||'';
   updateFreezing();get('hgEncyDelete').hidden=!x;get('hgEncyDelete').textContent=(x&&(x.catalogId||x.catalogueId||x.catalogue||x.id.startsWith('catalog:')))?'Dissocier':'Supprimer la fiche';get('hgEncyDialog').showModal();
  }
  const freeze=get('hgEncyFreezable'),raw=get('hgEncyRaw'),cooked=get('hgEncyCooked');
  function updateFreezing(){raw.disabled=cooked.disabled=!freeze.checked;if(!freeze.checked){raw.checked=false;cooked.checked=false}}
  freeze.addEventListener('change',updateFreezing);
- get('hgEncyForm').addEventListener('submit',e=>{e.preventDefault();const name=get('hgEncyName').value.trim();if(!name)return;const c=catalog(),match=c.find(x=>clean(x.name)===clean(name));if(!match&&!editing&&confirm(`Voulez-vous également ajouter « ${name} » au Catalogue ?`)){window.hgEncyCatalogReturn=()=>{get('hgEncyForm').requestSubmit()};window.dispatchEvent(new CustomEvent('hg:open-catalog-create',{detail:{name}}));return;}
+ get('hgEncyForm').addEventListener('submit',e=>{e.preventDefault();const name=get('hgEncyName').value.trim();if(!name)return;const c=catalog(),prior=editing?db[active].find(y=>y.id===editing):null,match=c.find(x=>clean(x.name)===clean(name))||(prior&&c.find(x=>x.id===(prior.catalogId||prior.catalogueId)));if(!match&&!editing&&confirm(`Voulez-vous également ajouter « ${name} » au Catalogue ?`)){window.hgEncyCatalogReturn=()=>{get('hgEncyForm').requestSubmit()};window.dispatchEvent(new CustomEvent('hg:open-catalog-create',{detail:{name}}));return;}
   const x=editing?(db[active].find(y=>y.id===editing)||sourceItems().find(y=>y.id===editing)):{id:'ency-'+Date.now()+'-'+Math.random().toString(36).slice(2,6)};
   if(db[active].some(y=>y!==x&&clean(y.name)===clean(name)))return alert('Une fiche porte déjà ce nom dans cette encyclopédie.');
   x.name=name;x.needsCatalogLink=!match;
