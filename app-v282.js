@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='2.9.8.12.68';
+const APP_VERSION='2.9.8.12.69';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -76,7 +76,7 @@ async function init(){
   window.dispatchEvent(new Event('hg:storage-ready'));
   migrateLegacyWeekSlots();
   renderDaySlotChoices();
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=2981263', {updateViaCache:'none'});
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=2981269', {updateViaCache:'none'});
   setStartupStatus('Chargement de vos recettes…');
   const stored=JSON.parse(hgGet(recipeStore)||'null');
   if(stored) recipes=stored; else recipes=await fetch(`recipes.json?_=${Date.now()}`,{cache:'no-store'}).then(r=>r.json());
@@ -1846,7 +1846,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  const unique=field=>[...new Set(catalog.map(x=>String(x[field]||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr'));
  const listValues=field=>[...new Set([...unique(field),...(extraLists[field]||[])])].sort((a,b)=>a.localeCompare(b,'fr'));
  const aisles=()=>listValues('aisle'),groups=()=>listValues('group'),names=()=>unique('name');
- function refreshFilters(){const a=$('#ingredientCatalogAisle'),g=$('#ingredientCatalogGroup');if(a){const keep=a.value;a.innerHTML='<option value="">Tous les rayons</option>'+aisles().map(v=>`<option>${esc(v)}</option>`).join('');if([...a.options].some(o=>o.value===keep))a.value=keep}if(g){const keep=g.value;g.innerHTML='<option value="">Toutes les catégories</option>'+groups().map(v=>`<option>${esc(v)}</option>`).join('');if([...g.options].some(o=>o.value===keep))g.value=keep}}
+ function refreshFilters(){const a=$('#ingredientCatalogAisle'),g=$('#ingredientCatalogGroup');if(a){const keep=a.value;a.innerHTML='<option value="">Tous les rayons</option>'+aisles().map(v=>`<option>${esc(v)}</option>`).join('');if([...a.options].some(o=>o.value===keep))a.value=keep}if(g){const keep=g.value;g.innerHTML='<option value="">Toutes les catégories</option><option value="__none__">Sans catégorie</option>'+groups().map(v=>`<option>${esc(v)}</option>`).join('');if([...g.options].some(o=>o.value===keep))g.value=keep}}
  // Filtre du Catalogue : les associations réelles, sans modifier aucune fiche.
  function refreshEncyclopediaFilter(){
   const sel=$('#ingredientCatalogEncyclopedia');if(!sel)return;
@@ -1924,7 +1924,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   }
   processCatalogPhotoQueue();
  }
- function filtered(){const q=norm($('#ingredientCatalogSearch')?.value||''),a=$('#ingredientCatalogAisle')?.value||'',g=$('#ingredientCatalogGroup')?.value||'',photo=$('#ingredientCatalogPhotoFilter')?.value||'',ency=$('#ingredientCatalogEncyclopedia')?.value||'',matchesEncyclopedia=encyclopediaIdsForFilter(ency);return catalog.filter(x=>(!matchesEncyclopedia||matchesEncyclopedia(x))&&(photo!=='missing'||catalogPhotoStatus(x)==='missing')&&(!a||x.aisle===a)&&(!g||x.group===g)&&(!q||norm(x.name).includes(q)||norm(x.aisle).includes(q)||norm(x.group).includes(q))).sort((x,y)=>x.name.localeCompare(y.name,'fr'))}
+ function filtered(){const q=norm($('#ingredientCatalogSearch')?.value||''),a=$('#ingredientCatalogAisle')?.value||'',g=$('#ingredientCatalogGroup')?.value||'',photo=$('#ingredientCatalogPhotoFilter')?.value||'',ency=$('#ingredientCatalogEncyclopedia')?.value||'',matchesEncyclopedia=encyclopediaIdsForFilter(ency);return catalog.filter(x=>(!matchesEncyclopedia||matchesEncyclopedia(x))&&(photo!=='missing'||catalogPhotoStatus(x)==='missing')&&(!a||x.aisle===a)&&(!g||(g==='__none__'?!String(x.group||'').trim():x.group===g))&&(!q||norm(x.name).includes(q)||norm(x.aisle).includes(q)||norm(x.group).includes(q))).sort((x,y)=>x.name.localeCompare(y.name,'fr'))}
  function optionList(values,current,specialLabel,emptyLabel=''){let out=emptyLabel?`<option value=""${!current?' selected':''}>${esc(emptyLabel)}</option>`:'';out+=`<option value="__new__">${esc(specialLabel)}</option>`;out+=values.map(v=>`<option value="${esc(v)}"${v===current?' selected':''}>${esc(v)}</option>`).join('');return out}
  function row(x){const editing=x._editing;return `<div class="ingredient-catalog-row" data-catalog-id="${esc(x.id)}"><button type="button" class="ingredient-catalog-photo-hit" data-catalog-photo aria-label="${x.image?'Modifier la photo de ':'Ajouter une photo à '}${esc(x.name)}" title="${x.image?'Changer ou retirer la photo':'Ajouter une photo'}"><img class="ingredient-catalog-thumb" src="${x.image||''}" alt=""></button><div class="ingredient-catalog-info"><div class="ingredient-catalog-name">${editing?`<textarea class="catalog-edit-name" aria-label="Nom" rows="2" maxlength="200">${esc(x.name)}</textarea>`:esc(x.name)}</div><div class="ingredient-catalog-meta"><span class="ingredient-catalog-aisle"><strong>Rayon : </strong>${editing?`<select class="catalog-edit-aisle" aria-label="Rayon">${optionList(aisles(),x.aisle||'À classer','➕ Nouveau rayon…')}</select>`:esc(x.aisle||'À classer')}</span><span class="ingredient-catalog-meta-sep" aria-hidden="true"> · </span><span class="ingredient-catalog-group"><strong>Catégorie : </strong>${editing?`<select class="catalog-edit-group" aria-label="Catégorie">${optionList(groups(),x.group||'','➕ Nouvelle catégorie…','— Catégorie —')}</select>`:esc(x.group||'—')}</span></div></div><div class="ingredient-catalog-actions">${READONLY?'':`<button type="button" data-catalog-edit>${editing?'Enregistrer':'Modifier'}</button><button type="button" data-catalog-associate>${hgCatalogAssociationLabel(x)}</button><button type="button" data-catalog-delete class="danger">Supprimer</button>`}</div></div>`}
 
