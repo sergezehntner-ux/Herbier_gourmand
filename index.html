@@ -175,7 +175,7 @@
 #catalogAddDialog .catalog-pick-list.open{display:block!important}
   .pending-summary{display:flex;gap:.4rem;flex-wrap:wrap;margin:.4rem 0}.pending-summary button{font-size:.86rem;padding:.4rem .65rem}.pending-list{display:grid;gap:.3rem;margin-top:.5rem}.pending-row{display:flex;align-items:center;gap:.5rem;border:1px solid #dce5dd;border-radius:.5rem;padding:.4rem .55rem}.pending-row .pending-info{flex:1;min-width:0}.pending-row strong{display:block;overflow-wrap:anywhere}.pending-row small{color:#65746b;display:block}.pending-row button{white-space:nowrap;padding:.4rem .6rem}.pending-empty{padding:1rem;color:#65746b}
 
-/* v2.9.8.12.72 — filtres des encyclopédies, Catalogue et Recettes */
+/* v3.0.0 — filtres des encyclopédies, Catalogue et Recettes */
 .hg-filter-combo{position:relative;min-width:0;width:100%}
 #recipes .recipe-search-grid>.hg-filter-combo>input{min-height:40px;padding:8px 30px 8px 10px;font:inherit}
 .catalog-toolbar>.hg-filter-combo{min-width:0;align-self:stretch}
@@ -245,6 +245,24 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 .ingredient-catalog-info select{max-width:100%}
 @media(max-width:700px){.ingredient-catalog-row{grid-template-columns:58px minmax(0,1fr) auto;gap:7px}.ingredient-catalog-info{grid-column:2;grid-row:1}.ingredient-catalog-actions{grid-column:3;grid-row:1;flex-direction:column;max-width:150px}.ingredient-catalog-actions button{max-width:100%;white-space:normal}.ingredient-catalog-meta-sep{display:none}.ingredient-catalog-meta{column-gap:8px}}
 </style>
+<style id="hg-v300-bulk-layout">
+/* Le mode multi-sélection ajoute une colonne dédiée à la case à cocher. */
+#ingredientCatalogList.catalog-bulk-active .ingredient-catalog-row{
+  grid-template-columns:28px 72px minmax(0,1fr) auto;
+  align-items:center;gap:10px;
+}
+#ingredientCatalogList.catalog-bulk-active .catalog-bulk-check{
+  grid-column:1;grid-row:1;width:22px;height:22px;min-width:22px;
+  margin:0;justify-self:center;align-self:center;
+}
+#ingredientCatalogList.catalog-bulk-active .ingredient-catalog-photo-hit{grid-column:2;grid-row:1}
+#ingredientCatalogList.catalog-bulk-active .ingredient-catalog-info{grid-column:3;grid-row:1}
+#ingredientCatalogList.catalog-bulk-active .ingredient-catalog-actions{grid-column:4;grid-row:1}
+@media(max-width:700px){
+  #ingredientCatalogList.catalog-bulk-active .ingredient-catalog-row{grid-template-columns:26px 58px minmax(0,1fr) auto;gap:7px}
+  #ingredientCatalogList.catalog-bulk-active .ingredient-catalog-actions{max-width:135px}
+}
+</style>
 <style id="hg-producer-1208">.producer-compact-detail{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:8px}.producer-compact-detail section{padding:10px 12px;border:1px solid var(--border,#ddd);border-radius:10px;align-self:start}.producer-compact-detail h3{margin:0 0 5px;font-size:1rem}.producer-compact-detail p{margin:0;overflow-wrap:anywhere;line-height:1.35}.producer-linked-view{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}.producer-link-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:16px;border:1px solid #aab8a9;background:#edf4ed;color:#23442e;font:inherit}.producer-link-chip button{border:0;background:transparent;font-size:1.2em;cursor:pointer}.producer-picker{display:flex;gap:6px}.producer-picker select{width:115px;flex:none}.producer-picker input{flex:1;min-width:0}.producer-suggestions{display:flex;flex-wrap:wrap;gap:4px;max-height:125px;overflow:auto;margin-top:5px}.producer-suggestions button{padding:5px 8px;border:1px solid #ccc;border-radius:8px;background:#f6f6f6}.producer-association{margin:8px 0}#producerNotes,#producerHours,#producerAddress{field-sizing:content;min-height:2.5em;max-height:45vh}</style>
 <style id="hg-producer-1210">
 .producer-search-compact{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 12px}
@@ -299,7 +317,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v2.9.8.12.72 · Harmonisation groupée des ingrédients</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v3.0.0 · Harmonisation groupée des ingrédients</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -514,7 +532,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <div class="dialog-actions"><button type="button" id="hgEncyDelete" class="danger">Supprimer la fiche</button><button type="button" id="hgEncyCancel">Annuler</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 </main>
 <button id="hgLibraryFloatingBack" type="button" class="primary" aria-label="Retour à la Bibliothèque">← Bibliothèque</button>
-<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v2.9.8.12.72</span></footer>
+<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v3.0.0</span></footer>
 <button id="recipeFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des recettes">🔍 Rechercher</button>
 <button id="restaurantFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des sorties">🔍 Rechercher</button>
 <button id="producerFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des producteurs">🔍 Rechercher</button>
