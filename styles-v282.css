@@ -303,9 +303,9 @@ nav button{grid-column:span 4!important;font-size:.78rem;padding-inline:2px}
 #hgCatalogAssociationsDialog .hg-assoc-options{display:grid;gap:9px}
 #hgCatalogAssociationsDialog .hg-assoc-option{display:flex;align-items:center;gap:12px;cursor:pointer;padding:9px 10px;border:1px solid #d1d7ce;border-radius:9px;background:#fffdf8}
 #hgCatalogAssociationsDialog .hg-assoc-option.is-selected{border-color:#355e48;background:#e5f1e8}
-#hgCatalogAssociationsDialog input[data-assoc-kind]{appearance:none!important;-webkit-appearance:none!important;display:inline-grid!important;place-content:center!important;width:25px!important;height:25px!important;min-width:25px!important;min-height:25px!important;flex:0 0 25px!important;margin:0!important;padding:0!important;border:2px solid #66786a!important;border-radius:5px!important;background:#fff!important;opacity:1!important;visibility:visible!important;cursor:pointer}
-#hgCatalogAssociationsDialog input[data-assoc-kind]:checked{background:#355e48!important;border-color:#355e48!important}
-#hgCatalogAssociationsDialog input[data-assoc-kind]:checked::after{content:'✓';color:white;font-size:20px;font-weight:900;line-height:1}
+#hgCatalogAssociationsDialog input:is([data-assoc-kind],[data-assoc-none]){appearance:none!important;-webkit-appearance:none!important;display:inline-grid!important;place-content:center!important;width:25px!important;height:25px!important;min-width:25px!important;min-height:25px!important;flex:0 0 25px!important;margin:0!important;padding:0!important;border:2px solid #66786a!important;border-radius:5px!important;background:#fff!important;opacity:1!important;visibility:visible!important;cursor:pointer}
+#hgCatalogAssociationsDialog input:is([data-assoc-kind],[data-assoc-none]):checked{background:#355e48!important;border-color:#355e48!important}
+#hgCatalogAssociationsDialog input:is([data-assoc-kind],[data-assoc-none]):checked::after{content:'✓';color:white;font-size:20px;font-weight:900;line-height:1}
 #hgCatalogAssociationsDialog .hg-assoc-name{flex:1}
 #hgCatalogAssociationsDialog .hg-assoc-status{font-size:.78em;color:#66736b}
 #hgCatalogAssociationsDialog .is-selected .hg-assoc-status{color:#24513a;font-weight:700}
