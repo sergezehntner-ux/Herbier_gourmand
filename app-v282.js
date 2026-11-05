@@ -9,7 +9,7 @@ const norm = s => String(s || '').replace(/[’‘`´ʼ]/g,"'").normalize('NFD')
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='3.0.19';
+const APP_VERSION='3.0.20';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -2816,7 +2816,31 @@ window.addEventListener('hg:catalog-associate',event=>hgOpenCatalogAssociations(
   });
   return issues;
  }
- function collect(){pending=[];const maps=recipeCatalogNameMap();for(const [module,kind,get,fields] of specs){let rows=[];try{rows=get()||[]}catch(e){console.warn('Suspens',module,e)}for(const item of rows){if(!item||!item.id&&!item.name)continue;const missing=fields.filter(([label,key])=>isEmpty(item[key])).map(x=>x[0]);if(kind==='recipe')missing.push(...ingredientIssues(item,maps));if(kind==='unassociated'&&!item.associationReviewed&&!hgCatalogAssociations(item).length)missing.push('Association à vérifier');if(missing.length)pending.push({module,kind,id:String(item.id||''),name:String(item.title||item.name||'Sans nom'),missing})}}}
+ function collect(){
+  pending=[];
+  const maps=recipeCatalogNameMap();
+  // Construire une fois les associations pour tout le Catalogue :
+  // l'ancienne version relisait et reparsait les encyclopédies pour chaque article.
+  const linkedIds=new Set();
+  const all=hgAssocRead('hg-encyclopedias-v1',{});
+  const excluded=hgAssocRead('hg-encyclopedias-unlinked-v83',{});
+  for(const [kind] of HG_ASSOC_CHOICES){
+   const rows=kind==='produce'?hgAssocRead('hg-fruits-vegetables-v282',[]):kind==='herbs'?hgAssocRead('hg-herbs-spices-v28',[]):all[kind]||[];
+   const denied=new Set(excluded[kind]||[]);
+   for(const row of Array.isArray(rows)?rows:[]){
+    const raw=String(row.id||'');
+    const id=row.catalogId||row.catalogueId||(raw.startsWith('catalog:')?raw.slice(8):raw.startsWith('catalog-')?raw.slice(8):'');
+    if(id&&!denied.has(id))linkedIds.add(String(id));
+   }
+  }
+  const hasAssociation=item=>{
+   if(linkedIds.has(String(item.id)))return true;
+   const cat=norm(item.group||''),aisle=norm(item.aisle||'');
+   const implicitCondiments=cat==='sauces'&&!(excluded.condiments||[]).includes(item.id);
+   const implicitDrinks=(/^(jus de fruits|boissons|sirops|cocktails|jus)$/.test(cat)||/boissons|jus/.test(aisle))&&!(excluded.drinks||[]).includes(item.id);
+   return implicitCondiments||implicitDrinks;
+  };
+for(const [module,kind,get,fields] of specs){let rows=[];try{rows=get()||[]}catch(e){console.warn('Suspens',module,e)}for(const item of rows){if(!item||!item.id&&!item.name)continue;const missing=fields.filter(([label,key])=>isEmpty(item[key])).map(x=>x[0]);if(kind==='recipe')missing.push(...ingredientIssues(item,maps));if(kind==='unassociated'&&!item.associationReviewed&&!hasAssociation(item))missing.push('Association à vérifier');if(missing.length)pending.push({module,kind,id:String(item.id||''),name:String(item.title||item.name||'Sans nom'),missing})}}}
  function render(){collect();const module=$p('pendingModule'),search=$p('pendingSearch'),summary=$p('pendingSummary'),list=$p('pendingList');if(!list)return;const keep=module.value;module.innerHTML='<option value="">Toutes les rubriques</option>'+specs.map(([name])=>`<option value="${esc(name)}">${esc(name)}</option>`).join('');module.value=keep;summary.innerHTML=specs.map(([name])=>{const n=pending.filter(x=>x.module===name).length;return `<button type="button" data-pending-module="${esc(name)}">${esc(name)} : ${n}</button>`}).join('');summary.querySelectorAll('[data-pending-module]').forEach(b=>b.onclick=()=>{module.value=b.dataset.pendingModule;renderList()});renderList()}
  function renderList(){const module=$p('pendingModule').value,q=norm($p('pendingSearch').value),list=$p('pendingList');const rows=pending.filter(x=>(!module||x.module===module)&&(!q||norm(x.name+' '+x.missing.join(' ')).includes(q)));$p('pendingCount').textContent=`${rows.length} fiche${rows.length!==1?'s':''} en suspens${module?' dans '+module:''} · ${pending.length} au total`;list.innerHTML=rows.map((x,i)=>`<div class="pending-row"><div class="pending-info"><strong>${esc(x.name)}</strong><small>${esc(x.module)} · ${esc(x.missing.join(', '))}</small></div><button type="button" data-pending-open="${i}">Ouvrir</button></div>`).join('')||'<div class="pending-empty">Aucune fiche en suspens pour cette recherche.</div>';list.querySelectorAll('[data-pending-open]').forEach(b=>b.onclick=()=>open(rows[Number(b.dataset.pendingOpen)]))}
  function open(x){if(!x)return;try{switch(x.kind){case 'recipe':openRecipe(x.id);break;case 'producer':openProducer(x.id);break;case 'restaurant':openRestaurant(x.id);break;case 'herb':openHerbEditor(x.id);break;case 'produce':openProduceEditor(x.id);break;case 'unassociated':{const entries=JSON.parse(hgGet('hg-ingredient-catalog-v1')||'[]');const article=entries.find(v=>String(v.id)===x.id);if(article)hgOpenCatalogAssociations(article);break}case 'catalog':{switchView('ingredientCatalog');const input=$p('ingredientCatalogSearch');if(input){input.value=x.name;input.dispatchEvent(new Event('input',{bubbles:true}))}break}}}catch(e){console.error(e);alert('Ouverture indisponible pour cette fiche.')}}
