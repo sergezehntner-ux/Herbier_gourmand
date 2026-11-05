@@ -9,7 +9,7 @@ const norm = s => String(s || '').replace(/[’‘`´ʼ]/g,"'").normalize('NFD')
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='3.0.15';
+const APP_VERSION='3.0.16';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -2620,10 +2620,12 @@ function hgOpenCatalogAssociations(article){
  const escText=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const initial=new Set(hgCatalogAssociations(article));
  const chosen=new Set(initial);
+ let noneSelected=!initial.size&&Boolean(article.associationReviewed);
  let target=HG_ASSOC_CHOICES.find(([k])=>chosen.has(k))?.[0]||'produce';
  const draw=()=>{
-  dialog.innerHTML=`<h2 style="margin:0 0 8px;font-size:1.35rem">Associations — ${escText(article.name)}</h2><p style="margin:0 0 12px">Choisis les encyclopédies, puis enregistre. Les coches restent visibles.</p><div class="hg-assoc-options">${HG_ASSOC_CHOICES.map(([kind,label])=>`<label class="hg-assoc-option ${chosen.has(kind)?'is-selected':''}"><input type="checkbox" data-assoc-kind="${kind}" ${chosen.has(kind)?'checked':''}><span class="hg-assoc-name">${label}</span><span class="hg-assoc-status">${chosen.has(kind)?'✓ Sélectionné':'Non sélectionné'}</span></label>`).join('')}</div><div class="hg-assoc-editor-target"><label for="hgAssocTarget">Fiche à ouvrir après enregistrement</label><select id="hgAssocTarget">${HG_ASSOC_CHOICES.filter(([kind])=>chosen.has(kind)).map(([kind,label])=>`<option value="${kind}" ${target===kind?'selected':''}>${label}</option>`).join('')}</select></div><div class="hg-assoc-actions"><button type="button" data-assoc-save>Enregistrer → Catalogue</button><button type="button" class="primary" data-assoc-edit>Enregistrer et ouvrir la fiche</button><button type="button" data-assoc-cancel>Annuler → Catalogue</button></div>`;
-  dialog.querySelectorAll('[data-assoc-kind]').forEach(box=>box.onchange=()=>{if(box.checked){chosen.add(box.dataset.assocKind);target=box.dataset.assocKind}else chosen.delete(box.dataset.assocKind);draw()});
+  dialog.innerHTML=`<h2 style="margin:0 0 8px;font-size:1.35rem">Associations — ${escText(article.name)}</h2><p style="margin:0 0 12px">Choisis les encyclopédies, puis enregistre. Les coches restent visibles.</p><div class="hg-assoc-options"><label class="hg-assoc-option ${noneSelected?'is-selected':''}"><input type="checkbox" data-assoc-none ${noneSelected?'checked':''}><span class="hg-assoc-name">Aucune</span><span class="hg-assoc-status">${noneSelected?'✓ Sélectionné':'Non sélectionné'}</span></label>${HG_ASSOC_CHOICES.map(([kind,label])=>`<label class="hg-assoc-option ${chosen.has(kind)?'is-selected':''}"><input type="checkbox" data-assoc-kind="${kind}" ${chosen.has(kind)?'checked':''}><span class="hg-assoc-name">${label}</span><span class="hg-assoc-status">${chosen.has(kind)?'✓ Sélectionné':'Non sélectionné'}</span></label>`).join('')}</div><div class="hg-assoc-editor-target"><label for="hgAssocTarget">Fiche à ouvrir après enregistrement</label><select id="hgAssocTarget">${HG_ASSOC_CHOICES.filter(([kind])=>chosen.has(kind)).map(([kind,label])=>`<option value="${kind}" ${target===kind?'selected':''}>${label}</option>`).join('')}</select></div><div class="hg-assoc-actions"><button type="button" data-assoc-save>Enregistrer → Catalogue</button><button type="button" class="primary" data-assoc-edit>Enregistrer et ouvrir la fiche</button><button type="button" data-assoc-cancel>Annuler → Catalogue</button></div>`;
+  dialog.querySelector('[data-assoc-none]').onchange=box=>{noneSelected=box.target.checked;if(noneSelected)chosen.clear();draw()};
+  dialog.querySelectorAll('[data-assoc-kind]').forEach(box=>box.onchange=()=>{if(box.checked){chosen.add(box.dataset.assocKind);noneSelected=false;target=box.dataset.assocKind}else chosen.delete(box.dataset.assocKind);draw()});
   dialog.querySelector('#hgAssocTarget').onchange=e=>target=e.target.value;
   dialog.querySelector('[data-assoc-cancel]').onclick=()=>{dialog.close();restoreCatalogOrigin()};
   dialog.querySelector('[data-assoc-save]').onclick=()=>commit(false);
@@ -2631,6 +2633,7 @@ function hgOpenCatalogAssociations(article){
   dialog.querySelector('[data-assoc-edit]').disabled=!chosen.size;
  };
  const commit=openEditor=>{
+  if(!chosen.size&&!noneSelected){alert('Choisis une encyclopédie ou « Aucune ».');return}
   const removed=[...initial].filter(k=>!chosen.has(k));
   if(removed.length&&!confirm(`Dissocier « ${article.name} » de ${removed.length} encyclopédie(s) ?\nLes fiches existantes seront conservées.`))return;
   const added=[...chosen].filter(k=>!initial.has(k));
