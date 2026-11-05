@@ -1,4 +1,4 @@
 {
-  "version": "3.0.13",
-  "label": "Vérification obligatoire des ingrédients avant enregistrement"
+  "version": "3.0.14",
+  "label": "Normalisation des apostrophes"
 }

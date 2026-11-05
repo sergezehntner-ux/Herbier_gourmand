@@ -5,11 +5,11 @@ const viewScrollPositions={library:0,home:0,recipes:0,planner:0,shopping:0,recip
 const days = ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
 const slots = ["Matin","Midi","Soir"];
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/œ/g,'oe').replace(/æ/g,'ae').toLowerCase().trim();
+const norm = s => String(s || '').replace(/[’‘`´ʼ]/g,"'").normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/œ/g,'oe').replace(/æ/g,'ae').toLowerCase().trim();
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='3.0.13';
+const APP_VERSION='3.0.14';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -506,7 +506,7 @@ function ensureXlsxLib(){
 }
 function recipeTableValue(r,key){if(key==='tags')return (r.tags||[]).join(', ');if(key==='season')return r.season||'toute-annee';return r[key]??''}
 const RECIPE_TABLE_DISPLAY={
-  season:{'toute-annee':'Toute l’année',printemps:'Printemps',ete:'Été',automne:'Automne',hiver:'Hiver'},
+  season:{'toute-annee':"Toute l'année",printemps:'Printemps',ete:'Été',automne:'Automne',hiver:'Hiver'},
   period:{indifferente:'Indifférente',chaude:'Chaude',froide:'Froide'},
   type:{'':'',viande:'viande',poisson:'poisson',vegetarien:'végétarien',vegane:'végane'},
   effort:{'':'',faible:'faible',moyen:'moyen',important:'important'},
@@ -536,7 +536,7 @@ async function exportRecipeTable(){
     else alert(`Export Excel impossible : ${err.message}`);
   }
 }
-function normTableValue(v){return String(v??'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
+function normTableValue(v){return String(v??'').replace(/[’‘`´ʼ]/g,"'").trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
 function canonicalTableValue(key,v){
   const raw=String(v??'').trim();const n=normTableValue(raw).replace(/[’']/g,'').replace(/\s+/g,'-');
   if(key==='season'){const m={'toute-lannee':'toute-annee','toute-annee':'toute-annee','printemps':'printemps','ete':'ete','automne':'automne','hiver':'hiver'};return m[n]??raw}
