@@ -19,7 +19,7 @@ async function remove(kind,id){const item=owner(kind,id);if(!item?.photoId)retur
 function refresh(kind,id){if(kind==='recipe'){renderRecipes();if(viewedRecipeId===id)showRecipe(id)}else if(kind==='herb'){renderHerbs();if(viewedHerbId===id)showHerb(id)}else if(kind==='produce'){renderProduce();if(viewedProduceId===id)showProduce(id)}else if(kind==='shopping'){renderShopping();if($('#shoppingDialog')?.open)openShopping(id)}setTimeout(hydrate,0)}
 // v2.9.8.11.73 — Images du Catalogue en lecture seule pour les encyclopédies.
 // Une photo propre à la fiche reste prioritaire ; aucun transfert ni modification de données.
-let hgCatalogPhotoCacheRaw=null,hgCatalogPhotoByName=new Map();
+let hgCatalogPhotoCacheRaw=null,hgCatalogPhotoByName=new Map(),hgCatalogPhotoById=new Map();
 function hgCatalogPhotoName(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()}
 function hgCatalogPhotoFor(kind,id){
  if(kind!=='herb'&&kind!=='produce')return '';
@@ -28,10 +28,10 @@ function hgCatalogPhotoFor(kind,id){
  try{
   const raw=hgGet('hg-ingredient-catalog-v1')||'[]';
   if(raw!==hgCatalogPhotoCacheRaw){
-   hgCatalogPhotoCacheRaw=raw;hgCatalogPhotoByName=new Map();
-   for(const c of JSON.parse(raw))if(c?.name&&c?.image){const key=hgCatalogPhotoName(c.name);if(!hgCatalogPhotoByName.has(key))hgCatalogPhotoByName.set(key,c.image)}
+   hgCatalogPhotoCacheRaw=raw;hgCatalogPhotoByName=new Map();hgCatalogPhotoById=new Map();
+   for(const c of JSON.parse(raw))if(c?.name&&c?.image){const key=hgCatalogPhotoName(c.name);if(!hgCatalogPhotoByName.has(key))hgCatalogPhotoByName.set(key,c.image);if(c.id)hgCatalogPhotoById.set(String(c.id),c.image)}
   }
-  return hgCatalogPhotoByName.get(hgCatalogPhotoName(entry.name))||'';
+  return hgCatalogPhotoById.get(String(entry.catalogId||entry.catalogueId||entry.catalogue?.id||''))||hgCatalogPhotoByName.get(hgCatalogPhotoName(entry.name))||'';
  }catch(e){console.warn('Photo Catalogue indisponible',e);return ''}
 }
 function slot(kind,id,pid,size='small',allowAdd=true){const catalogPhoto=!pid?hgCatalogPhotoFor(kind,id):'';if(catalogPhoto)return `<div class="hg-photo-slot hg-photo-${size}" data-photo-wrap><div class="hg-photo-button has-photo" title="Photo du Catalogue"><img src="${catalogPhoto}" alt="Photo du Catalogue" style="width:100%;height:100%;object-fit:contain"></div></div>`;return `<div class="hg-photo-slot hg-photo-${size}" data-photo-wrap><button type="button" class="hg-photo-button ${pid?'has-photo':'empty'}" ${pid?`data-photo-open="${esc(pid)}"`:(allowAdd?`data-photo-add="${kind}|${esc(id)}"`:'disabled')} aria-label="${pid?'Afficher l’image':'Ajouter image'}">${pid?`<img data-photo-id="${esc(pid)}" alt="">`:'<span>Ajouter<br>image</span>'}</button>${pid&&size!=='small'?`<div class="hg-photo-actions"><button type="button" data-photo-add="${kind}|${esc(id)}">Remplacer</button><button type="button" data-photo-remove="${kind}|${esc(id)}">Supprimer</button></div>`:''}</div>`}
