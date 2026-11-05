@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='3.0.11';
+const APP_VERSION='3.0.12';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -219,23 +219,23 @@ function normalizeRecipe(r){return {id:String(r.id||r.uid||slug(r.title||r.name|
 let recipeIngredientLinks=[];
 function recipeIngredientDiagnostic(){
  const target=document.getElementById('recipeIngredientDiagnostic'),field=document.getElementById('recipeIngredients');
- if(!target||!field)return;
+ if(!target||!field)return {valid:false};
  const entries=shoppingCatalogEntries(),byName=new Map(),byId=new Map();
  entries.forEach(p=>{const k=norm(p.name||'');if(k){if(!byName.has(k))byName.set(k,[]);byName.get(k).push(p)}if(p.id)byId.set(p.id,p)});
- const lines=field.value.split(/\r?\n/),counts={linked:0,unknown:0,structure:0,heading:0},unknown=[];
+ const lines=field.value.split(/\r?\n/),counts={linked:0,unknown:0,structure:0,heading:0},unknown=[],malformed=[];
  lines.forEach((line,i)=>{
   line=line.trim();if(!line)return;
   if(isIntertitleText(line)){counts.heading++;return}
   const parts=line.split('/').map(x=>x.trim());
-  if(parts.length!==3||!parts[0]||!parts[1]){counts.structure++;return}
+  if(parts.length!==3||!parts[0]||!parts[1]){counts.structure++;malformed.push({index:i,line});return}
   const existing=byId.get(recipeIngredientLinks[i]);
   const matches=byName.get(norm(parts[0]))||[];
-  if(existing||matches.length===1){counts.linked++;if(!existing)recipeIngredientLinks[i]=matches[0].id}
+  if((existing&&norm(existing.name)===norm(parts[0]))||matches.length===1){counts.linked++;if(!existing||norm(existing.name)!==norm(parts[0]))recipeIngredientLinks[i]=matches[0].id}
   else{counts.unknown++;unknown.push({index:i,name:parts[0],ambiguous:matches.length>1})}
  });
  target.hidden=false;target.replaceChildren();
  const summary=document.createElement('div');summary.textContent=`${counts.linked} correspondance(s) · ${counts.unknown} non associée(s) · ${counts.structure} structure(s) à vérifier · ${counts.heading} intertitre(s).`;target.append(summary);
- if(counts.structure){const warn=document.createElement('div');warn.textContent='Les lignes mal structurées doivent être corrigées avant association.';target.append(warn)}
+ if(counts.structure){const warn=document.createElement('div');warn.textContent='Corrige les lignes mal structurées (nom / quantité / unité) :';target.append(warn);malformed.forEach(({index,line})=>{const detail=document.createElement('div');detail.textContent=`Ligne ${index+1} : ${line}`;detail.style.cssText='color:#9b352e;font-weight:600;margin:3px 0';target.append(detail)})}
  unknown.forEach(({index,name,ambiguous})=>{
   const row=document.createElement('div');row.style.cssText='display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:5px 0';
   const label=document.createElement('span');label.textContent=(ambiguous?'Nom ambigu : ':'Non associé : ')+name;label.style.minWidth='170px';row.append(label);
@@ -292,6 +292,7 @@ function recipeIngredientDiagnostic(){
   row.append(add);target.append(row)
  });
  const note=document.createElement('div');note.style.cssText='font-size:.9em;color:#666;margin-top:5px';note.textContent='Les associations sont conservées lorsque tu enregistres la recette. Aucun ingrédient n’est créé automatiquement.';target.append(note);
+ return {valid:counts.unknown===0&&counts.structure===0,counts};
 }
 function recipeTypeLabel(v){return ({viande:'viande',poisson:'poisson',vegetarien:'végétarien',vegane:'végane'})[v]||'Type non défini'}
 function recipeEffortLabel(v){return ({faible:'Effort faible',moyen:'Effort moyen',important:'Effort important'})[v]||'Effort non défini'}
@@ -532,7 +533,7 @@ if($('#recipeTableImportForm'))$('#recipeTableImportForm').onsubmit=e=>{e.preven
 
 function parseNumber(v){const s=String(v??'').trim().replace(',','.').replace('½','.5').replace('¼','.25').replace('¾','.75');if(/^\d+\s+\d+\/\d+$/.test(s)){const [a,f]=s.split(/\s+/),[n,d]=f.split('/').map(Number);return Number(a)+n/d;}if(/^\d+\/\d+$/.test(s)){const [n,d]=s.split('/').map(Number);return n/d;}const n=Number(s);return Number.isFinite(n)?n:v;}
 function formRecipe(newId=false){const ingredientCatalogById=new Map(shoppingCatalogEntries().map(p=>[p.id,p.name]));const ingredients=$('#recipeIngredients').value.split('\n').map(x=>x.trim()).filter(Boolean).map(line=>{const [n,q='',u='']=line.split('/').map(x=>x.trim());return[n,parseNumber(q),u]});const existing=recipes.find(x=>x.id===$('#recipeId').value);return normalizeRecipe({id:newId||$('#recipeId').value||slug($('#recipeTitle').value),title:$('#recipeTitle').value.trim(),category:$('#recipeCategory').value.trim(),time:existing?.time||0,servings:+$('#recipeServings').value,temperature:$('#recipeTemperature').value,season:$('#recipeSeason').value||'toute-annee',period:$('#recipePeriod').value||'indifferente',avecViande:$('#recipeType').value==='viande',type:$('#recipeType').value,effort:$('#recipeEffort').value,difficulty:$('#recipeDifficulty').value,special:$('#recipeSpecial').value||existing?.special||'standard',ingredients,ingredientCatalogIds:ingredients.map((row,i)=>{const line=$('#recipeIngredients').value.split('\n')[i]||'';const linked=recipeIngredientLinks[i];return linked&&norm(row[0])===norm(ingredientCatalogById.get(linked)||'')?linked:''}),steps:$('#recipeSteps').value.split('\n').map(x=>x.trim()).filter(Boolean),tags:$('#recipeTags').value.split(',').map(x=>x.trim()).filter(Boolean),source:existing?.source||'',notes:existing?.notes||'',paprikaUid:existing?.paprikaUid||'',complementRecipeIds:existing?.complementRecipeIds||[],complementText:existing?.complementText||'',leftoverIdeas:existing?.leftoverIdeas||'',cookedDates:existing?.cookedDates||[],favorite:existing?.favorite||false,cookingComments:existing?.cookingComments||[],photoId:existing?.photoId||''});}
-$('#recipeForm').onsubmit=e=>{e.preventDefault();const r=formRecipe();const i=recipes.findIndex(x=>x.id===r.id);if(i>=0)recipes[i]=r;else recipes.unshift(r);plan.forEach(item=>{if(item.recipe?.id===r.id)item.recipe=r});saveRecipes();savePlanData();fillCategories();restoreRecipeListState();keepScroll(renderRecipes,'recipes');renderPlan();invalidateShopping('Une recette a été modifiée : les affichages du planning sont à jour. Retransfère le repas dans les courses si les ingrédients ont changé.');$('#recipeDialog').close();if(norm(r.category)==='sauce'&&document.getElementById('hgEncyclopedia')&&!document.getElementById('hgEncyclopedia').classList.contains('hidden')){document.getElementById('hgCondimentPreparations')?.click();}if(viewedRecipeId===r.id){const pi=plan.findIndex(x=>x.uid===viewedPlanItemId);if(previousView==='planner'&&pi>=0)showPlanRecipe(pi,{rememberPlannerScroll:false});else showRecipe(r.id)}};
+$('#recipeForm').onsubmit=e=>{e.preventDefault();const check=recipeIngredientDiagnostic();if(!check?.valid){const diagnostic=document.getElementById('recipeIngredientDiagnostic');diagnostic?.scrollIntoView({behavior:'smooth',block:'center'});diagnostic?.setAttribute('role','alert');return;}const r=formRecipe();const i=recipes.findIndex(x=>x.id===r.id);if(i>=0)recipes[i]=r;else recipes.unshift(r);plan.forEach(item=>{if(item.recipe?.id===r.id)item.recipe=r});saveRecipes();savePlanData();fillCategories();restoreRecipeListState();keepScroll(renderRecipes,'recipes');renderPlan();invalidateShopping('Une recette a été modifiée : les affichages du planning sont à jour. Retransfère le repas dans les courses si les ingrédients ont changé.');$('#recipeDialog').close();if(norm(r.category)==='sauce'&&document.getElementById('hgEncyclopedia')&&!document.getElementById('hgEncyclopedia').classList.contains('hidden')){document.getElementById('hgCondimentPreparations')?.click();}if(viewedRecipeId===r.id){const pi=plan.findIndex(x=>x.uid===viewedPlanItemId);if(previousView==='planner'&&pi>=0)showPlanRecipe(pi,{rememberPlannerScroll:false});else showRecipe(r.id)}};
 $('#deleteRecipe').onclick=()=>{const id=$('#recipeId').value;if(id&&confirm('Supprimer définitivement cette recette ?')){recipes=recipes.filter(r=>r.id!==id);plan=plan.filter(x=>x.recipe.id!==id);saveRecipes();fillCategories();keepScroll(renderRecipes,'recipes');renderPlan();invalidateShopping('Une recette du planning a été supprimée.');$('#recipeDialog').close();switchView('recipes')}};
 $('#duplicateRecipe').onclick=()=>{const r=formRecipe(slug($('#recipeTitle').value));r.title+=' (copie)';r.cookedDates=[];r.favorite=false;r.cookingComments=[];recipes.unshift(r);saveRecipes();fillCategories();keepScroll(renderRecipes,'recipes');$('#recipeDialog').close();};
 
