@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='3.0.10';
+const APP_VERSION='3.0.11';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -736,7 +736,7 @@ function normalizeShoppingItem(x={}){const pref=shoppingAssignmentFor(x.name||x.
 function rememberShoppingAssignments(){const saved=shoppingAssignments();shopping.forEach(x=>{if(x.name&&(x.store||x.aisle)){const value={store:x.store||'',aisle:x.aisle||''};saved[shoppingAssignmentKey(x.name)]=value;saved[norm(x.name)]=value}});hgSet(shoppingAssignmentStore,JSON.stringify(saved))}
 function shoppingMatchKey(value){return norm(String(value||'')).replace(/[\u00a0\u202f]/g,' ').replace(/[’‘`´ʼ']/g,'').replace(/[.،,;:()]/g,' ').replace(/[–—-]/g,' ').replace(/\s+/g,' ').trim()}
 function sameShoppingArticle(a,b){return shoppingMatchKey(a?.name)===shoppingMatchKey(b?.name)&&shoppingMatchKey(a?.unit)===shoppingMatchKey(b?.unit)}
-function consolidateShopping(){const out=[];shopping.map(normalizeShoppingItem).forEach(x=>{if(x.manual){out.push(x);return}const hit=out.find(y=>!y.manual&&sameShoppingArticle(y,x));if(!hit){out.push(x);return}hit.qty=Math.round((Number(hit.qty||0)+Number(x.qty||0))*100)/100;hit.checked=Boolean(hit.checked&&x.checked);hit.origins=[...new Set([...(hit.origins||[]),...(x.origins||[])])];hit.originRefs=[...(hit.originRefs||[]),...(x.originRefs||[])].filter((v,i,a)=>a.findIndex(z=>z.recipeId===v.recipeId&&z.date===v.date&&z.slot===v.slot)===i);if(!hit.store&&x.store)hit.store=x.store;if(!hit.aisle&&x.aisle)hit.aisle=x.aisle});shopping=out}
+function consolidateShopping(){const out=[];shopping.map(normalizeShoppingItem).forEach(x=>{if(x.leftoverNoticeKey){out.push(x);return}const hit=out.find(y=>!y.leftoverNoticeKey&&sameShoppingArticle(y,x));if(!hit){out.push(x);return}hit.qty=Math.round((Number(hit.qty||0)+Number(x.qty||0))*100)/100;hit.manual=hit.manual||x.manual;hit.checked=Boolean(hit.checked&&x.checked);hit.origins=[...new Set([...(hit.origins||[]),...(x.origins||[])])];hit.originRefs=[...(hit.originRefs||[]),...(x.originRefs||[])].filter((v,i,a)=>a.findIndex(z=>z.recipeId===v.recipeId&&z.date===v.date&&z.slot===v.slot)===i);if(!hit.store&&x.store)hit.store=x.store;if(!hit.aisle&&x.aisle)hit.aisle=x.aisle});shopping=out}
 function publishMaVieShoppingStatus(){try{localStorage.setItem('mv-companion-herbier-pending',shopping.some(x=>x&&!x.checked)?'1':'0')}catch(_){}}
 function saveShopping(){shopping=shopping.map(normalizeShoppingItem);consolidateShopping();hgSet(shoppingStore,JSON.stringify(shopping));rememberShoppingAssignments();publishMaVieShoppingStatus();markDirty();if(activeViewId()==='shopping')markSessionDirty('shopping')}
 let pendingMealTransfer=null;
@@ -744,7 +744,7 @@ function mealTransferCandidates(date,slot){
   const items=mealItems(date,slot),rows=[];
   items.filter(m=>!m.isLeftover).forEach(m=>scaledIngredientRows(m.recipe,m.people,m.qtyOverrides||{}).forEach(row=>{
     if(isIntertitleText(row.name))return;
-    const q=Number(row.qty);if(!Number.isFinite(q)||q===0)return;
+    const q=Number(row.qty);if(!Number.isFinite(q)||q===0){if(!String(row.name||'').trim())return;const key=`${shoppingMatchKey(row.name)}|${shoppingMatchKey(row.unit)}`;if(!rows.some(x=>x.key===key))rows.push({key,name:row.name,unit:row.unit,qty:0});return;}
     const key=`${shoppingMatchKey(row.name)}|${shoppingMatchKey(row.unit)}`,hit=rows.find(x=>x.key===key);
     if(hit)hit.qty=Math.round((hit.qty+q)*100)/100;
     else rows.push({key,name:row.name,unit:row.unit,qty:q});
@@ -804,17 +804,18 @@ async function confirmMealTransfer(){
   // Vérifier seulement les ingrédients restés cochés, avant de modifier la liste.
   const verified=[];
   for(const item of selected){const result=await shoppingCatalogCheck(item);if(result===null)return;verified.push(result)}
-  previous.forEach(old=>{const x=shopping.find(s=>!s.manual&&sameShoppingArticle(s,old));if(x&&typeof x.qty==='number')x.qty=Math.max(0,Math.round((x.qty-Number(old.qty||0))*100)/100)});
+  previous.forEach(old=>{const x=shopping.find(s=>sameShoppingArticle(s,old));if(x&&typeof x.qty==='number')x.qty=Math.max(0,Math.round((x.qty-Number(old.qty||0))*100)/100)});
   shopping=shopping.filter(x=>x.manual||Number(x.qty)>0||x.text);
   const meal=mealItems(date,slot);
   verified.forEach(row=>{
-    let x=shopping.find(s=>!s.manual&&sameShoppingArticle(s,row));const pref=shoppingAssignmentFor(row.name);
+    let x=shopping.find(s=>sameShoppingArticle(s,row)||(s.manual&&shoppingMatchKey(s.name)===shoppingMatchKey(row.name)&&!s.unit&&!Number(s.qty||0)));const pref=shoppingAssignmentFor(row.name);
     if(!x){x=normalizeShoppingItem({name:row.name,qty:0,unit:row.unit,catalogId:row.catalogId||'',store:pref.store||'',aisle:row.catalogId?row.aisle:(pref.aisle||''),origins:[],originRefs:[]});shopping.push(x)}
+    if(!x.unit&&row.unit)x.unit=row.unit;
     x.qty=Math.round((Number(x.qty||0)+Number(row.qty||0))*100)/100;
     meal.filter(m=>!m.isLeftover).forEach(m=>{const origin=`${dateLabel(date)} ${slot} · ${m.recipe.title}`;if(!x.origins.includes(origin))x.origins.push(origin);x.originRefs=x.originRefs||[];if(!x.originRefs.some(o=>o.recipeId===m.recipe.id&&o.date===date&&o.slot===slot))x.originRefs.push({recipeId:m.recipe.id,title:m.recipe.title,date,slot})});
   });
   transfers[key]=verified.map(r=>({name:r.name,unit:r.unit,qty:r.qty}));
-  saveMealTransfers(transfers);saveShopping();renderShopping();
+  consolidateShopping();saveMealTransfers(transfers);saveShopping();renderShopping();
   $('#mealTransferDialog').close();pendingMealTransfer=null;
   $('#planFreshness').textContent=`✓ ${selected.length} ingrédient${selected.length>1?'s':''} ajouté${selected.length>1?'s':''} aux courses pour ${dateLabel(date)} ${slot.toLowerCase()}.`;
   $('#planFreshness').classList.remove('hidden');
@@ -2765,6 +2766,8 @@ window.addEventListener('hg:catalog-associate',event=>hgOpenCatalogAssociations(
 
 // Diagnostic à la demande : aucune analyse globale au chargement.
 document.getElementById("recipeIngredientCheck")?.addEventListener("click",recipeIngredientDiagnostic);
+// v3.0.11 : proposer l'association au Catalogue dès qu'une ligne est saisie.
+{const field=document.getElementById('recipeIngredients');if(field){let last='';field.addEventListener('input',()=>{const lines=field.value.split(/\r?\n/);const line=lines[lines.length-1]?.trim()||'';if(line&&line.includes('/')&&line!==last){last=line;recipeIngredientDiagnostic()}})}}
 
 
 /* v2.9.8.12.26 — Harmonisation groupée, explicitement validée, sans modification des quantités. */
