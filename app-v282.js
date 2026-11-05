@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='3.0.1';
+const APP_VERSION='3.0.4';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -1663,7 +1663,7 @@ async function initHerbs(){
   renderHerbFilters();renderHerbs();
  }catch(e){console.error('Grand Herbier',e);herbs=[];renderHerbs();}
 }
-function herbFiltered(){const q=norm($('#herbSearch')?.value),family=$('#herbFamily')?.value||'',season=$('#herbSeason')?.value||'',intensity=$('#herbIntensity')?.value||'';return herbs.filter(h=>(!family||h.family===family)&&(!season||h.season===season)&&(!intensity||h.intensity===intensity)&&(!q||norm(Object.values(h).join(' ')).includes(q))).sort((a,b)=>a.name.localeCompare(b.name,'fr',{sensitivity:'base'}));}
+function herbFiltered(){const q=norm($('#herbSearch')?.value),family=$('#herbFamily')?.value||'',season=$('#herbSeason')?.value||'',intensity=$('#herbIntensity')?.value||'';return herbs.filter(h=>hgEncyVisibleRow('herbs',h)&&(!family||h.family===family)&&(!season||h.season===season)&&(!intensity||h.intensity===intensity)&&(!q||norm(Object.values(h).join(' ')).includes(q))).sort((a,b)=>a.name.localeCompare(b.name,'fr',{sensitivity:'base'}));}
 function herbCard(h){return `<article class="herb-card"><button data-view-herb="${esc(h.id)}"><div class="herb-card-title"><h3>${esc(h.name)}</h3><span class="meta">${esc([h.family,h.intensity].filter(Boolean).join(' · '))}</span></div><p>${esc(h.flavor||h.uses||'')}</p><div class="badges">${[h.season,h.origin,h.dishTypes].filter(Boolean).slice(0,3).map(x=>`<span>${esc(x)}</span>`).join('')}</div></button></article>`;}
 function renderHerbs(){const found=herbFiltered(),count=$('#herbCount'),list=$('#herbList');if(!count||!list)return;count.textContent=`${found.length} plante${found.length>1?'s':''} et épice${found.length>1?'s':''}`;list.innerHTML=found.map(herbCard).join('')||'<p>Aucune plante ou épice trouvée.</p>';$$('[data-view-herb]').forEach(b=>b.onclick=()=>showHerb(b.dataset.viewHerb,'herbs'));}
 ['#herbSearch','#herbFamily','#herbSeason','#herbIntensity'].forEach(id=>{const e=$(id);if(e)e.addEventListener(e.tagName==='INPUT'?'input':'change',()=>{renderHerbFilters();renderHerbs()})});
@@ -1745,7 +1745,7 @@ async function initProduce(){
   renderProduce();
  }catch(e){console.error('Végétaux & Dérivés',e);produceItems=[];renderProduce();}
 }
-function produceFiltered(){const q=norm($('#produceSearch')?.value),category=$('#produceCategory')?.value||'',season=$('#produceSeason')?.value||'',availability=$('#produceAvailability')?.value||'';return produceItems.filter(p=>(!category||p.category===category)&&(!season||p.season===season)&&(!availability||p.availability===availability)&&(!q||norm(Object.values(p).join(' ')).includes(q))).sort((a,b)=>a.name.localeCompare(b.name,'fr',{sensitivity:'base'}));}
+function produceFiltered(){const q=norm($('#produceSearch')?.value),category=$('#produceCategory')?.value||'',season=$('#produceSeason')?.value||'',availability=$('#produceAvailability')?.value||'';return produceItems.filter(p=>hgEncyVisibleRow('produce',p)&&(!category||p.category===category)&&(!season||p.season===season)&&(!availability||p.availability===availability)&&(!q||norm(Object.values(p).join(' ')).includes(q))).sort((a,b)=>a.name.localeCompare(b.name,'fr',{sensitivity:'base'}));}
 function produceCard(p){return `<article class="produce-card"><button data-view-produce="${esc(p.id)}"><div class="produce-card-title"><h3>${esc(p.name)}</h3><span class="meta">${esc([p.category,p.catalogCategory,p.season].filter(Boolean).join(' · '))}</span></div><p>${esc(p.description||p.uses||'')}</p><div class="badges">${[p.availability,p.preparation,p.conservation].filter(Boolean).slice(0,3).map(x=>`<span>${esc(x)}</span>`).join('')}</div></button></article>`;}
 function renderProduce(){const found=produceFiltered(),count=$('#produceCount'),list=$('#produceList');if(!count||!list)return;count.textContent=`${found.length} produit${found.length>1?'s':''}`;list.innerHTML=found.map(produceCard).join('')||'<p>Aucun fruit ou légume trouvé.</p>';$$('[data-view-produce]').forEach(b=>b.onclick=()=>showProduce(b.dataset.viewProduce,'produce'));}
 ['#produceSearch','#produceCategory','#produceSeason','#produceAvailability'].forEach(id=>{const e=$(id);if(e)e.addEventListener(e.tagName==='INPUT'?'input':'change',()=>{renderProduceFilters();renderProduce()})});
@@ -2102,6 +2102,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
     for(const article of original){
      const previous=hgCatalogAssociations(article);
      if(!previous.includes(value)&&!hgAssociateFromCatalog(article,false,value,false))throw new Error('Association impossible : '+article.name);
+     hgTransferEncyDetails(article,previous,value);
      for(const kind of previous)if(kind!==value&&!hgDissociateCatalog(article,kind))throw new Error('Dissociation impossible : '+article.name);
     }
    }catch(error){for(const [key,raw] of before){if(raw!==null&&raw!==undefined)hgSet(key,raw)}alert('Opération interrompue : '+error.message+'\nRecharge la page pour retrouver les données précédentes.');return;}
@@ -2222,9 +2223,9 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
     const existing=saved.find(v=>v.catalogId===c.id||v.catalogueId===c.id||clean(v.name)===clean(c.name));
     return {...existing,id:existing?.id||'catalog:'+c.id,name:c.name,category:c.group||existing?.category||'Boissons',catalogId:c.id,catalogue:c};
    });
-   return masterView([...linked,...saved.filter(v=>!excluded('drinks',v.catalogId||v.catalogueId||v.id.replace(/^catalog:/,''))&&!linked.some(x=>x.id===v.id||clean(x.name)===clean(v.name)))]);
+   return masterView([...linked,...saved.filter(v=>!excluded('drinks',v.catalogId||v.catalogueId||v.id.replace(/^catalog:/,''))&&!linked.some(x=>x.id===v.id||clean(x.name)===clean(v.name)))].filter(x=>hgEncyVisibleRow('drinks',x)));
   }
-  if(active!=='condiments')return masterView(db[active]);
+  if(active!=='condiments')return masterView(db[active].filter(x=>hgEncyVisibleRow(active,x)));
   if(condimentMode==='preparations')return preparationSauces().map(r=>({id:'recipe:'+r.id,name:r.title,category:'Sauce',recipe:r}));
   // v77 : les associations explicites priment sur la catégorie du Catalogue.
   // Une fiche liée à Condiments & Sauces reste visible même si son produit
@@ -2233,7 +2234,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   const linked=allCatalog.filter(c=>!excluded('condiments',c.id)&&(clean(c.group)==='sauces'||saved.some(v=>v.catalogId===c.id||v.catalogueId===c.id||v.id==='catalog:'+c.id)))
    .map(c=>{const existing=saved.find(v=>v.catalogId===c.id||v.catalogueId===c.id||v.id==='catalog:'+c.id);
     return {...existing,id:existing?.id||'catalog:'+c.id,name:c.name,category:c.group||existing?.category||'Sauces',catalogId:c.id,catalogue:c};});
-  return masterView([...linked,...saved.filter(v=>!excluded('condiments',v.catalogId||v.catalogueId||v.id.replace(/^catalog:/,''))&&!linked.some(x=>x.id===v.id||(v.catalogId&&x.catalogId===v.catalogId)))]);
+  return masterView([...linked,...saved.filter(v=>hgEncyVisibleRow('condiments',v)&&!excluded('condiments',v.catalogId||v.catalogueId||v.id.replace(/^catalog:/,''))&&!linked.some(x=>x.id===v.id||(v.catalogId&&x.catalogId===v.catalogId)))]);
  }
  function showPreparation(r){chosen='recipe:'+r.id;showRecipe(r.id,'hgEncyclopedia');}
 
@@ -2499,6 +2500,34 @@ function hgOpenCatalogAssociations(article){
   }else restoreCatalogOrigin();
  };
  draw();dialog.showModal();
+}
+// v3.0.4 : une fiche dissociée est archivée dans les données, mais non affichée.
+function hgEncyVisibleRow(kind,row){
+ const ex=hgAssocRead('hg-encyclopedias-unlinked-v83',{});
+ const raw=String(row.id||'');
+ const id=row.catalogId||row.catalogueId||(raw.startsWith('catalog:')?raw.slice(8):raw.startsWith('catalog-')?raw.slice(8):raw.startsWith('ency-'+kind+'-')?raw.slice(('ency-'+kind+'-').length):'');
+ return !id||!(ex[kind]||[]).includes(id);
+}
+// Copier les champs documentaires sans écraser les valeurs déjà renseignées.
+function hgTransferEncyDetails(article,fromKinds,toKind){
+ const keys=k=>k==='produce'?'hg-fruits-vegetables-v282':k==='herbs'?'hg-herbs-spices-v28':'hg-encyclopedias-v1';
+ const read=k=>hgAssocRead(keys(k),k==='produce'||k==='herbs'?[]:{});
+ const rows=(data,k)=>k==='produce'||k==='herbs'?data:data[k];
+ const matches=(x,k)=>x&&(x.catalogId===article.id||x.catalogueId===article.id||x.id==='catalog:'+article.id||x.id==='catalog-'+article.id||x.id==='ency-'+k+'-'+article.id);
+ const targetData=read(toKind),targetRows=rows(targetData,toKind);
+ if(!Array.isArray(targetRows))throw new Error('Encyclopédie de destination indisponible');
+ const target=targetRows.find(x=>matches(x,toKind));
+ if(!target)throw new Error('Fiche de destination introuvable');
+ for(const kind of fromKinds){if(kind===toKind)continue;
+  const sourceRows=rows(read(kind),kind);if(!Array.isArray(sourceRows))continue;
+  const source=sourceRows.find(x=>matches(x,kind));if(!source)continue;
+  for(const [key,value] of Object.entries(source)){
+   if(['id','catalogId','catalogueId','catalogue','name','category','catalogCategory','image','filename','photo','photoId'].includes(key))continue;
+   if((target[key]===undefined||target[key]===null||target[key]==='')&&value!==undefined&&value!==null&&value!=='')target[key]=value;
+  }
+ }
+ hgSet(keys(toKind),JSON.stringify(targetData));
+ window.dispatchEvent(new CustomEvent('hg:encyclopedia-linked',{detail:{kind:toKind}}));
 }
 function hgDissociateCatalog(article,kind){
  const key=kind==='produce'?'hg-fruits-vegetables-v282':kind==='herbs'?'hg-herbs-spices-v28':'hg-encyclopedias-v1';
