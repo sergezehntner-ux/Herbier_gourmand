@@ -9,7 +9,7 @@ const norm = s => String(s || '').replace(/[’‘`´ʼ]/g,"'").normalize('NFD')
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='3.0.18';
+const APP_VERSION='3.0.19';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -2088,7 +2088,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  function imageToDataURL(file){return new Promise((resolve,reject)=>{if(!file.type.startsWith('image/'))return reject(new Error('Sélectionne une image.'));const reader=new FileReader();reader.onerror=()=>reject(new Error('Lecture de la photo impossible.'));reader.onload=()=>{const img=new Image();img.onerror=()=>reject(new Error('Format image non reconnu.'));img.onload=()=>{try{const scale=Math.min(1,600/Math.max(img.width,img.height)),canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));const ctx=canvas.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);resolve(canvas.toDataURL('image/jpeg',.84))}catch(e){reject(e)}};img.src=reader.result};reader.readAsDataURL(file)})}
  photoInput?.addEventListener('change',async e=>{const file=e.target.files?.[0],id=photoTargetId;e.target.value='';photoTargetId='';if(!file||!id)return;const item=catalog.find(x=>x.id===id);if(!item)return;try{const data=await imageToDataURL(file);item.image=data;item.filename=file.name;save();render()}catch(err){alert('Photo non enregistrée : '+err.message)}});
  function render(){const previousY=window.scrollY;refreshFilters();refreshEncyclopediaFilter();const list=$('#ingredientCatalogList'),count=$('#ingredientCatalogCount');if(!list||!count)return;const found=filtered();verifyCatalogPhotos();updateCatalogPhotoCount();list.innerHTML=found.map(row).join('')||'<p class="ingredient-catalog-empty">Aucun élément trouvé.</p>';bulkToolbar();list.classList.toggle('catalog-bulk-active',bulkActive);list.querySelectorAll('[data-bulk-id]').forEach(box=>box.onchange=()=>{if(box.checked)bulkSelected.add(box.dataset.bulkId);else bulkSelected.delete(box.dataset.bulkId);bulkCount()});bindSpecialSelects(list);list.querySelectorAll('[data-catalog-photo]').forEach(b=>b.onclick=()=>{const r=b.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r?.dataset.catalogId);if(!x)return;let choice='1';if(x.image){choice=prompt(`Photo de « ${x.name} » :\n1 — Changer la photo\n2 — Retirer la photo\n0 — Annuler`,'1');if(choice===null||choice==='0')return;}if(choice==='2'){if(!confirm(`Retirer la photo de « ${x.name} » ? L'article sera conservé.`))return;x.image='';x.filename='';save();render();return;}if(choice!=='1')return;photoTargetId=x.id;if(photoInput){photoInput.value='';photoInput.click()}});list.querySelectorAll('[data-catalog-edit]').forEach(b=>b.onclick=()=>{const r=b.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r.dataset.catalogId);if(!x)return;if(x._editing){const n=r.querySelector('.catalog-edit-name').value.trim(),a=r.querySelector('.catalog-edit-aisle').value.trim(),g=r.querySelector('.catalog-edit-group').value.trim();if(!n||n==='__new__')return alert('Choisissez un nom.');if(!a||a==='__new__')return alert('Choisissez un rayon.');if(g==='__new__')return alert('Choisissez une catégorie.');const dup=catalog.find(y=>y.id!==x.id&&norm(y.name)===norm(n));if(dup)return alert(`« ${n} » existe déjà dans le catalogue.`);if(n!==x.name&&!hgRenameLinkedCatalogArticle(x.id,n))return;x.name=n;x.aisle=a;x.group=g;delete x._editing;save()}else{x._editing=true}render()});list.querySelectorAll('[data-catalog-associate]').forEach(b=>b.onclick=()=>{const r=b.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r?.dataset.catalogId);if(x)window.dispatchEvent(new CustomEvent('hg:catalog-associate',{detail:{...x}}))});list.querySelectorAll('[data-catalog-delete]').forEach(b=>b.onclick=()=>{const r=b.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r.dataset.catalogId);if(!x)return;if(!confirm(`Supprimer « ${x.name} » du catalogue ?`))return;catalog=catalog.filter(y=>y.id!==x.id);save();render()})}
- window.addEventListener('hg:catalog-associations-changed',()=>{if(document.getElementById('ingredientCatalogList'))render()});
+ window.addEventListener('hg:catalog-associations-changed',()=>{if(activeViewId()==='ingredientCatalog')render()});
  window.addEventListener('hg:catalog-association-reviewed',e=>{
   const id=String(e.detail?.id||'');
   // Depuis « Fiches en suspens », le Catalogue n'est pas nécessairement chargé en mémoire.
@@ -2097,7 +2097,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   const item=catalog.find(x=>String(x.id)===id);
   if(!item){console.warn('Association non enregistrée : article absent du Catalogue',id);return}
   item.associationReviewed=true;
-  save();render();window.dispatchEvent(new Event('hg:pending-refresh'));
+  save();if(activeViewId()==='ingredientCatalog')render();window.dispatchEvent(new Event('hg:pending-refresh'));
  });
  function catalogBackupName(){return `Herbier-Gourmand_Catalogue_${backupStamp()}.hgcat`}
  function exportCatalog(){const stable=catalog.map(x=>normalizeItem(x)),payload={format:'HerbierGourmandIngredientCatalog',formatVersion:1,appVersion:APP_VERSION,exportedAt:new Date().toISOString(),catalog:stable,lists:extraLists};downloadTextFile(catalogBackupName(),JSON.stringify(payload,null,2));const st=$('#ingredientCatalogBackupStatus');if(st)st.textContent=`Sauvegarde du catalogue créée · ${stable.length} éléments.`}
@@ -2615,7 +2615,6 @@ function hgOpenCatalogAssociations(article){
  const restoreCatalogOrigin=()=>{
   if(originView!=='ingredientCatalog'){
    if(activeViewId()!==originView)switchView(originView);
-   window.dispatchEvent(new Event('hg:pending-refresh'));
    requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo(0,originY)));
    return;
   }
