@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='3.0.7';
+const APP_VERSION='3.0.8';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -1664,10 +1664,10 @@ async function initHerbs(){
  }catch(e){console.error('Grand Herbier',e);herbs=[];renderHerbs();}
 }
 function hgCatalogMasterName(id){if(!id)return null;try{const rows=JSON.parse(hgGet('hg-ingredient-catalog-v1')||'[]');return rows.find(c=>String(c.id)===String(id))?.name||null}catch{return null}}
-function herbFiltered(){/* Résoudre les noms une seule fois par recherche, sans relire le Catalogue pour chaque fiche. */let masterNames=new Map();try{masterNames=new Map(JSON.parse(hgGet('hg-ingredient-catalog-v1')||'[]').map(c=>[String(c.id),c.name]))}catch(e){console.warn('Catalogue maître indisponible',e)}for(const h of herbs){const n=masterNames.get(String(h.catalogId||h.catalogueId||''));if(n)h.name=n;}const q=norm($('#herbSearch')?.value),family=$('#herbFamily')?.value||'',season=$('#herbSeason')?.value||'',intensity=$('#herbIntensity')?.value||'';return herbs.filter(h=>hgEncyVisibleRow('herbs',h)&&(!family||h.family===family)&&(!season||h.season===season)&&(!intensity||h.intensity===intensity)&&(!q||norm(Object.values(h).join(' ')).includes(q))).sort((a,b)=>a.name.localeCompare(b.name,'fr',{sensitivity:'base'}));}
+function herbFiltered(){const unlinked=hgAssocRead('hg-encyclopedias-unlinked-v83',{});/* Résoudre les noms une seule fois par recherche, sans relire le Catalogue pour chaque fiche. */let masterNames=new Map();try{masterNames=new Map(JSON.parse(hgGet('hg-ingredient-catalog-v1')||'[]').map(c=>[String(c.id),c.name]))}catch(e){console.warn('Catalogue maître indisponible',e)}for(const h of herbs){const n=masterNames.get(String(h.catalogId||h.catalogueId||''));if(n)h.name=n;}const q=norm($('#herbSearch')?.value),family=$('#herbFamily')?.value||'',season=$('#herbSeason')?.value||'',intensity=$('#herbIntensity')?.value||'';return herbs.filter(h=>hgEncyVisibleRow('herbs',h,unlinked)&&(!family||h.family===family)&&(!season||h.season===season)&&(!intensity||h.intensity===intensity)&&(!q||norm(Object.values(h).join(' ')).includes(q))).sort((a,b)=>a.name.localeCompare(b.name,'fr',{sensitivity:'base'}));}
 function herbCard(h){return `<article class="herb-card"><button data-view-herb="${esc(h.id)}"><div class="herb-card-title"><h3>${esc(h.name)}</h3><span class="meta">${esc([h.family,h.intensity].filter(Boolean).join(' · '))}</span></div><p>${esc(h.flavor||h.uses||'')}</p><div class="badges">${[h.season,h.origin,h.dishTypes].filter(Boolean).slice(0,3).map(x=>`<span>${esc(x)}</span>`).join('')}</div></button></article>`;}
 function renderHerbs(){const found=herbFiltered(),count=$('#herbCount'),list=$('#herbList');if(!count||!list)return;count.textContent=`${found.length} plante${found.length>1?'s':''} et épice${found.length>1?'s':''}`;list.innerHTML=found.map(herbCard).join('')||'<p>Aucune plante ou épice trouvée.</p>';$$('[data-view-herb]').forEach(b=>b.onclick=()=>showHerb(b.dataset.viewHerb,'herbs'));}
-['#herbSearch','#herbFamily','#herbSeason','#herbIntensity'].forEach(id=>{const e=$(id);if(e)e.addEventListener(e.tagName==='INPUT'?'input':'change',()=>{renderHerbFilters();renderHerbs()})});
+let hgHerbSearchTimer;['#herbSearch','#herbFamily','#herbSeason','#herbIntensity'].forEach(id=>{const e=$(id);if(e)e.addEventListener(e.tagName==='INPUT'?'input':'change',()=>{clearTimeout(hgHerbSearchTimer);if(e.tagName==='INPUT'){hgHerbSearchTimer=setTimeout(()=>{renderHerbFilters();renderHerbs()},160)}else{renderHerbFilters();renderHerbs()}})});
 if($('#clearHerbFilters'))$('#clearHerbFilters').onclick=()=>{$('#herbSearch').value='';$('#herbFamily').value='';$('#herbSeason').value='';$('#herbIntensity').value='';renderHerbFilters();renderHerbs();};
 if($('#randomHerb'))$('#randomHerb').onclick=()=>{if(herbs.length)showHerb(herbs[Math.floor(Math.random()*herbs.length)].id)};
 function terms(s){return String(s||'').split(/[,;+]|\bou\b/gi).map(x=>norm(x)).filter(x=>x.length>2)}
@@ -1784,7 +1784,7 @@ async function initProduce(){
   renderProduce();
  }catch(e){console.error('Végétaux & Dérivés',e);produceItems=[];renderProduce();}
 }
-function produceFiltered(){for(const h of produceItems){const n=hgCatalogMasterName(h.catalogId||h.catalogueId);if(n)h.name=n;}const q=norm($('#produceSearch')?.value),category=$('#produceCategory')?.value||'',season=$('#produceSeason')?.value||'',availability=$('#produceAvailability')?.value||'';return produceItems.filter(p=>hgEncyVisibleRow('produce',p)&&(!category||p.category===category)&&(!season||p.season===season)&&(!availability||p.availability===availability)&&(!q||norm(Object.values(p).join(' ')).includes(q))).sort((a,b)=>a.name.localeCompare(b.name,'fr',{sensitivity:'base'}));}
+function produceFiltered(){const unlinked=hgAssocRead('hg-encyclopedias-unlinked-v83',{});const catalogNames=new Map();try{for(const c of JSON.parse(hgGet('hg-ingredient-catalog-v1')||'[]'))catalogNames.set(String(c.id),c.name)}catch(e){console.warn('Catalogue maître indisponible',e)}for(const h of produceItems){const n=catalogNames.get(String(h.catalogId||h.catalogueId||''));if(n)h.name=n;}const q=norm($('#produceSearch')?.value),category=$('#produceCategory')?.value||'',season=$('#produceSeason')?.value||'',availability=$('#produceAvailability')?.value||'';return produceItems.filter(p=>hgEncyVisibleRow('produce',p,unlinked)&&(!category||p.category===category)&&(!season||p.season===season)&&(!availability||p.availability===availability)&&(!q||norm(Object.values(p).join(' ')).includes(q))).sort((a,b)=>a.name.localeCompare(b.name,'fr',{sensitivity:'base'}));}
 function produceCard(p){return `<article class="produce-card"><button data-view-produce="${esc(p.id)}"><div class="produce-card-title"><h3>${esc(p.name)}</h3><span class="meta">${esc([p.category,p.catalogCategory,p.season].filter(Boolean).join(' · '))}</span></div><p>${esc(p.description||p.uses||'')}</p><div class="badges">${[p.availability,p.preparation,p.conservation].filter(Boolean).slice(0,3).map(x=>`<span>${esc(x)}</span>`).join('')}</div></button></article>`;}
 function renderProduce(){const found=produceFiltered(),count=$('#produceCount'),list=$('#produceList');if(!count||!list)return;count.textContent=`${found.length} produit${found.length>1?'s':''}`;list.innerHTML=found.map(produceCard).join('')||'<p>Aucun fruit ou légume trouvé.</p>';$$('[data-view-produce]').forEach(b=>b.onclick=()=>showProduce(b.dataset.viewProduce,'produce'));}
 ['#produceSearch','#produceCategory','#produceSeason','#produceAvailability'].forEach(id=>{const e=$(id);if(e)e.addEventListener(e.tagName==='INPUT'?'input':'change',()=>{renderProduceFilters();renderProduce()})});
@@ -2541,8 +2541,8 @@ function hgOpenCatalogAssociations(article){
  draw();dialog.showModal();
 }
 // v3.0.5 : une fiche dissociée est archivée dans les données, mais non affichée.
-function hgEncyVisibleRow(kind,row){
- const ex=hgAssocRead('hg-encyclopedias-unlinked-v83',{});
+function hgEncyVisibleRow(kind,row,ex){
+ ex=ex||hgAssocRead('hg-encyclopedias-unlinked-v83',{});
  const raw=String(row.id||'');
  const id=row.catalogId||row.catalogueId||(raw.startsWith('catalog:')?raw.slice(8):raw.startsWith('catalog-')?raw.slice(8):raw.startsWith('ency-'+kind+'-')?raw.slice(('ency-'+kind+'-').length):'');
  return !id||!(ex[kind]||[]).includes(id);
