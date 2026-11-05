@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='3.0.8';
+const APP_VERSION='3.0.9';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -730,7 +730,7 @@ function shoppingAssignments(){try{return JSON.parse(hgGet(shoppingAssignmentSto
 function shoppingAssignmentKey(value){return shoppingMatchKey(String(value||'').replace(/\([^)]*\)/g,' ').replace(/\b\d+(?:[.,]\d+)?\s*(?:g|kg|mg|ml|cl|dl|l|pcs?|pi[eè]ces?)\b/gi,' '))}
 function rememberShoppingAssignment(name,store,aisle){if(!name||(!store&&!aisle))return;const saved=shoppingAssignments(),value={store:store||'',aisle:aisle||''};saved[shoppingAssignmentKey(name)]=value;saved[norm(name)]=value;hgSet(shoppingAssignmentStore,JSON.stringify(saved))}
 function shoppingAssignmentFor(value){const saved=shoppingAssignments(),key=shoppingAssignmentKey(value),legacy=norm(value);return saved[key]||saved[legacy]||{}}
-function normalizeShoppingItem(x={}){const pref=shoppingAssignmentFor(x.name||x.ingredient);return{id:x.id||uid(),name:x.name||x.ingredient||'',qty:x.qty??x.quantite??0,text:x.text||'',unit:x.unit||x.unite||'',store:x.store||x.magasin||pref.store||'',aisle:x.aisle||x.rayon||pref.aisle||'',checked:Boolean(x.checked??x.coche),manual:Boolean(x.manual),origins:Array.isArray(x.origins)?x.origins:Array.isArray(x.sources)?x.sources:Array.isArray(x.origine)?x.origine:[],originRefs:Array.isArray(x.originRefs)?x.originRefs:[],leftoverNoticeKey:x.leftoverNoticeKey||'',photoId:String(x.photoId||'')}}
+function normalizeShoppingItem(x={}){const pref=shoppingAssignmentFor(x.name||x.ingredient);return{id:x.id||uid(),name:x.name||x.ingredient||'',qty:x.qty??x.quantite??0,text:x.text||'',unit:x.unit||x.unite||'',store:x.store||x.magasin||pref.store||'',aisle:x.aisle||x.rayon||pref.aisle||'',checked:Boolean(x.checked??x.coche),manual:Boolean(x.manual),origins:Array.isArray(x.origins)?x.origins:Array.isArray(x.sources)?x.sources:Array.isArray(x.origine)?x.origine:[],originRefs:Array.isArray(x.originRefs)?x.originRefs:[],leftoverNoticeKey:x.leftoverNoticeKey||'',photoId:String(x.photoId||''),catalogId:String(x.catalogId||x.catalogueId||'')}}
 function rememberShoppingAssignments(){const saved=shoppingAssignments();shopping.forEach(x=>{if(x.name&&(x.store||x.aisle)){const value={store:x.store||'',aisle:x.aisle||''};saved[shoppingAssignmentKey(x.name)]=value;saved[norm(x.name)]=value}});hgSet(shoppingAssignmentStore,JSON.stringify(saved))}
 function shoppingMatchKey(value){return norm(String(value||'')).replace(/[\u00a0\u202f]/g,' ').replace(/[’‘`´ʼ']/g,'').replace(/[.،,;:()]/g,' ').replace(/[–—-]/g,' ').replace(/\s+/g,' ').trim()}
 function sameShoppingArticle(a,b){return shoppingMatchKey(a?.name)===shoppingMatchKey(b?.name)&&shoppingMatchKey(a?.unit)===shoppingMatchKey(b?.unit)}
@@ -1700,6 +1700,19 @@ function hgRenameLinkedCatalogArticle(catalogId,newName){
  if(entries.some(x=>String(x.id)!==String(catalogId)&&norm(x.name)===norm(newName))){alert('Ce nom existe déjà dans le Catalogue.');return false}
  const oldName=target.name;
  target.name=newName;
+ // v3.0.9 : propager le renommage aux listes existantes sans modifier leurs données propres.
+ // Les anciens enregistrements n'ont pas toujours de catalogId : l'ancien nom exact
+ // est alors le seul lien disponible. Ne jamais toucher aux noms non correspondants.
+ const renamed=(item)=>item&&(String(item.catalogId||item.catalogueId||'')===String(catalogId)||norm(item.name)===norm(oldName));
+ const stockChanged=[];
+ for(const [store,field] of [[stockStore,'stock'],[stockProductStore,'products'],[shoppingStore,'shopping']]){
+  let rows;try{rows=JSON.parse(hgGet(store)||'[]')}catch{continue}
+  if(!Array.isArray(rows))continue;
+  let touched=false;
+  for(const item of rows){if(renamed(item)){item.name=newName;if(store!==stockProductStore)item.catalogId=catalogId;touched=true}}
+  if(touched)stockChanged.push([store,JSON.stringify(rows),field]);
+ }
+
  // Conserver les fiches et leurs identifiants ; seule la désignation change.
  const stores=['hg-fruits-vegetables-v282','hg-herbs-spices-v28','hg-encyclopedias-v1'];
  const changes=[];
@@ -1717,6 +1730,16 @@ function hgRenameLinkedCatalogArticle(catalogId,newName){
  try{
   hgSet(key,JSON.stringify(entries));
   for(const [store,data] of changes)hgSet(store,data);
+  for(const [store,data] of stockChanged)hgSet(store,data);
+  // Actualiser également les tableaux en mémoire, sans attendre le rechargement.
+  for(const item of stock)if(renamed(item)){item.name=newName;item.catalogId=catalogId}
+  for(const item of stockProducts)if(renamed(item))item.name=newName;
+  for(const item of shopping)if(renamed(item)){item.name=newName;item.catalogId=catalogId}
+  if(stockChanged.some(([store])=>store===stockStore))renderStock();
+  if(stockChanged.some(([store])=>store===shoppingStore)){
+   rememberShoppingAssignments();publishMaVieShoppingStatus();
+   if(typeof renderShopping==='function')renderShopping();
+  }
   registerProtectedChange();markDirty();
   window.dispatchEvent(new Event('hg:catalog-associations-changed'));
   // Les listes Herbes/Fruits restent en mémoire : les actualiser avant le rendu.
