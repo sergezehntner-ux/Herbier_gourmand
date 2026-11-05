@@ -9,7 +9,7 @@ const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').repl
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='3.0.9';
+const APP_VERSION='3.0.10';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -109,7 +109,9 @@ async function init(){
   setStartupStatus('Chargement des sorties et producteurs…');
   await initRestaurants(); await initProducers();
   setStartupStatus('Chargement du Grand Herbier…');
-  await initHerbs(); await initProduce(); await harmoniseValidatedStock(); initStock();
+  await initHerbs(); await initProduce(); await harmoniseValidatedStock(); repairWampelRename3010(); initStock();
+  // Recharger les Courses après la réparation du stockage persistant.
+  shopping=(JSON.parse(hgGet(shoppingStore)||'[]')||[]).map(normalizeShoppingItem); renderShopping();
   applyReadonlyMode(); checkForUpdate();
   finishStartup();
 }
@@ -1007,6 +1009,27 @@ async function harmoniseValidatedStock(){
   await hgSet(STOCK_HARMONISATION_KEY,'done');
 }
 
+// Rattrapage unique du test Wampel-Pampel déjà renommé avant l'historique.
+// Limité aux noms exacts 4/5 et au seul article 6 du Catalogue ; aucun rapprochement flou.
+function repairWampelRename3010(){
+ const flag='hg-wampel-rename-repair-3010';if(hgGet(flag)==='done')return;
+ let catalog=[];try{catalog=JSON.parse(hgGet('hg-ingredient-catalog-v1')||'[]')}catch{return}
+ const current=catalog.filter(x=>norm(x.name)===norm('Wampel-Pampel 6'));
+ if(current.length!==1||catalog.some(x=>['wampel-pampel 4','wampel-pampel 5'].includes(norm(x.name))))return;
+ const id=current[0].id,oldNames=new Set([norm('Wampel-Pampel 4'),norm('Wampel-Pampel 5')]);
+ let changed=false;
+ for(const store of [stockStore,stockProductStore,shoppingStore]){
+  let rows;try{rows=JSON.parse(hgGet(store)||'[]')}catch{continue}
+  if(!Array.isArray(rows))continue;
+  let touched=false;
+  for(const row of rows)if(row&&(String(row.catalogId||'')===String(id)||(!row.catalogId&&oldNames.has(norm(row.name))))){row.name=current[0].name;if(store!==stockProductStore)row.catalogId=id;touched=true}
+  if(touched){hgSet(store,JSON.stringify(rows));changed=true}
+ }
+ let history={};try{history=JSON.parse(hgGet('hg-catalog-rename-history-v3010')||'{}')||{}}catch{}
+ history[String(id)]=[...new Set([...(history[String(id)]||[]),'Wampel-Pampel 4','Wampel-Pampel 5'])];
+ hgSet('hg-catalog-rename-history-v3010',JSON.stringify(history));hgSet(flag,'done');
+ if(changed)console.info('Renommage du test Wampel-Pampel réconcilié avec le Catalogue');
+}
 function initStock(){try{stock=JSON.parse(hgGet(stockStore)||'[]')||[];stockProducts=JSON.parse(hgGet(stockProductStore)||'[]')||[]}catch{stock=[];stockProducts=[]}renderStock()}
 function fillStockSelect(field,values,current='',other=false){if(!field)return;const clean=[...new Set(values.filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));if(field.tagName==='INPUT'){const listId=field.getAttribute('list'),list=listId&&document.getElementById(listId);if(list)list.innerHTML=clean.map(v=>`<option value="${esc(v)}"></option>`).join('');field.value=current||'';return}field.innerHTML='<option value="">Choisir…</option>'+clean.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('')+(other?'<option value="__other__">Autre…</option>':'');if(current&&!clean.includes(current)){const o=document.createElement('option');o.value=current;o.textContent=current;field.insertBefore(o,other?field.lastElementChild:null)}field.value=current||''}
 function productForStockName(name){return mergedStockProducts().find(p=>norm(p.name)===norm(name))}
@@ -1070,7 +1093,7 @@ function deleteStockListValue(){
   hgSet(stockStore,JSON.stringify(stock));markDirty();renderStock();renderStockListManager();
 }
 if($('#addStock'))$('#addStock').onclick=()=>openStock();if($('#closeStockDialog'))$('#closeStockDialog').onclick=()=>$('#stockDialog').close();if($('#stockProduct'))$('#stockProduct').onchange=refreshStockProductFields;if($('#stockLocation'))$('#stockLocation').onchange=()=>handleStockOther($('#stockLocation'),'lieu');if($('#stockGroup'))$('#stockGroup').onchange=()=>handleStockOther($('#stockGroup'),'groupe');if($('#stockAisle'))$('#stockAisle').onchange=()=>handleStockOther($('#stockAisle'),'rayon');
-if($('#stockForm'))$('#stockForm').onsubmit=e=>{e.preventDefault();const id=$('#stockId').value,name=$('#stockProduct').value;if(!name)return;const item={id:id||uid(),name,location:$('#stockLocation').value,group:$('#stockGroup').value,aisle:$('#stockAisle').value,alias:$('#stockSearchAlso').value.trim(),checked:false};const old=stock.find(x=>x.id===id);if(old)Object.assign(old,item);else stock.push(item);const p=productForStockName(name);if(!p||!['produce','catalog'].includes(p.source)){const i=stockProducts.findIndex(x=>norm(x.name)===norm(name)),def={name,group:item.group,aisle:item.aisle,alias:item.alias};if(i>=0)stockProducts[i]=def;else stockProducts.push(def);saveStockProducts()}saveStock();$('#stockDialog').close()};
+if($('#stockForm'))$('#stockForm').onsubmit=e=>{e.preventDefault();const id=$('#stockId').value,name=$('#stockProduct').value;if(!name)return;const item={id:id||uid(),name,location:$('#stockLocation').value,group:$('#stockGroup').value,aisle:$('#stockAisle').value,alias:$('#stockSearchAlso').value.trim(),checked:false};const linkedProduct=productForStockName(name);if(linkedProduct?.catalogId)item.catalogId=linkedProduct.catalogId;const old=stock.find(x=>x.id===id);if(old){item.checked=old.checked;if(!item.catalogId&&norm(old.name)===norm(name))item.catalogId=old.catalogId||'';Object.assign(old,item)}else stock.push(item);const p=linkedProduct;if(!p||!['produce','catalog'].includes(p.source)){const i=stockProducts.findIndex(x=>norm(x.name)===norm(name)),def={name,group:item.group,aisle:item.aisle,alias:item.alias};if(i>=0)stockProducts[i]=def;else stockProducts.push(def);saveStockProducts()}saveStock();$('#stockDialog').close()};
 if($('#deleteStock'))$('#deleteStock').onclick=()=>{const id=$('#stockId').value;if(id&&confirm('Supprimer ce produit du stock ?')){stock=stock.filter(x=>x.id!==id);saveStock();$('#stockDialog').close()}};
 function printStockGrouped(kind){
   if(!stock.length)return alert('Le stock est vide.');
@@ -1700,10 +1723,16 @@ function hgRenameLinkedCatalogArticle(catalogId,newName){
  if(entries.some(x=>String(x.id)!==String(catalogId)&&norm(x.name)===norm(newName))){alert('Ce nom existe déjà dans le Catalogue.');return false}
  const oldName=target.name;
  target.name=newName;
- // v3.0.9 : propager le renommage aux listes existantes sans modifier leurs données propres.
- // Les anciens enregistrements n'ont pas toujours de catalogId : l'ancien nom exact
- // est alors le seul lien disponible. Ne jamais toucher aux noms non correspondants.
- const renamed=(item)=>item&&(String(item.catalogId||item.catalogueId||'')===String(catalogId)||norm(item.name)===norm(oldName));
+ // v3.0.10 : conserver l'historique des désignations par identifiant Catalogue.
+ // Une liste créée avant la liaison par ID peut ainsi suivre plusieurs renommages.
+ const historyKey='hg-catalog-rename-history-v3010';
+ let history={};try{history=JSON.parse(hgGet(historyKey)||'{}')||{}}catch{}
+ const previous=Array.isArray(history[String(catalogId)])?history[String(catalogId)]:[];
+ const aliases=[...new Set([...previous,oldName].filter(Boolean))];
+ const otherNames=new Set(entries.filter(x=>String(x.id)!==String(catalogId)).map(x=>norm(x.name)));
+ const aliasNames=new Set(aliases.map(norm).filter(n=>!otherNames.has(n)));
+ const renamed=item=>item&&(String(item.catalogId||item.catalogueId||'')===String(catalogId)||(!item.catalogId&&!item.catalogueId&&aliasNames.has(norm(item.name))));
+
  const stockChanged=[];
  for(const [store,field] of [[stockStore,'stock'],[stockProductStore,'products'],[shoppingStore,'shopping']]){
   let rows;try{rows=JSON.parse(hgGet(store)||'[]')}catch{continue}
@@ -1729,6 +1758,7 @@ function hgRenameLinkedCatalogArticle(catalogId,newName){
  }
  try{
   hgSet(key,JSON.stringify(entries));
+  history[String(catalogId)]=aliases;hgSet(historyKey,JSON.stringify(history));
   for(const [store,data] of changes)hgSet(store,data);
   for(const [store,data] of stockChanged)hgSet(store,data);
   // Actualiser également les tableaux en mémoire, sans attendre le rechargement.
