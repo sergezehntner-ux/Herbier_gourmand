@@ -9,7 +9,7 @@ const norm = s => String(s || '').replace(/[’‘`´ʼ]/g,"'").normalize('NFD')
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='3.0.14';
+const APP_VERSION='3.0.15';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -1628,7 +1628,7 @@ async function checkForUpdate(){try{await fetch(`version.json?_=${Date.now()}`,{
 init().catch(failStartup);
 
 
-function fillEditableSelect(el,values,current='',empty='Choisir…'){if(!el)return;const list=[...new Set(values.map(x=>String(x||'').trim()).filter(Boolean))];if(current&&!list.includes(current))list.push(current);list.sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));el.innerHTML=`<option value="">${empty}</option>`+list.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('')+'<option value="__other__">Autre…</option>';el.value=current||'';}
+function fillEditableSelect(el,values,current='',empty='Choisir…'){if(!el)return;const list=[...new Set(values.map(x=>String(x||'').trim()).filter(Boolean))];if(current&&!list.includes(current))list.push(current);list.sort((a,b)=>a==='-'?-1:b==='-'?1:a.localeCompare(b,'fr',{sensitivity:'base'}));if(!list.includes('-'))list.unshift('-');el.innerHTML=`<option value="">${empty}</option>`+list.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('')+'<option value="__other__">Autre…</option>';el.value=current||'';}
 function producerCityMatches(query=''){const q=norm(query);const values=producerValues('city');return (q?values.filter(v=>norm(v).includes(q)):values).slice(0,40)}
 function closeProducerCityMatches(){const box=$('#producerCityMatches');if(box)box.classList.remove('open')}
 function renderProducerCityMatches(){const input=$('#producerCityField'),box=$('#producerCityMatches');if(!input||!box)return;const typed=input.value.trim(),matches=producerCityMatches(typed);if(!typed){box.innerHTML='';box.classList.remove('open');return}box.innerHTML=matches.map(v=>`<button type="button" role="option" data-producer-city-choice="${esc(v)}">${esc(v)}</button>`).join('');box.classList.toggle('open',matches.length>0);$$('[data-producer-city-choice]').forEach(btn=>btn.onclick=()=>{input.value=btn.dataset.producerCityChoice;closeProducerCityMatches();input.focus()})}
