@@ -9,7 +9,7 @@ const norm = s => String(s || '').replace(/[’‘`´ʼ]/g,"'").normalize('NFD')
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='3.0.24';
+const APP_VERSION='3.0.25';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -2523,13 +2523,14 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   if(!confirm(question))return;
   // Transaction logique : en cas d'échec, rétablir les fiches ET les exclusions.
   const previousRows=db[active];const previousExclusions=hgGet(EXCLUDED);
-  const nextRows=previousRows.filter(v=>v.id!==x.id&&(!catalogId||v.catalogId!==catalogId));
+  const nextRows=linked?previousRows:previousRows.filter(v=>v.id!==x.id);
   db[active]=nextRows;
   try{
-   await save();
+   if(!linked)await save();
    if(linked&&catalogId){
     const all=exclusions();all[active]=[...new Set([...(all[active]||[]),catalogId])];
     await hgSet(EXCLUDED,JSON.stringify(all));await hgFlush();
+    registerProtectedChange();markDirty();
    }
   }catch(err){
    db[active]=previousRows;
@@ -2594,7 +2595,7 @@ function hgAssociateFromCatalog(article,ask=true,chosenKind=null,openAfter=true)
  const rows=isGeneral?saved[kind]:saved;
  // Une association retirée auparavant peut être rétablie explicitement.
  try{const excluded=JSON.parse(hgGet('hg-encyclopedias-unlinked-v83')||'{}');if(Array.isArray(excluded[kind])){excluded[kind]=excluded[kind].filter(id=>id!==article.id);hgSet('hg-encyclopedias-unlinked-v83',JSON.stringify(excluded));}}catch(e){console.error(e)}
- let item=rows.find(x=>x.catalogId===article.id||x.catalogueId===article.id||normName(x.name)===normName(article.name));
+ let item=rows.find(x=>x.catalogId===article.id||x.catalogueId===article.id||x.id==='catalog:'+article.id||x.id==='catalog-'+article.id||x.id==='ency-'+kind+'-'+article.id||normName(x.name)===normName(article.name));
  const existed=!!item;
  if(!item){
   item={id:isGeneral?'catalog:'+article.id:'catalog-'+article.id,name:article.name,catalogId:article.id};
@@ -2722,16 +2723,21 @@ function hgTransferEncyDetails(article,fromKinds,toKind){
  window.dispatchEvent(new CustomEvent('hg:encyclopedia-linked',{detail:{kind:toKind}}));
 }
 function hgDissociateCatalog(article,kind){
+ // v3.0.25 : dissociation non destructive. La fiche et son identifiant
+ // Catalogue restent intacts dans le stockage, seule sa visibilité change.
  const key=kind==='produce'?'hg-fruits-vegetables-v282':kind==='herbs'?'hg-herbs-spices-v28':'hg-encyclopedias-v1';
  const saved=hgAssocRead(key,kind==='produce'||kind==='herbs'?[]:{});
  const rows=kind==='produce'||kind==='herbs'?saved:saved[kind];
  if(!Array.isArray(rows)){alert('Encyclopédie indisponible : association inchangée.');return false}
- const found=rows.filter(x=>x.catalogId===article.id||x.catalogueId===article.id||x.id==='catalog:'+article.id||x.id==='catalog-'+article.id);
- // Une fiche renseignée doit rester intacte : on retire seulement son lien.
- for(const x of found){delete x.catalogId;delete x.catalogueId;if(x.id==='catalog:'+article.id||x.id==='catalog-'+article.id)x.id='ency-'+kind+'-'+article.id;}
- // Pour les deux encyclopédies alimentées automatiquement, l'exclusion empêche le retour du produit.
- const ex=hgAssocRead('hg-encyclopedias-unlinked-v83',{});ex[kind]=[...new Set([...(ex[kind]||[]),article.id])];
- try{hgSet(key,JSON.stringify(saved));hgSet('hg-encyclopedias-unlinked-v83',JSON.stringify(ex));registerProtectedChange();markDirty();window.dispatchEvent(new CustomEvent('hg:encyclopedia-linked',{detail:{kind}}));return true}catch(e){console.error(e);alert('Dissociation impossible : aucune modification confirmée.');return false}
+ const ex=hgAssocRead('hg-encyclopedias-unlinked-v83',{});
+ ex[kind]=[...new Set([...(ex[kind]||[]),article.id])];
+ try{
+  // Ne jamais réécrire les données documentaires pendant une dissociation.
+  hgSet('hg-encyclopedias-unlinked-v83',JSON.stringify(ex));
+  registerProtectedChange();markDirty();
+  window.dispatchEvent(new CustomEvent('hg:encyclopedia-linked',{detail:{kind}}));
+  return true;
+ }catch(e){console.error(e);alert('Dissociation impossible : aucune modification confirmée.');return false}
 }
 window.addEventListener('hg:catalog-created',event=>hgAssociateFromCatalog(event.detail,true));
 window.addEventListener('hg:catalog-associate',event=>hgOpenCatalogAssociations(event.detail));
