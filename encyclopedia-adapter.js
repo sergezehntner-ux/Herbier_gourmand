@@ -1,5 +1,5 @@
-/* Herbier Gourmand — adaptateur commun en lecture seule (v3.0.21).
-   Aucune migration ni écriture : les trois stockages historiques restent intacts. */
+/* Herbier Gourmand — adaptateur commun v3.0.22.
+   Lecture et enregistrement sans migration des trois stockages historiques. */
 (function(root){
  'use strict';
  const KINDS=Object.freeze(['produce','herbs','meat','fish','condiments','drinks','dairyPasta','baking']);
@@ -53,7 +53,28 @@
   }
   return summary;
  }
- const api=Object.freeze({kinds:KINDS,stores:STORE,list,get,catalogId,resolveCatalog,audit});
+ // Le stockage principal de l'application est IndexedDB (cache hgGet/hgSet),
+ // pas localStorage. Les fonctions sont injectées par le moteur existant.
+ function persist(kind,records,{read,write,sharedSnapshot}={}){
+  if(!KINDS.includes(kind))throw Error('Encyclopédie inconnue : '+kind);
+  if(typeof read!=='function'||typeof write!=='function')throw Error('Stockage non disponible');
+  if(!Array.isArray(records)||records.some(x=>!x||typeof x!=='object'||Array.isArray(x)))
+   throw Error('Enregistrements encyclopédiques invalides');
+  const direct=kind==='produce'||kind==='herbs';
+  const key=direct?(kind==='produce'?STORE.produce:STORE.herbs):STORE.shared;
+  let value;
+  if(direct)value=records;
+  else{
+   const previous=sharedSnapshot??JSON.parse(read(key)||'{}');
+   if(!previous||typeof previous!=='object'||Array.isArray(previous))throw Error('Stockage commun invalide');
+   value={...previous,[kind]:records};
+  }
+  const encoded=JSON.stringify(value);
+  const result=write(key,encoded);
+  if(read(key)!==encoded)throw Error('Vérification de l’enregistrement impossible');
+  return result;
+ }
+ const api=Object.freeze({kinds:KINDS,stores:STORE,list,get,catalogId,resolveCatalog,audit,persist});
  root.hgEncyclopediaRead=api;
  if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
