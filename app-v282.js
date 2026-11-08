@@ -9,7 +9,7 @@ const norm = s => String(s || '').replace(/[’‘`´ʼ]/g,"'").normalize('NFD')
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='3.0.23';
+const APP_VERSION='3.0.24';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -2515,7 +2515,32 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   for(const [k,field] of Object.entries(fields)){const el=get(field);if(!el)continue;x[k]=el.type==='checkbox'?el.checked:el.value.trim()}
   if(match){x.category=match.group||'';x.catalogId=match.id;unexclude(active,match.id);}if(x.catalogue){delete x.catalogue;}if(!db[active].some(v=>v.id===x.id))db[active].push(x);try{await save()}catch(err){console.error(err);alert('Enregistrement non confirmé : '+err.message);return}get('hgEncyDialog').close();render();detail(x.id)
  });
- async function deleteEncyclopediaItem(id){const x=sourceItems().find(v=>v.id===id);if(!x||x.recipe)return;const linked=!!(x.catalogId||x.catalogueId||x.catalogue||x.id.startsWith('catalog:'));const catalogId=x.catalogId||x.catalogueId||x.catalogue?.id||(x.id.startsWith('catalog:')?x.id.slice(8):'');const question=linked?`Dissocier « ${x.name} » de ${labels[active]} ?\nLe produit du Catalogue et les recettes seront conservés.`:`Supprimer la fiche « ${x.name} » de ${labels[active]} ?\nLe Catalogue et les recettes seront conservés.`;if(!confirm(question))return;if(linked&&catalogId)exclude(active,catalogId);db[active]=db[active].filter(v=>v.id!==x.id&&(!catalogId||v.catalogId!==catalogId));try{await save()}catch(err){console.error(err);alert('Dissociation non confirmée : '+err.message);return}get('hgEncyDialog').close();chosen=null;editing=null;render();back()}
+ async function deleteEncyclopediaItem(id){
+  const x=sourceItems().find(v=>v.id===id);if(!x||x.recipe)return;
+  const linked=!!(x.catalogId||x.catalogueId||x.catalogue||x.id.startsWith('catalog:'));
+  const catalogId=x.catalogId||x.catalogueId||x.catalogue?.id||(x.id.startsWith('catalog:')?x.id.slice(8):'');
+  const question=linked?`Dissocier « ${x.name} » de ${labels[active]} ?\nLe produit du Catalogue et les recettes seront conservés.`:`Supprimer la fiche « ${x.name} » de ${labels[active]} ?\nLe Catalogue et les recettes seront conservés.`;
+  if(!confirm(question))return;
+  // Transaction logique : en cas d'échec, rétablir les fiches ET les exclusions.
+  const previousRows=db[active];const previousExclusions=hgGet(EXCLUDED);
+  const nextRows=previousRows.filter(v=>v.id!==x.id&&(!catalogId||v.catalogId!==catalogId));
+  db[active]=nextRows;
+  try{
+   await save();
+   if(linked&&catalogId){
+    const all=exclusions();all[active]=[...new Set([...(all[active]||[]),catalogId])];
+    await hgSet(EXCLUDED,JSON.stringify(all));await hgFlush();
+   }
+  }catch(err){
+   db[active]=previousRows;
+   try{await window.hgEncyclopediaRead.persist(active,previousRows,{read:hgGet,write:hgSet,sharedSnapshot:db});
+    if(previousExclusions===null||previousExclusions===undefined)await hgSet(EXCLUDED,'{}');else await hgSet(EXCLUDED,previousExclusions);
+    await hgFlush();}catch(rollbackErr){console.error('Restauration après échec',rollbackErr)}
+   console.error(err);alert('Suppression ou dissociation non confirmée : '+err.message);return;
+  }
+  get('hgEncyDialog').close();chosen=null;editing=null;render();back();
+ }
+
  get('hgEncyDelete').onclick=()=>{if(editing)deleteEncyclopediaItem(editing)};
  get('hgEncyDeleteDetail').onclick=()=>{if(chosen)deleteEncyclopediaItem(chosen)};
  get('hgEncyClose').onclick=get('hgEncyCancel').onclick=()=>get('hgEncyDialog').close();
