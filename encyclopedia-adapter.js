@@ -1,4 +1,4 @@
-/* Herbier Gourmand — adaptateur commun v3.0.22.
+/* Herbier Gourmand — adaptateur commun v3.0.23.
    Lecture et enregistrement sans migration des trois stockages historiques. */
 (function(root){
  'use strict';
@@ -55,7 +55,7 @@
  }
  // Le stockage principal de l'application est IndexedDB (cache hgGet/hgSet),
  // pas localStorage. Les fonctions sont injectées par le moteur existant.
- function persist(kind,records,{read,write,sharedSnapshot}={}){
+ async function persist(kind,records,{read,write,sharedSnapshot}={}){
   if(!KINDS.includes(kind))throw Error('Encyclopédie inconnue : '+kind);
   if(typeof read!=='function'||typeof write!=='function')throw Error('Stockage non disponible');
   if(!Array.isArray(records)||records.some(x=>!x||typeof x!=='object'||Array.isArray(x)))
@@ -70,9 +70,9 @@
    value={...previous,[kind]:records};
   }
   const encoded=JSON.stringify(value);
-  const result=write(key,encoded);
-  if(read(key)!==encoded)throw Error('Vérification de l’enregistrement impossible');
-  return result;
+  await write(key,encoded);
+  if(read(key)!==encoded)throw Error('Vérification du cache après enregistrement impossible');
+  return true;
  }
  const api=Object.freeze({kinds:KINDS,stores:STORE,list,get,catalogId,resolveCatalog,audit,persist});
  root.hgEncyclopediaRead=api;
