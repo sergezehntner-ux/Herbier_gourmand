@@ -9,7 +9,7 @@ const norm = s => String(s || '').replace(/[’‘`´ʼ]/g,"'").normalize('NFD')
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='3.0.27';
+const APP_VERSION='3.0.28';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -1920,6 +1920,60 @@ if($('#produceForm'))$('#produceForm').onsubmit=async e=>{e.preventDefault();con
 if($('#backFromProduce'))$('#backFromProduce').onclick=()=>switchView(previousProduceView);
 
 
+
+// v3.0.28 — Fusion prudente pour les deux encyclopédies historiques.
+(()=>{
+ const dlg=$('#hgLegacyMergeDialog'),keep=$('#hgLegacyMergeKeep'),remove=$('#hgLegacyMergeRemove'),preview=$('#hgLegacyMergePreview'),apply=$('#hgLegacyMergeApply');
+ if(!dlg||!keep||!remove||!preview||!apply)return;
+ let kind='';
+ const records=()=>kind==='herbs'?herbs:produceItems;
+ const normalizeName=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase();
+ const catId=x=>String(x.catalogId||x.catalogueId||x.catalogue?.id||(String(x.id||'').startsWith('catalog:')?String(x.id).slice(8):''));
+ const compatible=(a,b)=>{const ai=catId(a),bi=catId(b);return ai&&bi?ai===bi:!ai&&!bi&&normalizeName(a.name)===normalizeName(b.name)};
+ const eligible=()=>records().map((x,i)=>({x,i})).filter(({x})=>x&&!x.recipe&&!x.sourceRecipeId);
+ const refresh=()=>{
+  const rows=records(),a=rows[Number(keep.value)],b=rows[Number(remove.value)];
+  const ok=!!(a&&b&&a!==b&&compatible(a,b));apply.disabled=!ok;
+  if(!a||!b){preview.textContent='Sélectionner deux fiches.';return}
+  if(a===b){preview.textContent='Choisir deux fiches différentes.';return}
+  if(!ok){preview.textContent='Fusion bloquée : associations Catalogue différentes, ou noms différents pour des fiches non liées.';return}
+  const missing=[],different=[];
+  for(const [k,v] of Object.entries(b)){
+   if(['id','name','catalogId','catalogueId','catalogue','category','catalogCategory','family','photoId','photo','image','imageUrl','recipe','sourceRecipeId'].includes(k)||v===null||v===undefined||v==='')continue;
+   if(a[k]===null||a[k]===undefined||a[k]==='')missing.push(k);
+   else if(JSON.stringify(a[k])!==JSON.stringify(v))different.push(k);
+  }
+  preview.textContent=`Fiche conservée : ${a.name}\nFiche absorbée : ${b.name}\nChamps à compléter : ${missing.join(', ')||'aucun'}\nDifférences à conserver dans les notes : ${different.join(', ')||'aucune'}\nLes images des deux fiches ne seront pas effacées.`;
+ };
+ function open(kindNext){kind=kindNext;const rows=eligible();const options=rows.map(({x,i})=>`<option value="${i}">${String(x.name||'Sans nom').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')} · ${String(x.id||i).replace(/&/g,'&amp;').replace(/</g,'&lt;')}</option>`).join('');
+  keep.innerHTML=options;remove.innerHTML=options;if(rows.length>1)remove.selectedIndex=1;
+  $('#hgLegacyMergeTitle').textContent=kind==='herbs'?'Fusionner — Herbes & Épices':'Fusionner — Végétaux & Dérivés';refresh();dlg.showModal();
+ }
+ $('#mergeHerbs').onclick=()=>open('herbs');$('#mergeProduce').onclick=()=>open('produce');
+ $('#hgLegacyMergeClose').onclick=$('#hgLegacyMergeCancel').onclick=()=>dlg.close();
+ keep.onchange=remove.onchange=refresh;
+ apply.onclick=async()=>{
+  const rows=records(),ki=Number(keep.value),ri=Number(remove.value),a=rows[ki],b=rows[ri];
+  if(!a||!b||ki===ri||!compatible(a,b))return alert('Fusion impossible : sélection ou association invalide.');
+  if(!confirm(`Fusionner « ${b.name} » dans « ${a.name} » ?\nLa fiche absorbée sera retirée de cette encyclopédie. Le Catalogue et les recettes ne changeront pas.`))return;
+  try{downloadTextFile(`Herbier_Gourmand_AVANT_fusion_${kind}_${Date.now()}.hgbak.json`,JSON.stringify(herbierStorageSnapshot(),null,2))}
+  catch(err){alert('Sauvegarde impossible : fusion annulée. '+err.message);return}
+  const merged={...a},notes=[];
+  const protectedKeys=new Set(['id','name','catalogId','catalogueId','catalogue','category','catalogCategory','family','photoId','photo','image','imageUrl','recipe','sourceRecipeId']);
+  for(const [k,v] of Object.entries(b)){
+   if(protectedKeys.has(k)||v===null||v===undefined||v==='')continue;
+   if(merged[k]===undefined||merged[k]===null||merged[k]==='')merged[k]=v;
+   else if(JSON.stringify(merged[k])!==JSON.stringify(v))notes.push(`${k} (${b.name}) : ${typeof v==='string'?v:JSON.stringify(v)}`);
+  }
+  if(notes.length)merged.notes=[merged.notes||'',`Informations de « ${b.name} » :\n${notes.join('\n')}`].filter(Boolean).join('\n\n');
+  const next=rows.map((x,i)=>i===ki?merged:x).filter((x,i)=>i!==ri);
+  try{await window.hgEncyclopediaRead.persist(kind,next,{read:hgGet,write:hgSet});}
+  catch(err){alert('Fusion non enregistrée : '+err.message);return}
+  if(kind==='herbs'){herbs=next;renderHerbFilters();renderHerbs()}
+  else{produceItems=next;renderProduceFilters();renderProduce()}
+  registerProtectedChange();markDirty();dlg.close();
+ };
+})();
 
 function printField(label,value){return `<section class="print-field"><h3>${esc(label)}</h3><p>${esc(value||'—').replace(/\n/g,'<br>')}</p></section>`}
 function printHerb(h){if(!h)return;const body=`<h1>${esc(h.name)}</h1><p>${esc([h.family,h.catalogCategory,h.origin,h.season,h.intensity].filter(Boolean).join(' · '))}</p>${printField('Catégorie botanique',h.family)}${printField('Catégorie Catalogue',h.catalogCategory)}<div class="columns"><div>${printField('Profil gustatif',h.flavor)}${printField('Utilisations culinaires',h.uses)}${printField('Bienfaits / Caractéristiques',h.benefits)}${printField('À associer avec',h.pairings)}</div><div>${printField('Modes de préparation',h.preparation)}${printField('Quantité indicative',h.quantity)}${printField('Substitution possible',h.substitution)}${printField('Erreur à éviter',h.avoid)}${printField('Conservation',h.conservation)}${printField('Où l’acheter en Suisse',h.whereToBuy)}${printField('Idées de recettes',h.recipeIdeas)}${printField('Astuce du chef',h.chefTip)}</div></div>`;printDocument(h.name,body)}
