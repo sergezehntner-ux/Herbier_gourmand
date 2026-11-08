@@ -9,7 +9,7 @@ const norm = s => String(s || '').replace(/[’‘`´ʼ]/g,"'").normalize('NFD')
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='3.0.26';
+const APP_VERSION='3.0.27';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -2542,38 +2542,6 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   get('hgEncyDialog').close();chosen=null;editing=null;render();back();
  }
 
- // v3.0.26 : fusion prudente des fiches d'une même encyclopédie.
- // Aucun changement du Catalogue, des recettes, des photos ni des autres encyclopédies.
- const mergeDialog=get('hgEncyMergeDialog'),mergeKeep=get('hgEncyMergeKeep'),mergeRemove=get('hgEncyMergeRemove'),mergePreview=get('hgEncyMergePreview');
- function mergeRows(){return (db[active]||[]).map((x,i)=>({x,i})).filter(({x})=>!x.recipe&&!x.sourceRecipeId)}
- function mergeCatalogId(x){return String(x.catalogId||x.catalogueId||x.catalogue?.id||(String(x.id||'').startsWith('catalog:')?String(x.id).slice(8):''))}
- function mergeCompatible(a,b){const ai=mergeCatalogId(a),bi=mergeCatalogId(b);return ai&&bi?ai===bi:!ai&&!bi&&clean(a.name)===clean(b.name)}
- function mergeOptions(){const rows=mergeRows();const opts=rows.map(({x,i})=>`<option value="${i}">${esc(x.name)} · ${esc(x.id||String(i))}</option>`).join('');mergeKeep.innerHTML=opts;mergeRemove.innerHTML=opts;if(rows.length>1)mergeRemove.selectedIndex=1;mergeUpdate()}
- function mergeUpdate(){const rows=db[active]||[],a=rows[Number(mergeKeep.value)],b=rows[Number(mergeRemove.value)];const valid=a&&b&&a!==b&&mergeCompatible(a,b);get('hgEncyMergeApply').disabled=!valid;
-  if(!a||!b){mergePreview.textContent='Sélectionner deux fiches.';return}
-  if(a===b){mergePreview.textContent='Choisir deux fiches différentes.';return}
-  if(!valid){mergePreview.textContent='Fusion bloquée : les deux fiches ne sont pas liées au même article du Catalogue (ou ne portent pas le même nom lorsqu’elles sont non liées). Vérifier les associations avant la fusion.';return}
-  const additions=[],conflicts=[];for(const [k,v] of Object.entries(b)){if(['id','name','catalogId','catalogueId','catalogue','category','recipe','sourceRecipeId'].includes(k)||v===null||v===undefined||v==='')continue;
-   if(a[k]===undefined||a[k]===null||a[k]==='')additions.push(k);else if(JSON.stringify(a[k])!==JSON.stringify(v))conflicts.push(k)}
-  mergePreview.textContent=`Fiche conservée : ${a.name}\nFiche absorbée : ${b.name}\nChamps à compléter : ${additions.join(', ')||'aucun'}\nChamps différents à préserver en remarques : ${conflicts.join(', ')||'aucun'}\nUne sauvegarde de sécurité sera téléchargée avant l'opération.`;
- }
- get('hgEncyMergeOpen').onclick=()=>{if(active==='condiments'&&condimentMode==='preparations')return alert('La fusion concerne les fiches encyclopédiques, pas les recettes.');mergeOptions();mergeDialog.showModal()};
- get('hgEncyMergeClose').onclick=get('hgEncyMergeCancel').onclick=()=>mergeDialog.close();
- mergeKeep.onchange=mergeRemove.onchange=mergeUpdate;
- get('hgEncyMergeApply').onclick=async()=>{const rows=db[active],ki=Number(mergeKeep.value),ri=Number(mergeRemove.value),keep=rows[ki],remove=rows[ri];if(!keep||!remove||ki===ri||!mergeCompatible(keep,remove))return alert('Fusion impossible : sélection ou association invalide.');
-  if(!confirm(`Fusionner « ${remove.name} » dans « ${keep.name} » ?\nLa fiche absorbée disparaîtra de cette encyclopédie, mais ses informations différentes seront conservées dans les remarques. Le Catalogue et les recettes ne changeront pas.`))return;
-  let snapshot;try{snapshot=herbierStorageSnapshot();downloadTextFile(`Herbier_Gourmand_AVANT_fusion_encyclopedie_${Date.now()}.hgbak.json`,JSON.stringify(snapshot,null,2))}catch(err){alert('Sauvegarde de sécurité impossible : fusion annulée. '+err.message);return}
-  const oldRows=rows,merged={...keep},notes=[];
-  for(const [k,v] of Object.entries(remove)){
-   if(['id','name','catalogId','catalogueId','catalogue','category','recipe','sourceRecipeId'].includes(k)||v===null||v===undefined||v==='')continue;
-   if(merged[k]===undefined||merged[k]===null||merged[k]==='')merged[k]=v;
-   else if(JSON.stringify(merged[k])!==JSON.stringify(v))notes.push(`${names[k]||k} (${remove.name}) : ${typeof v==='string'?v:JSON.stringify(v)}`);
-  }
-  if(notes.length)merged.notes=[merged.notes||'',`Informations de la fiche fusionnée « ${remove.name} » :\n${notes.join('\n')}`].filter(Boolean).join('\n\n');
-  db[active]=rows.map((x,i)=>i===ki?merged:x).filter((_,i)=>i!==ri);
-  try{await save()}catch(err){db[active]=oldRows;alert('Fusion non enregistrée : '+err.message);return}
-  mergeDialog.close();chosen=merged.id;render();detail(merged.id);
- };
  get('hgEncyDelete').onclick=()=>{if(editing)deleteEncyclopediaItem(editing)};
  get('hgEncyDeleteDetail').onclick=()=>{if(chosen)deleteEncyclopediaItem(chosen)};
  get('hgEncyClose').onclick=get('hgEncyCancel').onclick=()=>get('hgEncyDialog').close();
