@@ -318,7 +318,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v3.0.30 · Fusion contrôlée des fiches</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v3.0.31 · Fusion simplifiée</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -519,7 +519,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   <article id="produceViewContent"></article>
 </section>
 
-<dialog id="hgLegacyMergeDialog" style="width:min(94vw,720px);max-height:88vh;overflow:auto"><div class="dialog-head"><h2 id="hgLegacyMergeTitle">Fusionner des fiches</h2><button type="button" id="hgLegacyMergeClose">×</button></div><p class="muted">Fusion dans cette encyclopédie uniquement. Le Catalogue, les recettes et les photos ne sont pas modifiés. Une sauvegarde sera téléchargée avant la fusion.</p><div class="grid"><label>Fiche à conserver<input id="hgLegacyMergeKeepSearch" type="search" placeholder="Rechercher une fiche…" autocomplete="off" style="width:100%;margin:6px 0"><select id="hgLegacyMergeKeep" style="width:100%"></select></label><label>Fiche à remplacer<input id="hgLegacyMergeRemoveSearch" type="search" placeholder="Rechercher une fiche…" autocomplete="off" style="width:100%;margin:6px 0"><select id="hgLegacyMergeRemove" style="width:100%"></select></label></div><p id="hgLegacyMergePreview" class="muted" style="white-space:pre-wrap"></p><label id="hgLegacyMergeOverrideWrap" style="display:none;margin:10px 0"><input type="checkbox" id="hgLegacyMergeOverride"> Je confirme que ces fiches désignent le même article. Garder le nom et l’association Catalogue de gauche, sans modifier le Catalogue.</label><div class="dialog-actions"><button type="button" id="hgLegacyMergeApply" class="primary">Confirmer la fusion</button><button type="button" id="hgLegacyMergeCancel">Annuler</button></div></dialog>
+<dialog id="hgLegacyMergeDialog" style="width:min(94vw,720px);max-height:88vh;overflow:auto"><div class="dialog-head"><h2 id="hgLegacyMergeTitle">Fusionner des fiches</h2><button type="button" id="hgLegacyMergeClose">×</button></div><div class="grid"><label>Fiche à conserver<input id="hgLegacyMergeKeepSearch" type="search" placeholder="Rechercher une fiche…" autocomplete="off" style="width:100%;margin:6px 0"><select id="hgLegacyMergeKeep" style="width:100%"></select></label><label>Fiche à remplacer<input id="hgLegacyMergeRemoveSearch" type="search" placeholder="Rechercher une fiche…" autocomplete="off" style="width:100%;margin:6px 0"><select id="hgLegacyMergeRemove" style="width:100%"></select></label></div><div class="dialog-actions"><button type="button" id="hgLegacyMergeApply" class="primary">Fusionner</button><button type="button" id="hgLegacyMergeCancel">Annuler</button></div></dialog>
 <section id="hgEncyclopedia" class="view">
   <div class="section-title"><div><h2 id="hgEncyTitle">Encyclopédie</h2><span class="muted" id="hgEncyCount"></span></div><div class="button-row"><button id="hgEncyAdd" class="primary">Ajouter</button><button id="hgEncyPrintList" type="button">Imprimer la liste</button><button hidden id="hgEncyBack">← Bibliothèque</button></div></div>
   <div id="hgCondimentModes" class="button-row" hidden><button type="button" id="hgCondimentProducts" class="primary">Produits du Catalogue</button><button type="button" id="hgCondimentPreparations">Préparations des Recettes</button></div>
@@ -534,7 +534,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <div class="dialog-actions"><button type="button" id="hgEncyDelete" class="danger">Supprimer la fiche</button><button type="button" id="hgEncyCancel">Annuler</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 </main>
 <button id="hgLibraryFloatingBack" type="button" class="primary" aria-label="Retour à la Bibliothèque">← Bibliothèque</button>
-<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v3.0.30</span></footer>
+<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v3.0.31</span></footer>
 <button id="recipeFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des recettes">🔍 Rechercher</button>
 <button id="restaurantFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des sorties">🔍 Rechercher</button>
 <button id="producerFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des producteurs">🔍 Rechercher</button>
@@ -648,7 +648,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <div class="dialog-actions"><button id="catalogBulkCancel" type="button">Annuler</button><button id="catalogBulkApply" class="primary" type="button">Appliquer aux produits sélectionnés</button></div></dialog>
 <script src="frigo-catalog-data.js?v=2981140"></script>
 <script src="encyclopedia-adapter.js?v=3027"></script>
-<script src="app-v282.js?v=3030"></script>
+<script src="app-v282.js?v=3031"></script>
 <script src="media-v1.js?v=3005"></script>
 <script id="hg-catalog-picker-v13">
 /* Les listes du Catalogue existent déjà sous forme de <select> : les réutiliser
