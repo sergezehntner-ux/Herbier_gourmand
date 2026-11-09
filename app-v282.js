@@ -9,7 +9,7 @@ const norm = s => String(s || '').replace(/[’‘`´ʼ]/g,"'").normalize('NFD')
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='3.0.28';
+const APP_VERSION='3.0.29';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -1932,7 +1932,7 @@ if($('#backFromProduce'))$('#backFromProduce').onclick=()=>switchView(previousPr
  const compatible=(a,b)=>{const ai=catId(a),bi=catId(b);return ai&&bi?ai===bi:!ai&&!bi&&normalizeName(a.name)===normalizeName(b.name)};
  const eligible=()=>records().map((x,i)=>({x,i})).filter(({x})=>x&&!x.recipe&&!x.sourceRecipeId);
  const refresh=()=>{
-  const rows=records(),a=rows[Number(keep.value)],b=rows[Number(remove.value)];
+  const rows=records(),a=keep.value===''?null:rows[Number(keep.value)],b=remove.value===''?null:rows[Number(remove.value)];
   const ok=!!(a&&b&&a!==b&&compatible(a,b));apply.disabled=!ok;
   if(!a||!b){preview.textContent='Sélectionner deux fiches.';return}
   if(a===b){preview.textContent='Choisir deux fiches différentes.';return}
@@ -1945,15 +1945,36 @@ if($('#backFromProduce'))$('#backFromProduce').onclick=()=>switchView(previousPr
   }
   preview.textContent=`Fiche conservée : ${a.name}\nFiche absorbée : ${b.name}\nChamps à compléter : ${missing.join(', ')||'aucun'}\nDifférences à conserver dans les notes : ${different.join(', ')||'aucune'}\nLes images des deux fiches ne seront pas effacées.`;
  };
- function open(kindNext){kind=kindNext;const rows=eligible();const options=rows.map(({x,i})=>`<option value="${i}">${String(x.name||'Sans nom').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')} · ${String(x.id||i).replace(/&/g,'&amp;').replace(/</g,'&lt;')}</option>`).join('');
-  keep.innerHTML=options;remove.innerHTML=options;if(rows.length>1)remove.selectedIndex=1;
-  $('#hgLegacyMergeTitle').textContent=kind==='herbs'?'Fusionner — Herbes & Épices':'Fusionner — Végétaux & Dérivés';refresh();dlg.showModal();
+ const searchKeep=$('#hgLegacyMergeKeepSearch'),searchRemove=$('#hgLegacyMergeRemoveSearch');
+ const alphabetical=(a,b)=>String(a.x.name||'').localeCompare(String(b.x.name||''),'fr',{sensitivity:'base',numeric:true});
+ const clean=s=>normalizeName(s).replace(/[^a-z0-9]+/g,' ');
+ const fill=(select,search,other,preferred)=>{
+  const query=clean(search.value),previous=preferred===undefined?select.value:preferred;
+  const rows=eligible().sort(alphabetical).filter(({x,i})=>String(i)!==other.value&&(!query||clean([x.name,x.id].join(' ')).includes(query)));
+  select.replaceChildren(...rows.map(({x,i})=>new Option(`${x.name||'Sans nom'} · ${x.id||i}`,String(i))));
+  if(rows.some(({i})=>String(i)===previous))select.value=previous;
+  else if(rows.length)select.value=String(rows[0].i);
+  else select.selectedIndex=-1;
+ };
+ const sync=changed=>{
+  if(changed==='keep')fill(remove,searchRemove,keep);
+  else if(changed==='remove')fill(keep,searchKeep,remove);
+  else{fill(keep,searchKeep,{value:''});fill(remove,searchRemove,keep)}
+  refresh();
+ };
+ function open(kindNext){
+  kind=kindNext;searchKeep.value='';searchRemove.value='';keep.value='';remove.value='';
+  sync('all');
+  $('#hgLegacyMergeTitle').textContent=kind==='herbs'?'Fusionner — Herbes & Épices':'Fusionner — Végétaux & Dérivés';
+  dlg.showModal();
  }
+ searchKeep.addEventListener('input',()=>{fill(keep,searchKeep,remove);sync('keep')});
+ searchRemove.addEventListener('input',()=>{fill(remove,searchRemove,keep);sync('remove')});
  $('#mergeHerbs').onclick=()=>open('herbs');$('#mergeProduce').onclick=()=>open('produce');
  $('#hgLegacyMergeClose').onclick=$('#hgLegacyMergeCancel').onclick=()=>dlg.close();
- keep.onchange=remove.onchange=refresh;
+ keep.onchange=()=>sync('keep');remove.onchange=()=>sync('remove');
  apply.onclick=async()=>{
-  const rows=records(),ki=Number(keep.value),ri=Number(remove.value),a=rows[ki],b=rows[ri];
+  const rows=records(),ki=Number(keep.value),ri=Number(remove.value),a=keep.value===''?null:rows[ki],b=remove.value===''?null:rows[ri];
   if(!a||!b||ki===ri||!compatible(a,b))return alert('Fusion impossible : sélection ou association invalide.');
   if(!confirm(`Fusionner « ${b.name} » dans « ${a.name} » ?\nLa fiche absorbée sera retirée de cette encyclopédie. Le Catalogue et les recettes ne changeront pas.`))return;
   try{downloadTextFile(`Herbier_Gourmand_AVANT_fusion_${kind}_${Date.now()}.hgbak.json`,JSON.stringify(herbierStorageSnapshot(),null,2))}
