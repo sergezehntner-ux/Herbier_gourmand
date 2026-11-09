@@ -9,7 +9,7 @@ const norm = s => String(s || '').replace(/[’‘`´ʼ]/g,"'").normalize('NFD')
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='3.0.32';
+const APP_VERSION='3.0.33';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -2423,7 +2423,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  const isSauce=r=>clean(r.category)==='sauce';
  const productSauces=()=>catalog().filter(x=>clean(x.group)==='sauces');
  const preparationSauces=()=>recipes.filter(isSauce);
- function showMode(){const bar=get('hgCondimentModes');if(bar)bar.hidden=active!=='condiments';get('hgEncyAdd').hidden=false;const a=get('hgCondimentProducts'),b=get('hgCondimentPreparations');if(a){a.classList.toggle('primary',condimentMode==='products');b.classList.toggle('primary',condimentMode==='preparations')}}
+ function showMode(){const bar=get('hgCondimentModes');if(bar)bar.hidden=false;get('hgEncyAdd').hidden=condimentMode==='preparations'&&active!=='condiments';const a=get('hgCondimentProducts'),b=get('hgCondimentPreparations');if(a){a.classList.toggle('primary',condimentMode==='products');b.classList.toggle('primary',condimentMode==='preparations')}}
  // v68 : le Catalogue maître fournit toujours le nom et la catégorie des fiches liées.
  // Projection sans écriture : les données encyclopédiques restent intactes.
  function masterView(rows){
@@ -2448,8 +2448,8 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
    });
    return masterView([...linked,...saved.filter(v=>!excluded('drinks',v.catalogId||v.catalogueId||v.id.replace(/^catalog:/,''))&&!linked.some(x=>x.id===v.id||clean(x.name)===clean(v.name)))].filter(x=>hgEncyVisibleRow('drinks',x)));
   }
+  if(condimentMode==='preparations')return active==='condiments'?preparationSauces().map(r=>({id:'recipe:'+r.id,name:r.title,category:'Sauce',recipe:r})):[];
   if(active!=='condiments')return masterView(db[active].filter(x=>hgEncyVisibleRow(active,x)));
-  if(condimentMode==='preparations')return preparationSauces().map(r=>({id:'recipe:'+r.id,name:r.title,category:'Sauce',recipe:r}));
   // v77 : les associations explicites priment sur la catégorie du Catalogue.
   // Une fiche liée à Condiments & Sauces reste visible même si son produit
   // est classé, par exemple, dans « Produits laitiers ».
@@ -2528,7 +2528,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  async function save(){await window.hgEncyclopediaRead.persist(active,db[active],{read:hgGet,write:hgSet,sharedSnapshot:db});registerProtectedChange();markDirty()}
  function item(){return sourceItems().find(x=>x.id===chosen)}
  function back(){switchView('hgEncyclopedia',{top:true})}
- function open(k){active=k;chosen=null;get('hgEncySearch').value='';get('hgEncyCategory').value='';get('hgEncyTitle').textContent=labels[k];if(k==='condiments')condimentMode='products';showMode();render();switchView('hgEncyclopedia',{top:true})}
+ function open(k){active=k;chosen=null;get('hgEncySearch').value='';get('hgEncyCategory').value='';get('hgEncyTitle').textContent=labels[k];condimentMode='products';showMode();render();switchView('hgEncyclopedia',{top:true})}
  function render(){const q=clean(get('hgEncySearch').value),sel=get('hgEncyCategory'),prev=sel.value;
   const items=sourceItems();
   const catalogById=new Map(catalog().map(c=>[c.id,c]));
