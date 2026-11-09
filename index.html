@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v282.css?v=3038">
+  <link rel="stylesheet" href="styles-v282.css?v=3039">
 
   <style>
     .recipe[data-recipe-open]{cursor:pointer}
@@ -318,7 +318,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v3.0.38 · Harmonisation des encyclopédies</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v3.0.39 · Six boutons harmonisés</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -485,7 +485,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 </section>
 
 <section id="herbs" class="view">
-  <div class="section-title"><div><h2>Herbes & Épices</h2><span id="herbCount" class="muted"></span></div><div class="button-row"><button id="newHerb" class="primary">Ajouter</button><button id="mergeHerbs" type="button">Fusionner</button><button id="printHerbList">Imprimer la liste</button><button id="randomHerb" class="secondary">Découverte surprise</button><button hidden id="backHerbsToLibrary" type="button">← Bibliothèque</button></div></div>
+  <div class="section-title hg-six-actions"><div><h2>Herbes & Épices</h2><span id="herbCount" class="muted"></span></div><div class="button-row hg-six-actions-grid"><button id="newHerb" class="primary">Ajouter</button><button id="mergeHerbs" type="button">Fusionner</button><button id="printHerbList">Imprimer la liste</button><button id="randomHerb" class="secondary">Découverte surprise</button><button hidden id="backHerbsToLibrary" type="button">← Bibliothèque</button><div class="button-row" id="herbModes" style="margin:8px 0 12px"><button type="button" id="herbProducts" class="primary">Produits du Catalogue</button><button type="button" id="herbPreparations">Préparations des Recettes</button></div></div></div>
   <p class="lead">Chercher une plante, une saveur, un aliment, une cuisine ou une utilisation.</p>
   <div class="herb-search-grid">
     <label>Recherche<input id="herbSearch" type="search" placeholder="Basilic, poisson, citron, curry…"></label>
@@ -494,7 +494,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
     <label>Intensité<select id="herbIntensity"><option value="">Toutes les intensités</option></select></label>
   </div>
   <div class="button-row"><button id="clearHerbFilters">Vider la recherche</button></div>
-  <div class="button-row" id="herbModes" style="margin:8px 0 12px"><button type="button" id="herbProducts" class="primary">Produits du Catalogue</button><button type="button" id="herbPreparations">Préparations des Recettes</button></div>
+  
   <div id="herbList" class="herb-list"></div>
 </section>
 <section id="herbView" class="view recipe-screen">
@@ -504,7 +504,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 
 
 <section id="produce" class="view">
-  <div class="section-title"><div><h2>Végétaux & Dérivés</h2><span id="produceCount" class="muted"></span></div><div class="button-row"><button id="newProduce" class="primary">Ajouter</button><button id="mergeProduce" type="button">Fusionner</button><button id="printProduceList">Imprimer la liste</button><button id="randomProduce" class="secondary">Découverte surprise</button><button hidden id="backProduceToLibrary" type="button">← Bibliothèque</button></div></div>
+  <div class="section-title hg-six-actions"><div><h2>Végétaux & Dérivés</h2><span id="produceCount" class="muted"></span></div><div class="button-row hg-six-actions-grid"><button id="newProduce" class="primary">Ajouter</button><button id="mergeProduce" type="button">Fusionner</button><button id="printProduceList">Imprimer la liste</button><button id="randomProduce" class="secondary">Découverte surprise</button><button hidden id="backProduceToLibrary" type="button">← Bibliothèque</button><div class="button-row" id="produceModes" style="margin:8px 0 12px"><button type="button" id="produceProducts" class="primary">Produits du Catalogue</button><button type="button" id="producePreparations">Préparations des Recettes</button></div></div></div>
   <p class="lead">Chercher un produit, une saison, une préparation, un accord ou une utilisation culinaire.</p>
   <div class="produce-search-grid">
     <label>Recherche<input id="produceSearch" type="search" placeholder="Tomate, hiver, rôti, salade…"></label>
@@ -513,7 +513,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
     <label>Disponibilité<select id="produceAvailability"><option value="">Toutes les disponibilités</option></select></label>
   </div>
   <div class="button-row"><button id="clearProduceFilters">Vider la recherche</button></div>
-  <div class="button-row" id="produceModes" style="margin:8px 0 12px"><button type="button" id="produceProducts" class="primary">Produits du Catalogue</button><button type="button" id="producePreparations">Préparations des Recettes</button></div>
+  
   <div id="produceList" class="produce-list"></div>
 </section>
 <section id="produceView" class="view recipe-screen">
@@ -523,8 +523,8 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 
 <dialog id="hgLegacyMergeDialog" style="width:min(94vw,720px);max-height:88vh;overflow:auto"><div class="dialog-head"><h2 id="hgLegacyMergeTitle">Fusionner des fiches</h2><button type="button" id="hgLegacyMergeClose">×</button></div><div class="grid"><label>Fiche à conserver<input id="hgLegacyMergeKeepSearch" type="search" placeholder="Rechercher une fiche…" autocomplete="off" style="width:100%;margin:6px 0"><select id="hgLegacyMergeKeep" style="width:100%"></select></label><label>Fiche à remplacer<input id="hgLegacyMergeRemoveSearch" type="search" placeholder="Rechercher une fiche…" autocomplete="off" style="width:100%;margin:6px 0"><select id="hgLegacyMergeRemove" style="width:100%"></select></label></div><div class="dialog-actions"><button type="button" id="hgLegacyMergeApply" class="primary">Fusionner</button><button type="button" id="hgLegacyMergeCancel">Annuler</button></div></dialog>
 <section id="hgEncyclopedia" class="view">
-  <div class="section-title"><div><h2 id="hgEncyTitle">Encyclopédie</h2><span class="muted" id="hgEncyCount"></span></div><div class="button-row"><button id="hgEncyAdd" class="primary">Ajouter</button><button id="hgEncyMerge" type="button">Fusionner</button><button id="hgEncyPrintList" type="button">Imprimer la liste</button><button id="hgEncyRandom" class="secondary" type="button">Découverte surprise</button><button hidden id="hgEncyBack">← Bibliothèque</button></div></div>
-  <div id="hgCondimentModes" class="button-row" hidden><button type="button" id="hgCondimentProducts" class="primary">Produits du Catalogue</button><button type="button" id="hgCondimentPreparations">Préparations des Recettes</button></div>
+  <div class="section-title hg-six-actions"><div><h2 id="hgEncyTitle">Encyclopédie</h2><span class="muted" id="hgEncyCount"></span></div><div class="button-row hg-six-actions-grid"><button id="hgEncyAdd" class="primary">Ajouter</button><button id="hgEncyMerge" type="button">Fusionner</button><button id="hgEncyPrintList" type="button">Imprimer la liste</button><button id="hgEncyRandom" class="secondary" type="button">Découverte surprise</button><button hidden id="hgEncyBack">← Bibliothèque</button><div id="hgCondimentModes" class="button-row" hidden><button type="button" id="hgCondimentProducts" class="primary">Produits du Catalogue</button><button type="button" id="hgCondimentPreparations">Préparations des Recettes</button></div></div></div>
+  
   <div class="produce-search-grid"><label>Recherche<input id="hgEncySearch" type="search" placeholder="Nom, utilisation, préparation…"></label><label>Catégorie<select id="hgEncyCategory"><option value="">Toutes les catégories</option></select></label><button type="button" id="hgEncyClearFilters">Vider la recherche</button></div>
   <div id="hgEncyList" class="produce-list"></div>
 </section>
@@ -537,7 +537,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <div class="dialog-actions"><button type="button" id="hgEncyDelete" class="danger">Supprimer la fiche</button><button type="button" id="hgEncyCancel">Annuler</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 </main>
 <button id="hgLibraryFloatingBack" type="button" class="primary" aria-label="Retour à la Bibliothèque">← Bibliothèque</button>
-<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v3.0.38</span></footer>
+<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v3.0.39</span></footer>
 <button id="recipeFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des recettes">🔍 Rechercher</button>
 <button id="restaurantFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des sorties">🔍 Rechercher</button>
 <button id="producerFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des producteurs">🔍 Rechercher</button>

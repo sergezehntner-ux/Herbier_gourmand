@@ -323,3 +323,33 @@ nav button{grid-column:span 4!important;font-size:.78rem;padding-inline:2px}
 #herbs .section-title>.button-row,#produce .section-title>.button-row,#hgEncyclopedia .section-title>.button-row{justify-content:flex-end;align-content:flex-start;flex:1;min-width:0}
 #herbs .section-title>.button-row button,#produce .section-title>.button-row button,#hgEncyclopedia .section-title>.button-row button{white-space:nowrap}
 @media(max-width:760px){#herbs .section-title,#produce .section-title,#hgEncyclopedia .section-title{flex-wrap:wrap}#herbs .section-title>.button-row,#produce .section-title>.button-row,#hgEncyclopedia .section-title>.button-row{justify-content:flex-start;width:100%}}
+
+/* v3.0.39 — deux zones 2/5 + 3/5, six boutons sur deux rangées */
+#herbs .hg-six-actions,#produce .hg-six-actions,#hgEncyclopedia .hg-six-actions{
+  display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);align-items:start;
+  gap:12px;flex-wrap:nowrap;
+}
+#herbs .hg-six-actions>div:first-child,#produce .hg-six-actions>div:first-child,#hgEncyclopedia .hg-six-actions>div:first-child{min-width:0;text-align:left}
+#herbs .hg-six-actions h2,#produce .hg-six-actions h2,#hgEncyclopedia .hg-six-actions h2{margin:0 0 8px;overflow-wrap:normal;hyphens:auto}
+#herbs .hg-six-actions-grid,#produce .hg-six-actions-grid,#hgEncyclopedia .hg-six-actions-grid{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,auto);
+  gap:8px;min-width:0;width:100%;align-content:start;justify-content:stretch;
+}
+#herbs .hg-six-actions-grid button,#produce .hg-six-actions-grid button,#hgEncyclopedia .hg-six-actions-grid button{
+  width:100%;min-width:0;min-height:46px;padding:8px 5px;white-space:normal!important;
+  text-align:center;line-height:1.16;overflow-wrap:normal;
+}
+#herbs .hg-six-actions-grid #herbModes,#produce .hg-six-actions-grid #produceModes,#hgEncyclopedia .hg-six-actions-grid #hgCondimentModes{display:contents}
+#herbs .hg-six-actions-grid #herbModes[hidden],#produce .hg-six-actions-grid #produceModes[hidden],#hgEncyclopedia .hg-six-actions-grid #hgCondimentModes[hidden]{display:none!important}
+/* La première rangée est Ajouter, Fusionner, Imprimer ; la deuxième, les deux sections, Découverte. */
+#newHerb,#newProduce,#hgEncyAdd{grid-column:1;grid-row:1}
+#mergeHerbs,#mergeProduce,#hgEncyMerge{grid-column:2;grid-row:1}
+#printHerbList,#printProduceList,#hgEncyPrintList{grid-column:3;grid-row:1}
+#herbProducts,#produceProducts,#hgCondimentProducts{grid-column:1;grid-row:2}
+#herbPreparations,#producePreparations,#hgCondimentPreparations{grid-column:2;grid-row:2}
+#randomHerb,#randomProduce,#hgEncyRandom{grid-column:3;grid-row:2}
+@media(max-width:760px){
+ #herbs .hg-six-actions,#produce .hg-six-actions,#hgEncyclopedia .hg-six-actions{grid-template-columns:minmax(0,2fr) minmax(0,3fr);flex-wrap:nowrap}
+ #herbs .hg-six-actions-grid,#produce .hg-six-actions-grid,#hgEncyclopedia .hg-six-actions-grid{justify-content:stretch;width:100%}
+ #herbs .hg-six-actions-grid button,#produce .hg-six-actions-grid button,#hgEncyclopedia .hg-six-actions-grid button{font-size:clamp(.65rem,1.65vw,.95rem);padding:6px 3px}
+}
