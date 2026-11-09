@@ -318,7 +318,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v3.0.35 · Affichage des préparations</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v3.0.36 · Préparations dans les huit encyclopédies</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -494,6 +494,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
     <label>Intensité<select id="herbIntensity"><option value="">Toutes les intensités</option></select></label>
   </div>
   <div class="button-row"><button id="clearHerbFilters">Vider la recherche</button></div>
+  <div class="button-row" id="herbModes" style="margin:8px 0 12px"><button type="button" id="herbProducts" class="primary">Produits du Catalogue</button><button type="button" id="herbPreparations">Préparations des Recettes</button></div>
   <div id="herbList" class="herb-list"></div>
 </section>
 <section id="herbView" class="view recipe-screen">
@@ -512,6 +513,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
     <label>Disponibilité<select id="produceAvailability"><option value="">Toutes les disponibilités</option></select></label>
   </div>
   <div class="button-row"><button id="clearProduceFilters">Vider la recherche</button></div>
+  <div class="button-row" id="produceModes" style="margin:8px 0 12px"><button type="button" id="produceProducts" class="primary">Produits du Catalogue</button><button type="button" id="producePreparations">Préparations des Recettes</button></div>
   <div id="produceList" class="produce-list"></div>
 </section>
 <section id="produceView" class="view recipe-screen">
@@ -649,7 +651,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <div class="dialog-actions"><button id="catalogBulkCancel" type="button">Annuler</button><button id="catalogBulkApply" class="primary" type="button">Appliquer aux produits sélectionnés</button></div></dialog>
 <script src="frigo-catalog-data.js?v=2981140"></script>
 <script src="encyclopedia-adapter.js?v=3027"></script>
-<script src="app-v282.js?v=3035"></script>
+<script src="app-v282.js?v=3036"></script>
 <script src="media-v1.js?v=3005"></script>
 <script id="hg-catalog-picker-v13">
 /* Les listes du Catalogue existent déjà sous forme de <select> : les réutiliser
