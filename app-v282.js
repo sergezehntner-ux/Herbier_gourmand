@@ -9,7 +9,7 @@ const norm = s => String(s || '').replace(/[’‘`´ʼ]/g,"'").normalize('NFD')
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='3.0.29';
+const APP_VERSION='3.0.30';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -1930,20 +1930,22 @@ if($('#backFromProduce'))$('#backFromProduce').onclick=()=>switchView(previousPr
  const normalizeName=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase();
  const catId=x=>String(x.catalogId||x.catalogueId||x.catalogue?.id||(String(x.id||'').startsWith('catalog:')?String(x.id).slice(8):''));
  const compatible=(a,b)=>{const ai=catId(a),bi=catId(b);return ai&&bi?ai===bi:!ai&&!bi&&normalizeName(a.name)===normalizeName(b.name)};
+ const override=$('#hgLegacyMergeOverride'),overrideWrap=$('#hgLegacyMergeOverrideWrap');
  const eligible=()=>records().map((x,i)=>({x,i})).filter(({x})=>x&&!x.recipe&&!x.sourceRecipeId);
  const refresh=()=>{
   const rows=records(),a=keep.value===''?null:rows[Number(keep.value)],b=remove.value===''?null:rows[Number(remove.value)];
-  const ok=!!(a&&b&&a!==b&&compatible(a,b));apply.disabled=!ok;
+  const valid=!!(a&&b&&a!==b),same=valid&&compatible(a,b);
+  overrideWrap.style.display=valid&&!same?'block':'none';
+  apply.disabled=!(valid&&(same||override.checked));
   if(!a||!b){preview.textContent='Sélectionner deux fiches.';return}
   if(a===b){preview.textContent='Choisir deux fiches différentes.';return}
-  if(!ok){preview.textContent='Fusion bloquée : associations Catalogue différentes, ou noms différents pour des fiches non liées.';return}
   const missing=[],different=[];
   for(const [k,v] of Object.entries(b)){
    if(['id','name','catalogId','catalogueId','catalogue','category','catalogCategory','family','photoId','photo','image','imageUrl','recipe','sourceRecipeId'].includes(k)||v===null||v===undefined||v==='')continue;
    if(a[k]===null||a[k]===undefined||a[k]==='')missing.push(k);
    else if(JSON.stringify(a[k])!==JSON.stringify(v))different.push(k);
   }
-  preview.textContent=`Fiche conservée : ${a.name}\nFiche absorbée : ${b.name}\nChamps à compléter : ${missing.join(', ')||'aucun'}\nDifférences à conserver dans les notes : ${different.join(', ')||'aucune'}\nLes images des deux fiches ne seront pas effacées.`;
+  preview.textContent=`Fiche conservée : ${a.name} (${catId(a)||'sans lien Catalogue'})\nFiche remplacée : ${b.name} (${catId(b)||'sans lien Catalogue'})\n${same?'Associations compatibles.':'ATTENTION : noms ou associations différents. Vérifier qu’il s’agit du même article. Le Catalogue ne sera pas modifié.'}\nChamps à compléter : ${missing.join(', ')||'aucun'}\nDifférences conservées dans les notes : ${different.join(', ')||'aucune'}\nLes photos ne seront pas effacées.`;
  };
  const searchKeep=$('#hgLegacyMergeKeepSearch'),searchRemove=$('#hgLegacyMergeRemoveSearch');
  const alphabetical=(a,b)=>String(a.x.name||'').localeCompare(String(b.x.name||''),'fr',{sensitivity:'base',numeric:true});
@@ -1963,20 +1965,20 @@ if($('#backFromProduce'))$('#backFromProduce').onclick=()=>switchView(previousPr
   refresh();
  };
  function open(kindNext){
-  kind=kindNext;searchKeep.value='';searchRemove.value='';keep.value='';remove.value='';
+  kind=kindNext;searchKeep.value='';searchRemove.value='';keep.value='';remove.value='';override.checked=false;
   sync('all');
   $('#hgLegacyMergeTitle').textContent=kind==='herbs'?'Fusionner — Herbes & Épices':'Fusionner — Végétaux & Dérivés';
   dlg.showModal();
  }
- searchKeep.addEventListener('input',()=>{fill(keep,searchKeep,remove);sync('keep')});
- searchRemove.addEventListener('input',()=>{fill(remove,searchRemove,keep);sync('remove')});
+ searchKeep.addEventListener('input',()=>{override.checked=false;fill(keep,searchKeep,remove);sync('keep')});
+ searchRemove.addEventListener('input',()=>{override.checked=false;fill(remove,searchRemove,keep);sync('remove')});
  $('#mergeHerbs').onclick=()=>open('herbs');$('#mergeProduce').onclick=()=>open('produce');
  $('#hgLegacyMergeClose').onclick=$('#hgLegacyMergeCancel').onclick=()=>dlg.close();
- keep.onchange=()=>sync('keep');remove.onchange=()=>sync('remove');
+ keep.onchange=()=>{override.checked=false;sync('keep')};remove.onchange=()=>{override.checked=false;sync('remove')};override.onchange=refresh;
  apply.onclick=async()=>{
   const rows=records(),ki=Number(keep.value),ri=Number(remove.value),a=keep.value===''?null:rows[ki],b=remove.value===''?null:rows[ri];
-  if(!a||!b||ki===ri||!compatible(a,b))return alert('Fusion impossible : sélection ou association invalide.');
-  if(!confirm(`Fusionner « ${b.name} » dans « ${a.name} » ?\nLa fiche absorbée sera retirée de cette encyclopédie. Le Catalogue et les recettes ne changeront pas.`))return;
+  if(!a||!b||ki===ri||(!compatible(a,b)&&!override.checked))return alert('Fusion impossible : vérifier les fiches et confirmer les différences.');
+  if(!confirm(`Remplacer « ${b.name} » par « ${a.name} » ?\nLa fiche absorbée sera retirée de cette encyclopédie. Le Catalogue et les recettes ne changeront pas.`))return;
   try{downloadTextFile(`Herbier_Gourmand_AVANT_fusion_${kind}_${Date.now()}.hgbak.json`,JSON.stringify(herbierStorageSnapshot(),null,2))}
   catch(err){alert('Sauvegarde impossible : fusion annulée. '+err.message);return}
   const merged={...a},notes=[];
@@ -1986,6 +1988,7 @@ if($('#backFromProduce'))$('#backFromProduce').onclick=()=>switchView(previousPr
    if(merged[k]===undefined||merged[k]===null||merged[k]==='')merged[k]=v;
    else if(JSON.stringify(merged[k])!==JSON.stringify(v))notes.push(`${k} (${b.name}) : ${typeof v==='string'?v:JSON.stringify(v)}`);
   }
+  for(const k of ['category','catalogCategory','family'])if(b[k]&&JSON.stringify(b[k])!==JSON.stringify(a[k]))notes.push(`${k} (${b.name}) : ${typeof b[k]==='string'?b[k]:JSON.stringify(b[k])}`);
   if(notes.length)merged.notes=[merged.notes||'',`Informations de « ${b.name} » :\n${notes.join('\n')}`].filter(Boolean).join('\n\n');
   const next=rows.map((x,i)=>i===ki?merged:x).filter((x,i)=>i!==ri);
   try{await window.hgEncyclopediaRead.persist(kind,next,{read:hgGet,write:hgSet});}
