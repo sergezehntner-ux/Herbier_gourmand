@@ -2712,7 +2712,8 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   if(!rows.length){alert(condimentMode==='preparations'?'Aucune préparation associée à cette encyclopédie. Sélectionnez « Produits » pour découvrir une fiche produit.':'Aucune fiche à découvrir dans cette sélection.');return}
   const x=rows[Math.floor(Math.random()*rows.length)];detail(x.id);
  };
- get('hgEncyPrintList').onclick=()=>{const rows=[...get('hgEncyList').querySelectorAll('[data-id]')].map(b=>sourceItems().find(x=>x.id===b.dataset.id)).filter(Boolean);if(!rows.length)return alert('Aucune fiche à imprimer.');hgPrintInline(labels[active],`<h1>${esc(labels[active])}</h1><p>${rows.length} fiche(s)</p>`+rows.map(x=>`<div class="day"><h2>${esc(x.name)}</h2><p>${esc(x.category||'')}</p><p>${esc(x.uses||x.description||'')}</p></div>`).join(''))};
+ // v3.0.44 : construire la vue une seule fois par impression (au lieu d'une fois par fiche).
+ get('hgEncyPrintList').onclick=()=>{const byId=new Map(sourceItems().map(x=>[String(x.id),x]));const rows=[...get('hgEncyList').querySelectorAll('[data-id]')].map(b=>byId.get(b.dataset.id)).filter(Boolean);if(!rows.length)return alert('Aucune fiche à imprimer.');hgPrintInline(labels[active],`<h1>${esc(labels[active])}</h1><p>${rows.length} fiche(s)</p>`+rows.map(x=>`<div class="day"><h2>${esc(x.name)}</h2><p>${esc(x.category||'')}</p><p>${esc(x.uses||x.description||'')}</p></div>`).join(''))};
  document.querySelectorAll('[data-encyclopedia]').forEach(b=>b.onclick=()=>open(b.dataset.encyclopedia));
  window.addEventListener('hg:encyclopedia-edit-target',e=>{const {kind,id}=e.detail||{};if(!labels[kind])return;open(kind);edit(id);window.hgMarkEncyPending?.('hgEncyDialog');});
  window.addEventListener('hg:encyclopedia-linked',e=>{if(labels[e.detail?.kind]){try{const latest=JSON.parse(hgGet(STORE)||'{}');if(Array.isArray(latest[e.detail.kind]))db[e.detail.kind]=latest[e.detail.kind]}catch(err){console.error(err)}}});
