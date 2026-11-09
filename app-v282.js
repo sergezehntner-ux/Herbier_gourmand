@@ -9,7 +9,7 @@ const norm = s => String(s || '').replace(/[’‘`´ʼ]/g,"'").normalize('NFD')
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='3.0.31';
+const APP_VERSION='3.0.32';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -1941,7 +1941,7 @@ if($('#backFromProduce'))$('#backFromProduce').onclick=()=>switchView(previousPr
  const fill=(select,search,other,preferred)=>{
   const query=clean(search.value),previous=preferred===undefined?select.value:preferred;
   const rows=eligible().sort(alphabetical).filter(({x,i})=>String(i)!==other.value&&(!query||clean([x.name,x.id].join(' ')).includes(query)));
-  select.replaceChildren(...rows.map(({x,i})=>new Option(`${x.name||'Sans nom'} · ${x.id||i}`,String(i))));
+  select.replaceChildren(...rows.map(({x,i})=>new Option(x.name||'Sans nom',String(i))));
   if(rows.some(({i})=>String(i)===previous))select.value=previous;
   else if(rows.length)select.value=String(rows[0].i);
   else select.selectedIndex=-1;
