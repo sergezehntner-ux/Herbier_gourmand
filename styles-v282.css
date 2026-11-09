@@ -356,3 +356,8 @@ nav button{grid-column:span 4!important;font-size:.78rem;padding-inline:2px}
 
 /* v3.0.40 — six boutons compacts et libellés courts */
 #herbs .hg-six-actions-grid button,#produce .hg-six-actions-grid button,#hgEncyclopedia .hg-six-actions-grid button{min-height:38px;line-height:1.12;padding:5px 4px}
+
+/* v3.0.41 — réduction de 29 % de la hauteur des six boutons */
+#herbs .hg-six-actions-grid,#produce .hg-six-actions-grid,#hgEncyclopedia .hg-six-actions-grid{row-gap:6px}
+#herbs .hg-six-actions-grid button,#produce .hg-six-actions-grid button,#hgEncyclopedia .hg-six-actions-grid button{min-height:27px;padding:3px 4px;line-height:1.12}
+@media(max-width:760px){#herbs .hg-six-actions-grid button,#produce .hg-six-actions-grid button,#hgEncyclopedia .hg-six-actions-grid button{padding:3px 3px}}
