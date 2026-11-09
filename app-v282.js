@@ -2649,6 +2649,57 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  get('hgCondimentPreparations').onclick=()=>{condimentMode='preparations';chosen=null;showMode();render()};
  get('hgEncySearch').oninput=render;get('hgEncyCategory').onchange=render;get('hgEncyClearFilters').onclick=()=>{get('hgEncySearch').value='';get('hgEncyCategory').value='';render()};
  get('hgEncyPrint').onclick=()=>{const x=item();if(x)printDocument(x.name,`<h1>${esc(x.name)}</h1>`+get('hgEncyDetailContent').innerHTML)};
+ // v3.0.38 — mêmes actions dans les six encyclopédies génériques.
+ const mergeDialog=get('hgEncyMergeDialog'),mergeKeep=get('hgEncyMergeKeep'),mergeRemove=get('hgEncyMergeRemove');
+ const mergeKeepSearch=get('hgEncyMergeKeepSearch'),mergeRemoveSearch=get('hgEncyMergeRemoveSearch'),mergeApply=get('hgEncyMergeApply');
+ const mergeName=x=>clean(x.name);
+ const mergeEligible=()=>sourceItems().filter(x=>!x.recipe&&!x.sourceRecipeId && db[active].some(y=>y.id===x.id));
+ function mergeFill(select,search,other){
+  const previous=select.value,q=clean(search.value);
+  const rows=mergeEligible().filter(x=>x.id!==other.value&&(!q||mergeName(x).includes(q))).sort((a,b)=>a.name.localeCompare(b.name,'fr',{sensitivity:'base',numeric:true}));
+  select.replaceChildren(...rows.map(x=>new Option(x.name,x.id)));
+  if(rows.some(x=>x.id===previous))select.value=previous;
+ }
+ function mergeSync(changed){
+  if(changed==='keep')mergeFill(mergeRemove,mergeRemoveSearch,mergeKeep);
+  else if(changed==='remove')mergeFill(mergeKeep,mergeKeepSearch,mergeRemove);
+  else{mergeFill(mergeKeep,mergeKeepSearch,{value:''});mergeFill(mergeRemove,mergeRemoveSearch,mergeKeep)}
+  mergeApply.disabled=!mergeKeep.value||!mergeRemove.value||mergeKeep.value===mergeRemove.value;
+ }
+ get('hgEncyMerge').onclick=()=>{
+  if(condimentMode==='preparations'){alert('La fusion des recettes se fait depuis la rubrique Recettes, pour préserver leurs liens avec le Planning et les autres rubriques.');return}
+  mergeKeepSearch.value='';mergeRemoveSearch.value='';mergeKeep.value='';mergeRemove.value='';mergeSync();
+  mergeDialog.showModal();
+ };
+ mergeKeepSearch.oninput=()=>{mergeFill(mergeKeep,mergeKeepSearch,mergeRemove);mergeSync('keep')};
+ mergeRemoveSearch.oninput=()=>{mergeFill(mergeRemove,mergeRemoveSearch,mergeKeep);mergeSync('remove')};
+ mergeKeep.onchange=()=>mergeSync('keep');mergeRemove.onchange=()=>mergeSync('remove');
+ get('hgEncyMergeClose').onclick=get('hgEncyMergeCancel').onclick=()=>mergeDialog.close();
+ mergeApply.onclick=async()=>{
+  const a=db[active].find(x=>x.id===mergeKeep.value),b=db[active].find(x=>x.id===mergeRemove.value);
+  if(!a||!b||a===b)return;
+  if(!confirm(`Remplacer « ${b.name} » par « ${a.name} » ?\nLe Catalogue et les recettes ne seront pas modifiés.`))return;
+  try{downloadTextFile(`Herbier_Gourmand_AVANT_fusion_${active}_${Date.now()}.hgbak.json`,JSON.stringify(herbierStorageSnapshot(),null,2))}
+  catch(err){alert('Sauvegarde impossible : fusion annulée. '+err.message);return}
+  const merged={...a},extra=[];
+  const protectedFields=new Set(['id','name','catalogId','catalogueId','catalogue','category','photoId','photo','image','imageUrl','recipe','sourceRecipeId']);
+  for(const [key,value] of Object.entries(b)){
+   if(protectedFields.has(key)||value===null||value===undefined||value==='')continue;
+   if(merged[key]===undefined||merged[key]===null||merged[key]==='')merged[key]=value;
+   else if(JSON.stringify(merged[key])!==JSON.stringify(value))extra.push(`${key} (${b.name}) : ${typeof value==='string'?value:JSON.stringify(value)}`);
+  }
+  if(extra.length)merged.notes=[merged.notes||'',`Informations de « ${b.name} » :\n${extra.join('\n')}`].filter(Boolean).join('\n\n');
+  const next=db[active].map(x=>x.id===a.id?merged:x).filter(x=>x.id!==b.id);
+  try{await window.hgEncyclopediaRead.persist(active,next,{read:hgGet,write:hgSet,sharedSnapshot:{...db,[active]:next}})}
+  catch(err){alert('Fusion non enregistrée : '+err.message);return}
+  db[active]=next;registerProtectedChange();markDirty();mergeDialog.close();render();
+ };
+ get('hgEncyRandom').onclick=()=>{
+  const q=clean(get('hgEncySearch').value),category=get('hgEncyCategory').value;
+  const rows=sourceItems().filter(x=>(!category||x.category===category)&&(!q||clean(Object.values(x).filter(v=>typeof v==='string').join(' ')).includes(q)));
+  if(!rows.length){alert('Aucune fiche à découvrir dans cette sélection.');return}
+  const x=rows[Math.floor(Math.random()*rows.length)];detail(x.id);
+ };
  get('hgEncyPrintList').onclick=()=>{const rows=[...get('hgEncyList').querySelectorAll('[data-id]')].map(b=>sourceItems().find(x=>x.id===b.dataset.id)).filter(Boolean);if(!rows.length)return alert('Aucune fiche à imprimer.');printDocument(labels[active],`<h1>${esc(labels[active])}</h1><p>${rows.length} fiche(s)</p>`+rows.map(x=>`<div class="day"><h2>${esc(x.name)}</h2><p>${esc(x.category||'')}</p><p>${esc(x.uses||x.description||'')}</p></div>`).join(''))};
  document.querySelectorAll('[data-encyclopedia]').forEach(b=>b.onclick=()=>open(b.dataset.encyclopedia));
  window.addEventListener('hg:encyclopedia-edit-target',e=>{const {kind,id}=e.detail||{};if(!labels[kind])return;open(kind);edit(id);window.hgMarkEncyPending?.('hgEncyDialog');});
