@@ -388,3 +388,22 @@ nav button{grid-column:span 4!important;font-size:.78rem;padding-inline:2px}
 #recipeViewContent .hg-recipe-view-panels{min-height:180px;max-height:calc(100dvh - 330px);overflow-y:auto;overscroll-behavior:contain}
 #recipeViewContent .hg-recipe-view-panels>div{padding:10px 14px}
 @media(max-width:620px){#recipeDialog .hg-recipe-edit-head h2{flex-basis:105px;font-size:19px}#hgRecipeEditPhoto img{width:58px;height:58px}#recipeViewContent .hg-recipe-view-panels{max-height:calc(100dvh - 260px)}}
+
+/* v3.0.49 — bandeau compact commun aux vues et à la modification */
+#recipeViewContent .hg-recipe-view-heading{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:5px 12px;min-height:0;padding:9px 12px;margin:4px 0 6px}
+#recipeViewContent .hg-recipe-heading-main{min-width:0;display:flex;align-items:center;gap:12px}
+#recipeViewContent .hg-recipe-heading-text{min-width:0;flex:1}
+#recipeViewContent .hg-recipe-view-heading h2{font-size:clamp(19px,2.8vw,30px);line-height:1.12;margin:0 0 3px}
+#recipeViewContent .hg-recipe-heading-summary{color:var(--muted);font-size:clamp(11px,1.5vw,14px);line-height:1.25}
+#recipeViewContent .hg-recipe-heading-actions{display:flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+#recipeViewContent .hg-recipe-heading-actions button{padding:7px 10px;font-size:clamp(11px,1.45vw,14px)}
+#recipeViewContent .hg-recipe-view-heading .hg-photo-slot{flex:0 0 76px;max-width:76px;margin:0;align-self:center}
+#recipeViewContent .hg-recipe-view-heading .hg-photo-detail{width:76px;height:66px;min-height:0}
+#recipeViewContent .hg-recipe-view-heading .hg-photo-actions{display:none}
+#recipeViewContent .hg-recipe-view-tabs{margin:5px 0}
+#recipeDialog .hg-recipe-edit-head{min-height:66px;padding:5px 0;gap:8px}
+#recipeDialog .hg-recipe-edit-head h2{flex-basis:112px;font-size:clamp(18px,2vw,23px)}
+#recipeDialog .hg-recipe-edit-identity{justify-content:space-between}
+#recipeDialog #hgRecipeEditPhoto img{width:70px;height:62px;object-fit:cover;border-radius:8px}
+#recipeDialog #hgRecipeEditPhoto img:not([src]){visibility:hidden}
+@media(max-width:620px){#recipeViewContent .hg-recipe-view-heading{grid-template-columns:1fr;gap:7px}#recipeViewContent .hg-recipe-heading-actions{justify-content:space-between}#recipeDialog .hg-recipe-edit-head h2{flex-basis:86px;font-size:17px}#recipeDialog #hgRecipeEditPhoto img{width:56px;height:54px}}
