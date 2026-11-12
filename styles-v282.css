@@ -371,3 +371,20 @@ nav button{grid-column:span 4!important;font-size:.78rem;padding-inline:2px}
 #recipeDialog .hg-recipe-tab-panel[hidden]{display:none!important}
 #recipeDialog .dialog-actions{position:relative;bottom:auto;margin-top:auto;flex:0 0 auto}
 #recipeDialog .hg-recipe-tab-panel .recipe-form-fields{display:block}
+
+/* v3.0.48 — bandeau fixe et consultation en quatre onglets */
+#recipeDialog .hg-recipe-edit-head{display:flex;align-items:center;gap:12px;min-height:88px}
+#recipeDialog .hg-recipe-edit-head h2{white-space:pre-line;line-height:1.05;font-size:clamp(19px,2.4vw,28px);flex:0 0 145px}
+#recipeDialog .hg-recipe-edit-identity{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:1;min-width:0}
+#hgRecipeEditName{font-size:clamp(17px,2.1vw,26px);line-height:1.15;overflow-wrap:anywhere}
+#hgRecipeEditPhoto img{width:82px;height:72px;object-fit:cover;border-radius:9px}
+#recipeDialog .hg-recipe-edit-head>button{margin-left:auto;flex:0 0 auto}
+#recipeViewContent .hg-recipe-view-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:85px}
+#recipeViewContent .hg-recipe-view-heading h2{margin:0;line-height:1.15}
+#recipeViewContent .hg-recipe-view-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin:10px 0}
+#recipeViewContent .hg-recipe-view-tabs button{padding:10px 3px;font-size:clamp(10px,1.7vw,14px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#recipeViewContent .hg-recipe-view-tabs button[aria-selected=true]{background:var(--accent,#426f56);color:#fff;font-weight:700}
+#recipeViewContent [data-recipe-view-panel][hidden]{display:none!important}
+#recipeViewContent .hg-recipe-view-panels{min-height:180px;max-height:calc(100dvh - 330px);overflow-y:auto;overscroll-behavior:contain}
+#recipeViewContent .hg-recipe-view-panels>div{padding:10px 14px}
+@media(max-width:620px){#recipeDialog .hg-recipe-edit-head h2{flex-basis:105px;font-size:19px}#hgRecipeEditPhoto img{width:58px;height:58px}#recipeViewContent .hg-recipe-view-panels{max-height:calc(100dvh - 260px)}}

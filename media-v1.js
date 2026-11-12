@@ -78,3 +78,5 @@ window.hgMediaImportPaprikaPhoto=async(recipeId,b64)=>{if(!recipeId||!b64)throw 
 
 ensureUi();renderRecipes();renderHerbs();renderProduce();renderShopping();hydrate();
 })();
+
+window.hgMediaHydrate=hydrate;
