@@ -318,7 +318,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v3.0.46 · Impression accélérée</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v3.0.47 · Impression accélérée</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -538,7 +538,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <div class="dialog-actions"><button type="button" id="hgEncyDelete" class="danger">Supprimer la fiche</button><button type="button" id="hgEncyCancel">Annuler</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 </main>
 <button id="hgLibraryFloatingBack" type="button" class="primary" aria-label="Retour à la Bibliothèque">← Bibliothèque</button>
-<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v3.0.46</span></footer>
+<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v3.0.47</span></footer>
 <button id="recipeFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des recettes">🔍 Rechercher</button>
 <button id="restaurantFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des sorties">🔍 Rechercher</button>
 <button id="producerFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des producteurs">🔍 Rechercher</button>
@@ -547,7 +547,8 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 
 <dialog id="hgBulkContextDialog" aria-labelledby="hgBulkContextTitle"><div class="hg-bulk-context-top"><h2 id="hgBulkContextTitle">Recettes concernées</h2><button type="button" id="hgBulkContextClose">Fermer ×</button></div><p id="hgBulkContextInfo" class="muted"></p><div class="button-row"><button type="button" id="hgBulkSelectAll">Tout sélectionner</button><button type="button" id="hgBulkSelectNone">Tout désélectionner</button></div><div id="hgBulkContextList" class="hg-bulk-context-list"></div><div class="hg-bulk-context-actions"><button type="button" id="hgBulkContextCancel">Retour à l’harmonisation</button><button type="button" class="primary" id="hgBulkContextUse">Utiliser cette sélection</button></div></dialog>
 <dialog id="recipeDialog"><form id="recipeForm" method="dialog"><div class="dialog-head"><h2 id="recipeDialogTitle">Recette</h2><button type="button" id="closeRecipe">×</button></div><input type="hidden" id="recipeId">
-<div class="recipe-form-fields">
+<nav class="hg-recipe-tabs" role="tablist" aria-label="Rubriques de la recette"><button type="button" role="tab" id="hgRecipeTabGeneral" data-recipe-tab="general" aria-selected="true">Généralités</button><button type="button" role="tab" id="hgRecipeTabIngredients" data-recipe-tab="ingredients" aria-selected="false">Ingrédients</button><button type="button" role="tab" id="hgRecipeTabPreparation" data-recipe-tab="preparation" aria-selected="false">Préparation</button><button type="button" role="tab" id="hgRecipeTabSides" data-recipe-tab="sides" aria-selected="false">Accompagn.</button></nav>
+<div class="hg-recipe-tab-panel" id="hgRecipePanelGeneral" role="tabpanel" aria-labelledby="hgRecipeTabGeneral"><div class="recipe-form-fields">
 <label class="recipe-field-wide">Titre<input id="recipeTitle" required></label>
 <label class="recipe-field-wide">Tags (texte libre ou choix existant)<input id="recipeTags" list="tagSuggestions" placeholder="Ex. Italie, été"><datalist id="tagSuggestions"></datalist></label>
 <div class="recipe-compact-fields">
@@ -562,7 +563,11 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <label class="recipe-field-inline"><span>Saison</span><select id="recipeSeason"><option value="toute-annee">Toute l'année</option><option value="printemps">Printemps</option><option value="ete">Été</option><option value="automne">Automne</option><option value="hiver">Hiver</option></select></label>
 <label class="recipe-field-inline"><span>Période</span><select id="recipePeriod"><option value="indifferente">indifférente</option><option value="chaude">chaude</option><option value="froide">froide</option></select></label>
 </div></div>
-<section class="hg-recipe-ingredients"><div class="hg-ingredient-heading"><strong>Ingrédients</strong><button type="button" class="primary" id="recipeIngredientAdd">+ Ajouter un ingrédient</button><button type="button" id="recipeIngredientHeading">+ Intertitre</button></div><div id="recipeIngredientRows" aria-live="polite"></div><textarea id="recipeIngredients" hidden aria-hidden="true"></textarea><div style="margin:.25rem 0 .6rem"><button type="button" id="recipeIngredientCheck">Vérifier les ingrédients</button><div id="recipeIngredientDiagnostic" hidden style="white-space:pre-line;margin-top:.4rem;font-size:.9em"></div></div></section><label>Préparation <span class="muted">(une étape par ligne · une ligne finissant par « : » = intertitre)</span><textarea id="recipeSteps" rows="7"></textarea></label>
+</div>
+<div class="hg-recipe-tab-panel" id="hgRecipePanelIngredients" role="tabpanel" aria-labelledby="hgRecipeTabIngredients" hidden><section class="hg-recipe-ingredients"><div class="hg-ingredient-heading"><strong>Ingrédients</strong><button type="button" class="primary" id="recipeIngredientAdd">+ Ajouter un ingrédient</button><button type="button" id="recipeIngredientHeading">+ Intertitre</button></div><div id="recipeIngredientRows" aria-live="polite"></div><textarea id="recipeIngredients" hidden aria-hidden="true"></textarea><div style="margin:.25rem 0 .6rem"><button type="button" id="recipeIngredientCheck">Vérifier les ingrédients</button><div id="recipeIngredientDiagnostic" hidden style="white-space:pre-line;margin-top:.4rem;font-size:.9em"></div></div></section></div>
+<div class="hg-recipe-tab-panel" id="hgRecipePanelPreparation" role="tabpanel" aria-labelledby="hgRecipeTabPreparation" hidden><label>Préparation <span class="muted">(une étape par ligne · une ligne finissant par « : » = intertitre)</span><textarea id="recipeSteps" rows="7"></textarea></label>
+</div>
+<div class="hg-recipe-tab-panel" id="hgRecipePanelSides" role="tabpanel" aria-labelledby="hgRecipeTabSides" hidden><p class="muted">La gestion des accompagnements sera intégrée lors de la prochaine étape. Les recettes et les données existantes ne sont pas modifiées.</p></div>
 <div class="dialog-actions"><button type="button" id="deleteRecipe" class="danger">Supprimer</button><button type="button" id="duplicateRecipe">Dupliquer</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 
 <dialog id="recipeIngredientEditor"><div class="dialog-head"><h2 id="recipeIngredientEditorTitle">Ajouter un ingrédient</h2><button type="button" id="recipeIngredientEditorClose">×</button></div><div class="hg-ing-editor"><label>Rechercher dans le Catalogue<input id="recipeIngredientSearch" type="search" autocomplete="off" placeholder="Commencer à taper un nom…"></label><div id="recipeIngredientMatches" class="hg-ing-matches"></div><div id="recipeIngredientSelected" class="muted">Choisis un article du Catalogue.</div><div class="hg-ing-numbers"><label>Quantité<input id="recipeIngredientQty" type="number" step="any" value="0"></label><label>Unité<input id="recipeIngredientUnit" type="text" placeholder="g, kg, u…"></label></div><div class="dialog-actions"><button type="button" id="recipeIngredientEditorCancel">Annuler</button><button type="button" class="primary" id="recipeIngredientEditorSave">Ajouter à la recette</button></div></div></dialog>
@@ -653,7 +658,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <div class="dialog-actions"><button id="catalogBulkCancel" type="button">Annuler</button><button id="catalogBulkApply" class="primary" type="button">Appliquer aux produits sélectionnés</button></div></dialog>
 <script src="frigo-catalog-data.js?v=2981140"></script>
 <script src="encyclopedia-adapter.js?v=3027"></script>
-<script src="app-v282.js?v=3044"></script>
+<script src="app-v282.js?v=3047"></script>
 <script src="media-v1.js?v=3005"></script>
 <script id="hg-catalog-picker-v13">
 /* Les listes du Catalogue existent déjà sous forme de <select> : les réutiliser

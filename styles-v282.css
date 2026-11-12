@@ -361,3 +361,13 @@ nav button{grid-column:span 4!important;font-size:.78rem;padding-inline:2px}
 #herbs .hg-six-actions-grid,#produce .hg-six-actions-grid,#hgEncyclopedia .hg-six-actions-grid{row-gap:6px}
 #herbs .hg-six-actions-grid button,#produce .hg-six-actions-grid button,#hgEncyclopedia .hg-six-actions-grid button{min-height:27px;padding:3px 4px;line-height:1.12}
 @media(max-width:760px){#herbs .hg-six-actions-grid button,#produce .hg-six-actions-grid button,#hgEncyclopedia .hg-six-actions-grid button{padding:3px 3px}}
+
+/* v3.0.47 — Onglets du véritable masque Recettes */
+#recipeDialog form{overflow:hidden;min-height:0}
+#recipeDialog .hg-recipe-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;flex:0 0 auto}
+#recipeDialog .hg-recipe-tabs button{padding:9px 3px;font-size:clamp(10px,1.7vw,14px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#recipeDialog .hg-recipe-tabs button[aria-selected="true"]{background:var(--accent,#426f56);color:white;font-weight:700}
+#recipeDialog .hg-recipe-tab-panel{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:3px 4px}
+#recipeDialog .hg-recipe-tab-panel[hidden]{display:none!important}
+#recipeDialog .dialog-actions{position:relative;bottom:auto;margin-top:auto;flex:0 0 auto}
+#recipeDialog .hg-recipe-tab-panel .recipe-form-fields{display:block}
