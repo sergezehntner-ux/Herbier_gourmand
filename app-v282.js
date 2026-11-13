@@ -1360,6 +1360,49 @@ $('#hgChatImport').onchange=async event=>{
   const file=event.target.files?.[0];event.target.value='';if(!file)return;
   try{
     const patch=JSON.parse(await file.text());
+    // v3.0.50 : import additif et idempotent des préparations maison.
+    if(patch.format==='HerbierGourmandMaisonAdditions'){
+      if(patch.formatVersion!==1||!patch.data||typeof patch.data!=='object')throw Error('Format des ajouts non reconnu.');
+      const catalogKey='hg-ingredient-catalog-v1',encyKey='hg-encyclopedias-v1',herbsKey='hg-herbs-spices-v28',produceKey='hg-fruits-vegetables-v282';
+      const permitted=[catalogKey,encyKey,herbsKey,produceKey];
+      if(Object.keys(patch.data).some(k=>!permitted.includes(k)))throw Error('Rubrique inattendue dans le fichier.');
+      const staged=new Map();for(const key of permitted){const raw=hgGet(key);if(!raw)throw Error('Rubrique absente : '+key);staged.set(key,JSON.parse(raw));}
+      const incoming=patch.data[catalogKey];
+      if(!Array.isArray(incoming)||incoming.length!==47||new Set(incoming.map(x=>x.id)).size!==47)throw Error('La liste des 47 préparations est incomplète.');
+      const existingCatalog=staged.get(catalogKey),catalogById=new Map(existingCatalog.map(x=>[x.id,x]));
+      const newIds=new Set(incoming.map(x=>x.id)),newNames=new Set();let created=0,skipped=0;
+      for(const row of incoming){
+        if(!row||typeof row.id!=='string'||!/^hg-maison-20261113-\d{3}$/.test(row.id)||typeof row.name!=='string'||!row.name.includes('fait maison')||typeof row.group!=='string'||typeof row.aisle!=='string'||row.image!=='')throw Error('Article maison invalide.');
+        const normalized=row.name.trim().toLocaleLowerCase('fr');if(newNames.has(normalized))throw Error('Nom en double dans le fichier : '+row.name);newNames.add(normalized);
+        const found=catalogById.get(row.id);
+        if(found){if(found.name!==row.name||found.group!==row.group)throw Error('Conflit avec un article existant : '+row.name);skipped++;continue;}
+        if(existingCatalog.some(x=>String(x.name||'').trim().toLocaleLowerCase('fr')===normalized))throw Error('Nom déjà utilisé dans le Catalogue : '+row.name);
+        existingCatalog.push({...row});catalogById.set(row.id,row);created++;
+      }
+      let fiches=0;
+      for(const key of [encyKey,herbsKey,produceKey]){
+        const source=patch.data[key];if(!source)throw Error('Rubrique manquante : '+key);
+        const destination=staged.get(key);
+        const kinds=key===encyKey?Object.keys(source):[null];
+        for(const kind of kinds){
+          const items=kind===null?source:source[kind];
+          const target=kind===null?destination:destination[kind];
+          if(!Array.isArray(items)||!Array.isArray(target))throw Error('Encyclopédie non reconnue : '+kind);
+          for(const row of items){
+            if(!row||!newIds.has(row.catalogId)||catalogById.get(row.catalogId)?.name!==row.name)throw Error('Fiche non liée au Catalogue : '+row?.name);
+            const present=target.find(x=>x.catalogId===row.catalogId||x.id===row.id);
+            if(present){if(present.catalogId!==row.catalogId||present.name!==row.name)throw Error('Conflit dans une encyclopédie : '+row.name);continue;}
+            target.push({...row});fiches++;
+          }
+        }
+      }
+      const expected=Object.values(patch.data[encyKey]).reduce((n,a)=>n+a.length,0)+patch.data[herbsKey].length+patch.data[produceKey].length;
+      if(expected!==47||created+skipped!==47)throw Error('Contrôle des 47 associations impossible.');
+      if(!confirm(`Ajout contrôlé : ${created} articles et ${fiches} fiches à créer ; ${skipped} articles déjà présents. Aucune donnée existante ne sera remplacée. Continuer ?`))return;
+      createEmergencyCheckpoint('avant ajout des 47 préparations maison');
+      for(const [key,records] of staged)await hgSet(key,JSON.stringify(records));
+      await hgFlush();alert(`Import terminé : ${created} articles et ${fiches} fiches ajoutés. La page va être rechargée.`);location.reload();return;
+    }
     if(patch.format!=='HerbierGourmandChatPatch'||patch.formatVersion!==1||!Array.isArray(patch.changes)||!patch.changes.length)throw Error('Fichier de corrections non reconnu.');
     const allowed=new Set(Object.values(HG_CHAT_GROUPS).flat());
     const staged=new Map(),issues=[];
