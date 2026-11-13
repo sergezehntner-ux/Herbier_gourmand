@@ -28,7 +28,14 @@ function ajouterValeur(resultat,destination,source,valeur){
  // Ne pas doubler une étiquette déjà présente dans le texte d'origine.
  const premiereLigne=contenu.split('\n')[0];
  const dejaEtiquete=premiereLigne.includes(':')&&normaliserCle(premiereLigne.split(':')[0])===normaliserCle(titre);
- const ligne=dejaEtiquete?contenu:titre+' : '+contenu;
+ // Si la valeur contient déjà des sous-champs identifiés, ne pas ajouter
+ // un titre englobant (ex. « Bienfaits/Caractéristiques : Apports : ... »).
+ const lignesEtiquetees=contenu.split('\n').filter(x=>x.trim());
+ const sousChampsIdentifies=lignesEtiquetees.some(x=>{const m=x.match(/^\s*([^:]{2,65})\s*:/);return m&&destinationsSousChamps[normaliserCle(m[1])];});
+ const ligne=sousChampsIdentifies?lignesEtiquetees.map(x=>{
+  if(/^\s*[^:]{2,65}\s*:/.test(x))return x;
+  return titre+' : '+x;
+ }).join('\n'):(dejaEtiquete?contenu:titre+' : '+contenu);
  const actuel=String(resultat[destination]||'').trim();
  const canon=x=>normaliserCle(x);
  if(actuel.split('\n').some(x=>canon(x)===canon(ligne)))return;

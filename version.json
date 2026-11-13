@@ -1,4 +1,4 @@
 {
-  "version": "3.0.66",
-  "label": "Conversion des fiches anciennes : libellés sans doublons"
+  "version": "3.0.67",
+  "label": "Conversion des fiches : sous-champs identifiés sans préfixe répété"
 }
