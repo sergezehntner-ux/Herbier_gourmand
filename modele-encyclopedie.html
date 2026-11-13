@@ -35,7 +35,18 @@ function convertirAncienneFiche(encyclopedie,fiche){
  for(const [source,destination] of paires){
   const match=index.get(normaliserCle(source));if(!match)continue;
   const [cle,brut]=match;traites.add(normaliserCle(cle));
-  const valeur=valeurLisible(brut);if(valeur)ajouterValeur(resultat,destination,source,valeur);
+  const valeur=valeurLisible(brut);if(!valeur)continue;
+  if(destination==='Catégorie Catalogue'){
+   // Un champ simple ne doit jamais recevoir plusieurs catégories collées.
+   const categories=valeur.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+   resultat[destination]=categories[0]||'';
+   if(categories.length>1)ajouterValeur(resultat,'Remarques','Autres catégories anciennes',categories.slice(1).join(', '));
+  }else if(destination==='Disponibilité/Saison'){
+   const partie=valeur.replace(/^(?:saison|disponibilité)\s*:\s*/i,'').trim();
+   const actuel=resultat[destination]||'';
+   if(!actuel)resultat[destination]=partie;
+   else if(!actuel.split(' · ').some(x=>normaliserCle(x)===normaliserCle(partie)))resultat[destination]=actuel+' · '+partie;
+  }else ajouterValeur(resultat,destination,source,valeur);
  }
  // Conserver les véritables informations non associées, jamais les identifiants internes.
  for(const [cle,brut] of Object.entries(fiche)){
@@ -48,7 +59,7 @@ function convertirAncienneFiche(encyclopedie,fiche){
 const prep=[['Titre','text'],['Tags','text'],['Catégorie','text'],['Encyclopédie','text'],['Type','text'],['Effort','text'],['Difficulté','text'],['Spécial','text'],['Portions','text'],['Température','text'],['Saison','text'],['Période','text'],['Ingrédients','textarea'],['Vérifier les ingrédients','action'],['Préparation','textarea']];
 const schema=()=>mode==='Produit'?product:prep;
 function render(){let q=$('search').value.toLocaleLowerCase('fr');let arr=entries.filter(x=>x.type===mode&&(x.data[x.type==='Produit'?'Nom':'Titre']||'').toLocaleLowerCase('fr').includes(q)).sort((a,b)=>(a.data[a.type==='Produit'?'Nom':'Titre']||'').localeCompare((b.data[b.type==='Produit'?'Nom':'Titre']||''),'fr',{sensitivity:'base'}));$('cards').replaceChildren();$('status').textContent=arr.length+' fiche(s) '+mode.toLowerCase()+' · '+entries.length+' fiche(s) d’essai au total';if(!arr.length){$('cards').textContent='Aucune fiche d’essai. Utilise « Ajouter » pour commencer.';return}arr.forEach(x=>{let c=document.createElement('div');c.className='card';let t=document.createElement('strong');t.textContent=x.data[x.type==='Produit'?'Nom':'Titre']||'(sans nom)';c.append(t);let p=document.createElement('span');p.className='pill';p.textContent=x.type;c.append(p);let actions=document.createElement('div');actions.className='toolbar';let b=document.createElement('button');b.textContent='Voir';b.onclick=()=>view(x.id);let e=document.createElement('button');e.textContent='Modifier';e.onclick=()=>edit(x.id);actions.append(b,e);c.append(actions);$('cards').append(c)})}
-function edit(id){editing=id;let item=entries.find(x=>x.id===id);$('editTitle').textContent=(item?'Modifier':'Ajouter')+' · '+mode;$('fields').replaceChildren();$('fields').className='grid '+(mode==='Produit'?'product-grid':'prep-grid');schema().forEach(([name,type])=>{let l=document.createElement('label');l.className='field'+(mode==='Préparation'&&(['Titre','Tags','Ingrédients','Vérifier les ingrédients','Préparation'].includes(name))?' recipe-wide':'');let s=document.createElement('span');s.textContent=name;l.append(s);if(type==='action'){let b=document.createElement('button');b.type='button';b.textContent='Vérifier les ingrédients (essai)';b.onclick=()=>alert('Fonction à raccorder au Catalogue lors de l’intégration définitive. Aucune donnée du Catalogue n’est modifiée.');l.append(b)}else{let el=document.createElement(type==='textarea'?'textarea':'input');if(type!=='textarea')el.type='text';el.name=name;el.value=item?.data[name]||'';if(name==='Nom'||name==='Titre')el.required=true;l.append(el)}$('fields').append(l)});$('editor').showModal()}
+function edit(id){editing=id;let item=entries.find(x=>x.id===id);$('editTitle').textContent=(item?'Modifier':'Ajouter')+' · '+mode;$('fields').replaceChildren();$('fields').className='grid '+(mode==='Produit'?'product-grid':'prep-grid');schema().forEach(([name,type])=>{let l=document.createElement('label');l.className='field'+(mode==='Préparation'&&(['Titre','Tags','Ingrédients','Vérifier les ingrédients','Préparation'].includes(name))?' recipe-wide':'');let s=document.createElement('span');s.textContent=name;l.append(s);if(type==='action'){let b=document.createElement('button');b.type='button';b.textContent='Vérifier les ingrédients (essai)';b.onclick=()=>alert('Fonction à raccorder au Catalogue lors de l’intégration définitive. Aucune donnée du Catalogue n’est modifiée.');l.append(b)}else{let el=document.createElement(type==='textarea'?'textarea':'input');if(type!=='textarea')el.type='text';el.name=name;el.value=item?.data[name]||'';if(type==='text'&&el.value.includes('\n'))el.value=el.value.split('\n').map(x=>x.trim()).filter(Boolean).join(' · ');if(name==='Nom'||name==='Titre')el.required=true;l.append(el)}$('fields').append(l)});$('editor').showModal()}
 function view(id){viewing=id;let x=entries.find(e=>e.id===id);if(!x)return;$('viewTitle').textContent=x.data[x.type==='Produit'?'Nom':'Titre'];$('viewContent').replaceChildren();(x.type==='Produit'?product:prep).filter(([n,t])=>t!=='action'&&x.data[n]).forEach(([n])=>{let d=document.createElement('div');d.className='panel';let b=document.createElement('strong');b.textContent=n;let p=document.createElement('p');p.style.whiteSpace='pre-wrap';p.textContent=x.data[n];d.append(b,p);$('viewContent').append(d)});$('viewer').showModal()}
 $('form').onsubmit=e=>{e.preventDefault();let data=Object.fromEntries(new FormData($('form')).entries());if(editing){let x=entries.find(x=>x.id===editing);x.data=data}else entries.push({id:'essai-'+Date.now()+'-'+Math.random().toString(36).slice(2),type:mode,data});save();$('editor').close();render()};
 $('products').onclick=()=>switchMode('Produit');$('preps').onclick=()=>switchMode('Préparation');function switchMode(m){mode=m;$('products').classList.toggle('active',m==='Produit');$('preps').classList.toggle('active',m==='Préparation');render()}
@@ -87,6 +98,16 @@ function fichePourConversion(fiche){const result={};for(const [key,value] of Obj
  if(clesTechniquesNormalisees.has(normaliserCle(key))||key.startsWith('_'))continue;
  const label=nomsSources[key]||key;
  const texte=valeurLisible(value);if(!texte)continue;
+ // Les catégories concurrentes restent distinctes : le Catalogue est prioritaire.
+ if(label==='Catégorie'&&result[label]){
+  if(normaliserCle(result[label])!==normaliserCle(texte)){
+   const priorite=/^(catalogCategory|catalogueCategory)$/i.test(key);
+   const autre=priorite?result[label]:texte;
+   result[label]=priorite?texte:result[label];
+   result['Remarques']=((result['Remarques']||'')+'\nCatégorie ancienne : '+autre).trim();
+  }
+  continue;
+ }
  if(!result[label])result[label]=texte;
  else if(!result[label].split('\n').some(x=>normaliserCle(x)===normaliserCle(texte)))result[label]+='\n'+texte;
  }return result}
