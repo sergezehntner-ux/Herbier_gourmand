@@ -35,7 +35,77 @@ function edit(id){editing=id;let item=entries.find(x=>x.id===id);$('editTitle').
 function view(id){viewing=id;let x=entries.find(e=>e.id===id);if(!x)return;$('viewTitle').textContent=x.data[x.type==='Produit'?'Nom':'Titre'];$('viewContent').replaceChildren();(x.type==='Produit'?product:prep).filter(([n,t])=>t!=='action'&&x.data[n]).forEach(([n])=>{let d=document.createElement('div');d.className='panel';let b=document.createElement('strong');b.textContent=n;let p=document.createElement('p');p.style.whiteSpace='pre-wrap';p.textContent=x.data[n];d.append(b,p);$('viewContent').append(d)});$('viewer').showModal()}
 $('form').onsubmit=e=>{e.preventDefault();let data=Object.fromEntries(new FormData($('form')).entries());if(editing){let x=entries.find(x=>x.id===editing);x.data=data}else entries.push({id:'essai-'+Date.now()+'-'+Math.random().toString(36).slice(2),type:mode,data});save();$('editor').close();render()};
 $('products').onclick=()=>switchMode('Produit');$('preps').onclick=()=>switchMode('Préparation');function switchMode(m){mode=m;$('products').classList.toggle('active',m==='Produit');$('preps').classList.toggle('active',m==='Préparation');render()}
-$('importOld').onclick=()=>{if(mode!=='Produit'){alert('Essai réservé aux Produits.');return}const nom=prompt('Encyclopédie d’origine :\n'+Object.keys(correspondancesProduit).map((n,i)=>(i+1)+' · '+n).join('\n')+'\nSaisir son numéro :');if(nom===null)return;const enc=Object.keys(correspondancesProduit)[Number(nom)-1];if(!enc){alert('Encyclopédie non reconnue');return}const brut=prompt('Coller une fiche au format JSON (objet avec les anciens noms de champs) :');if(brut===null)return;try{const fiche=JSON.parse(brut);if(!fiche||Array.isArray(fiche)||typeof fiche!=='object')throw Error('Objet JSON attendu');const data=convertirAncienneFiche(enc,fiche);if(!data.Nom){alert('La fiche ne contient pas de Nom.');return}const id='essai-'+Date.now();entries.push({id,type:'Produit',data});save();render();edit(id)}catch(err){alert('Import impossible : '+err.message)}};
+// Lecture seule des fiches réelles dans le même IndexedDB que l'application principale.
+const sourcesAnciennes=[
+ ['Viandes & Volailles','meat'],['Produits aquatiques','fish'],['Végétaux & Dérivés','produce'],
+ ['Herbes & Épices','herbs'],['Condiments & Sauces','condiments'],['Boissons & Cocktails','drinks'],
+ ['Produits animaux & Dérivés','dairyPasta'],['Préparations culinaires','baking']
+];
+const sourceKey=kind=>kind==='herbs'?'hg-herbs-spices-v28':kind==='produce'?'hg-fruits-vegetables-v282':'hg-encyclopedias-v1';
+function lireStockageSource(key){return new Promise((resolve,reject)=>{
+ const request=indexedDB.open('HerbierGourmandData',1);
+ request.onerror=()=>reject(request.error||Error('Stockage indisponible'));
+ request.onsuccess=()=>{const db=request.result;
+  if(!db.objectStoreNames.contains('kv')){db.close();resolve(null);return}
+  const tx=db.transaction('kv','readonly'),req=tx.objectStore('kv').get(key);
+  req.onsuccess=()=>{const value=req.result;db.close();resolve(value==null?null:String(value))};
+  req.onerror=()=>{db.close();reject(req.error||Error('Lecture impossible'))};
+ };
+})}
+async function fichesOriginales(kind){
+ let raw=await lireStockageSource(sourceKey(kind));
+ // Anciennes installations non migrées : lecture locale uniquement.
+ if(raw==null)raw=localStorage.getItem(sourceKey(kind));
+ let data=raw?JSON.parse(raw):null;
+ if(!data&&(kind==='herbs'||kind==='produce')){
+  const response=await fetch(kind==='herbs'?'herbs-spices.json':'fruits-vegetables.json',{cache:'no-store'});
+  if(response.ok){const payload=await response.json();data=kind==='herbs'?payload.herbs:(Array.isArray(payload)?payload:payload.items||payload.produce||payload.fruits||[])}
+ }
+ const rows=(kind==='herbs'||kind==='produce')?data:data?.[kind];
+ if(!Array.isArray(rows))return [];
+ return rows.filter(x=>x&&typeof x==='object'&&!x.recipe&&!x.isPreparation&&!x.preparationRecipeId);
+}
+const nomsSources={name:'Nom',category:'Catégorie',family:'Catégorie botanique',origin:'Origine',season:'Saison',intensity:'Intensité',forms:'Formes',flavor:'Profil gustatif',uses:'Utilisations culinaires',idealFoods:'Aliments idéaux',recommendedPairings:'Associations recommandée',cooking:'Cuisson',preparation:'Préparation',quantity:'Quantité indicative',substitution:'Substitution',conservation:'Conservation',description:'Description',benefits:'Bienfaits/Caractéristiques',notes:'Remarques',part:'Partie utilisée',location:'Localisation',availability:'Disponibilité',pairings:'À associer avec',categoryBotanical:'Catégorie botanique',botanicalCategory:'Catégorie botanique',chefTip:'Astuce du chef',chefTips:'Astuce du chef',mistakes:'Erreur à éviter',mistake:'Erreur à éviter',methods:'Modes de préparation',preparationMethods:'Modes de préparation',latinName:'Nom latin',quantityIndicative:'Quantité indicative',indicativeQuantity:'Quantité indicative',catalogCategory:'Catégorie',catalogueCategory:'Catégorie',strength:'Intensité'};
+function fichePourConversion(fiche){const result={};for(const [key,value] of Object.entries(fiche)){
+ if(value==null||value==='')continue;
+ const label=nomsSources[key]||key;
+ const text=typeof value==='string'?value:Array.isArray(value)?value.join(', '):typeof value==='object'?JSON.stringify(value):String(value);
+ if(!result[label])result[label]=text;
+ else if(result[label]!==text)result[label]+='\n'+text;
+ }return result}
+function choisirFiche(rows,enc){return new Promise(resolve=>{
+ const old=document.getElementById('choixAncienneFiche');if(old)old.remove();
+ const dialog=document.createElement('dialog');dialog.id='choixAncienneFiche';dialog.style.cssText='width:min(680px,94vw);max-height:85vh;border:1px solid #cad4ca;border-radius:14px;padding:20px;color:#263a30';
+ const title=document.createElement('h2');title.textContent='Choisir une fiche · '+enc;dialog.append(title);
+ const info=document.createElement('p');info.textContent=rows.length+' fiches disponibles · lecture seule';dialog.append(info);
+ const search=document.createElement('input');search.placeholder='Rechercher une fiche…';search.style.cssText='width:100%;padding:12px;margin-bottom:10px;border:1px solid #ccd3cc;border-radius:7px';dialog.append(search);
+ const list=document.createElement('div');list.style.cssText='max-height:48vh;overflow:auto;display:grid;gap:6px';dialog.append(list);
+ const close=document.createElement('button');close.textContent='Annuler';close.style.cssText='margin-top:12px;padding:10px 16px';dialog.append(close);
+ let finished=false;const finish=value=>{if(finished)return;finished=true;dialog.close();dialog.remove();resolve(value)};
+ close.onclick=()=>finish(null);dialog.oncancel=e=>{e.preventDefault();finish(null)};
+ const sorted=[...rows].sort((a,b)=>String(a.name||a.Nom||'').localeCompare(String(b.name||b.Nom||''),'fr'));
+ const renderList=()=>{list.replaceChildren();const q=search.value.toLocaleLowerCase('fr');let count=0;
+  for(const item of sorted){const name=String(item.name||item.Nom||item.title||item.id||'Sans nom');if(!name.toLocaleLowerCase('fr').includes(q))continue;
+   count++;const button=document.createElement('button');button.type='button';button.textContent=name;button.style.cssText='text-align:left;padding:10px;background:#f6f8f5;border:1px solid #d9ded8;border-radius:7px;color:#263a30';button.onclick=()=>finish(item);list.append(button);
+   if(count>=150)break;
+  }if(!count){const p=document.createElement('p');p.textContent='Aucune fiche correspondante.';list.append(p)}
+ };search.oninput=renderList;renderList();document.body.append(dialog);dialog.showModal();search.focus();
+})}
+$('importOld').onclick=async()=>{
+ if(mode!=='Produit'){alert('Essai réservé aux Produits.');return}
+ const options=sourcesAnciennes.map(([name],i)=>(i+1)+' · '+name).join('\n');
+ const answer=prompt('Encyclopédie d’origine :\n'+options+'\nSaisir son numéro :');if(answer===null)return;
+ const chosen=sourcesAnciennes[Number(answer)-1];if(!chosen){alert('Encyclopédie non reconnue');return}
+ const [enc,kind]=chosen;
+ try{const rows=await fichesOriginales(kind);if(!rows.length){alert('Aucune fiche disponible dans « '+enc+' ». Ouvre d’abord Herbier Gourmand pour initialiser cette encyclopédie.');return}
+  const fiche=await choisirFiche(rows,enc);if(!fiche)return;
+  const data=convertirAncienneFiche(enc,fichePourConversion(fiche));
+  if(!data.Nom)data.Nom=String(fiche.name||fiche.Nom||fiche.title||'');
+  if(!data.Nom){alert('Cette fiche ne contient pas de nom.');return}
+  const id='essai-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+  entries.push({id,type:'Produit',data});save();render();edit(id);
+ }catch(err){console.error(err);alert('Lecture impossible : '+err.message)}
+};
 $('add').onclick=()=>edit(null);$('close').onclick=$('cancel').onclick=()=>$('editor').close();$('viewClose').onclick=()=>$('viewer').close();$('search').oninput=render;$('clear').onclick=()=>{$('search').value='';render()};$('print').onclick=()=>window.print();$('random').onclick=()=>{let a=entries.filter(x=>x.type===mode);if(a.length)view(a[Math.floor(Math.random()*a.length)].id);else alert('Pas de résultat')};$('viewEdit').onclick=()=>{$('viewer').close();edit(viewing)};$('viewDelete').onclick=()=>{if(confirm('Supprimer cette fiche d’essai ?')){entries=entries.filter(x=>x.id!==viewing);save();$('viewer').close();render()}};$('viewPrint').onclick=()=>window.print();$('reset').onclick=()=>{if(confirm('Effacer toutes les fiches du Modèle uniquement ?')){entries=[];save();render()}};
 $('merge').onclick=()=>{let a=entries.filter(x=>x.type===mode);if(a.length<2){alert('Il faut au moins deux fiches d’essai du même type.');return}let options=a.map((x,i)=>`${i+1}. ${x.data[x.type==='Produit'?'Nom':'Titre']}`).join('\n');let from=Number(prompt('Fusionner : numéro de la fiche à absorber\n'+options));let to=Number(prompt('Numéro de la fiche à conserver\n'+options));if(!from||!to||from===to||!a[from-1]||!a[to-1])return;if(!confirm('Fusionner ces deux fiches d’essai ?'))return;let s=a[from-1],d=a[to-1];for(let [k,v] of Object.entries(s.data)){if(!v)continue;if(!d.data[k])d.data[k]=v;else if(d.data[k]!==v&&k!=='Nom'&&k!=='Titre')d.data[k]+='\n'+v}entries=entries.filter(x=>x.id!==s.id);save();render()};render();
 })();
