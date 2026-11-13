@@ -28,6 +28,56 @@ function ajouterValeur(resultat,destination,source,valeur){
  // Si deux champs différents alimentent une même case, les séparer clairement.
  resultat[destination]=courant+'\n'+source+' : '+contenu;
 }
+// Redistribution prudente des sous-champs explicitement étiquetés dans les anciennes fiches.
+// Les passages sans intitulé reconnu restent intégralement dans leur champ d'origine.
+const destinationsSousChamps={
+ 'aassocieravec':'À associer avec','aasocieravec':'À associer avec',
+ 'alimentsideaux':'À associer avec','associationsrecommandees':'À associer avec',
+ 'associationsrecommandee':'À associer avec',
+ 'quantiteindicative':'Utilisations culinaires / Quantités',
+ 'utilisationsculinaires':'Utilisations culinaires / Quantités',
+ 'profilgustatif':'Utilisations culinaires / Quantités',
+ 'intensite':'Partie utilisée / Intensité et Formes',
+ 'formes':'Partie utilisée / Intensité et Formes',
+ 'partieutilisee':'Partie utilisée / Intensité et Formes',
+ 'origine':'Localisation / Origine / Catégorie botanique',
+ 'nomlatin':'Localisation / Origine / Catégorie botanique',
+ 'categoriebotanique':'Localisation / Origine / Catégorie botanique',
+ 'localisation':'Localisation / Origine / Catégorie botanique',
+ 'bienfaits':'Bienfaits / Caractéristiques',
+ 'apports':'Bienfaits / Caractéristiques',
+ 'bienfaitscaracteristiques':'Bienfaits / Caractéristiques',
+ 'associationsrenforcantlesbienfaits':'Associations renforçant les bienfaits',
+ 'cuisson':'Modes de préparation','preparation':'Modes de préparation',
+ 'modesdepreparation':'Modes de préparation',
+ 'conservation':'Conservation','substitution':'Substitution',
+ 'saison':'Disponibilité/Saison','disponibilite':'Disponibilité/Saison',
+ 'description':'Description'
+};
+function redistribuerSousChamps(resultat){
+ const champs=[...Object.keys(resultat)];
+ for(const origine of champs){
+  if(origine==='Nom'||origine==='Catégorie Catalogue'||origine==='Disponibilité/Saison')continue;
+  const texte=resultat[origine];if(typeof texte!=='string'||!texte.includes(':'))continue;
+  const gardees=[];
+  for(const ligne of texte.split('\n')){
+   const match=ligne.match(/^\s*([^:]{2,65})\s*:\s*(.+)\s*$/);
+   if(!match){gardees.push(ligne);continue}
+   const etiquette=match[1].replace(/^[-•]\s*/,'');
+   const destination=destinationsSousChamps[normaliserCle(etiquette)];
+   if(!destination||destination===origine){gardees.push(ligne);continue}
+   const valeur=match[2].trim();
+   // Ne pas remplacer un champ simple déjà rempli ni déplacer des mentions ambigües.
+   if(destination==='Disponibilité/Saison'){
+    const ancien=resultat[destination]||'';
+    if(!ancien)resultat[destination]=valeur;
+    else if(!ancien.split(' · ').some(x=>normaliserCle(x)===normaliserCle(valeur)))resultat[destination]=ancien+' · '+valeur;
+   }else ajouterValeur(resultat,destination,etiquette,valeur);
+  }
+  resultat[origine]=gardees.join('\n').trim();
+ }
+ return resultat;
+}
 function convertirAncienneFiche(encyclopedie,fiche){
  const resultat={};const paires=correspondancesProduit[encyclopedie];if(!paires)throw Error('Encyclopédie non reconnue');
  const index=new Map(Object.entries(fiche).map(([k,v])=>[normaliserCle(k),[k,v]]));
@@ -53,7 +103,7 @@ function convertirAncienneFiche(encyclopedie,fiche){
   const n=normaliserCle(cle);if(traites.has(n)||clesTechniquesNormalisees.has(n)||cle.startsWith('_'))continue;
   const valeur=valeurLisible(brut);if(valeur)ajouterValeur(resultat,'Remarques',cle,valeur);
  }
- return resultat;
+ return redistribuerSousChamps(resultat);
 }
 
 const prep=[['Titre','text'],['Tags','text'],['Catégorie','text'],['Encyclopédie','text'],['Type','text'],['Effort','text'],['Difficulté','text'],['Spécial','text'],['Portions','text'],['Température','text'],['Saison','text'],['Période','text'],['Ingrédients','textarea'],['Vérifier les ingrédients','action'],['Préparation','textarea']];
