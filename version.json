@@ -1,4 +1,4 @@
 {
-  "version": "3.0.65",
-  "label": "Correspondances enrichies des anciennes fiches"
+  "version": "3.0.66",
+  "label": "Conversion des fiches anciennes : libellés sans doublons"
 }

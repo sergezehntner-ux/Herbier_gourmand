@@ -21,7 +21,14 @@ function valeurLisible(v){if(v==null)return '';if(typeof v==='string')return v.t
 function ajouterValeur(resultat,destination,source,valeur){
  const contenu=String(valeur||'').trim();if(!contenu)return;
  const titre=String(source||destination).trim();
- const ligne=titre+' : '+contenu;
+ // Nom : champ simple, sans préfixe à l'intérieur de la valeur.
+ if(destination==='Nom'||destination==='Titre'){
+  resultat[destination]=contenu.replace(/^\s*(?:Nom|Titre)\s*:\s*/i,'');return;
+ }
+ // Ne pas doubler une étiquette déjà présente dans le texte d'origine.
+ const premiereLigne=contenu.split('\n')[0];
+ const dejaEtiquete=premiereLigne.includes(':')&&normaliserCle(premiereLigne.split(':')[0])===normaliserCle(titre);
+ const ligne=dejaEtiquete?contenu:titre+' : '+contenu;
  const actuel=String(resultat[destination]||'').trim();
  const canon=x=>normaliserCle(x);
  if(actuel.split('\n').some(x=>canon(x)===canon(ligne)))return;
