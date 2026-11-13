@@ -16,28 +16,27 @@ const clesTechniques=new Set(['id','catalogId','catalogueId','catalogue','photoI
 const normaliserCle=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/gi,'').toLowerCase();
 const clesTechniquesNormalisees=new Set([...clesTechniques].map(normaliserCle));
 function valeurLisible(v){if(v==null)return '';if(typeof v==='string')return v.trim();if(typeof v==='boolean')return '';if(typeof v==='number')return Number.isFinite(v)?String(v):'';if(Array.isArray(v))return v.map(valeurLisible).filter(Boolean).join(', ');return ''}
+// Chaque contribution conserve le nom de son champ source, y compris la première.
+// Une valeur multiligne reste un seul bloc ; le libellé n'est jamais supprimé.
 function ajouterValeur(resultat,destination,source,valeur){
- const courant=resultat[destination]||'';
- const lignes=courant.split('\n').map(x=>x.trim()).filter(Boolean);
- const contenu=valeur.replace(/^(?:saison|disponibilité|catégorie|category)\s*:\s*/i,'').trim();
- if(!contenu)return;
- // Une valeur déjà présente, même précédée de son intitulé, ne doit pas être répétée.
- const canon=x=>normaliserCle(x.replace(/^[^:]{1,55}:\s*/,''));
- if(lignes.some(x=>canon(x)===canon(contenu)))return;
- if(!courant){resultat[destination]=contenu;return}
- // Si deux champs différents alimentent une même case, les séparer clairement.
- resultat[destination]=courant+'\n'+source+' : '+contenu;
+ const contenu=String(valeur||'').trim();if(!contenu)return;
+ const titre=String(source||destination).trim();
+ const ligne=titre+' : '+contenu;
+ const actuel=String(resultat[destination]||'').trim();
+ const canon=x=>normaliserCle(x);
+ if(actuel.split('\n').some(x=>canon(x)===canon(ligne)))return;
+ resultat[destination]=actuel?actuel+'\n'+ligne:ligne;
 }
 // Redistribution prudente des sous-champs explicitement étiquetés dans les anciennes fiches.
 // Les passages sans intitulé reconnu restent intégralement dans leur champ d'origine.
 const destinationsSousChamps={
  'aassocieravec':'À associer avec','aasocieravec':'À associer avec',
  'alimentsideaux':'À associer avec','associationsrecommandees':'À associer avec',
- 'associationsrecommandee':'À associer avec',
+ 'associationsrecommandee':'À associer avec','melangesideaux':'À associer avec',
  'melangesideaux':'À associer avec','accordsculinaires':'À associer avec',
  'quantites':'Utilisations culinaires / Quantités','quantite':'Utilisations culinaires / Quantités',
  'apportsparportion':'Bienfaits / Caractéristiques',
- 'erreurs a eviter':'Remarques',
+ 'erreursaeviter':'Remarques',
  'quantiteindicative':'Utilisations culinaires / Quantités',
  'utilisationsculinaires':'Utilisations culinaires / Quantités',
  'profilgustatif':'Utilisations culinaires / Quantités',
@@ -57,33 +56,32 @@ const destinationsSousChamps={
  'conservation':'Conservation','substitution':'Substitution',
  'saison':'Disponibilité/Saison','disponibilite':'Disponibilité/Saison',
  'description':'Description',
- 'erreuraeviter':'Remarques','erreurs a eviter':'Remarques',
+ 'erreuraeviter':'Remarques','erreursaeviter':'Remarques',
  'astuceduchef':'Remarques','ideesderecettes':'Remarques',
- 'techniquesutiles':'Remarques','ouacheter':'Remarques'
+ 'techniquesutiles':'Remarques','ouacheter':'Remarques','worldcuisines':'Remarques','dishtypes':'Remarques'
 };
 function redistribuerSousChamps(resultat){
- const champs=[...Object.keys(resultat)];
- for(const origine of champs){
-  if(origine==='Nom'||origine==='Catégorie Catalogue'||origine==='Disponibilité/Saison')continue;
-  const texte=resultat[origine];if(typeof texte!=='string'||!texte.includes(':'))continue;
-  const gardees=[];
-  for(const ligne of texte.split('\n')){
-   const match=ligne.match(/^\s*([^:]{2,65})\s*:\s*(.+)\s*$/);
-   if(!match){gardees.push(ligne);continue}
-   const etiquette=match[1].replace(/^[-•]\s*/,'');
-   const destination=destinationsSousChamps[normaliserCle(etiquette)];
-   if(!destination||destination===origine){gardees.push(ligne);continue}
-   const valeur=match[2].trim();
-   // Ne pas remplacer un champ simple déjà rempli ni déplacer des mentions ambigües.
-   if(destination==='Disponibilité/Saison'){
-    const ancien=resultat[destination]||'';
-    if(!ancien)resultat[destination]=valeur;
-    else if(!ancien.split(' · ').some(x=>normaliserCle(x)===normaliserCle(valeur)))resultat[destination]=ancien+' · '+valeur;
-   }else ajouterValeur(resultat,destination,etiquette,valeur);
+ // Un libellé reconnu ouvre un bloc ; ses lignes suivantes restent associées à ce bloc.
+ // Une mention sans libellé explicite ne change jamais de destination.
+ const sorties={};
+ for(const [origine,texte] of Object.entries(resultat)){
+  if(typeof texte!=='string'||!texte.trim())continue;
+  const lignes=texte.split('\n');let destination=origine;
+  for(const ligne of lignes){
+   const m=ligne.match(/^\s*([^:]{2,65})\s*:\s*(.*)$/);
+   const cible=m&&destinationsSousChamps[normaliserCle(m[1])];
+   if(cible){destination=cible;const libelle=m[1].trim();
+    if(m[2].trim())ajouterValeur(sorties,destination,libelle,m[2].trim());
+   }else if(m){
+    // Un autre champ identifié (ex. Astuce du chef) reste dans sa rubrique actuelle.
+    destination=origine;ajouterValeur(sorties,destination,m[1].trim(),m[2].trim());
+   }else if(ligne.trim()){
+    if(!sorties[destination])sorties[destination]=ligne.trim();
+    else sorties[destination]+='\n'+ligne.trim();
+   }
   }
-  resultat[origine]=gardees.join('\n').trim();
  }
- return resultat;
+ return sorties;
 }
 function convertirAncienneFiche(encyclopedie,fiche){
  const resultat={};const paires=correspondancesProduit[encyclopedie];if(!paires)throw Error('Encyclopédie non reconnue');
@@ -101,8 +99,7 @@ function convertirAncienneFiche(encyclopedie,fiche){
   }else if(destination==='Disponibilité/Saison'){
    const partie=valeur.replace(/^(?:saison|disponibilité)\s*:\s*/i,'').trim();
    const actuel=resultat[destination]||'';
-   if(!actuel)resultat[destination]=partie;
-   else if(!actuel.split(' · ').some(x=>normaliserCle(x)===normaliserCle(partie)))resultat[destination]=actuel+' · '+partie;
+   ajouterValeur(resultat,destination,source,partie);
   }else ajouterValeur(resultat,destination,source,valeur);
  }
  // Conserver les véritables informations non associées, jamais les identifiants internes.
@@ -150,7 +147,7 @@ async function fichesOriginales(kind){
  if(!Array.isArray(rows))return [];
  return rows.filter(x=>x&&typeof x==='object'&&!x.recipe&&!x.isPreparation&&!x.preparationRecipeId);
 }
-const nomsSources={name:'Nom',category:'Catégorie',family:'Catégorie botanique',origin:'Origine',season:'Saison',intensity:'Intensité',forms:'Formes',flavor:'Profil gustatif',uses:'Utilisations culinaires',idealFoods:'Aliments idéaux',recommendedPairings:'Associations recommandée',cooking:'Cuisson',preparation:'Préparation',quantity:'Quantité indicative',substitution:'Substitution',conservation:'Conservation',description:'Description',benefits:'Bienfaits/Caractéristiques',notes:'Remarques',part:'Partie utilisée',location:'Localisation',availability:'Disponibilité',pairings:'À associer avec',categoryBotanical:'Catégorie botanique',botanicalCategory:'Catégorie botanique',chefTip:'Astuce du chef',chefTips:'Astuce du chef',mistakes:'Erreur à éviter',mistake:'Erreur à éviter',methods:'Modes de préparation',preparationMethods:'Modes de préparation',latinName:'Nom latin',quantityIndicative:'Quantité indicative',indicativeQuantity:'Quantité indicative',catalogCategory:'Catégorie',catalogueCategory:'Catégorie',strength:'Intensité',latin:'Nom latin',botanicalName:'Nom latin',partUsed:'Partie utilisée',where:'Localisation',avoid:'Erreur à éviter',recipeIdeas:'Idées de recettes',whereToBuy:'Où acheter',benefitPairings:'Associations renforçant les bienfaits'};
+const nomsSources={name:'Nom',category:'Catégorie',family:'Catégorie botanique',origin:'Origine',season:'Saison',intensity:'Intensité',forms:'Formes',flavor:'Profil gustatif',uses:'Utilisations culinaires',idealFoods:'Aliments idéaux',recommendedPairings:'Associations recommandée',cooking:'Cuisson',preparation:'Préparation',quantity:'Quantité indicative',substitution:'Substitution',conservation:'Conservation',description:'Description',benefits:'Bienfaits/Caractéristiques',notes:'Remarques',part:'Partie utilisée',location:'Localisation',availability:'Disponibilité',pairings:'À associer avec',categoryBotanical:'Catégorie botanique',botanicalCategory:'Catégorie botanique',chefTip:'Astuce du chef',chefTips:'Astuce du chef',mistakes:'Erreur à éviter',mistake:'Erreur à éviter',methods:'Modes de préparation',preparationMethods:'Modes de préparation',latinName:'Nom latin',quantityIndicative:'Quantité indicative',indicativeQuantity:'Quantité indicative',catalogCategory:'Catégorie',catalogueCategory:'Catégorie',strength:'Intensité',latin:'Nom latin',botanicalName:'Nom latin',partUsed:'Partie utilisée',where:'Localisation',avoid:'Erreur à éviter',recipeIdeas:'Idées de recettes',whereToBuy:'Où acheter',worldCuisines:'Cuisines du monde',dishTypes:'Types de plats',idealMixes:'Mélanges idéaux',benefitPairings:'Associations renforçant les bienfaits'};
 function fichePourConversion(fiche){const result={};for(const [key,value] of Object.entries(fiche)){
  if(clesTechniquesNormalisees.has(normaliserCle(key))||key.startsWith('_'))continue;
  const label=nomsSources[key]||key;
