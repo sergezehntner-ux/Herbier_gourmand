@@ -11,20 +11,37 @@ const $=id=>document.getElementById(id), save=()=>localStorage.setItem(KEY,JSON.
 const product=[['Nom','text'],['Catégorie Catalogue','text'],['Disponibilité/Saison','text'],['Description','textarea'],['Partie utilisée / Intensité et Formes','textarea'],['Localisation / Origine / Catégorie botanique','textarea'],['Utilisations culinaires / Quantités','textarea'],['Modes de préparation','textarea'],['À associer avec','textarea'],['Conservation','textarea'],['Bienfaits / Caractéristiques','textarea'],['Associations renforçant les bienfaits','textarea'],['Substitution','textarea'],['Remarques','textarea']];
 // Correspondances extraites des couleurs du classeur « Masques et associations » (colonnes K à R).
 const correspondancesProduit={"Viandes & Volailles":[["Nom","Nom"],["Catégorie","Catégorie Catalogue"],["Partie  utiliée","Partie utilisée / Intensité et Formes"],["Localisation","Localisation / Origine / Catégorie botanique"],["Utilisations culinaires","Utilisations culinaires / Quantités"],["À asocier avec","À associer avec"],["Modes de préparation","Modes de préparation"],["Conservation","Conservation"],["Description","Description"],["Bienfaits/Caractéristiques","Bienfaits / Caractéristiques"],["Associations renforçant les bienfaits","Associations renforçant les bienfaits"],["Remarques","Remarques"]],"Produits aquatiques":[["Nom","Nom"],["Catégorie","Catégorie Catalogue"],["Partie  utiliée","Partie utilisée / Intensité et Formes"],["Localisation","Localisation / Origine / Catégorie botanique"],["Utilisations culinaires","Utilisations culinaires / Quantités"],["À asocier avec","À associer avec"],["Modes de préparation","Modes de préparation"],["Conservation","Conservation"],["Description","Description"],["Bienfaits/Caractéristiques","Bienfaits / Caractéristiques"],["Associations renforçant les bienfaits","Associations renforçant les bienfaits"],["Remarques","Remarques"]],"Végétaux & Dérivés":[["Nom","Nom"],["Catégorie","Catégorie Catalogue"],["Catégorie botanique","Localisation / Origine / Catégorie botanique"],["Nom latin","Localisation / Origine / Catégorie botanique"],["Disponibilité","Disponibilité/Saison"],["Saison","Disponibilité/Saison"],["Description","Description"],["Utilisations culinaires","Utilisations culinaires / Quantités"],["Bienfaits/Caractéristiques","Bienfaits / Caractéristiques"],["À associer avec","À associer avec"],["Associations renforçant les bienfaits","Associations renforçant les bienfaits"],["Modes de préparation","Modes de préparation"],["Conservation","Conservation"],["Remarques","Remarques"]],"Herbes & Épices":[["Nom","Nom"],["Catégorie","Catégorie Catalogue"],["Catégorie botanique","Localisation / Origine / Catégorie botanique"],["Origine","Localisation / Origine / Catégorie botanique"],["Saison","Disponibilité/Saison"],["Intensité","Partie utilisée / Intensité et Formes"],["Formes","Partie utilisée / Intensité et Formes"],["Profil gustatif","Utilisations culinaires / Quantités"],["Utilisations culinaires","Utilisations culinaires / Quantités"],["Bienfaits/Caractéristiques","Bienfaits / Caractéristiques"],["Aliments idéaux","Associations renforçant les bienfaits"],["Associations recommandée","Associations renforçant les bienfaits"],["Cuisson","Modes de préparation"],["Préparation","Modes de préparation"],["Quantité indicative","Utilisations culinaires / Quantités"],["Substitution","Substitution"],["Erreur à éviter","Remarques"],["Conservation","Conservation"],["Astuce du chef","Remarques"]],"Condiments & Sauces":[["Nom","Nom"],["Catégorie","Catégorie Catalogue"],["Partie utilisée","Partie utilisée / Intensité et Formes"],["Saison","Disponibilité/Saison"],["Utilisations culinaires","Utilisations culinaires / Quantités"],["À associer avec","À associer avec"],["Modes de préparation","Modes de préparation"],["Conservation","Conservation"],["Description","Description"],["Bienfaits/Caractéristiques","Bienfaits / Caractéristiques"],["Associations renforçant les bienfaits","Associations renforçant les bienfaits"],["Remarques","Remarques"]],"Boissons & Cocktails":[["Nom","Nom"],["Catégorie","Catégorie Catalogue"],["Partie utilisée","Partie utilisée / Intensité et Formes"],["Saison","Disponibilité/Saison"],["Utilisations culinaires","Utilisations culinaires / Quantités"],["À associer avec","À associer avec"],["Modes de préparation","Modes de préparation"],["Conservation","Conservation"],["Description","Description"],["Bienfaits/Caractéristiques","Bienfaits / Caractéristiques"],["Associations renforçant les bienfaits","Associations renforçant les bienfaits"],["Remarques","Remarques"]],"Produits animaux & Dérivés":[["Nom","Nom"],["Catégorie","Catégorie Catalogue"],["Origine/type de pâte","Localisation / Origine / Catégorie botanique"],["Variété/fabrication","Modes de préparation"],["Utilisations culinaires","Utilisations culinaires / Quantités"],["À associer avec","À associer avec"],["Modes de préparation","Modes de préparation"],["Conservation","Conservation"],["Description","Description"],["Bienfaits/Caractéristiques","Bienfaits / Caractéristiques"],["Associations renforçant les bienfaits","Associations renforçant les bienfaits"],["Remarques","Remarques"]],"Préparations culinaires":[["Nom","Nom"],["Catégorie","Catégorie Catalogue"],["Type de préparation","Modes de préparation"],["Levée/cuisson","Modes de préparation"],["Utilisations culinaires","Utilisations culinaires / Quantités"],["À associer avec","À associer avec"],["Modes de préparation","Modes de préparation"],["Conservation","Conservation"],["Description","Description"],["Bienfaits/Caractéristiques","Bienfaits / Caractéristiques"],["Associations renforçant les bienfaits","Associations renforçant les bienfaits"],["Remarques","Remarques"]]};
+// Les identifiants et attributs de stockage restent hors des champs visibles.
+const clesTechniques=new Set(['id','catalogId','catalogueId','catalogue','photoId','photo','image','imageUrl','filename','createdAt','updatedAt','sourceRecipeId','recipeId','_editing','type','kind','source','slug','uid','catalog','catalogueName','categoryId','groupId','aisleId','kind','encyclopedia','encyclopedie']);
+const normaliserCle=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/gi,'').toLowerCase();
+const clesTechniquesNormalisees=new Set([...clesTechniques].map(normaliserCle));
+function valeurLisible(v){if(v==null)return '';if(typeof v==='string')return v.trim();if(typeof v==='number'||typeof v==='boolean')return String(v);if(Array.isArray(v))return v.map(valeurLisible).filter(Boolean).join(', ');return ''}
+function ajouterValeur(resultat,destination,source,valeur){
+ const courant=resultat[destination]||'';
+ const lignes=courant.split('\n').map(x=>x.trim()).filter(Boolean);
+ const contenu=valeur.replace(/^(?:saison|disponibilité|catégorie|category)\s*:\s*/i,'').trim();
+ if(!contenu)return;
+ // Une valeur déjà présente, même précédée de son intitulé, ne doit pas être répétée.
+ const canon=x=>normaliserCle(x.replace(/^[^:]{1,55}:\s*/,''));
+ if(lignes.some(x=>canon(x)===canon(contenu)))return;
+ if(!courant){resultat[destination]=contenu;return}
+ // Si deux champs différents alimentent une même case, les séparer clairement.
+ resultat[destination]=courant+'\n'+source+' : '+contenu;
+}
 function convertirAncienneFiche(encyclopedie,fiche){
  const resultat={};const paires=correspondancesProduit[encyclopedie];if(!paires)throw Error('Encyclopédie non reconnue');
+ const index=new Map(Object.entries(fiche).map(([k,v])=>[normaliserCle(k),[k,v]]));
+ const traites=new Set();
  for(const [source,destination] of paires){
-  const cle=Object.keys(fiche).find(k=>k.trim().toLocaleLowerCase('fr')===source.trim().toLocaleLowerCase('fr'));
-  if(!cle||fiche[cle]==null||String(fiche[cle]).trim()==='')continue;
-  const valeur=String(fiche[cle]).trim();
-  // Dans les champs fusionnés, conserver l'origine et séparer chaque donnée par un alinéa.
-  if(resultat[destination])resultat[destination]+='\n'+source+' : '+valeur;
-  else resultat[destination]=valeur;
+  const match=index.get(normaliserCle(source));if(!match)continue;
+  const [cle,brut]=match;traites.add(normaliserCle(cle));
+  const valeur=valeurLisible(brut);if(valeur)ajouterValeur(resultat,destination,source,valeur);
  }
- // Préserver également les données sans correspondance, sans les perdre.
- const traites=new Set(paires.map(([source])=>source.trim().toLocaleLowerCase('fr')));
- const restants=Object.entries(fiche).filter(([k,v])=>!traites.has(k.trim().toLocaleLowerCase('fr'))&&v!=null&&String(v).trim());
- if(restants.length)resultat['Remarques']=[resultat['Remarques'],...restants.map(([k,v])=>k+' : '+v)].filter(Boolean).join('\n');
+ // Conserver les véritables informations non associées, jamais les identifiants internes.
+ for(const [cle,brut] of Object.entries(fiche)){
+  const n=normaliserCle(cle);if(traites.has(n)||clesTechniquesNormalisees.has(n)||cle.startsWith('_'))continue;
+  const valeur=valeurLisible(brut);if(valeur)ajouterValeur(resultat,'Remarques',cle,valeur);
+ }
  return resultat;
 }
 
@@ -65,14 +82,15 @@ async function fichesOriginales(kind){
  if(!Array.isArray(rows))return [];
  return rows.filter(x=>x&&typeof x==='object'&&!x.recipe&&!x.isPreparation&&!x.preparationRecipeId);
 }
-const nomsSources={name:'Nom',category:'Catégorie',family:'Catégorie botanique',origin:'Origine',season:'Saison',intensity:'Intensité',forms:'Formes',flavor:'Profil gustatif',uses:'Utilisations culinaires',idealFoods:'Aliments idéaux',recommendedPairings:'Associations recommandée',cooking:'Cuisson',preparation:'Préparation',quantity:'Quantité indicative',substitution:'Substitution',conservation:'Conservation',description:'Description',benefits:'Bienfaits/Caractéristiques',notes:'Remarques',part:'Partie utilisée',location:'Localisation',availability:'Disponibilité',pairings:'À associer avec',categoryBotanical:'Catégorie botanique',botanicalCategory:'Catégorie botanique',chefTip:'Astuce du chef',chefTips:'Astuce du chef',mistakes:'Erreur à éviter',mistake:'Erreur à éviter',methods:'Modes de préparation',preparationMethods:'Modes de préparation',latinName:'Nom latin',quantityIndicative:'Quantité indicative',indicativeQuantity:'Quantité indicative',catalogCategory:'Catégorie',catalogueCategory:'Catégorie',strength:'Intensité'};
+const nomsSources={name:'Nom',category:'Catégorie',family:'Catégorie botanique',origin:'Origine',season:'Saison',intensity:'Intensité',forms:'Formes',flavor:'Profil gustatif',uses:'Utilisations culinaires',idealFoods:'Aliments idéaux',recommendedPairings:'Associations recommandée',cooking:'Cuisson',preparation:'Préparation',quantity:'Quantité indicative',substitution:'Substitution',conservation:'Conservation',description:'Description',benefits:'Bienfaits/Caractéristiques',notes:'Remarques',part:'Partie utilisée',location:'Localisation',availability:'Disponibilité',pairings:'À associer avec',categoryBotanical:'Catégorie botanique',botanicalCategory:'Catégorie botanique',chefTip:'Astuce du chef',chefTips:'Astuce du chef',mistakes:'Erreur à éviter',mistake:'Erreur à éviter',methods:'Modes de préparation',preparationMethods:'Modes de préparation',latinName:'Nom latin',quantityIndicative:'Quantité indicative',indicativeQuantity:'Quantité indicative',catalogCategory:'Catégorie',catalogueCategory:'Catégorie',strength:'Intensité',latin:'Nom latin',botanicalName:'Nom latin',partUsed:'Partie utilisée',where:'Localisation',avoid:'Erreur à éviter',recipeIdeas:'Idées de recettes',whereToBuy:'Où acheter',benefitPairings:'Associations renforçant les bienfaits'};
 function fichePourConversion(fiche){const result={};for(const [key,value] of Object.entries(fiche)){
- if(value==null||value==='')continue;
+ if(clesTechniquesNormalisees.has(normaliserCle(key))||key.startsWith('_'))continue;
  const label=nomsSources[key]||key;
- const text=typeof value==='string'?value:Array.isArray(value)?value.join(', '):typeof value==='object'?JSON.stringify(value):String(value);
- if(!result[label])result[label]=text;
- else if(result[label]!==text)result[label]+='\n'+text;
+ const texte=valeurLisible(value);if(!texte)continue;
+ if(!result[label])result[label]=texte;
+ else if(!result[label].split('\n').some(x=>normaliserCle(x)===normaliserCle(texte)))result[label]+='\n'+texte;
  }return result}
+
 function choisirFiche(rows,enc){return new Promise(resolve=>{
  const old=document.getElementById('choixAncienneFiche');if(old)old.remove();
  const dialog=document.createElement('dialog');dialog.id='choixAncienneFiche';dialog.style.cssText='width:min(680px,94vw);max-height:85vh;border:1px solid #cad4ca;border-radius:14px;padding:20px;color:#263a30';
