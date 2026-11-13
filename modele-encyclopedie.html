@@ -15,7 +15,7 @@ const correspondancesProduit={"Viandes & Volailles":[["Nom","Nom"],["Catégorie"
 const clesTechniques=new Set(['id','catalogId','catalogueId','catalogue','photoId','photo','image','imageUrl','filename','createdAt','updatedAt','sourceRecipeId','recipeId','_editing','type','kind','source','slug','uid','catalog','catalogueName','categoryId','groupId','aisleId','kind','encyclopedia','encyclopedie']);
 const normaliserCle=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/gi,'').toLowerCase();
 const clesTechniquesNormalisees=new Set([...clesTechniques].map(normaliserCle));
-function valeurLisible(v){if(v==null)return '';if(typeof v==='string')return v.trim();if(typeof v==='number'||typeof v==='boolean')return String(v);if(Array.isArray(v))return v.map(valeurLisible).filter(Boolean).join(', ');return ''}
+function valeurLisible(v){if(v==null)return '';if(typeof v==='string')return v.trim();if(typeof v==='boolean')return '';if(typeof v==='number')return Number.isFinite(v)?String(v):'';if(Array.isArray(v))return v.map(valeurLisible).filter(Boolean).join(', ');return ''}
 function ajouterValeur(resultat,destination,source,valeur){
  const courant=resultat[destination]||'';
  const lignes=courant.split('\n').map(x=>x.trim()).filter(Boolean);
