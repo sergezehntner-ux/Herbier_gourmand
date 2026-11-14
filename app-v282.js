@@ -1892,7 +1892,7 @@ function openHerbEditor(id=viewedHerbId){
  $('#herbDialogTitle').textContent=isNew?'Ajouter une plante ou une épice':'Modifier Plante & Épice';
  $('#herbEditId').value=isNew?'':h.id;refreshHerbEditorSelects(h);
  const map={Name:'name',Family:'family',CatalogCategory:'catalogCategory',Origin:'origin',Season:'season',Intensity:'intensity',Forms:'forms',Flavor:'flavor',Uses:'uses',Benefits:'benefits',Pairings:'pairings',Preparation:'preparation',Quantity:'quantity',Substitution:'substitution',Avoid:'avoid',Conservation:'conservation',Where:'whereToBuy',RecipeIdeas:'recipeIdeas',ChefTip:'chefTip'};
- Object.entries(map).forEach(([suffix,key])=>{$(`#herbEdit${suffix}`).value=h[key]||''});if(isNew)$('#herbEditName').value='';$('#deleteHerb')?.classList.toggle('hidden',isNew);$('#herbDialog').showModal()
+ Object.entries(map).forEach(([suffix,key])=>{$(`#herbEdit${suffix}`).value=h[key]||''});if(isNew)$('#herbEditName').value='';$('#deleteHerb')?.classList.toggle('hidden',isNew);hgHerbPilotLoad();$('#herbDialog').showModal()
 }
 if($('#newHerb'))$('#newHerb').addEventListener('click',e=>{if(hgLegacyModes.herbs==='preparations'){e.preventDefault();e.stopImmediatePropagation();openEncyclopediaPreparation('herbs');}},true);
 if($('#newHerb'))$('#newHerb').onclick=()=>openHerbEditor('');
@@ -1967,6 +1967,74 @@ function hgRenameLinkedCatalogArticle(catalogId,newName){
   return true;
  }catch(err){console.error('Synchronisation du nom',err);alert('Renommage non synchronisé : vérifiez la sauvegarde.');return false}
 }
+// v3.0.68 — Pilote Herbes & Épices : masque Produit du laboratoire.
+// Les valeurs historiques restent stockées dans leurs clés d'origine (aucune migration).
+const hgHerbPilotGroups=[
+ ['Partie utilisée / Intensité et Formes',[['Intensity','Intensité'],['Forms','Formes']]],
+ ['Localisation / Origine / Catégorie botanique',[['Family','Catégorie botanique'],['Origin','Origine']]],
+ ['Utilisations culinaires / Quantités',[['Flavor','Profil gustatif'],['Uses','Utilisations culinaires'],['Quantity','Quantité indicative']]],
+ ['À associer avec',[['IdealFoods','Aliments idéaux'],['Pairings','Associations recommandées']]],
+ ['Modes de préparation',[['Cooking','Cuisson'],['Preparation','Préparation']]],
+ ['Remarques',[['Avoid','Erreur à éviter'],['Where','Où acheter'],['RecipeIdeas','Idées de recettes'],['ChefTip','Astuce du chef']]]
+];
+let hgHerbPilotSnapshot={};
+function hgHerbPilotLoad(){
+ for(const [title,parts] of hgHerbPilotGroups){
+  const area=document.querySelector('[data-hg-pilot="'+title+'"]');if(!area)continue;
+  area.value=parts.map(([id,label])=>{const node=$('#herbEdit'+id);return node&&node.value.trim()?label+' : '+node.value.trim():''}).filter(Boolean).join('\n');
+  hgHerbPilotSnapshot[title]=area.value;
+ }
+}
+function hgHerbPilotSync(){
+ for(const [title,parts] of hgHerbPilotGroups){
+  const area=document.querySelector('[data-hg-pilot="'+title+'"]');if(!area||area.value===hgHerbPilotSnapshot[title])continue;
+  const text=area.value.trim();const lines=text.split('\n');let active=null;const chunks={};
+  for(const line of lines){
+   const match=parts.find(([,label])=>line.toLocaleLowerCase('fr').startsWith(label.toLocaleLowerCase('fr')+' :'));
+   if(match){active=match[0];chunks[active]=line.slice(line.indexOf(':')+1).trim();}
+   else if(active)chunks[active]+='\n'+line;
+   else if(line.trim()){alert('Chaque information du champ « '+title+' » doit commencer par son identifiant suivi de « : ».');area.focus();return false;}
+  }
+  for(const [id] of parts){const node=$('#herbEdit'+id);if(node){
+   const val=(chunks[id]||'').trim();
+   if(node.tagName==='SELECT'&&val&&![...node.options].some(o=>o.value===val))node.add(new Option(val,val));
+   node.value=val;
+  }}
+ }
+ return true;
+}
+(function hgInstallHerbPilot(){
+ const form=$('#herbForm');if(!form)return;
+ form.classList.add('hg-herb-pilot');
+ const name=$('#herbEditName')?.closest('label');
+ const category=$('#herbEditCatalogCategory')?.closest('label');
+ const season=$('#herbEditSeason')?.closest('label');
+ const benefits=$('#herbEditBenefits')?.closest('label');
+ const conservation=$('#herbEditConservation')?.closest('label');
+ const substitution=$('#herbEditSubstitution')?.closest('label');
+ const grid=document.createElement('div');grid.className='hg-herb-pilot-grid';
+ const field=(title,parts)=>{const label=document.createElement('label');label.textContent=title;const area=document.createElement('textarea');area.rows=2;area.dataset.hgPilot=title;label.append(area);return label};
+ const direct=[['Nom',name],['Catégorie Catalogue',category],['Disponibilité/Saison',season],['Description',null],
+ ['Partie utilisée / Intensité et Formes',null],['Localisation / Origine / Catégorie botanique',null],
+ ['Utilisations culinaires / Quantités',null],['Modes de préparation',null],['À associer avec',null],
+ ['Conservation',conservation],['Bienfaits / Caractéristiques',benefits],['Associations renforçant les bienfaits',null],
+ ['Substitution',substitution],['Remarques',null]];
+ for(const [title,existing] of direct){
+  const group=hgHerbPilotGroups.find(x=>x[0]===title);
+  if(existing){grid.append(existing);continue}
+  const label=field(title,group?.[1]);
+  if(!group){label.querySelector('textarea').disabled=true;label.querySelector('textarea').placeholder='—';}
+  grid.append(label);
+ }
+ // Original form controls remain in the DOM for the existing persistence logic.
+ const original=document.createElement('div');original.className='hg-herb-pilot-original';
+ const actions=form.querySelector('.dialog-actions');
+ for(const child of [...form.children])if(child!==actions&&child.id!=='herbEditId'&&child!==grid)original.append(child);
+ form.insertBefore(grid,actions);form.insertBefore(original,actions);
+ // Keep the historical fields accessible to existing handlers but out of view.
+ form.addEventListener('submit',e=>{if(!hgHerbPilotSync()){e.preventDefault();e.stopImmediatePropagation()}},true);
+})();
+
 if($('#herbForm'))$('#herbForm').onsubmit=async e=>{e.preventDefault();const oldId=$('#herbEditId').value;let h=oldId?herbs.find(x=>x.id===oldId):null;const map={Name:'name',Family:'family',CatalogCategory:'catalogCategory',Origin:'origin',Season:'season',Intensity:'intensity',Forms:'forms',Flavor:'flavor',Uses:'uses',Benefits:'benefits',Pairings:'pairings',Preparation:'preparation',Quantity:'quantity',Substitution:'substitution',Avoid:'avoid',Conservation:'conservation',Where:'whereToBuy',RecipeIdeas:'recipeIdeas',ChefTip:'chefTip'};if(!h){const name=$('#herbEditName').value.trim();let id=slug(name||`plante-${Date.now()}`);if(herbs.some(x=>x.id===id))id=`${id}-${Date.now()}`;h=normalizeHerb({id,name});herbs.push(h)}const nextName=$('#herbEditName').value.trim();if(!nextName)return alert('Indique un nom.');if(h.catalogId&&nextName!==h.name&&!hgRenameLinkedCatalogArticle(h.catalogId,nextName))return;Object.entries(map).forEach(([suffix,key])=>h[key]=$(`#herbEdit${suffix}`).value.trim());migrateHerbFields(h);try{await window.hgEncyclopediaRead.persist('herbs',herbs,{read:hgGet,write:hgSet})}catch(err){console.error(err);alert('Enregistrement non confirmé : '+err.message);return}registerProtectedChange();markDirty();renderHerbFilters();renderHerbs();$('#herbDialog').close();showHerb(h.id)};
 if($('#backFromHerb'))$('#backFromHerb').onclick=()=>switchView(previousHerbView);
 

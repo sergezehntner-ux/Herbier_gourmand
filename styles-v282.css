@@ -407,3 +407,6 @@ nav button{grid-column:span 4!important;font-size:.78rem;padding-inline:2px}
 #recipeDialog #hgRecipeEditPhoto img{width:70px;height:62px;object-fit:cover;border-radius:8px}
 #recipeDialog #hgRecipeEditPhoto img:not([src]){visibility:hidden}
 @media(max-width:620px){#recipeViewContent .hg-recipe-view-heading{grid-template-columns:1fr;gap:7px}#recipeViewContent .hg-recipe-heading-actions{justify-content:space-between}#recipeDialog .hg-recipe-edit-head h2{flex-basis:86px;font-size:17px}#recipeDialog #hgRecipeEditPhoto img{width:56px;height:54px}}
+
+/* v3.0.68 : implantation pilote Herbes & Épices */
+.hg-herb-pilot-original{display:none!important}.hg-herb-pilot-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 14px}.hg-herb-pilot-grid>label{min-width:0;display:flex;flex-direction:column;gap:3px}.hg-herb-pilot-grid input,.hg-herb-pilot-grid select,.hg-herb-pilot-grid textarea{width:100%;box-sizing:border-box;padding:7px;border:1px solid #b9c8bd;border-radius:6px;font:inherit}.hg-herb-pilot-grid textarea{height:46px;resize:vertical}.hg-herb-pilot-grid textarea:disabled{background:#f5f7f4}@media(max-width:650px){.hg-herb-pilot-grid{grid-template-columns:1fr}}
