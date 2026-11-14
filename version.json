@@ -1,1 +1,4 @@
-{"version": "3.0.85", "label": "Sécurisation des associations, identifiants et corrections ChatGPT"}
+{
+  "version": "3.0.86",
+  "label": "Mutation sécurisée des fiches encyclopédiques"
+}

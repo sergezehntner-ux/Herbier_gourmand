@@ -9,7 +9,7 @@ const norm = s => String(s || '').replace(/[’‘`´ʼ]/g,"'").normalize('NFD')
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='3.0.37';
+const APP_VERSION='3.0.86';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -2452,7 +2452,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  }
  function filtered(){const q=norm($('#ingredientCatalogSearch')?.value||''),a=$('#ingredientCatalogAisle')?.value||'',g=$('#ingredientCatalogGroup')?.value||'',photo=$('#ingredientCatalogPhotoFilter')?.value||'',ency=$('#ingredientCatalogEncyclopedia')?.value||'',matchesEncyclopedia=encyclopediaIdsForFilter(ency);return catalog.filter(x=>(!matchesEncyclopedia||matchesEncyclopedia(x))&&(photo!=='missing'||catalogPhotoStatus(x)==='missing')&&(!a||(a==='__none__'?!String(x.aisle||'').trim():x.aisle===a))&&(!g||(g==='__none__'?!String(x.group||'').trim():x.group===g))&&(!q||norm(x.name).includes(q)||norm(x.aisle).includes(q)||norm(x.group).includes(q))).sort((x,y)=>x.name.localeCompare(y.name,'fr'))}
  function optionList(values,current,specialLabel,emptyLabel=''){let out=emptyLabel?`<option value=""${!current?' selected':''}>${esc(emptyLabel)}</option>`:'';out+=`<option value="__new__">${esc(specialLabel)}</option>`;out+=values.map(v=>`<option value="${esc(v)}"${v===current?' selected':''}>${esc(v)}</option>`).join('');return out}
- function row(x){const editing=x._editing;return `<div class="ingredient-catalog-row" data-catalog-id="${esc(x.id)}">${bulkActive?`<input type="checkbox" class="catalog-bulk-check" data-bulk-id="${esc(x.id)}" aria-label="Sélectionner ${esc(x.name)}" ${bulkSelected.has(x.id)?'checked':''}>`:''}<button type="button" class="ingredient-catalog-photo-hit" data-catalog-photo aria-label="${x.image?'Modifier la photo de ':'Ajouter une photo à '}${esc(x.name)}" title="${x.image?'Changer ou retirer la photo':'Ajouter une photo'}"><img class="ingredient-catalog-thumb" src="${x.image||''}" alt=""></button><div class="ingredient-catalog-info"><div class="ingredient-catalog-name">${editing?`<textarea class="catalog-edit-name" aria-label="Nom" rows="2" maxlength="200">${esc(x.name)}</textarea>`:esc(x.name)}</div><div class="ingredient-catalog-meta"><span class="ingredient-catalog-aisle"><strong>Rayon : </strong>${editing?`<select class="catalog-edit-aisle" aria-label="Rayon">${optionList(aisles(),x.aisle||'À classer','➕ Nouveau rayon…')}</select>`:esc(x.aisle||'À classer')}</span><span class="ingredient-catalog-meta-sep" aria-hidden="true"> · </span><span class="ingredient-catalog-group"><strong>Catégorie : </strong>${editing?`<select class="catalog-edit-group" aria-label="Catégorie">${optionList(groups(),x.group||'','➕ Nouvelle catégorie…','— Catégorie —')}</select>`:esc(x.group||'—')}</span></div></div><div class="ingredient-catalog-actions">${READONLY?'':`<button type="button" data-catalog-edit>${editing?'Enregistrer':'Modifier'}</button><button type="button" data-catalog-associate>${hgCatalogAssociationLabel(x)}</button><button type="button" data-catalog-delete class="danger">Supprimer</button>`}</div></div>`}
+ function row(x){const editing=x._editing;return `<div class="ingredient-catalog-row" data-catalog-id="${esc(x.id)}">${bulkActive?`<input type="checkbox" class="catalog-bulk-check" data-bulk-id="${esc(x.id)}" aria-label="Sélectionner ${esc(x.name)}" ${bulkSelected.has(x.id)?'checked':''}>`:''}<button type="button" class="ingredient-catalog-photo-hit" data-catalog-photo aria-label="${x.image?'Modifier la photo de ':'Ajouter une photo à '}${esc(x.name)}" title="${x.image?'Changer ou retirer la photo':'Ajouter une photo'}"><img class="ingredient-catalog-thumb" src="${x.image||''}" alt=""></button><div class="ingredient-catalog-info"><div class="ingredient-catalog-name">${editing?`<textarea class="catalog-edit-name" aria-label="Nom" rows="2" maxlength="200">${esc(x.name)}</textarea>`:esc(x.name)}</div><div class="ingredient-catalog-meta"><span class="ingredient-catalog-aisle"><strong>Rayon : </strong>${editing?`<select class="catalog-edit-aisle" aria-label="Rayon">${optionList(aisles(),x.aisle||'À classer','➕ Nouveau rayon…')}</select>`:esc(x.aisle||'À classer')}</span><span class="ingredient-catalog-meta-sep" aria-hidden="true"> · </span><span class="ingredient-catalog-group"><strong>Catégorie : </strong>${editing?`<select class="catalog-edit-group" aria-label="Catégorie">${optionList(groups(),x.group||'','➕ Nouvelle catégorie…','— Catégorie —')}</select>`:esc(x.group||'—')}</span></div></div><div class="ingredient-catalog-actions">${READONLY?'':`<button type="button" data-catalog-edit>${editing?'Enregistrer':'Modifier'}</button><button type="button" data-catalog-associate>${hgCatalogAssociationLabel(x)}</button><button type="button" data-catalog-mutate>Muter…</button><button type="button" data-catalog-delete class="danger">Supprimer</button>`}</div></div>`}
 
  function bindSpecialSelects(list){
   for(const [cls,field,label,values] of [['.catalog-edit-aisle','aisle','rayon',aisles],['.catalog-edit-group','group','catégorie',groups]])list.querySelectorAll(cls).forEach(sel=>sel.onchange=()=>{if(sel.value!=='__new__')return;const r=sel.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r.dataset.catalogId);const v=prompt(`Nom du nouveau ${label} :`,x?.[field]||'')?.trim();if(!v){sel.value=x?.[field]||'';return}const existing=values().find(z=>norm(z)===norm(v)),value=existing||v,o=document.createElement('option');o.value=o.textContent=value;sel.insertBefore(o,sel.lastElementChild);sel.value=value});
@@ -2465,7 +2465,22 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  let photoTargetId='';
  function imageToDataURL(file){return new Promise((resolve,reject)=>{if(!file.type.startsWith('image/'))return reject(new Error('Sélectionne une image.'));const reader=new FileReader();reader.onerror=()=>reject(new Error('Lecture de la photo impossible.'));reader.onload=()=>{const img=new Image();img.onerror=()=>reject(new Error('Format image non reconnu.'));img.onload=()=>{try{const scale=Math.min(1,600/Math.max(img.width,img.height)),canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));const ctx=canvas.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);resolve(canvas.toDataURL('image/jpeg',.84))}catch(e){reject(e)}};img.src=reader.result};reader.readAsDataURL(file)})}
  photoInput?.addEventListener('change',async e=>{const file=e.target.files?.[0],id=photoTargetId;e.target.value='';photoTargetId='';if(!file||!id)return;const item=catalog.find(x=>x.id===id);if(!item)return;try{const data=await imageToDataURL(file);item.image=data;item.filename=file.name;save();render()}catch(err){alert('Photo non enregistrée : '+err.message)}});
- function render(){const previousY=window.scrollY;refreshFilters();refreshEncyclopediaFilter();const list=$('#ingredientCatalogList'),count=$('#ingredientCatalogCount');if(!list||!count)return;const found=filtered();verifyCatalogPhotos();updateCatalogPhotoCount();list.innerHTML=found.map(row).join('')||'<p class="ingredient-catalog-empty">Aucun élément trouvé.</p>';bulkToolbar();list.classList.toggle('catalog-bulk-active',bulkActive);list.querySelectorAll('[data-bulk-id]').forEach(box=>box.onchange=()=>{if(box.checked)bulkSelected.add(box.dataset.bulkId);else bulkSelected.delete(box.dataset.bulkId);bulkCount()});bindSpecialSelects(list);list.querySelectorAll('[data-catalog-photo]').forEach(b=>b.onclick=()=>{const r=b.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r?.dataset.catalogId);if(!x)return;let choice='1';if(x.image){choice=prompt(`Photo de « ${x.name} » :\n1 — Changer la photo\n2 — Retirer la photo\n0 — Annuler`,'1');if(choice===null||choice==='0')return;}if(choice==='2'){if(!confirm(`Retirer la photo de « ${x.name} » ? L'article sera conservé.`))return;x.image='';x.filename='';save();render();return;}if(choice!=='1')return;photoTargetId=x.id;if(photoInput){photoInput.value='';photoInput.click()}});list.querySelectorAll('[data-catalog-edit]').forEach(b=>b.onclick=()=>{const r=b.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r.dataset.catalogId);if(!x)return;if(x._editing){const n=r.querySelector('.catalog-edit-name').value.trim(),a=r.querySelector('.catalog-edit-aisle').value.trim(),g=r.querySelector('.catalog-edit-group').value.trim();if(!n||n==='__new__')return alert('Choisissez un nom.');if(!a||a==='__new__')return alert('Choisissez un rayon.');if(g==='__new__')return alert('Choisissez une catégorie.');const dup=catalog.find(y=>y.id!==x.id&&norm(y.name)===norm(n));if(dup)return alert(`« ${n} » existe déjà dans le catalogue.`);if(n!==x.name&&!hgRenameLinkedCatalogArticle(x.id,n))return;x.name=n;x.aisle=a;x.group=g;delete x._editing;save()}else{x._editing=true}render()});list.querySelectorAll('[data-catalog-associate]').forEach(b=>b.onclick=()=>{const r=b.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r?.dataset.catalogId);if(x)window.dispatchEvent(new CustomEvent('hg:catalog-associate',{detail:{...x}}))});list.querySelectorAll('[data-catalog-delete]').forEach(b=>b.onclick=()=>{const r=b.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r.dataset.catalogId);if(!x)return;if(!confirm(`Supprimer « ${x.name} » du catalogue ?`))return;catalog=catalog.filter(y=>y.id!==x.id);save();render()})}
+ function render(){const previousY=window.scrollY;refreshFilters();refreshEncyclopediaFilter();const list=$('#ingredientCatalogList'),count=$('#ingredientCatalogCount');if(!list||!count)return;const found=filtered();verifyCatalogPhotos();updateCatalogPhotoCount();list.innerHTML=found.map(row).join('')||'<p class="ingredient-catalog-empty">Aucun élément trouvé.</p>';bulkToolbar();list.classList.toggle('catalog-bulk-active',bulkActive);list.querySelectorAll('[data-bulk-id]').forEach(box=>box.onchange=()=>{if(box.checked)bulkSelected.add(box.dataset.bulkId);else bulkSelected.delete(box.dataset.bulkId);bulkCount()});bindSpecialSelects(list);list.querySelectorAll('[data-catalog-photo]').forEach(b=>b.onclick=()=>{const r=b.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r?.dataset.catalogId);if(!x)return;let choice='1';if(x.image){choice=prompt(`Photo de « ${x.name} » :\n1 — Changer la photo\n2 — Retirer la photo\n0 — Annuler`,'1');if(choice===null||choice==='0')return;}if(choice==='2'){if(!confirm(`Retirer la photo de « ${x.name} » ? L'article sera conservé.`))return;x.image='';x.filename='';save();render();return;}if(choice!=='1')return;photoTargetId=x.id;if(photoInput){photoInput.value='';photoInput.click()}});list.querySelectorAll('[data-catalog-edit]').forEach(b=>b.onclick=()=>{const r=b.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r.dataset.catalogId);if(!x)return;if(x._editing){const n=r.querySelector('.catalog-edit-name').value.trim(),a=r.querySelector('.catalog-edit-aisle').value.trim(),g=r.querySelector('.catalog-edit-group').value.trim();if(!n||n==='__new__')return alert('Choisissez un nom.');if(!a||a==='__new__')return alert('Choisissez un rayon.');if(g==='__new__')return alert('Choisissez une catégorie.');const dup=catalog.find(y=>y.id!==x.id&&norm(y.name)===norm(n));if(dup)return alert(`« ${n} » existe déjà dans le catalogue.`);if(n!==x.name&&!hgRenameLinkedCatalogArticle(x.id,n))return;x.name=n;x.aisle=a;x.group=g;delete x._editing;save()}else{x._editing=true}render()});list.querySelectorAll('[data-catalog-associate]').forEach(b=>b.onclick=()=>{const r=b.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r?.dataset.catalogId);if(x)window.dispatchEvent(new CustomEvent('hg:catalog-associate',{detail:{...x}}))});list.querySelectorAll('[data-catalog-mutate]').forEach(b=>b.onclick=()=>{
+ const r=b.closest('[data-catalog-id]'),article=catalog.find(x=>x.id===r?.dataset.catalogId);
+ if(!article)return;
+ const sources=hgCatalogAssociations(article);
+ if(sources.length!==1)return alert(sources.length?'Plusieurs associations : cette mutation nécessite une source unique.':'Ce produit n’est pas encore associé. Utilise « Associer ».');
+ const choices=HG_ASSOC_CHOICES.filter(([kind])=>kind!==sources[0]);
+ const answer=prompt('Muter « '+article.name+' » vers :\n'+choices.map((c,i)=>(i+1)+' — '+c[1]).join('\n')+'\n\nIndique un numéro (Annuler = aucune modification) :');
+ if(answer===null)return;
+ const chosen=choices[Number(answer)-1];if(!chosen)return alert('Destination non reconnue.');
+ if(!confirm('Muter « '+article.name+' » de '+HG_ASSOC_CHOICES.find(c=>c[0]===sources[0])?.[1]+' vers '+chosen[1]+' ?\n\nTous les champs documentaires seront copiés. Les valeurs incompatibles seront conservées en remarques. La fiche source sera archivée, sans suppression.'))return;
+ try{
+  downloadTextFile('Herbier_Gourmand_AVANT_mutation_'+Date.now()+'.hgbak.json',JSON.stringify(herbierStorageSnapshot(),null,2));
+  if(!confirm('La sauvegarde AVANT mutation est-elle bien téléchargée ?\nOK pour poursuivre ; Annuler pour ne rien changer.'))return;
+  hgMutateCatalogArticle(article,chosen[0]);render();alert('Mutation effectuée. Vérifie la fiche dans la nouvelle encyclopédie.');
+ }catch(err){console.error(err);alert('Mutation interrompue : '+err.message)}
+});list.querySelectorAll('[data-catalog-delete]').forEach(b=>b.onclick=()=>{const r=b.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r.dataset.catalogId);if(!x)return;if(!confirm(`Supprimer « ${x.name} » du catalogue ?`))return;catalog=catalog.filter(y=>y.id!==x.id);save();render()})}
  window.addEventListener('hg:catalog-associations-changed',()=>{if(activeViewId()==='ingredientCatalog')render()});
  window.addEventListener('hg:catalog-association-reviewed',e=>{
   const id=String(e.detail?.id||'');
@@ -3172,24 +3187,54 @@ function hgEncyVisibleRow(kind,row,ex){
 }
 // Copier les champs documentaires sans écraser les valeurs déjà renseignées.
 function hgTransferEncyDetails(article,fromKinds,toKind){
- const keys=k=>k==='produce'?'hg-fruits-vegetables-v282':k==='herbs'?'hg-herbs-spices-v28':'hg-encyclopedias-v1';
- const read=k=>hgAssocRead(keys(k),k==='produce'||k==='herbs'?[]:{});
+ const key=k=>k==='produce'?'hg-fruits-vegetables-v282':k==='herbs'?'hg-herbs-spices-v28':'hg-encyclopedias-v1';
+ const read=k=>hgAssocRead(key(k),k==='produce'||k==='herbs'?[]:{});
  const rows=(data,k)=>k==='produce'||k==='herbs'?data:data[k];
  const matches=(x,k)=>x&&(x.catalogId===article.id||x.catalogueId===article.id||x.id==='catalog:'+article.id||x.id==='catalog-'+article.id||x.id==='ency-'+k+'-'+article.id);
- const targetData=read(toKind),targetRows=rows(targetData,toKind);
- if(!Array.isArray(targetRows))throw new Error('Encyclopédie de destination indisponible');
- const target=targetRows.find(x=>matches(x,toKind));
- if(!target)throw new Error('Fiche de destination introuvable');
+ const missing=v=>v===undefined||v===null||String(v).trim()===''||String(v).trim().toLowerCase()==='non renseigné';
+ const destination=read(toKind),destRows=rows(destination,toKind);
+ if(!Array.isArray(destRows))throw new Error('Encyclopédie de destination indisponible');
+ const targets=destRows.filter(x=>matches(x,toKind));
+ if(targets.length!==1)throw new Error('Identifiant ambigu ou fiche de destination absente : '+article.name);
+ const target=targets[0],differences=[];
  for(const kind of fromKinds){if(kind===toKind)continue;
-  const sourceRows=rows(read(kind),kind);if(!Array.isArray(sourceRows))continue;
-  const source=sourceRows.find(x=>matches(x,kind));if(!source)continue;
-  for(const [key,value] of Object.entries(source)){
-   if(['id','catalogId','catalogueId','catalogue','name','category','catalogCategory','image','filename','photo','photoId'].includes(key))continue;
-   if((target[key]===undefined||target[key]===null||target[key]==='')&&value!==undefined&&value!==null&&value!=='')target[key]=value;
+  const sourceRows=rows(read(kind),kind);
+  if(!Array.isArray(sourceRows))throw new Error('Encyclopédie source indisponible : '+kind);
+  const sources=sourceRows.filter(x=>matches(x,kind));
+  if(sources.length!==1)throw new Error('Identifiant ambigu ou fiche source absente : '+article.name+' ('+kind+')');
+  for(const [field,value] of Object.entries(sources[0])){
+   if(['id','catalogId','catalogueId','catalogue','name','category','catalogCategory','image','filename','photo','photoId','notes'].includes(field)||missing(value))continue;
+   if(missing(target[field]))target[field]=value;
+   else if(JSON.stringify(target[field])!==JSON.stringify(value))differences.push(kind+' / '+field+' : '+(typeof value==='string'?value:JSON.stringify(value)));
+  }
+  if(!missing(sources[0].notes)){
+   if(missing(target.notes))target.notes=sources[0].notes;
+   else if(target.notes!==sources[0].notes)differences.push(kind+' / remarques : '+sources[0].notes);
   }
  }
- hgSet(keys(toKind),JSON.stringify(targetData));
+ if(differences.length){
+  const appendix='Informations conservées lors de la mutation :\n'+differences.join('\n');
+  target.notes=[missing(target.notes)?'':target.notes,appendix].filter(Boolean).join('\n\n');
+ }
+ hgSet(key(toKind),JSON.stringify(destination));
  window.dispatchEvent(new CustomEvent('hg:encyclopedia-linked',{detail:{kind:toKind}}));
+}
+// Mutation contrôlée depuis une fiche du Catalogue : sauvegarde, copie, puis dissociation.
+function hgMutateCatalogArticle(article,toKind){
+ const sources=hgCatalogAssociations(article);
+ if(!sources.length)throw new Error('Aucune encyclopédie source pour « '+article.name+' ». Utilise Associer.');
+ if(sources.length>1)throw new Error('Plusieurs encyclopédies sources : choisis d’abord une fiche unique pour « '+article.name+' ».');
+ if(sources[0]===toKind)return false;
+ const keys=['hg-fruits-vegetables-v282','hg-herbs-spices-v28','hg-encyclopedias-v1','hg-encyclopedias-unlinked-v83','hg-catalog-association-types-v85'];
+ const before=new Map(keys.map(k=>[k,hgGet(k)]));
+ try{
+  if(!hgAssociateFromCatalog(article,false,toKind,false))throw new Error('Association de destination impossible');
+  hgTransferEncyDetails(article,sources,toKind);
+  if(!hgDissociateCatalog(article,sources[0]))throw new Error('Dissociation de la source impossible');
+  registerProtectedChange();markDirty();
+  window.dispatchEvent(new Event('hg:catalog-associations-changed'));
+  return true;
+ }catch(err){for(const [k,v] of before)hgSet(k,v===null||v===undefined?(k==='hg-encyclopedias-unlinked-v83'?'{}':'null'):v);window.dispatchEvent(new Event('hg:catalog-associations-changed'));throw err;}
 }
 function hgDissociateCatalog(article,kind){
  // v3.0.25 : dissociation non destructive. La fiche et son identifiant
