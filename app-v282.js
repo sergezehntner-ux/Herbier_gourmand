@@ -3123,7 +3123,7 @@ function hgOpenCatalogAssociations(article){
   const popup=document.createElement('dialog');
   popup.style.cssText='border:1px solid #d7d4c9;border-radius:16px;padding:20px;max-width:min(92vw,430px);width:100%;background:#fffdf7;color:#24372b;box-shadow:0 12px 40px #0004';
   const current=articleTypes[kind]||defaultType(kind);
-  popup.innerHTML=`<h3 style="margin:0 0 12px">${escText(labelFor(kind))}</h3><p>Associer cette fiche en tant que :</p><label style="display:block;margin:12px 0"><input type="radio" name="hgAssocType" value="produit" ${current==='produit'?'checked':''}> Produit</label><label style="display:block;margin:12px 0"><input type="radio" name="hgAssocType" value="preparation" ${current==='preparation'?'checked':''}> Préparation</label><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px"><button type="button" data-type-cancel>Annuler</button><button type="button" data-type-ok>OK</button></div>`;
+  popup.innerHTML=`<h3 style="margin:0 0 12px">${escText(labelFor(kind))}</h3><p>Associer cette fiche en tant que :</p><label style="display:flex;align-items:center;gap:12px;margin:12px 0;cursor:pointer"><input style="margin:0;flex:0 0 auto;width:18px;height:18px" type="radio" name="hgAssocType" value="produit" ${current==='produit'?'checked':''}> Produit</label><label style="display:flex;align-items:center;gap:12px;margin:12px 0;cursor:pointer"><input style="margin:0;flex:0 0 auto;width:18px;height:18px" type="radio" name="hgAssocType" value="preparation" ${current==='preparation'?'checked':''}> Préparation</label><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px"><button type="button" data-type-cancel>Annuler</button><button type="button" data-type-ok>OK</button></div>`;
   document.body.append(popup);
   const close=()=>{popup.close();popup.remove()};
   popup.querySelector('[data-type-cancel]').onclick=close;
@@ -3143,8 +3143,6 @@ function hgOpenCatalogAssociations(article){
  };
  const commit=openEditor=>{
   if(!chosen.size&&!noneSelected){alert('Choisis une encyclopédie ou « Aucune ».');return}
-  const summary=chosen.size?[...chosen].map(kind=>`• ${labelFor(kind)} — ${articleTypes[kind]==='preparation'?'Préparation':'Produit'}`).join('\n'):'• Aucune encyclopédie';
-  if(!confirm(`Confirmer les associations de « ${article.name} » ?\n\n${summary}\n\nOK pour enregistrer, Annuler pour corriger.`))return;
   const removed=[...initial].filter(k=>!chosen.has(k));
   const added=[...chosen].filter(k=>!initial.has(k));
   for(const kind of added){if(!hgAssociateFromCatalog(article,false,kind,false)){alert('Association interrompue. Vérifie les données avant de réessayer.');return}}
