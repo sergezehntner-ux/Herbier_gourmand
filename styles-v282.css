@@ -449,3 +449,7 @@ nav button{grid-column:span 4!important;font-size:.78rem;padding-inline:2px}
 .hg-herb-tech-compact .knowledge-links small{line-height:1.25}
 @media(max-width:700px){#herbViewContent .hg-herb-compact-head{padding-right:220px}#herbViewContent .hg-herb-compact-head .hg-herb-extra-actions{right:110px;width:102px}}
 @media(max-width:440px){#herbViewContent .hg-herb-compact-head{padding-right:0;padding-bottom:135px}#herbViewContent .hg-herb-compact-head .hg-herb-extra-actions{right:110px}}
+
+/* v3.0.72 : tableau sous l'en-tête, pleine largeur effective */
+#herbViewContent>.hg-herb-view-grid{display:block;width:100%;max-width:none;margin:10px 0 18px;clear:both}
+#herbViewContent>.hg-herb-view-grid .hg-herb-view-row{grid-template-columns:minmax(0,1fr) minmax(0,3fr)}
