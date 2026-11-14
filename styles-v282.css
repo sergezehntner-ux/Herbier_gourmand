@@ -482,3 +482,7 @@ nav button{grid-column:span 4!important;font-size:.78rem;padding-inline:2px}
 #hgEncyclopediaDetail .recipe-screen-actions,#produceView .recipe-screen-actions{justify-content:flex-start;gap:8px;flex-wrap:wrap}
 #hgEncyclopediaDetail .recipe-screen-actions>div,#produceView .recipe-screen-actions>div{margin-left:0;display:flex;gap:5px}
 @media(max-width:600px){#hgEncyclopediaDetail .hg-herb-compact-head,#produceView .hg-herb-compact-head{grid-template-columns:minmax(0,1fr) minmax(85px,110px) minmax(95px,125px);column-gap:5px}#hgEncyclopediaDetail .hg-herb-extra-actions button,#produceView .hg-herb-extra-actions button{font-size:11px;padding:6px 3px}}
+
+/* v3.0.77 — commandes photo des fiches encyclopédiques */
+#hgEncyclopediaDetail .hg-ency-photo-controls{display:flex;gap:5px;margin-top:6px;justify-content:center;flex-wrap:wrap}
+#hgEncyclopediaDetail .hg-ency-photo-controls button{font-size:.78rem;padding:5px 7px}

@@ -2840,10 +2840,25 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   const catalogInfo=x.catalogue?`<section class="hg-ency-block"><h3>Produit du Catalogue</h3><p>Catégorie : ${esc(x.catalogue.group||'Sauces')} · Rayon : ${esc(x.catalogue.aisle||'Non renseigné')}</p>${x.catalogue.image?`<img src="${x.catalogue.image}" alt="" style="max-width:180px;max-height:160px;object-fit:contain;border-radius:10px">`:''}<p class="muted">Complète les informations avec Modifier. La fiche du Catalogue reste inchangée.</p></section>`:'';
   const linkedCatalog=x.catalogue||catalog().find(c=>(x.catalogId&&c.id===x.catalogId)||(x.catalogueId&&c.id===x.catalogueId)||clean(c.name)===clean(x.name));
  const sharedPhoto=(x.image||x.photo||linkedCatalog?.image||'');
- const sharedPhotoHtml=sharedPhoto&&!x.catalogue?`<img src="${sharedPhoto}" alt="Photo de ${esc(x.name)}" style="max-width:180px;max-height:160px;object-fit:contain;border-radius:10px">`:'';
+ const sharedPhotoHtml=sharedPhoto?`<img src="${esc(sharedPhoto)}" alt="Photo de ${esc(x.name)}">`:'';
  const ingredients=Array.isArray(x.ingredients)&&x.ingredients.length?`<section class="hg-ency-block"><h3>Ingrédients de la recette source</h3><p>${x.ingredients.map(i=>esc(Array.isArray(i)?i.filter(v=>v!==null&&v!=='').join(' '):String(i))).join(' · ')}</p></section>`:'';
   get('hgEncyDetailContent').innerHTML=`<div class="herb-detail-head hg-herb-compact-head"><div class="hg-herb-heading-text"><div class="meta">${esc(x.category||'')}</div><h2>${esc(x.name)}</h2></div><div class="hg-ency-photo">${sharedPhotoHtml}</div></div>${hgSharedDetailRows([['Nom',x.name],['Catégorie',x.category],...Object.entries(detailNames).filter(([k])=>k!=='category').map(([k,n])=>[k==='season'&&(active==='meat'||active==='fish')?'Localisation':n,x[k]]),['Catégorie Catalogue',linkedCatalog?.group],['Rayon',linkedCatalog?.aisle]])}${catalogInfo}${ingredients}${x.sourceRecipeId?'<p class="muted">Recette originale conservée dans Recettes.</p>':''}`;
   hgSharedExtraButtons(get('hgEncyDetailContent').querySelector('.herb-detail-head'),x.name,'hgEncyclopediaDetail');
+  // v3.0.77 : restaurer les commandes photo pour les fiches issues du Catalogue.
+  // Les changements portent uniquement sur la photo du Catalogue, jamais sur les champs encyclopédiques.
+  const photoHost=get('hgEncyDetailContent').querySelector('.hg-ency-photo');
+  const catalogPhotoOwner=linkedCatalog&&catalog().find(c=>String(c.id)===String(linkedCatalog.id));
+  if(photoHost&&catalogPhotoOwner){
+   const controls=document.createElement('div');controls.className='hg-ency-photo-controls';
+   controls.innerHTML='<button type="button" data-hg-ency-photo-replace>Remplacer</button><button type="button" data-hg-ency-photo-remove>Supprimer</button>';
+   photoHost.append(controls);
+   const fileInput=document.createElement('input');fileInput.type='file';fileInput.accept='image/*';fileInput.hidden=true;photoHost.append(fileInput);
+   const savePhoto=(image,filename)=>{const rows=catalog();const row=rows.find(c=>String(c.id)===String(catalogPhotoOwner.id));if(!row)return;row.image=image;row.filename=filename;hgSet(CATALOG,JSON.stringify(rows));registerProtectedChange();markDirty();detail(id)};
+   controls.querySelector('[data-hg-ency-photo-replace]').onclick=()=>fileInput.click();
+   fileInput.onchange=async()=>{const f=fileInput.files?.[0];if(!f)return;try{savePhoto(await imageToDataURL(f),f.name)}catch(e){alert('Photo non enregistrée : '+e.message)}};
+   controls.querySelector('[data-hg-ency-photo-remove]').onclick=()=>{if(confirm('Supprimer la photo du Catalogue pour « '+x.name+' » ?'))savePhoto('','')};
+  }
+
   switchView('hgEncyclopediaDetail',{top:true})
  }
  // v78 : catégories dynamiques, reprise de la catégorie du Catalogue et « Autre… ».
