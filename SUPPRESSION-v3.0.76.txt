@@ -1,0 +1,2 @@
+Supprimer du dépôt le fichier obsolète : modele-encyclopedie.html
+Ce fichier n’est plus utilisé par les vues des huit encyclopédies.

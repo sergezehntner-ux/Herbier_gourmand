@@ -467,3 +467,18 @@ nav button{grid-column:span 4!important;font-size:.78rem;padding-inline:2px}
 #herbViewContent .hg-herb-view-grid{margin-top:4px;clear:both}
 @media(max-width:600px){#herbViewContent .hg-herb-compact-head{grid-template-columns:minmax(0,1fr) minmax(85px,110px) minmax(95px,125px);column-gap:5px}#herbViewContent .hg-herb-extra-actions button{font-size:11px;padding:6px 3px}#herbViewContent .hg-herb-photo-controls{flex-direction:column}}
 @media(max-width:390px){#herbViewContent .hg-herb-compact-head{grid-template-columns:minmax(0,1fr) 90px 90px;column-gap:4px}}
+
+/* v3.0.76 — présentation commune des sept autres encyclopédies */
+#hgEncyclopediaDetail .hg-herb-view-grid,#produceView .hg-herb-view-grid{display:block;width:100%;margin:8px 0 18px;border:1px solid var(--line,#ddd);border-radius:12px;overflow:hidden;background:var(--card,#fff)}
+#hgEncyclopediaDetail .hg-herb-view-row,#produceView .hg-herb-view-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,3fr);border-bottom:1px solid var(--line,#ddd)}
+#hgEncyclopediaDetail .hg-herb-view-row:last-child,#produceView .hg-herb-view-row:last-child{border-bottom:0}
+#hgEncyclopediaDetail .hg-herb-view-label,#produceView .hg-herb-view-label{padding:7px 9px;background:rgba(95,125,95,.055);font-weight:650;font-size:.88rem;overflow-wrap:anywhere}
+#hgEncyclopediaDetail .hg-herb-view-value,#produceView .hg-herb-view-value{padding:7px 10px;overflow-wrap:anywhere;line-height:1.4;min-width:0}
+#hgEncyclopediaDetail .hg-herb-compact-head,#produceView .hg-herb-compact-head{display:grid;grid-template-columns:minmax(0,1fr) clamp(120px,14vw,165px) clamp(145px,18vw,190px);column-gap:10px;align-items:start;padding:5px 0 12px;min-height:0}
+#hgEncyclopediaDetail .hg-herb-heading-text,#produceView .hg-herb-heading-text{grid-column:1;grid-row:1;min-width:0}
+#hgEncyclopediaDetail .hg-herb-extra-actions,#produceView .hg-herb-extra-actions{grid-column:2;grid-row:1;position:static!important;display:flex;flex-direction:column;gap:7px;min-width:0;width:auto!important}
+#hgEncyclopediaDetail .hg-ency-photo{grid-column:3;grid-row:1;min-width:0}
+#hgEncyclopediaDetail .hg-ency-photo img{display:block;width:100%;max-width:100%!important;max-height:none!important;aspect-ratio:1;object-fit:contain;border:1px solid var(--line,#ddd);border-radius:12px;background:#fff}
+#hgEncyclopediaDetail .recipe-screen-actions,#produceView .recipe-screen-actions{justify-content:flex-start;gap:8px;flex-wrap:wrap}
+#hgEncyclopediaDetail .recipe-screen-actions>div,#produceView .recipe-screen-actions>div{margin-left:0;display:flex;gap:5px}
+@media(max-width:600px){#hgEncyclopediaDetail .hg-herb-compact-head,#produceView .hg-herb-compact-head{grid-template-columns:minmax(0,1fr) minmax(85px,110px) minmax(95px,125px);column-gap:5px}#hgEncyclopediaDetail .hg-herb-extra-actions button,#produceView .hg-herb-extra-actions button{font-size:11px;padding:6px 3px}}
