@@ -415,3 +415,21 @@ nav button{grid-column:span 4!important;font-size:.78rem;padding-inline:2px}
 #herbDialog .hg-herb-pilot{position:relative;padding-top:42px}
 #herbDialog .hg-herb-pilot-close{position:absolute;top:0;right:0;display:flex;align-items:center;justify-content:center;width:38px;height:38px;padding:0;border:1px solid #b9c8bd;border-radius:8px;background:#fff;color:#202820;font-size:28px;line-height:1;cursor:pointer;z-index:2}
 #herbDialog .hg-herb-pilot-close:hover{background:#f0f5f0}
+
+/* v3.0.70 : Vue Produit compacte, hauteur naturelle et annexes en fenêtres */
+#herbViewContent .hg-herb-view-grid{margin:10px 0 18px;border:1px solid var(--line,#ddd);border-radius:12px;overflow:hidden;background:var(--card,#fff)}
+#herbViewContent .hg-herb-view-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,3fr);border-bottom:1px solid var(--line,#ddd);align-items:stretch}
+#herbViewContent .hg-herb-view-row:last-child{border-bottom:0}
+#herbViewContent .hg-herb-view-label{padding:7px 9px;background:rgba(95,125,95,.055);font-weight:650;font-size:.88rem;overflow-wrap:anywhere}
+#herbViewContent .hg-herb-view-value{padding:7px 10px;white-space:normal;overflow-wrap:anywhere;line-height:1.4;min-width:0}
+#herbViewContent .hg-herb-compact-head{position:relative;min-height:125px;padding:7px 0 10px;padding-right:clamp(230px,32vw,340px);display:block}
+#herbViewContent .hg-herb-compact-head h2{margin:4px 0;font-size:clamp(23px,3vw,34px)}
+#herbViewContent .hg-herb-compact-head .hg-herb-extra-actions{position:absolute;right:clamp(125px,16vw,175px);top:15px;width:clamp(98px,14vw,150px);display:flex;flex-direction:column;gap:7px}
+#herbViewContent .hg-herb-extra-actions button{font-size:clamp(11px,1.25vw,14px);line-height:1.25;padding:8px 5px;background:#fff;border:1px solid var(--line,#ddd);border-radius:8px;cursor:pointer}
+#herbViewContent .hg-herb-compact-head>.hg-photo-slot{right:0;top:5px}
+.hg-herb-extra-dialog{border:1px solid var(--line,#ddd);border-radius:16px;padding:16px;width:min(800px,92vw);max-height:85vh;overflow:auto;background:var(--card,#fff);color:inherit}
+.hg-herb-extra-dialog::backdrop{background:rgba(20,35,25,.55)}
+.hg-herb-extra-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;position:sticky;top:-16px;background:var(--card,#fff);padding:8px 0;z-index:2;border-bottom:1px solid var(--line,#ddd)}
+.hg-herb-extra-bar h2{font-size:1.15rem;margin:0}.hg-herb-extra-bar button{font-size:24px;padding:2px 12px}
+@media(max-width:700px){#herbViewContent .hg-herb-compact-head{padding-right:220px}#herbViewContent .hg-herb-compact-head .hg-herb-extra-actions{right:110px;width:102px}#herbViewContent .hg-herb-view-label{font-size:.78rem;padding:6px}#herbViewContent .hg-herb-view-value{font-size:.88rem;padding:6px}}
+@media(max-width:440px){#herbViewContent .hg-herb-compact-head{padding-right:0;padding-bottom:135px}#herbViewContent .hg-herb-compact-head .hg-herb-extra-actions{top:auto;bottom:12px;right:110px}#herbViewContent .hg-herb-compact-head>.hg-photo-slot{top:auto;bottom:5px}}

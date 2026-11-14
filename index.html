@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#355e48">
   <title>Herbier Gourmand</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles-v282.css?v=3069">
+  <link rel="stylesheet" href="styles-v282.css?v=3070">
 
   <style>
     .recipe[data-recipe-open]{cursor:pointer}
@@ -318,7 +318,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v3.0.69 · Éditeur commun des préparations</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v3.0.70 · Éditeur commun des préparations</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -504,6 +504,8 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 </section>
 
 
+<dialog id="hgHerbExtraDialog" class="hg-herb-extra-dialog" aria-labelledby="hgHerbExtraTitle"><div class="hg-herb-extra-bar"><h2 id="hgHerbExtraTitle"></h2><button type="button" id="hgHerbExtraClose" aria-label="Fermer">×</button></div><div id="hgHerbExtraBody"></div></dialog>
+<script>document.getElementById('hgHerbExtraClose').addEventListener('click',()=>document.getElementById('hgHerbExtraDialog').close());</script>
 <section id="produce" class="view">
   <div class="section-title hg-six-actions"><div><h2>Végétaux & Dérivés</h2><span id="produceCount" class="muted"></span></div><div class="button-row hg-six-actions-grid"><button id="newProduce" class="primary">Ajouter</button><button id="mergeProduce" type="button">Fusionner</button><button id="printProduceList">Imprimer la liste</button><button id="randomProduce" class="secondary">Découverte surprise</button><button hidden id="backProduceToLibrary" type="button">← Bibliothèque</button><div class="button-row" id="produceModes" style="margin:8px 0 12px"><button type="button" id="produceProducts" class="primary">Produits</button><button type="button" id="producePreparations">Préparations</button></div></div></div>
   <p class="lead">Chercher un produit, une saison, une préparation, un accord ou une utilisation culinaire.</p>
@@ -538,7 +540,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <div class="dialog-actions"><button type="button" id="hgEncyDelete" class="danger">Supprimer la fiche</button><button type="button" id="hgEncyCancel">Annuler</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 </main>
 <button id="hgLibraryFloatingBack" type="button" class="primary" aria-label="Retour à la Bibliothèque">← Bibliothèque</button>
-<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v3.0.69</span></footer>
+<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v3.0.70</span></footer>
 <button id="recipeFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des recettes">🔍 Rechercher</button>
 <button id="restaurantFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des sorties">🔍 Rechercher</button>
 <button id="producerFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des producteurs">🔍 Rechercher</button>
@@ -658,7 +660,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <div class="dialog-actions"><button id="catalogBulkCancel" type="button">Annuler</button><button id="catalogBulkApply" class="primary" type="button">Appliquer aux produits sélectionnés</button></div></dialog>
 <script src="frigo-catalog-data.js?v=2981140"></script>
 <script src="encyclopedia-adapter.js?v=3027"></script>
-<script src="app-v282.js?v=3069"></script>
+<script src="app-v282.js?v=3070"></script>
 <script src="media-v1.js?v=3053"></script>
 <script id="hg-catalog-picker-v13">
 /* Les listes du Catalogue existent déjà sous forme de <select> : les réutiliser
