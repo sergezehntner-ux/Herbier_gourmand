@@ -3111,12 +3111,30 @@ function hgOpenCatalogAssociations(article){
  const escText=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const initial=new Set(hgCatalogAssociations(article));
  const chosen=new Set(initial);
+ const typeKey='hg-catalog-association-types-v1';
+ const savedTypes=hgAssocRead(typeKey,{});
+ const articleTypes={...(savedTypes[String(article.id)]||{})};
+ const defaultType=kind=>kind==='baking'?'preparation':'produit';
+ for(const kind of chosen)if(!articleTypes[kind])articleTypes[kind]=defaultType(kind);
  let noneSelected=!initial.size&&Boolean(article.associationReviewed);
  let target=HG_ASSOC_CHOICES.find(([k])=>chosen.has(k))?.[0]||'produce';
+ const labelFor=kind=>HG_ASSOC_CHOICES.find(([k])=>k===kind)?.[1]||kind;
+ const chooseType=kind=>{
+  const popup=document.createElement('dialog');
+  popup.style.cssText='border:1px solid #d7d4c9;border-radius:16px;padding:20px;max-width:min(92vw,430px);width:100%;background:#fffdf7;color:#24372b;box-shadow:0 12px 40px #0004';
+  const current=articleTypes[kind]||defaultType(kind);
+  popup.innerHTML=`<h3 style="margin:0 0 12px">${escText(labelFor(kind))}</h3><p>Associer cette fiche en tant que :</p><label style="display:block;margin:12px 0"><input type="radio" name="hgAssocType" value="produit" ${current==='produit'?'checked':''}> Produit</label><label style="display:block;margin:12px 0"><input type="radio" name="hgAssocType" value="preparation" ${current==='preparation'?'checked':''}> Préparation</label><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px"><button type="button" data-type-cancel>Annuler</button><button type="button" data-type-ok>OK</button></div>`;
+  document.body.append(popup);
+  const close=()=>{popup.close();popup.remove()};
+  popup.querySelector('[data-type-cancel]').onclick=close;
+  popup.querySelector('[data-type-ok]').onclick=()=>{articleTypes[kind]=popup.querySelector('input[name="hgAssocType"]:checked').value;chosen.add(kind);noneSelected=false;target=kind;close();draw()};
+  popup.addEventListener('cancel',e=>{e.preventDefault();close()});
+  popup.showModal();
+ };
  const draw=()=>{
-  dialog.innerHTML=`<h2 style="margin:0 0 8px;font-size:1.35rem">Associations — ${escText(article.name)}</h2><p style="margin:0 0 12px">Choisis les encyclopédies, puis enregistre. Les coches restent visibles.</p><div class="hg-assoc-options"><label class="hg-assoc-option ${noneSelected?'is-selected':''}"><input type="checkbox" data-assoc-none ${noneSelected?'checked':''}><span class="hg-assoc-name">Aucune</span><span class="hg-assoc-status">${noneSelected?'✓ Sélectionné':'Non sélectionné'}</span></label>${HG_ASSOC_CHOICES.map(([kind,label])=>`<label class="hg-assoc-option ${chosen.has(kind)?'is-selected':''}"><input type="checkbox" data-assoc-kind="${kind}" ${chosen.has(kind)?'checked':''}><span class="hg-assoc-name">${label}</span><span class="hg-assoc-status">${chosen.has(kind)?'✓ Sélectionné':'Non sélectionné'}</span></label>`).join('')}</div><div class="hg-assoc-editor-target"><label for="hgAssocTarget">Fiche à ouvrir après enregistrement</label><select id="hgAssocTarget">${HG_ASSOC_CHOICES.filter(([kind])=>chosen.has(kind)).map(([kind,label])=>`<option value="${kind}" ${target===kind?'selected':''}>${label}</option>`).join('')}</select></div><div class="hg-assoc-actions"><button type="button" data-assoc-save>Enregistrer</button><button type="button" class="primary" data-assoc-edit>Enregistrer et ouvrir la fiche</button><button type="button" data-assoc-cancel>Annuler</button></div>`;
+  dialog.innerHTML=`<h2 style="margin:0 0 8px;font-size:1.35rem">Associations — ${escText(article.name)}</h2><p style="margin:0 0 12px">Choisis une encyclopédie, puis précise Produit ou Préparation.</p><div class="hg-assoc-options"><label class="hg-assoc-option ${noneSelected?'is-selected':''}"><input type="checkbox" data-assoc-none ${noneSelected?'checked':''}><span class="hg-assoc-name">Aucune</span><span class="hg-assoc-status">${noneSelected?'✓ Sélectionné':'Non sélectionné'}</span></label>${HG_ASSOC_CHOICES.map(([kind,label])=>`<label class="hg-assoc-option ${chosen.has(kind)?'is-selected':''}"><input type="checkbox" data-assoc-kind="${kind}" ${chosen.has(kind)?'checked':''}><span class="hg-assoc-name">${label}</span><span class="hg-assoc-status">${chosen.has(kind)?'✓ '+(articleTypes[kind]==='preparation'?'Préparation':'Produit'):'Non sélectionné'}</span></label>`).join('')}</div><div class="hg-assoc-editor-target"><label for="hgAssocTarget">Fiche à ouvrir après enregistrement</label><select id="hgAssocTarget">${HG_ASSOC_CHOICES.filter(([kind])=>chosen.has(kind)).map(([kind,label])=>`<option value="${kind}" ${target===kind?'selected':''}>${label}</option>`).join('')}</select></div><div class="hg-assoc-actions"><button type="button" data-assoc-save>Enregistrer</button><button type="button" class="primary" data-assoc-edit>Enregistrer et ouvrir la fiche</button><button type="button" data-assoc-cancel>Annuler</button></div>`;
   dialog.querySelector('[data-assoc-none]').onchange=box=>{noneSelected=box.target.checked;if(noneSelected)chosen.clear();draw()};
-  dialog.querySelectorAll('[data-assoc-kind]').forEach(box=>box.onchange=()=>{if(box.checked){chosen.add(box.dataset.assocKind);noneSelected=false;target=box.dataset.assocKind}else chosen.delete(box.dataset.assocKind);draw()});
+  dialog.querySelectorAll('[data-assoc-kind]').forEach(box=>box.onchange=()=>{const kind=box.dataset.assocKind;if(box.checked){chooseType(kind)}else{chosen.delete(kind);draw()}});
   dialog.querySelector('#hgAssocTarget').onchange=e=>target=e.target.value;
   dialog.querySelector('[data-assoc-cancel]').onclick=()=>{dialog.close();restoreCatalogOrigin()};
   dialog.querySelector('[data-assoc-save]').onclick=()=>commit(false);
@@ -3125,17 +3143,20 @@ function hgOpenCatalogAssociations(article){
  };
  const commit=openEditor=>{
   if(!chosen.size&&!noneSelected){alert('Choisis une encyclopédie ou « Aucune ».');return}
+  const summary=chosen.size?[...chosen].map(kind=>`• ${labelFor(kind)} — ${articleTypes[kind]==='preparation'?'Préparation':'Produit'}`).join('\n'):'• Aucune encyclopédie';
+  if(!confirm(`Confirmer les associations de « ${article.name} » ?\n\n${summary}\n\nOK pour enregistrer, Annuler pour corriger.`))return;
   const removed=[...initial].filter(k=>!chosen.has(k));
-  if(removed.length&&!confirm(`Dissocier « ${article.name} » de ${removed.length} encyclopédie(s) ?\nLes fiches existantes seront conservées.`))return;
   const added=[...chosen].filter(k=>!initial.has(k));
   for(const kind of added){if(!hgAssociateFromCatalog(article,false,kind,false)){alert('Association interrompue. Vérifie les données avant de réessayer.');return}}
   for(const kind of removed){if(!hgDissociateCatalog(article,kind))return}
+  const nextTypes={...savedTypes,[String(article.id)]:Object.fromEntries([...chosen].map(kind=>[kind,articleTypes[kind]||defaultType(kind)]))};
+  hgSet(typeKey,JSON.stringify(nextTypes));
+  registerProtectedChange();markDirty();
   window.dispatchEvent(new CustomEvent('hg:catalog-association-reviewed',{detail:{id:article.id}}));
   window.dispatchEvent(new Event('hg:catalog-associations-changed'));
   dialog.close();
-  if(openEditor){
+  if(openEditor&&chosen.size){
    const kind=chosen.has(target)?target:[...chosen][0];
-   // Ouvrir la fiche après la sauvegarde, même si elle était déjà associée.
    const editor=document.getElementById(kind==='produce'?'produceDialog':kind==='herbs'?'herbDialog':'hgEncyDialog');
    if(editor){const back=()=>{editor.removeEventListener('close',back);setTimeout(()=>{window.dispatchEvent(new Event('hg:catalog-associations-changed'));restoreCatalogOrigin()},0)};editor.addEventListener('close',back,{once:true})}
    hgAssociateFromCatalog(article,false,kind,true);
