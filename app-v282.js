@@ -3293,6 +3293,11 @@ window.addEventListener('hg:catalog-associate',event=>hgOpenCatalogAssociations(
   produce:['category','catalogCategory','latinName','availability','season','description','benefits','pairings','benefitPairings','preparation','conservation','uses','notes'],
   standard:['part','season','uses','pairings','preparation','conservation','description','benefits','benefitPairings','notes','origin','latinName','availability','intensity','forms','flavor','quantity','substitution','avoid','whereToBuy','recipeIdeas','chefTip']
  };
+ // Définir ces rubriques une seule fois : ne jamais enrichir specs dans collect().
+ for(const [kind,label] of HG_ASSOC_CHOICES){
+  if(kind==='produce'||kind==='herbs')continue;
+  specs.push([label,'ency:'+kind,()=>hgAssocRead('hg-encyclopedias-v1',{})[kind]||[],[]]);
+ }
  const missingEncyclopedia=(item,kind)=>{
   const keys=encyclopediaKeys[kind]||encyclopediaKeys.standard;
   // Pour les fiches anciennes, ne contrôler que les champs effectivement
@@ -3355,11 +3360,6 @@ window.addEventListener('hg:catalog-associate',event=>hgOpenCatalogAssociations(
    const implicitDrinks=(/^(jus de fruits|boissons|sirops|cocktails|jus)$/.test(cat)||/boissons|jus/.test(aisle))&&!(excluded.drinks||[]).includes(item.id);
    return implicitCondiments||implicitDrinks;
   };
-// Les six encyclopédies de l'éditeur commun sont aussi contrôlées.
-  for(const [kind,label] of HG_ASSOC_CHOICES){
-   if(kind==='produce'||kind==='herbs')continue;
-   specs.push([label,'ency:'+kind,()=>all[kind]||[],[]]);
-  }
 for(const [module,kind,get,fields] of specs){let rows=[];try{rows=get()||[]}catch(e){console.warn('Suspens',module,e)}for(const item of rows){if(!item||!item.id&&!item.name)continue;const missing=kind==='herb'||kind==='produce'||kind.startsWith('ency:')?missingEncyclopedia(item,kind.startsWith('ency:')?'standard':kind):fields.filter(([label,key])=>isEmpty(item[key])).map(x=>x[0]);if(kind==='recipe')missing.push(...ingredientIssues(item,maps));if(kind==='unassociated'&&!item.associationReviewed&&!hasAssociation(item))missing.push('Association à vérifier');if(missing.length)pending.push({module,kind,id:String(item.id||''),name:String(item.title||item.name||'Sans nom'),missing})}}}
  function render(){collect();const module=$p('pendingModule'),search=$p('pendingSearch'),summary=$p('pendingSummary'),list=$p('pendingList');if(!list)return;const keep=module.value;module.innerHTML='<option value="">Toutes les rubriques</option>'+specs.map(([name])=>`<option value="${esc(name)}">${esc(name)}</option>`).join('');module.value=keep;summary.innerHTML=specs.map(([name])=>{const n=pending.filter(x=>x.module===name).length;return `<button type="button" data-pending-module="${esc(name)}">${esc(name)} : ${n}</button>`}).join('');summary.querySelectorAll('[data-pending-module]').forEach(b=>b.onclick=()=>{module.value=b.dataset.pendingModule;renderList()});renderList()}
  function renderList(){const module=$p('pendingModule').value,q=norm($p('pendingSearch').value),list=$p('pendingList');const rows=pending.filter(x=>(!module||x.module===module)&&(!q||norm(x.name+' '+x.missing.join(' ')).includes(q)));$p('pendingCount').textContent=`${rows.length} fiche${rows.length!==1?'s':''} en suspens${module?' dans '+module:''} · ${pending.length} au total`;list.innerHTML=rows.map((x,i)=>`<div class="pending-row"><div class="pending-info"><strong>${esc(x.name)}</strong><small>${esc(x.module)} · ${esc(x.missing.join(', '))}</small></div><button type="button" data-pending-open="${i}">Ouvrir</button></div>`).join('')||'<div class="pending-empty">Aucune fiche en suspens pour cette recherche.</div>';list.querySelectorAll('[data-pending-open]').forEach(b=>b.onclick=()=>open(rows[Number(b.dataset.pendingOpen)]))}
