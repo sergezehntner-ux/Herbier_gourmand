@@ -2869,7 +2869,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   if(photoHost&&catalogPhotoOwner){
    const controls=document.createElement('div');controls.className='hg-ency-photo-controls';
    controls.innerHTML='<button type="button" data-hg-ency-photo-replace>Remplacer</button><button type="button" data-hg-ency-photo-remove>Supprimer</button>';
-   photoHost.append(controls);
+   get('hgEncyDetailContent').querySelector('.hg-herb-extra-actions')?.append(controls);
    const fileInput=document.createElement('input');fileInput.type='file';fileInput.accept='image/*';fileInput.hidden=true;photoHost.append(fileInput);
    const savePhoto=(image,filename)=>{const rows=catalog();const row=rows.find(c=>String(c.id)===String(catalogPhotoOwner.id));if(!row)return;row.image=image;row.filename=filename;hgSet(CATALOG,JSON.stringify(rows));registerProtectedChange();markDirty();detail(id)};
    controls.querySelector('[data-hg-ency-photo-replace]').onclick=()=>fileInput.click();

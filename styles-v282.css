@@ -501,3 +501,18 @@ nav button{grid-column:span 4!important;font-size:.78rem;padding-inline:2px}
  #herbViewContent .hg-herb-extra-actions button,#produceView .hg-herb-extra-actions button,#hgEncyclopediaDetail .hg-herb-extra-actions button{font-size:11px;padding:6px 3px}
  #hgEncyclopediaDetail .hg-ency-photo-controls{flex-wrap:wrap}
 }
+
+/* v3.0.79 — Achillée millefeuille est le modèle strict pour les 8 encyclopédies.
+   Les quatre commandes sont dans la même colonne, à gauche de la photo. */
+#herbViewContent .hg-herb-extra-actions,
+#produceView .hg-herb-extra-actions,
+#hgEncyclopediaDetail .hg-herb-extra-actions{align-self:start;display:flex;flex-direction:column;gap:7px}
+#herbViewContent .hg-herb-photo-controls,
+#produceView .hg-herb-photo-controls,
+#hgEncyclopediaDetail .hg-ency-photo-controls{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;gap:4px;margin-top:5px;justify-content:center;width:100%;box-sizing:border-box}
+#herbViewContent .hg-herb-photo-controls button,
+#produceView .hg-herb-photo-controls button,
+#hgEncyclopediaDetail .hg-ency-photo-controls button{flex:1 1 0;min-width:0;width:0;white-space:nowrap;font-size:clamp(10px,1.15vw,13px);padding:5px 2px;line-height:1.2;box-sizing:border-box}
+#produceView .hg-herb-compact-head>.hg-photo-slot{grid-column:3;grid-row:1;position:static!important;right:auto!important;top:auto!important;bottom:auto!important;width:100%;min-width:0;transform:none!important;margin:0}
+#produceView .hg-herb-compact-head>.hg-photo-slot .hg-photo-button{width:100%;height:auto;aspect-ratio:1;box-sizing:border-box}
+@media(max-width:600px){#herbViewContent .hg-herb-photo-controls,#produceView .hg-herb-photo-controls,#hgEncyclopediaDetail .hg-ency-photo-controls{flex-direction:row!important;flex-wrap:nowrap!important}}
