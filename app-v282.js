@@ -1443,6 +1443,7 @@ $('#hgChatImport').onchange=async event=>{
     if(patch.format!=='HerbierGourmandChatPatch'||patch.formatVersion!==1||!Array.isArray(patch.changes)||!patch.changes.length)throw Error('Fichier de corrections non reconnu.');
     const allowed=new Set(Object.values(HG_CHAT_GROUPS).flat());
     const staged=new Map(),issues=[];
+    const documentaryFields=new Set(['latinName','availability','season','description','benefits','pairings','benefitPairings','preparation','conservation','uses','notes','category','catalogCategory']);
     for(const change of patch.changes){
       if(!change||!allowed.has(change.store)||typeof change.id!=='string'||!change.id||!change.fields||typeof change.fields!=='object'||Array.isArray(change.fields))throw Error('Correction invalide : clé, identifiant ou champs.');
       if(!staged.has(change.store)){
@@ -1473,12 +1474,12 @@ $('#hgChatImport').onchange=async event=>{
       const row=change.name!==undefined
         ?matches.find(x=>String(x?.name||'')===change.name)
         :(matches.length===1?matches[0]:null);
-      if(matches.length>1&&change.name===undefined){issues.push(`Identifiant ambigu ${change.id} : nom de fiche requis`);continue}
+      if(matches.length>1){issues.push(`Identifiant dupliqué ${change.id} : fusion préalable nécessaire`);continue}
       if(!row){issues.push(`${change.store} / ${change.id} introuvable`);continue}
       for(const [field,value] of Object.entries(change.fields)){
-        const enriched=change.store==='hg-encyclopedias-v1'&&['meat','fish','dairyPasta','baking'].includes(change.kind)&&['season','description','uses','pairings','preparation','conservation','benefits','benefitPairings','notes'].includes(field);
+        const enriched=(change.store==='hg-fruits-vegetables-v282'&&documentaryFields.has(field))||(change.store==='hg-encyclopedias-v1'&&['meat','fish','dairyPasta','baking'].includes(change.kind)&&['season','description','uses','pairings','preparation','conservation','benefits','benefitPairings','notes'].includes(field));
         if((!Object.prototype.hasOwnProperty.call(row,field)&&!enriched)||/^(id|image|photo|media|photoid|imageid)$/i.test(field)||value!==null&&typeof value==='object')throw Error(`Champ interdit ou absent : ${field}`);
-        if(change.before&&Object.prototype.hasOwnProperty.call(change.before,field)&&JSON.stringify(row[field])!==JSON.stringify(change.before[field])){issues.push(`Conflit ${change.id} / ${field}`);continue}
+        if(change.before&&Object.prototype.hasOwnProperty.call(change.before,field)&&JSON.stringify(row[field]===undefined?null:row[field])!==JSON.stringify(change.before[field])){issues.push(`Conflit ${change.id} / ${field}`);continue}
         row[field]=value;
       }
     }
@@ -2214,7 +2215,7 @@ if($('#newProduce'))$('#newProduce').addEventListener('click',e=>{if(hgLegacyMod
 if($('#newProduce'))$('#newProduce').onclick=()=>openProduceEditor('');
 if($('#editViewedProduce'))$('#editViewedProduce').onclick=()=>openProduceEditor();
 if($('#closeProduceDialog'))$('#closeProduceDialog').onclick=()=>{produceEditorOrigin=null;$('#produceDialog').close()};
-if($('#deleteProduce'))$('#deleteProduce').onclick=async()=>{const id=$('#produceEditId').value,p=produceItems.find(x=>x.id===id);if(!p)return;if(!confirm(`Supprimer définitivement « ${p.name} » ?`))return;const photoId=p.photoId||'';produceItems=produceItems.filter(x=>x.id!==id);hgSet(produceStore,JSON.stringify(produceItems));if(photoId&&window.hgMediaDeletePhoto)try{await window.hgMediaDeletePhoto(photoId)}catch(err){console.warn('Suppression photo',err)}registerProtectedChange();markDirty();viewedProduceId=null;renderProduceFilters();renderProduce();$('#produceDialog').close();if(produceEditorOrigin==='ingredientCatalog'){produceEditorOrigin=null;switchView('ingredientCatalog')}else switchView('produce')};
+if($('#deleteProduce'))$('#deleteProduce').onclick=async()=>{const id=$('#produceEditId').value,p=produceItems.find(x=>x.id===id);if(!p)return;if(!confirm(`Supprimer définitivement « ${p.name} » ?`))return;if(produceItems.filter(x=>x.id===id).length>1){alert('Identifiant partagé par plusieurs fiches : suppression bloquée. Utilisez Fusionner pour conserver les renseignements.');return;}const photoId=p.photoId||'';produceItems=produceItems.filter(x=>x!==p);hgSet(produceStore,JSON.stringify(produceItems));if(photoId&&window.hgMediaDeletePhoto)try{await window.hgMediaDeletePhoto(photoId)}catch(err){console.warn('Suppression photo',err)}registerProtectedChange();markDirty();viewedProduceId=null;renderProduceFilters();renderProduce();$('#produceDialog').close();if(produceEditorOrigin==='ingredientCatalog'){produceEditorOrigin=null;switchView('ingredientCatalog')}else switchView('produce')};
 if($('#produceForm'))$('#produceForm').onsubmit=async e=>{e.preventDefault();const oldId=$('#produceEditId').value;let p=oldId?produceItems.find(x=>x.id===oldId):null;const map={Name:'name',Category:'category',CatalogCategory:'catalogCategory',Latin:'latinName',Availability:'availability',Season:'season',Description:'description',Benefits:'benefits',Pairings:'pairings',BenefitPairings:'benefitPairings',Preparation:'preparation',Conservation:'conservation',Uses:'uses',Notes:'notes'};if(!p){const name=$('#produceEditName').value.trim();let id=slug(name||`produit-${Date.now()}`);if(produceItems.some(x=>x.id===id))id=`${id}-${Date.now()}`;p=normalizeProduce({id,name});produceItems.push(p)}Object.entries(map).forEach(([suffix,key])=>p[key]=$(`#produceEdit${suffix}`).value.trim());try{await window.hgEncyclopediaRead.persist('produce',produceItems,{read:hgGet,write:hgSet})}catch(err){console.error(err);alert('Enregistrement non confirmé : '+err.message);return}registerProtectedChange();markDirty();renderProduceFilters();renderProduce();$('#produceDialog').close();if(produceEditorOrigin==='ingredientCatalog'){produceEditorOrigin=null;switchView('ingredientCatalog');}else showProduce(p.id)};
 if($('#backFromProduce'))$('#backFromProduce').onclick=()=>switchView(previousProduceView);
 
@@ -3048,7 +3049,7 @@ function hgAssociateFromCatalog(article,ask=true,chosenKind=null,openAfter=true)
  const existed=!!item;
  if(!item){
   item={id:isGeneral?'catalog:'+article.id:'catalog-'+article.id,name:article.name,catalogId:article.id};
-  if(kind==='produce')item.catalogCategory=article.group||'';
+  if(kind==='produce'){item.catalogCategory=article.group||'';for(const field of ['latinName','availability','season','description','benefits','pairings','benefitPairings','preparation','conservation','uses','notes','category'])item[field]='non renseigné';}
   else if(kind==='herbs')item.catalogCategory=article.group||'';
   else item.category=article.group||'';
   rows.push(item);
