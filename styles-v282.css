@@ -486,3 +486,18 @@ nav button{grid-column:span 4!important;font-size:.78rem;padding-inline:2px}
 /* v3.0.77 — commandes photo des fiches encyclopédiques */
 #hgEncyclopediaDetail .hg-ency-photo-controls{display:flex;gap:5px;margin-top:6px;justify-content:center;flex-wrap:wrap}
 #hgEncyclopediaDetail .hg-ency-photo-controls button{font-size:.78rem;padding:5px 7px}
+
+/* v3.0.78 — Achillée millefeuille : barème unique des commandes */
+#herbViewContent .hg-herb-compact-head,
+#produceView .hg-herb-compact-head,
+#hgEncyclopediaDetail .hg-herb-compact-head{grid-template-columns:minmax(0,1fr) clamp(120px,14vw,165px) clamp(145px,18vw,190px);column-gap:10px}
+#herbViewContent .hg-herb-extra-actions button,
+#produceView .hg-herb-extra-actions button,
+#hgEncyclopediaDetail .hg-herb-extra-actions button{font-size:clamp(11px,1.25vw,14px);line-height:1.25;padding:8px 5px;background:#fff;border:1px solid var(--line,#ddd);border-radius:8px;cursor:pointer;width:100%;box-sizing:border-box}
+#hgEncyclopediaDetail .hg-ency-photo-controls{display:flex;flex-direction:row;flex-wrap:nowrap;justify-content:center;gap:4px;margin-top:5px}
+#hgEncyclopediaDetail .hg-ency-photo-controls button{flex:1 1 0;min-width:0;font-size:clamp(10px,1.15vw,13px);padding:5px 3px;white-space:nowrap}
+@media(max-width:600px){
+ #herbViewContent .hg-herb-compact-head,#produceView .hg-herb-compact-head,#hgEncyclopediaDetail .hg-herb-compact-head{grid-template-columns:minmax(0,1fr) minmax(85px,110px) minmax(95px,125px);column-gap:5px}
+ #herbViewContent .hg-herb-extra-actions button,#produceView .hg-herb-extra-actions button,#hgEncyclopediaDetail .hg-herb-extra-actions button{font-size:11px;padding:6px 3px}
+ #hgEncyclopediaDetail .hg-ency-photo-controls{flex-wrap:wrap}
+}

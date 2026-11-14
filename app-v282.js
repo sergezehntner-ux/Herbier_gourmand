@@ -1945,9 +1945,27 @@ function hgSharedExtraButtons(host,name,origin){
  };
 }
 
+// v3.0.78 — Dissociation non destructive des deux encyclopédies historiques.
+function hgLegacyDissociate(kind,row){
+ if(!row)return;
+ const catalog=shoppingCatalogEntries();
+ const match=catalog.find(c=>String(c.id)===String(row.catalogId||row.catalogueId||''))||catalog.find(c=>norm(c.name)===norm(row.name));
+ if(!match)return alert('Cette fiche n’est pas associée à un produit du Catalogue.');
+ if(!confirm(`Dissocier « ${row.name} » du Catalogue ?\nLa fiche, le produit du Catalogue et les recettes seront conservés.`))return;
+ const key='hg-encyclopedias-unlinked-v83';let state={};try{state=JSON.parse(hgGet(key)||'{}')}catch(_){}
+ state[kind]=[...new Set([...(state[kind]||[]),String(match.id)])];
+ hgSet(key,JSON.stringify(state));registerProtectedChange();markDirty();
+ if(kind==='herbs'){renderHerbs();switchView('herbs',{top:true})}
+ else{renderProduce();switchView('produce',{top:true})}
+}
+function hgLegacyDissociateButton(kind,row){
+ const id=kind==='herbs'?'dissociateViewedHerb':'dissociateViewedProduce';const button=document.getElementById(id);if(!button)return;
+ const linked=shoppingCatalogEntries().some(c=>String(c.id)===String(row.catalogId||row.catalogueId||'')||norm(c.name)===norm(row.name));
+ button.hidden=!linked;button.onclick=()=>hgLegacyDissociate(kind,row);
+}
 function showHerb(id,from=''){
  const h=herbs.find(x=>x.id===id);if(!h)return;
- if(from){rememberScroll(from);previousHerbView=from}else if(!previousHerbView)previousHerbView='herbs';viewedHerbId=id;
+ if(from){rememberScroll(from);previousHerbView=from}else if(!previousHerbView)previousHerbView='herbs';viewedHerbId=id;hgLegacyDissociateButton('herbs',h);
  const rec=linkedRecipes(h),mix=matchingMixes(h),sub=matchingSubstitutions(h),acc=matchingAccords(h);
  const recipeHTML=`<div class="link-list">${rec.length?rec.map(r=>`<button type="button" data-herb-recipe="${esc(r.id)}">${esc(r.title)}</button>`).join(''):'<p class="muted">Aucune recette contenant ce produit dans ses ingrédients.</p>'}</div>`;
  const techniqueRows=(herbKnowledge.techniques||[]).filter(t=>{
@@ -2182,7 +2200,7 @@ if($('#randomProduce'))$('#randomProduce').onclick=()=>{if(produceItems.length)s
 function linkedProduceRecipes(p){const names=[p.name,...terms(p.name)].filter(Boolean);return recipes.filter(r=>r.ingredients.some(i=>names.some(t=>norm(i[0]).includes(t)||t.includes(norm(i[0]))))).slice(0,40);}
 function linkedProduceHerbs(p){const hay=norm([p.pairings,p.benefitPairings,p.preparation,p.uses].join(' '));return herbs.filter(h=>{const base=norm(h.name).split(' ')[0];return base.length>2&&hay.includes(base)}).slice(0,24);}
 function linkedProduceProducers(p){const n=norm(p.name).split(' ')[0];return producers.filter(x=>norm([...(x.products||[]),x.notes||''].join(' ')).includes(n)).slice(0,20);}
-function showProduce(id,from=''){const p=produceItems.find(x=>x.id===id);if(!p)return;if(from){rememberScroll(from);previousProduceView=from}else if(!previousProduceView)previousProduceView='produce';viewedProduceId=id;const rec=linkedProduceRecipes(p),hs=linkedProduceHerbs(p),prod=linkedProduceProducers(p);$('#produceViewContent').innerHTML=`<div class="produce-detail-head hg-herb-compact-head"><div class="hg-herb-heading-text"><div class="meta">${esc([p.category,p.catalogCategory,p.season,p.availability].filter(Boolean).join(' · '))}</div><h2>${esc(p.name)}</h2>${p.latinName?`<p class="latin-name"><em>${esc(p.latinName)}</em></p>`:''}<p class="produce-description">${esc(p.description||'')}</p></div></div>${hgSharedDetailRows([['Nom',p.name],['Catégorie botanique',p.category],['Catégorie Catalogue',p.catalogCategory],['Disponibilité / Saison',[p.season,p.availability].filter(Boolean).join(' · ')],['Utilisations culinaires',p.uses],['Bienfaits / Caractéristiques',p.benefits],['À associer avec',p.pairings],['Associations renforçant les bienfaits',p.benefitPairings],['Modes de préparation',p.preparation],['Conservation',p.conservation],['Remarques',p.notes]])}<section class="knowledge-links"><h3>Herbes & Épices associées</h3><div class="link-list">${hs.length?hs.map(h=>`<button data-produce-herb="${esc(h.id)}">${esc(h.name)}</button>`).join(''):'<p class="muted">Aucun lien automatique trouvé dans les accords de cette fiche.</p>'}</div></section><section class="knowledge-links"><h3>Producteurs locaux</h3><div class="link-list">${prod.length?prod.map(x=>`<button data-produce-producer="${esc(x.id)}">${esc(x.name)}</button>`).join(''):'<p class="muted">Aucun producteur correspondant automatiquement pour l’instant.</p>'}</div></section>`;hgSharedExtraButtons($('#produceViewContent .produce-detail-head'),p.name,'produceView');$$('[data-produce-recipe]').forEach(b=>b.onclick=()=>showRecipe(b.dataset.produceRecipe,'produceView'));$$('[data-produce-herb]').forEach(b=>b.onclick=()=>showHerb(b.dataset.produceHerb,'produceView'));$$('[data-produce-producer]').forEach(b=>b.onclick=()=>showProducer(b.dataset.produceProducer,'produceView'));switchView('produceView',{top:true});}
+function showProduce(id,from=''){const p=produceItems.find(x=>x.id===id);if(!p)return;if(from){rememberScroll(from);previousProduceView=from}else if(!previousProduceView)previousProduceView='produce';viewedProduceId=id;hgLegacyDissociateButton('produce',p);const rec=linkedProduceRecipes(p),hs=linkedProduceHerbs(p),prod=linkedProduceProducers(p);$('#produceViewContent').innerHTML=`<div class="produce-detail-head hg-herb-compact-head"><div class="hg-herb-heading-text"><div class="meta">${esc([p.category,p.catalogCategory,p.season,p.availability].filter(Boolean).join(' · '))}</div><h2>${esc(p.name)}</h2>${p.latinName?`<p class="latin-name"><em>${esc(p.latinName)}</em></p>`:''}<p class="produce-description">${esc(p.description||'')}</p></div></div>${hgSharedDetailRows([['Nom',p.name],['Catégorie botanique',p.category],['Catégorie Catalogue',p.catalogCategory],['Disponibilité / Saison',[p.season,p.availability].filter(Boolean).join(' · ')],['Utilisations culinaires',p.uses],['Bienfaits / Caractéristiques',p.benefits],['À associer avec',p.pairings],['Associations renforçant les bienfaits',p.benefitPairings],['Modes de préparation',p.preparation],['Conservation',p.conservation],['Remarques',p.notes]])}<section class="knowledge-links"><h3>Herbes & Épices associées</h3><div class="link-list">${hs.length?hs.map(h=>`<button data-produce-herb="${esc(h.id)}">${esc(h.name)}</button>`).join(''):'<p class="muted">Aucun lien automatique trouvé dans les accords de cette fiche.</p>'}</div></section><section class="knowledge-links"><h3>Producteurs locaux</h3><div class="link-list">${prod.length?prod.map(x=>`<button data-produce-producer="${esc(x.id)}">${esc(x.name)}</button>`).join(''):'<p class="muted">Aucun producteur correspondant automatiquement pour l’instant.</p>'}</div></section>`;hgSharedExtraButtons($('#produceViewContent .produce-detail-head'),p.name,'produceView');$$('[data-produce-recipe]').forEach(b=>b.onclick=()=>showRecipe(b.dataset.produceRecipe,'produceView'));$$('[data-produce-herb]').forEach(b=>b.onclick=()=>showHerb(b.dataset.produceHerb,'produceView'));$$('[data-produce-producer]').forEach(b=>b.onclick=()=>showProducer(b.dataset.produceProducer,'produceView'));switchView('produceView',{top:true});}
 function openProduceEditor(id=viewedProduceId){
  if(READONLY)return;
  produceEditorOrigin=activeViewId()==='ingredientCatalog'?'ingredientCatalog':null;
