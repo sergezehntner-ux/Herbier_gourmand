@@ -1988,7 +1988,7 @@ function openHerbEditor(id=viewedHerbId){
  $('#herbDialogTitle').textContent=isNew?'Ajouter une plante ou une épice':'Modifier Plante & Épice';
  $('#herbEditId').value=isNew?'':h.id;refreshHerbEditorSelects(h);
  const map={Name:'name',Family:'family',CatalogCategory:'catalogCategory',Origin:'origin',Season:'season',Intensity:'intensity',Forms:'forms',Flavor:'flavor',Uses:'uses',Benefits:'benefits',Pairings:'pairings',Preparation:'preparation',Quantity:'quantity',Substitution:'substitution',Avoid:'avoid',Conservation:'conservation',Where:'whereToBuy',RecipeIdeas:'recipeIdeas',ChefTip:'chefTip'};
- Object.entries(map).forEach(([suffix,key])=>{$(`#herbEdit${suffix}`).value=h[key]||''});if(isNew)$('#herbEditName').value='';$('#deleteHerb')?.classList.toggle('hidden',isNew);hgHerbPilotLoad();$('#herbDialog').showModal()
+ Object.entries(map).forEach(([suffix,key])=>{$(`#herbEdit${suffix}`).value=h[key]||(isNew&&key!=='name'&&key!=='catalogCategory'?'non renseigné':'')});if(isNew)$('#herbEditName').value='';$('#deleteHerb')?.classList.toggle('hidden',isNew);hgHerbPilotLoad();$('#herbDialog').showModal()
 }
 if($('#newHerb'))$('#newHerb').addEventListener('click',e=>{if(hgLegacyModes.herbs==='preparations'){e.preventDefault();e.stopImmediatePropagation();openEncyclopediaPreparation('herbs');}},true);
 if($('#newHerb'))$('#newHerb').onclick=()=>openHerbEditor('');
@@ -2208,7 +2208,7 @@ function openProduceEditor(id=viewedProduceId){
  $('#produceDialogTitle').textContent=isNew?'Ajouter un fruit ou un légume':'Modifier Fruit & Légume';
  $('#produceEditId').value=isNew?'':p.id;refreshProduceEditorSelects(p);
  const map={Name:'name',Category:'category',CatalogCategory:'catalogCategory',Latin:'latinName',Availability:'availability',Season:'season',Description:'description',Benefits:'benefits',Pairings:'pairings',BenefitPairings:'benefitPairings',Preparation:'preparation',Conservation:'conservation',Uses:'uses',Notes:'notes'};
- Object.entries(map).forEach(([suffix,key])=>{$(`#produceEdit${suffix}`).value=p[key]||''});if(isNew)$('#produceEditName').value='';$('#deleteProduce')?.classList.toggle('hidden',isNew);$('#produceDialog').showModal()
+ Object.entries(map).forEach(([suffix,key])=>{$(`#produceEdit${suffix}`).value=p[key]||(isNew&&key!=='name'&&key!=='catalogCategory'?'non renseigné':'')});if(isNew)$('#produceEditName').value='';$('#deleteProduce')?.classList.toggle('hidden',isNew);$('#produceDialog').showModal()
 }
 if($('#newProduce'))$('#newProduce').addEventListener('click',e=>{if(hgLegacyModes.produce==='preparations'){e.preventDefault();e.stopImmediatePropagation();openEncyclopediaPreparation('produce');}},true);
 if($('#newProduce'))$('#newProduce').onclick=()=>openProduceEditor('');
@@ -2895,7 +2895,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  });
  function options(current){const all=catalog().sort((a,b)=>a.name.localeCompare(b.name,'fr'));const values=all.map(x=>x.name);if(current&&!values.some(x=>clean(x)===clean(current)))values.unshift(current);return values.map(n=>`<option value="${esc(n)}">${esc(n)}${n===current&&!all.some(x=>clean(x.name)===clean(current))?' (à relier)':''}</option>`).join('')}
  function edit(id=null){const partInput=get('hgEncyPart');if(partInput){const label=partInput.closest('label');if(label)label.firstChild.textContent=active==='dairyPasta'?'Origine / type de pâte':active==='baking'?'Type de préparation':'Partie utilisée';partInput.placeholder=active==='dairyPasta'?'Ex. Lait de vache, pâte fraîche, blé dur…':active==='baking'?'Ex. Pâte levée, pâte feuilletée, appareil…':'Ex. Filet, feuille, fruit…';}const seasonInput=get('hgEncySeason');const anatomical=active==='meat'||active==='fish';if(seasonInput){const seasonLabel=seasonInput.closest('label');if(seasonLabel)seasonLabel.firstChild.textContent=anatomical?'Localisation':active==='dairyPasta'?'Variété / fabrication':active==='baking'?'Levée / cuisson':'Saison';seasonInput.placeholder=anatomical?'Ex. Dos, côtes, flancs… (laisser vide pour un animal entier)':active==='dairyPasta'?'Ex. Affinage, fermentation, séchage…':active==='baking'?'Ex. Temps de repos, four, température…':'Ex. Été, toute l’année…';}if(id?.startsWith('recipe:'))return openRecipe(id.slice(7));editing=id;const x=id?(sourceItems().find(v=>v.id===id)||db[active].find(v=>v.id===id)):null;get('hgEncyDialogTitle').textContent=x?'Modifier la fiche':'Nouvelle fiche';get('hgEncyName').value=x?.name||'';get('hgEncyNameSuggestions').innerHTML=options(x?.name||'');
-  for(const [k,field] of Object.entries(fields)){const el=get(field);if(!el)continue;if(el.type==='checkbox')el.checked=!!x?.[k];else el.value=x?.[k]||''}
+  for(const [k,field] of Object.entries(fields)){const el=get(field);if(!el)continue;if(el.type==='checkbox')el.checked=!!x?.[k];else el.value=x?.[k]||(!x&&k!=='category'?'non renseigné':'')}
   refreshEncyCategoryChoices();const selected=catalog().find(c=>clean(c.name)===clean(get('hgEncyName').value))||(x?.catalogId&&catalog().find(c=>c.id===x.catalogId));if(selected&&categoryField)categoryField.value=selected.group||'';
   updateFreezing();const isLinked=!!(x&&(x.catalogId||x.catalogueId||x.catalogue||x.id.startsWith('catalog:')));get('hgEncyDelete').hidden=!x||!isLinked;get('hgEncyDeletePermanent').hidden=!x;get('hgEncyDialog').showModal();
  }
@@ -3273,7 +3273,7 @@ window.addEventListener('hg:catalog-associate',event=>hgOpenCatalogAssociations(
 // Critère unique : champs à sélection (simple ou multiple) vides.
 (function(){
  const $p=id=>document.getElementById(id);
- const isEmpty=v=>v==null||String(v).trim()===''||v==='__new__'||v==='__other__'||Array.isArray(v)&&v.length===0;
+ const isEmpty=v=>v==null||typeof v==='string'&&(/^(?:non renseigné)$/i.test(v.trim())||v.trim()===''||v==='__new__'||v==='__other__')||Array.isArray(v)&&v.length===0;
  const specs=[
   ['Catalogue','catalog',()=>shoppingCatalogEntries(),[['Rayon','aisle'],['Catégorie','group']]],
   ['Sans encyclopédie','unassociated',()=>{try{return JSON.parse(hgGet('hg-ingredient-catalog-v1')||'[]')}catch{return []}},[]],
@@ -3283,6 +3283,22 @@ window.addEventListener('hg:catalog-associate',event=>hgOpenCatalogAssociations(
   ['Herbes & Épices','herb',()=>herbs,[['Catégorie botanique','family'],['Catégorie Catalogue','catalogCategory'],['Saison','season'],['Intensité','intensity'],['Formes','forms']]],
   ['Végétaux & Dérivés','produce',()=>produceItems,[['Catégorie botanique','category'],['Catégorie Catalogue','catalogCategory'],['Saison','season']]]
  ];
+ // Champs éditables des encyclopédies : les identifiants, photos, liens Catalogue,
+ // métadonnées techniques et indicateurs booléens ne sont pas des champs à renseigner.
+ const encyclopediaFields={
+  category:'Catégorie',part:'Partie utilisée',season:'Saison / localisation',uses:'Utilisations culinaires',pairings:'À associer avec',preparation:'Modes de préparation',conservation:'Conservation',description:'Description',benefits:'Bienfaits / caractéristiques',benefitPairings:'Associations renforçant les bienfaits',notes:'Remarques',origin:'Origine',latinName:'Nom latin',availability:'Disponibilité',intensity:'Intensité',forms:'Formes',flavor:'Profil gustatif',quantity:'Quantité indicative',substitution:'Substitution',avoid:'Erreur à éviter',whereToBuy:'Où acheter',recipeIdeas:'Idées de recettes',chefTip:'Astuce du chef',family:'Catégorie botanique',catalogCategory:'Catégorie Catalogue'
+ };
+ const encyclopediaKeys={
+  herb:['family','catalogCategory','origin','season','intensity','forms','flavor','uses','benefits','pairings','preparation','quantity','substitution','avoid','conservation','whereToBuy','recipeIdeas','chefTip'],
+  produce:['category','catalogCategory','latinName','availability','season','description','benefits','pairings','benefitPairings','preparation','conservation','uses','notes'],
+  standard:['part','season','uses','pairings','preparation','conservation','description','benefits','benefitPairings','notes','origin','latinName','availability','intensity','forms','flavor','quantity','substitution','avoid','whereToBuy','recipeIdeas','chefTip']
+ };
+ const missingEncyclopedia=(item,kind)=>{
+  const keys=encyclopediaKeys[kind]||encyclopediaKeys.standard;
+  // Pour les fiches anciennes, ne contrôler que les champs effectivement
+  // présents dans leur structure, plus les champs textuels communs.
+  return keys.filter(key=>Object.hasOwn(item,key)&&isEmpty(item[key])).map(key=>encyclopediaFields[key]||key);
+ };
  let pending=[];
  // Diagnostic en lecture seule. Les imports anciens ont déjà converti les lignes
  // en triplets : une structure originale perdue ne peut pas être reconstituée.
@@ -3339,10 +3355,15 @@ window.addEventListener('hg:catalog-associate',event=>hgOpenCatalogAssociations(
    const implicitDrinks=(/^(jus de fruits|boissons|sirops|cocktails|jus)$/.test(cat)||/boissons|jus/.test(aisle))&&!(excluded.drinks||[]).includes(item.id);
    return implicitCondiments||implicitDrinks;
   };
-for(const [module,kind,get,fields] of specs){let rows=[];try{rows=get()||[]}catch(e){console.warn('Suspens',module,e)}for(const item of rows){if(!item||!item.id&&!item.name)continue;const missing=fields.filter(([label,key])=>isEmpty(item[key])).map(x=>x[0]);if(kind==='recipe')missing.push(...ingredientIssues(item,maps));if(kind==='unassociated'&&!item.associationReviewed&&!hasAssociation(item))missing.push('Association à vérifier');if(missing.length)pending.push({module,kind,id:String(item.id||''),name:String(item.title||item.name||'Sans nom'),missing})}}}
+// Les six encyclopédies de l'éditeur commun sont aussi contrôlées.
+  for(const [kind,label] of HG_ASSOC_CHOICES){
+   if(kind==='produce'||kind==='herbs')continue;
+   specs.push([label,'ency:'+kind,()=>all[kind]||[],[]]);
+  }
+for(const [module,kind,get,fields] of specs){let rows=[];try{rows=get()||[]}catch(e){console.warn('Suspens',module,e)}for(const item of rows){if(!item||!item.id&&!item.name)continue;const missing=kind==='herb'||kind==='produce'||kind.startsWith('ency:')?missingEncyclopedia(item,kind.startsWith('ency:')?'standard':kind):fields.filter(([label,key])=>isEmpty(item[key])).map(x=>x[0]);if(kind==='recipe')missing.push(...ingredientIssues(item,maps));if(kind==='unassociated'&&!item.associationReviewed&&!hasAssociation(item))missing.push('Association à vérifier');if(missing.length)pending.push({module,kind,id:String(item.id||''),name:String(item.title||item.name||'Sans nom'),missing})}}}
  function render(){collect();const module=$p('pendingModule'),search=$p('pendingSearch'),summary=$p('pendingSummary'),list=$p('pendingList');if(!list)return;const keep=module.value;module.innerHTML='<option value="">Toutes les rubriques</option>'+specs.map(([name])=>`<option value="${esc(name)}">${esc(name)}</option>`).join('');module.value=keep;summary.innerHTML=specs.map(([name])=>{const n=pending.filter(x=>x.module===name).length;return `<button type="button" data-pending-module="${esc(name)}">${esc(name)} : ${n}</button>`}).join('');summary.querySelectorAll('[data-pending-module]').forEach(b=>b.onclick=()=>{module.value=b.dataset.pendingModule;renderList()});renderList()}
  function renderList(){const module=$p('pendingModule').value,q=norm($p('pendingSearch').value),list=$p('pendingList');const rows=pending.filter(x=>(!module||x.module===module)&&(!q||norm(x.name+' '+x.missing.join(' ')).includes(q)));$p('pendingCount').textContent=`${rows.length} fiche${rows.length!==1?'s':''} en suspens${module?' dans '+module:''} · ${pending.length} au total`;list.innerHTML=rows.map((x,i)=>`<div class="pending-row"><div class="pending-info"><strong>${esc(x.name)}</strong><small>${esc(x.module)} · ${esc(x.missing.join(', '))}</small></div><button type="button" data-pending-open="${i}">Ouvrir</button></div>`).join('')||'<div class="pending-empty">Aucune fiche en suspens pour cette recherche.</div>';list.querySelectorAll('[data-pending-open]').forEach(b=>b.onclick=()=>open(rows[Number(b.dataset.pendingOpen)]))}
- function open(x){if(!x)return;try{switch(x.kind){case 'recipe':openRecipe(x.id);break;case 'producer':openProducer(x.id);break;case 'restaurant':openRestaurant(x.id);break;case 'herb':openHerbEditor(x.id);break;case 'produce':openProduceEditor(x.id);break;case 'unassociated':{const entries=JSON.parse(hgGet('hg-ingredient-catalog-v1')||'[]');const article=entries.find(v=>String(v.id)===x.id);if(article)hgOpenCatalogAssociations(article);break}case 'catalog':{switchView('ingredientCatalog');const input=$p('ingredientCatalogSearch');if(input){input.value=x.name;input.dispatchEvent(new Event('input',{bubbles:true}))}break}}}catch(e){console.error(e);alert('Ouverture indisponible pour cette fiche.')}}
+ function open(x){if(!x)return;try{if(x.kind.startsWith('ency:')){window.dispatchEvent(new CustomEvent('hg:encyclopedia-edit-target',{detail:{kind:x.kind.slice(5),id:x.id}}));return}switch(x.kind){case 'recipe':openRecipe(x.id);break;case 'producer':openProducer(x.id);break;case 'restaurant':openRestaurant(x.id);break;case 'herb':openHerbEditor(x.id);break;case 'produce':openProduceEditor(x.id);break;case 'unassociated':{const entries=JSON.parse(hgGet('hg-ingredient-catalog-v1')||'[]');const article=entries.find(v=>String(v.id)===x.id);if(article)hgOpenCatalogAssociations(article);break}case 'catalog':{switchView('ingredientCatalog');const input=$p('ingredientCatalogSearch');if(input){input.value=x.name;input.dispatchEvent(new Event('input',{bubbles:true}))}break}}}catch(e){console.error(e);alert('Ouverture indisponible pour cette fiche.')}}
  function printPending(){
   // Impression de la sélection courante, sans modifier aucune fiche.
   collect();const module=$p('pendingModule').value,q=norm($p('pendingSearch').value);
@@ -3513,3 +3534,12 @@ document.getElementById("recipeIngredientCheck")?.addEventListener("click",recip
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
  new MutationObserver(queue).observe(document.body,{childList:true,subtree:true});
 })();
+
+// v3.0.83 : remplacement immédiat de la mention dans les champs éditables.
+for(const dialogId of ['herbDialog','produceDialog','hgEncyDialog']){
+ const dialog=document.getElementById(dialogId);if(!dialog)continue;
+ dialog.addEventListener('focusin',event=>{
+  const field=event.target;
+  if((field instanceof HTMLInputElement||field instanceof HTMLTextAreaElement)&&field.type!=='checkbox'&&field.value.trim().toLowerCase()==='non renseigné')field.select();
+ });
+}
