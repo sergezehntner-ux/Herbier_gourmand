@@ -56,7 +56,7 @@ const baseRenderProduce=renderProduce;renderProduce=function(){baseRenderProduce
 
 // Plantes & épices et Fruits & légumes : même langage visuel que Recettes.
 const oldHerbCard=herbCard;herbCard=function(h){return oldHerbCard(h).replace('</article>',`${slot('herb',h.id,h.photoId,'small',true)}</article>`)};
-const oldShowHerb=showHerb;showHerb=function(id,from=''){oldShowHerb(id,from);const h=herbs.find(x=>x.id===id),head=$('#herbViewContent .herb-detail-head');if(h&&head){head.insertAdjacentHTML('beforeend',slot('herb',h.id,h.photoId,'detail',true));hydrate(head)}};
+const oldShowHerb=showHerb;showHerb=function(id,from=''){oldShowHerb(id,from);const h=herbs.find(x=>x.id===id),head=$('#herbViewContent .herb-detail-head');if(h&&head){head.insertAdjacentHTML('beforeend',slot('herb',h.id,h.photoId,'detail',true));const photoActions=head.querySelector('.hg-photo-slot .hg-photo-actions');const extraActions=head.querySelector('.hg-herb-extra-actions');if(photoActions&&extraActions){photoActions.classList.add('hg-herb-photo-controls');extraActions.append(photoActions)}hydrate(head)}};
 const oldProduceCard=produceCard;produceCard=function(p){return oldProduceCard(p).replace('</article>',`${slot('produce',p.id,p.photoId,'small',true)}</article>`)};
 const oldShowProduce=showProduce;showProduce=function(id,from=''){oldShowProduce(id,from);const p=produceItems.find(x=>x.id===id),head=$('#produceViewContent .produce-detail-head');if(p&&head){head.insertAdjacentHTML('beforeend',slot('produce',p.id,p.photoId,'detail',true));hydrate(head)}};
 
