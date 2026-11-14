@@ -2031,6 +2031,9 @@ function hgHerbPilotSync(){
  const actions=form.querySelector('.dialog-actions');
  for(const child of [...form.children])if(child!==actions&&child.id!=='herbEditId'&&child!==grid)original.append(child);
  form.insertBefore(grid,actions);form.insertBefore(original,actions);
+ // Restore the original close control outside the hidden legacy fields.
+ const closeButton=original.querySelector('#closeHerbDialog');
+ if(closeButton){closeButton.classList.add('hg-herb-pilot-close');form.insertBefore(closeButton,grid);}
  // Keep the historical fields accessible to existing handlers but out of view.
  form.addEventListener('submit',e=>{if(!hgHerbPilotSync()){e.preventDefault();e.stopImmediatePropagation()}},true);
 })();
