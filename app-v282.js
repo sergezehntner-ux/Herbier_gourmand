@@ -2855,12 +2855,11 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   get('hgEncyList').querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>detail(b.dataset.id));
  }
  function detail(id){chosen=id;const x=item();if(!x)return;if(x.recipe)return showPreparation(x.recipe);get('hgEncyEdit').hidden=false;get('hgEncyDeleteDetail').hidden=!!x.recipe;get('hgEncyDeleteDetail').textContent=(x.catalogId||x.catalogueId||x.catalogue||x.id.startsWith('catalog:'))?'Dissocier':'Supprimer';const detailNames={...names};if(active==='dairyPasta'){detailNames.part='Origine / type de pâte';detailNames.season='Variété / fabrication'}if(active==='baking'){detailNames.part='Type de préparation';detailNames.season='Levée / cuisson'}const sections=Object.entries(detailNames).filter(([k])=>k!=='category'&&x[k]).map(([k,n])=>`<section class="hg-ency-block"><h3>${esc(k==='season'&&(active==='meat'||active==='fish')?'Localisation':n)}</h3><p style="white-space:pre-wrap">${esc(x[k])}</p></section>`).join('');
-  const catalogInfo=x.catalogue?`<section class="hg-ency-block"><h3>Produit du Catalogue</h3><p>Catégorie : ${esc(x.catalogue.group||'Sauces')} · Rayon : ${esc(x.catalogue.aisle||'Non renseigné')}</p>${x.catalogue.image?`<img src="${x.catalogue.image}" alt="" style="max-width:180px;max-height:160px;object-fit:contain;border-radius:10px">`:''}<p class="muted">Complète les informations avec Modifier. La fiche du Catalogue reste inchangée.</p></section>`:'';
   const linkedCatalog=x.catalogue||catalog().find(c=>(x.catalogId&&c.id===x.catalogId)||(x.catalogueId&&c.id===x.catalogueId)||clean(c.name)===clean(x.name));
  const sharedPhoto=(x.image||x.photo||linkedCatalog?.image||'');
  const sharedPhotoHtml=sharedPhoto?`<img src="${esc(sharedPhoto)}" alt="Photo de ${esc(x.name)}">`:'';
  const ingredients=Array.isArray(x.ingredients)&&x.ingredients.length?`<section class="hg-ency-block"><h3>Ingrédients de la recette source</h3><p>${x.ingredients.map(i=>esc(Array.isArray(i)?i.filter(v=>v!==null&&v!=='').join(' '):String(i))).join(' · ')}</p></section>`:'';
-  get('hgEncyDetailContent').innerHTML=`<div class="herb-detail-head hg-herb-compact-head"><div class="hg-herb-heading-text"><div class="meta">${esc(x.category||'')}</div><h2>${esc(x.name)}</h2></div><div class="hg-ency-photo">${sharedPhotoHtml}</div></div>${hgSharedDetailRows([['Nom',x.name],['Catégorie',x.category],...Object.entries(detailNames).filter(([k])=>k!=='category').map(([k,n])=>[k==='season'&&(active==='meat'||active==='fish')?'Localisation':n,x[k]]),['Catégorie Catalogue',linkedCatalog?.group],['Rayon',linkedCatalog?.aisle]])}${catalogInfo}${ingredients}${x.sourceRecipeId?'<p class="muted">Recette originale conservée dans Recettes.</p>':''}`;
+  get('hgEncyDetailContent').innerHTML=`<div class="herb-detail-head hg-herb-compact-head"><div class="hg-herb-heading-text"><div class="meta">${esc(x.category||'')}</div><h2>${esc(x.name)}</h2></div><div class="hg-ency-photo">${sharedPhotoHtml}</div></div>${hgSharedDetailRows([['Nom',x.name],['Catégorie',x.category],...Object.entries(detailNames).filter(([k])=>k!=='category').map(([k,n])=>[k==='season'&&(active==='meat'||active==='fish')?'Localisation':n,x[k]]),['Catégorie Catalogue',linkedCatalog?.group],['Rayon',linkedCatalog?.aisle]])}${ingredients}${x.sourceRecipeId?'<p class="muted">Recette originale conservée dans Recettes.</p>':''}`;
   hgSharedExtraButtons(get('hgEncyDetailContent').querySelector('.herb-detail-head'),x.name,'hgEncyclopediaDetail');
   // v3.0.77 : restaurer les commandes photo pour les fiches issues du Catalogue.
   // Les changements portent uniquement sur la photo du Catalogue, jamais sur les champs encyclopédiques.
@@ -2898,7 +2897,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  function edit(id=null){const partInput=get('hgEncyPart');if(partInput){const label=partInput.closest('label');if(label)label.firstChild.textContent=active==='dairyPasta'?'Origine / type de pâte':active==='baking'?'Type de préparation':'Partie utilisée';partInput.placeholder=active==='dairyPasta'?'Ex. Lait de vache, pâte fraîche, blé dur…':active==='baking'?'Ex. Pâte levée, pâte feuilletée, appareil…':'Ex. Filet, feuille, fruit…';}const seasonInput=get('hgEncySeason');const anatomical=active==='meat'||active==='fish';if(seasonInput){const seasonLabel=seasonInput.closest('label');if(seasonLabel)seasonLabel.firstChild.textContent=anatomical?'Localisation':active==='dairyPasta'?'Variété / fabrication':active==='baking'?'Levée / cuisson':'Saison';seasonInput.placeholder=anatomical?'Ex. Dos, côtes, flancs… (laisser vide pour un animal entier)':active==='dairyPasta'?'Ex. Affinage, fermentation, séchage…':active==='baking'?'Ex. Temps de repos, four, température…':'Ex. Été, toute l’année…';}if(id?.startsWith('recipe:'))return openRecipe(id.slice(7));editing=id;const x=id?(sourceItems().find(v=>v.id===id)||db[active].find(v=>v.id===id)):null;get('hgEncyDialogTitle').textContent=x?'Modifier la fiche':'Nouvelle fiche';get('hgEncyName').value=x?.name||'';get('hgEncyNameSuggestions').innerHTML=options(x?.name||'');
   for(const [k,field] of Object.entries(fields)){const el=get(field);if(!el)continue;if(el.type==='checkbox')el.checked=!!x?.[k];else el.value=x?.[k]||''}
   refreshEncyCategoryChoices();const selected=catalog().find(c=>clean(c.name)===clean(get('hgEncyName').value))||(x?.catalogId&&catalog().find(c=>c.id===x.catalogId));if(selected&&categoryField)categoryField.value=selected.group||'';
-  updateFreezing();get('hgEncyDelete').hidden=!x;get('hgEncyDelete').textContent=(x&&(x.catalogId||x.catalogueId||x.catalogue||x.id.startsWith('catalog:')))?'Dissocier':'Supprimer la fiche';get('hgEncyDialog').showModal();
+  updateFreezing();const isLinked=!!(x&&(x.catalogId||x.catalogueId||x.catalogue||x.id.startsWith('catalog:')));get('hgEncyDelete').hidden=!x||!isLinked;get('hgEncyDeletePermanent').hidden=!x;get('hgEncyDialog').showModal();
  }
  const freeze=get('hgEncyFreezable'),raw=get('hgEncyRaw'),cooked=get('hgEncyCooked');
  function updateFreezing(){raw.disabled=cooked.disabled=!freeze.checked;if(!freeze.checked){raw.checked=false;cooked.checked=false}}
@@ -2911,18 +2910,18 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   for(const [k,field] of Object.entries(fields)){const el=get(field);if(!el)continue;x[k]=el.type==='checkbox'?el.checked:el.value.trim()}
   if(match){x.category=match.group||'';x.catalogId=match.id;unexclude(active,match.id);}if(x.catalogue){delete x.catalogue;}if(!db[active].some(v=>v.id===x.id))db[active].push(x);try{await save()}catch(err){console.error(err);alert('Enregistrement non confirmé : '+err.message);return}get('hgEncyDialog').close();render();detail(x.id)
  });
- async function deleteEncyclopediaItem(id){
+ async function deleteEncyclopediaItem(id,permanent=false){
   const x=sourceItems().find(v=>v.id===id);if(!x||x.recipe)return;
   const linked=!!(x.catalogId||x.catalogueId||x.catalogue||x.id.startsWith('catalog:'));
   const catalogId=x.catalogId||x.catalogueId||x.catalogue?.id||(x.id.startsWith('catalog:')?x.id.slice(8):'');
-  const question=linked?`Dissocier « ${x.name} » de ${labels[active]} ?\nLe produit du Catalogue et les recettes seront conservés.`:`Supprimer la fiche « ${x.name} » de ${labels[active]} ?\nLe Catalogue et les recettes seront conservés.`;
+  const question=linked&&!permanent?`Dissocier « ${x.name} » de ${labels[active]} ?\nLe produit du Catalogue et les recettes seront conservés.`:`Supprimer la fiche « ${x.name} » de ${labels[active]} ?\nLe Catalogue et les recettes seront conservés.`;
   if(!confirm(question))return;
   // Transaction logique : en cas d'échec, rétablir les fiches ET les exclusions.
   const previousRows=db[active];const previousExclusions=hgGet(EXCLUDED);
-  const nextRows=linked?previousRows:previousRows.filter(v=>v.id!==x.id);
+  const nextRows=linked&&!permanent?previousRows:previousRows.filter(v=>v.id!==x.id);
   db[active]=nextRows;
   try{
-   if(!linked)await save();
+   if(!linked||permanent)await save();
    if(linked&&catalogId){
     const all=exclusions();all[active]=[...new Set([...(all[active]||[]),catalogId])];
     await hgSet(EXCLUDED,JSON.stringify(all));await hgFlush();
@@ -2939,6 +2938,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  }
 
  get('hgEncyDelete').onclick=()=>{if(editing)deleteEncyclopediaItem(editing)};
+ get('hgEncyDeletePermanent').onclick=()=>{if(editing)deleteEncyclopediaItem(editing,true)};
  get('hgEncyDeleteDetail').onclick=()=>{if(chosen)deleteEncyclopediaItem(chosen)};
  get('hgEncyClose').onclick=get('hgEncyCancel').onclick=()=>get('hgEncyDialog').close();
  get('hgEncyBack').onclick=()=>switchView('library',{top:true});get('hgEncyDetailBack').onclick=back;

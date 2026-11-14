@@ -318,7 +318,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v3.0.79 · Éditeur commun des préparations</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v3.0.80 · Éditeur commun des préparations</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -535,11 +535,11 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <dialog id="hgEncyDialog"><form id="hgEncyForm"><div class="dialog-head"><h2 id="hgEncyDialogTitle">Fiche encyclopédique</h2><button type="button" id="hgEncyClose">×</button></div>
 <div class="grid"><label>Nom<input id="hgEncyName" list="hgEncyNameSuggestions" placeholder="Saisir ou choisir dans le Catalogue…" required><datalist id="hgEncyNameSuggestions"></datalist></label><label>Catégorie<input id="hgEncyFieldCategory" list="hgEncyCategorySuggestions" placeholder="Choisir ou créer…"><datalist id="hgEncyCategorySuggestions"></datalist></label><label>Partie utilisée<input id="hgEncyPart" placeholder="Ex. Filet, feuille, fruit…"></label><label>Saison<input id="hgEncySeason" placeholder="Ex. Été, toute l’année…"></label></div>
 <div class="grid"><label>Utilisations culinaires<textarea id="hgEncyUses" rows="2"></textarea></label><label>À associer avec<textarea id="hgEncyPairings" rows="2"></textarea></label><label>Modes de préparation<textarea id="hgEncyPreparation" rows="3"></textarea></label><label>Conservation<textarea id="hgEncyConservation" rows="2"></textarea></label><label>Description<textarea id="hgEncyDescription" rows="2"></textarea></label><label>Bienfaits / Caractéristiques<textarea id="hgEncyBenefits" rows="2"></textarea></label><label>Associations renforçant les bienfaits<textarea id="hgEncyBenefitPairings" rows="2"></textarea></label><label>Remarques<textarea id="hgEncyNotes" rows="2"></textarea></label></div>
-<div class="button-row"><label><input type="checkbox" id="hgEncyFreezable"> Congelable</label><label><input type="checkbox" id="hgEncyRaw"> Cru</label><label><input type="checkbox" id="hgEncyCooked"> Cuit</label></div>
-<div class="dialog-actions"><button type="button" id="hgEncyDelete" class="danger">Supprimer la fiche</button><button type="button" id="hgEncyCancel">Annuler</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
+<div class="button-row" style="display:none" aria-hidden="true"><label><input type="checkbox" id="hgEncyFreezable"> Congelable</label><label><input type="checkbox" id="hgEncyRaw"> Cru</label><label><input type="checkbox" id="hgEncyCooked"> Cuit</label></div>
+<div class="dialog-actions"><button type="button" id="hgEncyDelete" class="danger">Dissocier</button><button type="button" id="hgEncyDeletePermanent" class="danger">Supprimer</button><button type="button" id="hgEncyCancel">Annuler</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 </main>
 <button id="hgLibraryFloatingBack" type="button" class="primary" aria-label="Retour à la Bibliothèque">← Bibliothèque</button>
-<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v3.0.79</span></footer>
+<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v3.0.80</span></footer>
 <button id="recipeFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des recettes">🔍 Rechercher</button>
 <button id="restaurantFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des sorties">🔍 Rechercher</button>
 <button id="producerFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des producteurs">🔍 Rechercher</button>
