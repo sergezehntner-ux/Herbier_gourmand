@@ -433,3 +433,19 @@ nav button{grid-column:span 4!important;font-size:.78rem;padding-inline:2px}
 .hg-herb-extra-bar h2{font-size:1.15rem;margin:0}.hg-herb-extra-bar button{font-size:24px;padding:2px 12px}
 @media(max-width:700px){#herbViewContent .hg-herb-compact-head{padding-right:220px}#herbViewContent .hg-herb-compact-head .hg-herb-extra-actions{right:110px;width:102px}#herbViewContent .hg-herb-view-label{font-size:.78rem;padding:6px}#herbViewContent .hg-herb-view-value{font-size:.88rem;padding:6px}}
 @media(max-width:440px){#herbViewContent .hg-herb-compact-head{padding-right:0;padding-bottom:135px}#herbViewContent .hg-herb-compact-head .hg-herb-extra-actions{top:auto;bottom:12px;right:110px}#herbViewContent .hg-herb-compact-head>.hg-photo-slot{top:auto;bottom:5px}}
+
+/* v3.0.71 — Vue pleine largeur, annexes compactes et boutons sans chevauchement */
+#herbViewContent{width:100%;max-width:none;min-width:0}
+#herbViewContent .hg-herb-view-grid{width:100%;max-width:none;box-sizing:border-box;clear:both}
+#herbViewContent .hg-herb-compact-head{padding-right:clamp(260px,36vw,370px)}
+#herbViewContent .hg-herb-compact-head .hg-herb-extra-actions{right:clamp(145px,19vw,200px);width:clamp(105px,14vw,155px);z-index:1}
+.hg-herb-extra-dialog .link-list{gap:5px}
+.hg-herb-extra-dialog .link-list button{font-size:.88rem;line-height:1.2;padding:5px 8px;font-weight:500}
+.hg-herb-tech-compact{display:grid;gap:8px}
+.hg-herb-tech-compact .knowledge-links{margin:0;padding:9px 12px;border-radius:10px}
+.hg-herb-tech-compact .knowledge-links h3{font-size:1rem;margin:0 0 5px}
+.hg-herb-tech-compact .knowledge-links article{padding:5px 0;line-height:1.25}
+.hg-herb-tech-compact .knowledge-links p{margin:2px 0;line-height:1.3}
+.hg-herb-tech-compact .knowledge-links small{line-height:1.25}
+@media(max-width:700px){#herbViewContent .hg-herb-compact-head{padding-right:220px}#herbViewContent .hg-herb-compact-head .hg-herb-extra-actions{right:110px;width:102px}}
+@media(max-width:440px){#herbViewContent .hg-herb-compact-head{padding-right:0;padding-bottom:135px}#herbViewContent .hg-herb-compact-head .hg-herb-extra-actions{right:110px}}
