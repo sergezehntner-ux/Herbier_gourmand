@@ -9,7 +9,7 @@ const norm = s => String(s || '').replace(/[’‘`´ʼ]/g,"'").normalize('NFD')
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='3.0.89';
+const APP_VERSION='3.0.91';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -2064,6 +2064,44 @@ function hgRenameLinkedCatalogArticle(catalogId,newName){
   return true;
  }catch(err){console.error('Synchronisation du nom',err);alert('Renommage non synchronisé : vérifiez la sauvegarde.');return false}
 }
+// v3.0.91 — Avant suppression Catalogue, figer le dernier nom dans les fiches liées.
+// Ne touche ni aux recettes, ni aux autres articles, ni aux fiches non associées.
+function hgDetachDeletedCatalogArticle(article){
+ const id=String(article?.id||'');if(!id)return false;
+ const name=String(article.name||'');
+ const stores=['hg-encyclopedias-v1','hg-fruits-vegetables-v282','hg-herbs-spices-v28'];
+ const updates=[];
+ const detach=row=>{
+  if(!row||typeof row!=='object')return false;
+  const linked=String(row.catalogId||row.catalogueId||row.catalogue?.id||
+   (String(row.id||'').startsWith('catalog:')?String(row.id).slice(8):''));
+  if(linked!==id)return false;
+  row.name=name;delete row.catalogId;delete row.catalogueId;delete row.catalogue;
+  row.needsCatalogLink=true;
+  return true;
+ };
+ try{
+  for(const store of stores){
+   const raw=hgGet(store);if(!raw)continue;
+   const data=JSON.parse(raw);
+   const groups=Array.isArray(data)?[data]:data&&typeof data==='object'?Object.values(data).filter(Array.isArray):[];
+   let changed=false;
+   for(const rows of groups)for(const row of rows)if(detach(row))changed=true;
+   if(changed)updates.push([store,JSON.stringify(data)]);
+  }
+  // Tout préparer avant la première écriture ; conserver l'ancien état en cas d'échec.
+  const previous=updates.map(([key])=>[key,hgGet(key)]);
+  try{for(const [key,value] of updates)hgSet(key,value)}catch(err){
+   for(const [key,value] of previous)try{hgSet(key,value)}catch{}
+   throw err;
+  }
+  // Les encyclopédies gardent aussi des tableaux chargés en mémoire.
+  window.dispatchEvent(new CustomEvent('hg:catalog-item-detached',{detail:{id,name}}));
+  registerProtectedChange();markDirty();
+  return true;
+ }catch(err){console.error('Dissociation après suppression Catalogue',err);
+  alert('Suppression interrompue : les fiches associées n’ont pas pu être conservées.');return false}
+}
 // v3.0.68 — Pilote Herbes & Épices : masque Produit du laboratoire.
 // Les valeurs historiques restent stockées dans leurs clés d'origine (aucune migration).
 const hgHerbPilotGroups=[
@@ -2480,7 +2518,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   if(!confirm('La sauvegarde AVANT mutation est-elle bien téléchargée ?\nOK pour poursuivre ; Annuler pour ne rien changer.'))return;
   hgMutateCatalogArticle(article,chosen[0]);render();alert('Mutation effectuée. Vérifie la fiche dans la nouvelle encyclopédie.');
  }catch(err){console.error(err);alert('Mutation interrompue : '+err.message)}
-});list.querySelectorAll('[data-catalog-delete]').forEach(b=>b.onclick=()=>{const r=b.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r.dataset.catalogId);if(!x)return;if(!confirm(`Supprimer « ${x.name} » du catalogue ?`))return;catalog=catalog.filter(y=>y.id!==x.id);save();render()})}
+});list.querySelectorAll('[data-catalog-delete]').forEach(b=>b.onclick=()=>{const r=b.closest('[data-catalog-id]'),x=catalog.find(y=>y.id===r.dataset.catalogId);if(!x)return;if(!confirm(`Supprimer « ${x.name} » du catalogue ?\nLes fiches encyclopédiques seront conservées sous ce dernier nom.`))return;if(!hgDetachDeletedCatalogArticle(x))return;catalog=catalog.filter(y=>y.id!==x.id);save();render()})}
  window.addEventListener('hg:catalog-associations-changed',()=>{if(activeViewId()==='ingredientCatalog')render()});
  window.addEventListener('hg:catalog-association-reviewed',e=>{
   const id=String(e.detail?.id||'');
@@ -2765,6 +2803,18 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
    return c?{...x,name:c.name,category:c.group||'',catalogId:c.id,catalogue:c}:x;
   });
  }
+ // Actualiser les fiches déjà chargées sans réintroduire leur ancien nom au prochain enregistrement.
+ window.addEventListener('hg:catalog-item-detached',event=>{
+  const id=String(event.detail?.id||''),name=String(event.detail?.name||'');
+  if(!id)return;
+  for(const rows of Object.values(db))for(const row of rows){
+   if(String(row.catalogId||row.catalogueId||row.catalogue?.id||
+    (String(row.id||'').startsWith('catalog:')?String(row.id).slice(8):''))!==id)continue;
+   row.name=name;delete row.catalogId;delete row.catalogueId;delete row.catalogue;
+   row.needsCatalogLink=true;
+  }
+  if(activeViewId()==='hgEncyclopedia')render();
+ });
  function sourceItems(){
   // La section Préparations prime sur les traitements Catalogue propres à chaque encyclopédie.
   if(condimentMode==='preparations')return preparationRecipes(active).map(r=>({id:'recipe:'+r.id,name:r.title,category:r.category||'Préparation',recipe:r}));

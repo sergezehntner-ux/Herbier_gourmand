@@ -1,4 +1,4 @@
 {
-  "version": "3.0.90",
-  "label": "Protection du renommage des fiches encyclopédiques"
+  "version": "3.0.91",
+  "label": "Conserver le dernier nom lors de la suppression Catalogue"
 }
