@@ -76,7 +76,7 @@ async function init(){
   window.dispatchEvent(new Event('hg:storage-ready'));
   migrateLegacyWeekSlots();
   renderDaySlotChoices();
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=2981270', {updateViaCache:'none'});
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=3099', {updateViaCache:'none'});
   setStartupStatus('Chargement de vos recettes…');
   const stored=JSON.parse(hgGet(recipeStore)||'null');
   if(stored) recipes=stored; else recipes=await fetch(`recipes.json?_=${Date.now()}`,{cache:'no-store'}).then(r=>r.json());
@@ -3520,6 +3520,39 @@ window.addEventListener('hg:catalog-associate',event=>hgOpenCatalogAssociations(
   // présents dans leur structure, plus les champs textuels communs.
   return keys.filter(key=>Object.hasOwn(item,key)&&isEmpty(item[key])).map(key=>encyclopediaFields[key]||key);
  };
+ // Contrôle ponctuel des noms contenant « / » : validation manuelle persistante.
+ // Aucun ingrédient, aucune quantité et aucune unité ne sont modifiés ici.
+ const slashReviewStore='hg-slash-ingredient-reviews-v1';
+ function slashReviews(){try{const data=JSON.parse(hgGet(slashReviewStore)||'{}');return data&&typeof data==='object'&&!Array.isArray(data)?data:{}}catch{return {}}}
+ function slashCandidates(recipe,maps){
+  return (recipe.ingredients||[]).flatMap((row,index)=>{
+   if(!Array.isArray(row))return [];
+   const recovered=hgRecoveredIngredient(row);
+   const name=String(officialRecipeIngredientName(recipe,index,recovered[0],maps)||'').trim();
+   if(!name.includes('/'))return [];
+   // La signature inclut les valeurs : une modification réouvre le contrôle.
+   const signature=JSON.stringify([index,name,String(recovered[1]??''),String(recovered[2]??'')]);
+   return [{index,name,signature}];
+  });
+ }
+ function slashOutstanding(recipe,maps){
+  const reviewed=slashReviews()[String(recipe.id)]||[];
+  return slashCandidates(recipe,maps).filter(item=>!reviewed.includes(item.signature));
+ }
+ async function confirmSlashReview(x){
+  const recipe=recipes.find(r=>String(r.id)===x.id);
+  if(!recipe)return alert('Recette introuvable.');
+  const maps=recipeCatalogNameMap(),candidates=slashCandidates(recipe,maps);
+  if(!candidates.length)return render();
+  const outstanding=slashOutstanding(recipe,maps);
+  if(!outstanding.length)return render();
+  const details=outstanding.map(item=>`Ligne ${item.index+1} : ${item.name}`).join('\n');
+  if(!confirm(`As-tu contrôlé et, si nécessaire, corrigé puis enregistré les quantités et unités de cette recette ?\n\n${details}\n\nOK = marquer ces ingrédients comme vérifiés.`))return;
+  const reviews=slashReviews();
+  reviews[String(recipe.id)]=candidates.map(item=>item.signature);
+  try{await hgSet(slashReviewStore,JSON.stringify(reviews));render()}
+  catch(error){console.error(error);alert('Impossible de conserver la vérification. Réessaie.');}
+ }
  let pending=[];
  // Diagnostic en lecture seule. Les imports anciens ont déjà converti les lignes
  // en triplets : une structure originale perdue ne peut pas être reconstituée.
@@ -3576,9 +3609,9 @@ window.addEventListener('hg:catalog-associate',event=>hgOpenCatalogAssociations(
    const implicitDrinks=(/^(jus de fruits|boissons|sirops|cocktails|jus)$/.test(cat)||/boissons|jus/.test(aisle))&&!(excluded.drinks||[]).includes(item.id);
    return implicitCondiments||implicitDrinks;
   };
-for(const [module,kind,get,fields] of specs){let rows=[];try{rows=get()||[]}catch(e){console.warn('Suspens',module,e)}for(const item of rows){if(!item||!item.id&&!item.name)continue;const missing=kind==='herb'||kind==='produce'||kind.startsWith('ency:')?missingEncyclopedia(item,kind.startsWith('ency:')?'standard':kind):fields.filter(([label,key])=>isEmpty(item[key])).map(x=>x[0]);if(kind==='recipe')missing.push(...ingredientIssues(item,maps));if(kind==='unassociated'&&!item.associationReviewed&&!hasAssociation(item))missing.push('Association à vérifier');if(missing.length)pending.push({module,kind,id:String(item.id||''),name:String(item.title||item.name||'Sans nom'),missing})}}}
+for(const [module,kind,get,fields] of specs){let rows=[];try{rows=get()||[]}catch(e){console.warn('Suspens',module,e)}for(const item of rows){if(!item||!item.id&&!item.name)continue;const missing=kind==='herb'||kind==='produce'||kind.startsWith('ency:')?missingEncyclopedia(item,kind.startsWith('ency:')?'standard':kind):fields.filter(([label,key])=>isEmpty(item[key])).map(x=>x[0]);if(kind==='recipe'){missing.push(...ingredientIssues(item,maps));for(const candidate of slashOutstanding(item,maps))missing.push(`Unité à vérifier (nom avec /) — ligne ${candidate.index+1} : ${candidate.name}`);}if(kind==='unassociated'&&!item.associationReviewed&&!hasAssociation(item))missing.push('Association à vérifier');if(missing.length)pending.push({module,kind,id:String(item.id||''),name:String(item.title||item.name||'Sans nom'),missing})}}}
  function render(){collect();const module=$p('pendingModule'),search=$p('pendingSearch'),summary=$p('pendingSummary'),list=$p('pendingList');if(!list)return;const keep=module.value;module.innerHTML='<option value="">Toutes les rubriques</option>'+specs.map(([name])=>`<option value="${esc(name)}">${esc(name)}</option>`).join('');module.value=keep;summary.innerHTML=specs.map(([name])=>{const n=pending.filter(x=>x.module===name).length;return `<button type="button" data-pending-module="${esc(name)}">${esc(name)} : ${n}</button>`}).join('');summary.querySelectorAll('[data-pending-module]').forEach(b=>b.onclick=()=>{module.value=b.dataset.pendingModule;renderList()});renderList()}
- function renderList(){const module=$p('pendingModule').value,q=norm($p('pendingSearch').value),list=$p('pendingList');const rows=pending.filter(x=>(!module||x.module===module)&&(!q||norm(x.name+' '+x.missing.join(' ')).includes(q)));$p('pendingCount').textContent=`${rows.length} fiche${rows.length!==1?'s':''} en suspens${module?' dans '+module:''} · ${pending.length} au total`;list.innerHTML=rows.map((x,i)=>`<div class="pending-row"><div class="pending-info"><strong>${esc(x.name)}</strong><small>${esc(x.module)} · ${esc(x.missing.join(', '))}</small></div><button type="button" data-pending-open="${i}">Ouvrir</button></div>`).join('')||'<div class="pending-empty">Aucune fiche en suspens pour cette recherche.</div>';list.querySelectorAll('[data-pending-open]').forEach(b=>b.onclick=()=>open(rows[Number(b.dataset.pendingOpen)]))}
+ function renderList(){const module=$p('pendingModule').value,q=norm($p('pendingSearch').value),list=$p('pendingList');const rows=pending.filter(x=>(!module||x.module===module)&&(!q||norm(x.name+' '+x.missing.join(' ')).includes(q)));$p('pendingCount').textContent=`${rows.length} fiche${rows.length!==1?'s':''} en suspens${module?' dans '+module:''} · ${pending.length} au total`;list.innerHTML=rows.map((x,i)=>`<div class="pending-row"><div class="pending-info"><strong>${esc(x.name)}</strong><small>${esc(x.module)} · ${esc(x.missing.join(', '))}</small></div><div class="pending-actions"><button type="button" data-pending-open="${i}">Ouvrir</button>${x.kind==='recipe'&&x.missing.some(m=>m.startsWith('Unité à vérifier (nom avec /)'))?`<button type="button" data-pending-slash-verified="${i}" title="À utiliser après contrôle et enregistrement de la recette">Vérifié ✓</button>`:''}</div></div>`).join('')||'<div class="pending-empty">Aucune fiche en suspens pour cette recherche.</div>';list.querySelectorAll('[data-pending-open]').forEach(b=>b.onclick=()=>open(rows[Number(b.dataset.pendingOpen)]));list.querySelectorAll('[data-pending-slash-verified]').forEach(b=>b.onclick=()=>confirmSlashReview(rows[Number(b.dataset.pendingSlashVerified)]))}
  function open(x){if(!x)return;try{if(x.kind.startsWith('ency:')){window.dispatchEvent(new CustomEvent('hg:encyclopedia-edit-target',{detail:{kind:x.kind.slice(5),id:x.id}}));return}switch(x.kind){case 'recipe':openRecipe(x.id);break;case 'producer':openProducer(x.id);break;case 'restaurant':openRestaurant(x.id);break;case 'herb':openHerbEditor(x.id);break;case 'produce':openProduceEditor(x.id);break;case 'unassociated':{const entries=JSON.parse(hgGet('hg-ingredient-catalog-v1')||'[]');const article=entries.find(v=>String(v.id)===x.id);if(article)hgOpenCatalogAssociations(article);break}case 'catalog':{switchView('ingredientCatalog');const input=$p('ingredientCatalogSearch');if(input){input.value=x.name;input.dispatchEvent(new Event('input',{bubbles:true}))}break}}}catch(e){console.error(e);alert('Ouverture indisponible pour cette fiche.')}}
  function printPending(){
   // Impression de la sélection courante, sans modifier aucune fiche.
