@@ -3527,11 +3527,12 @@ window.addEventListener('hg:catalog-associate',event=>hgOpenCatalogAssociations(
  function slashCandidates(recipe,maps){
   return (recipe.ingredients||[]).flatMap((row,index)=>{
    if(!Array.isArray(row))return [];
-   const recovered=hgRecoveredIngredient(row);
-   const name=String(officialRecipeIngredientName(recipe,index,recovered[0],maps)||'').trim();
+   // Éviter hgRecoveredIngredient : elle relit le Catalogue entier pour chaque ligne.
+   // Utiliser la correspondance déjà calculée une seule fois dans collect().
+   const name=String(officialRecipeIngredientName(recipe,index,row[0],maps)||'').trim();
    if(!name.includes('/'))return [];
    // La signature inclut les valeurs : une modification réouvre le contrôle.
-   const signature=JSON.stringify([index,name,String(recovered[1]??''),String(recovered[2]??'')]);
+   const signature=JSON.stringify([index,name,String(row[1]??''),String(row[2]??'')]);
    return [{index,name,signature}];
   });
  }
