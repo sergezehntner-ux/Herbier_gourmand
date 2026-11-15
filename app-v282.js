@@ -254,11 +254,22 @@ function hgSplitRecipeIngredient(line){
  const pieces=raw.split('/');if(pieces.length>=3)return [pieces.slice(0,-2).join('/').trim(),pieces.at(-2).trim(),pieces.at(-1).trim()];
  return [raw,'',''];
 }
-function hgRecoveredIngredient(row){
+function hgRecoveredIngredient(row,catalogNameMap){
  if(!Array.isArray(row)||row.length!==3)return row;
+ // v3.0.101 : réutiliser la table Catalogue déjà construite pendant le contrôle.
+ // Évite de relire et parcourir tout le Catalogue pour chaque ingrédient.
  const raw=row.map(v=>String(v??'')).join(' / ');
- const matches=shoppingCatalogEntries().filter(e=>raw.startsWith(e.name+' / ')).sort((a,b)=>b.name.length-a.name.length);
- for(const item of matches){const tail=raw.slice(item.name.length).replace(/^\s*\/\s*/,'');const m=tail.match(/^(-?(?:\d+(?:[.,]\d+)?|\d+\/\d+))\s*\/\s*([\s\S]*)$/);if(m)return [item.name,Number(m[1].replace(',','.')),m[2].trim()]}
+ const byName=catalogNameMap||recipeCatalogNameMap().byName;
+ const parts=raw.split(' / ');
+ // Préférer le nom le plus long présent dans le Catalogue.
+ for(let end=parts.length-2;end>=1;end--){
+  const candidate=parts.slice(0,end).join(' / ');
+  const matches=byName.get(norm(candidate))||[];
+  if(matches.length!==1)continue;
+  const tail=parts.slice(end).join(' / ');
+  const m=tail.match(/^(-?(?:\d+(?:[.,]\d+)?|\d+\/\d+))\s*\/\s*([\s\S]*)$/);
+  if(m)return [matches[0].name,Number(m[1].replace(',','.')),m[2].trim()];
+ }
  return row;
 }
 function hgRecipeIngredientLines(){return document.getElementById('recipeIngredients').value.split(/\r?\n/).filter(x=>x.trim())}
@@ -3528,7 +3539,7 @@ window.addEventListener('hg:catalog-associate',event=>hgOpenCatalogAssociations(
   (recipe.ingredients||[]).forEach((row,index)=>{
    const number=index+1;
    if(!Array.isArray(row)||row.length!==3){issues.push(`Structure à corriger — ligne ${number}`);return}
-   const [name,quantity,unit]=hgRecoveredIngredient(row);
+   const [name,quantity,unit]=hgRecoveredIngredient(row,maps.byName);
    const n=String(name??'').trim(),u=String(unit??'').trim();
    // Une précision facultative n'est acceptée que sous forme de parenthèses
    // fermées en toute fin de l'unité (ex. « kg (différentes couleurs) »).
