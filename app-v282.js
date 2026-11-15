@@ -246,12 +246,20 @@ let hgIngredientEditIndex=-1,hgIngredientSelected=null;
 // les barres obliques du nom Catalogue restent intactes.
 function hgSplitRecipeIngredient(line){
  const raw=String(line||'').trim();
+ // Les noms du Catalogue sont des textes libres, y compris les signes /.
+ const matches=shoppingCatalogEntries().filter(e=>raw.startsWith(e.name+' / ')).sort((a,b)=>b.name.length-a.name.length);
+ for(const item of matches){const tail=raw.slice(item.name.length).replace(/^\s*\/\s*/,'');const m=tail.match(/^(-?(?:\d+(?:[.,]\d+)?|\d+\/\d+))\s*\/\s*([\s\S]*)$/);if(m)return [item.name,m[1],m[2].trim()]}
  const parts=raw.split(/\s+\/\s+/);
  if(parts.length>=3)return [parts.slice(0,-2).join(' / ').trim(),parts.at(-2).trim(),parts.at(-1).trim()];
- // Compatibilité avec les anciennes saisies « nom/quantité/unité ».
- const pieces=raw.split('/');
- if(pieces.length>=3)return [pieces.slice(0,-2).join('/').trim(),pieces.at(-2).trim(),pieces.at(-1).trim()];
+ const pieces=raw.split('/');if(pieces.length>=3)return [pieces.slice(0,-2).join('/').trim(),pieces.at(-2).trim(),pieces.at(-1).trim()];
  return [raw,'',''];
+}
+function hgRecoveredIngredient(row){
+ if(!Array.isArray(row)||row.length!==3)return row;
+ const raw=row.map(v=>String(v??'')).join(' / ');
+ const matches=shoppingCatalogEntries().filter(e=>raw.startsWith(e.name+' / ')).sort((a,b)=>b.name.length-a.name.length);
+ for(const item of matches){const tail=raw.slice(item.name.length).replace(/^\s*\/\s*/,'');const m=tail.match(/^(-?(?:\d+(?:[.,]\d+)?|\d+\/\d+))\s*\/\s*([\s\S]*)$/);if(m)return [item.name,Number(m[1].replace(',','.')),m[2].trim()]}
+ return row;
 }
 function hgRecipeIngredientLines(){return document.getElementById('recipeIngredients').value.split(/\r?\n/).filter(x=>x.trim())}
 function hgIngredientSetLines(lines){document.getElementById('recipeIngredients').value=lines.join('\n');hgIngredientRender()}
@@ -293,7 +301,7 @@ function hgIngredientSuggestions(){
 function hgIngredientCommit(){
  const item=hgIngredientSelected;if(!item)return alert('Sélectionne un article proposé dans le Catalogue.');
  const qty=document.getElementById('recipeIngredientQty').value.trim();if(qty===''||!Number.isFinite(Number(qty)))return alert('Indique une quantité numérique (0 est autorisé).');
- const unit=document.getElementById('recipeIngredientUnit').value.trim();if(unit.includes('/'))return alert('Le caractère / est réservé aux séparateurs de quantité et unité.');
+ const unit=document.getElementById('recipeIngredientUnit').value.trim();
  const lines=hgRecipeIngredientLines();const value=`${item.name} / ${qty} / ${unit}`;
  if(hgIngredientEditIndex>=0){lines[hgIngredientEditIndex]=value;recipeIngredientLinks[hgIngredientEditIndex]=item.id}
  else{lines.push(value);recipeIngredientLinks.push(item.id)}
@@ -571,7 +579,7 @@ function openEncyclopediaPreparation(kind){
   const field=document.getElementById('recipeEncyclopedia');
   if(field){ensureSelectValue(field,source);field.value=source;field.dispatchEvent(new Event('change',{bubbles:true}));}
 }
-function openRecipe(id,creationEncyclopedia=""){if(!id&&document.getElementById("recipeDialog")?.open&&hgRecipeCreationEncyclopedia){ensureSelectValue(document.getElementById("recipeEncyclopedia"),hgRecipeCreationEncyclopedia);return;}hgRecipeOriginView=activeViewId();hgRecipeCreationEncyclopedia=creationEncyclopedia||"";if(id)captureRecipeListState();const r=recipes.find(x=>x.id===id);$('#recipeDialogTitle').textContent=r?'Modifier\nla recette':(creationEncyclopedia?'Nouvelle\npréparation':'Nouvelle\nrecette');const editName=document.getElementById('hgRecipeEditName');if(editName)editName.textContent=r?.title||'Nouvelle recette';const editPhoto=document.getElementById('hgRecipeEditPhoto');if(editPhoto){editPhoto.innerHTML=r?.photoId?`<img data-photo-id="${esc(r.photoId)}" alt="Photo de la recette">`:'';if(r?.photoId&&window.hgMediaHydrate)window.hgMediaHydrate(editPhoto);}$('#recipeId').value=r?.id||'';$('#recipeTitle').value=r?.title||'';fillCategories();ensureSelectValue($('#recipeCategory'),r?.category||(creationEncyclopedia?(creationEncyclopedia==='condiments'?'Sauce':'Préparation'):''));$('#recipeCategory').value=r?.category||(creationEncyclopedia?(creationEncyclopedia==='condiments'?'Sauce':'Préparation'):'');fillRecipeTagSuggestions();$('#recipeTags').value=(r?.tags||[]).join(', ');const linkedEncyclopedia=creationEncyclopedia||r?.encyclopediaPreparation||(r&&norm(r.category)==='sauce'?'condiments':'');ensureSelectValue($('#recipeEncyclopedia'),linkedEncyclopedia);$('#recipeEncyclopedia').value=linkedEncyclopedia;$('#recipeEncyclopedia').dispatchEvent(new Event('change',{bubbles:true}));$('#recipeCategory').dispatchEvent(new Event('change',{bubbles:true}));const recipeTypeValue=r?.type||(r?.avecViande?'viande':'');ensureSelectValue($('#recipeType'),recipeTypeValue);$('#recipeType').value=recipeTypeValue;$('#recipeEffort').value=r?.effort||'';$('#recipeDifficulty').value=r?.difficulty||'';$('#recipeSpecial').value=r?.special||'standard';$('#recipeServings').value=r?.servings||4;$('#recipeTemperature').value=r?.temperature||'chaud';$('#recipeSeason').value=r?.season||'toute-annee';$('#recipePeriod').value=r?.period||'indifferente';const recipeMaps=recipeCatalogNameMap();$('#recipeIngredients').value=(r?.ingredients||[]).map((i,index)=>[officialRecipeIngredientName(r,index,i[0],recipeMaps),...i.slice(1)].join(' / ')).join('\n');recipeIngredientLinks=(r?.ingredientCatalogIds||[]).slice();(r?.ingredients||[]).forEach((i,index)=>{if(recipeIngredientLinks[index])return;const found=recipeMaps.byName.get(norm(i[0]||''))||[];if(found.length===1)recipeIngredientLinks[index]=found[0].id});$('#recipeSteps').value=(r?.steps||[]).join('\n');$('#deleteRecipe').classList.toggle('hidden',!r);$('#duplicateRecipe').classList.toggle('hidden',!r);const diag=$('#recipeIngredientDiagnostic');if(diag){diag.hidden=true;diag.textContent=''}hgRecipeSelectTab(r&&viewedRecipeId===id?hgRecipeActiveTab:'general');$('#recipeDialog').showModal();if(creationEncyclopedia){const el=$('#recipeEncyclopedia');ensureSelectValue(el,creationEncyclopedia);el.value=creationEncyclopedia;el.dispatchEvent(new Event('change',{bubbles:true}));queueMicrotask(()=>{if(document.getElementById('recipeDialog')?.open&&hgRecipeCreationEncyclopedia===creationEncyclopedia&&el.value!==creationEncyclopedia){ensureSelectValue(el,creationEncyclopedia);el.dispatchEvent(new Event('change',{bubbles:true}));}});}hgIngredientRender();}
+function openRecipe(id,creationEncyclopedia=""){if(!id&&document.getElementById("recipeDialog")?.open&&hgRecipeCreationEncyclopedia){ensureSelectValue(document.getElementById("recipeEncyclopedia"),hgRecipeCreationEncyclopedia);return;}hgRecipeOriginView=activeViewId();hgRecipeCreationEncyclopedia=creationEncyclopedia||"";if(id)captureRecipeListState();const r=recipes.find(x=>x.id===id);$('#recipeDialogTitle').textContent=r?'Modifier\nla recette':(creationEncyclopedia?'Nouvelle\npréparation':'Nouvelle\nrecette');const editName=document.getElementById('hgRecipeEditName');if(editName)editName.textContent=r?.title||'Nouvelle recette';const editPhoto=document.getElementById('hgRecipeEditPhoto');if(editPhoto){editPhoto.innerHTML=r?.photoId?`<img data-photo-id="${esc(r.photoId)}" alt="Photo de la recette">`:'';if(r?.photoId&&window.hgMediaHydrate)window.hgMediaHydrate(editPhoto);}$('#recipeId').value=r?.id||'';$('#recipeTitle').value=r?.title||'';fillCategories();ensureSelectValue($('#recipeCategory'),r?.category||(creationEncyclopedia?(creationEncyclopedia==='condiments'?'Sauce':'Préparation'):''));$('#recipeCategory').value=r?.category||(creationEncyclopedia?(creationEncyclopedia==='condiments'?'Sauce':'Préparation'):'');fillRecipeTagSuggestions();$('#recipeTags').value=(r?.tags||[]).join(', ');const linkedEncyclopedia=creationEncyclopedia||r?.encyclopediaPreparation||(r&&norm(r.category)==='sauce'?'condiments':'');ensureSelectValue($('#recipeEncyclopedia'),linkedEncyclopedia);$('#recipeEncyclopedia').value=linkedEncyclopedia;$('#recipeEncyclopedia').dispatchEvent(new Event('change',{bubbles:true}));$('#recipeCategory').dispatchEvent(new Event('change',{bubbles:true}));const recipeTypeValue=r?.type||(r?.avecViande?'viande':'');ensureSelectValue($('#recipeType'),recipeTypeValue);$('#recipeType').value=recipeTypeValue;$('#recipeEffort').value=r?.effort||'';$('#recipeDifficulty').value=r?.difficulty||'';$('#recipeSpecial').value=r?.special||'standard';$('#recipeServings').value=r?.servings||4;$('#recipeTemperature').value=r?.temperature||'chaud';$('#recipeSeason').value=r?.season||'toute-annee';$('#recipePeriod').value=r?.period||'indifferente';const recipeMaps=recipeCatalogNameMap();$('#recipeIngredients').value=(r?.ingredients||[]).map((i,index)=>[officialRecipeIngredientName(r,index,hgRecoveredIngredient(i)[0],recipeMaps),...hgRecoveredIngredient(i).slice(1)].join(' / ')).join('\n');recipeIngredientLinks=(r?.ingredientCatalogIds||[]).slice();(r?.ingredients||[]).forEach((i,index)=>{if(recipeIngredientLinks[index])return;const found=recipeMaps.byName.get(norm(i[0]||''))||[];if(found.length===1)recipeIngredientLinks[index]=found[0].id});$('#recipeSteps').value=(r?.steps||[]).join('\n');$('#deleteRecipe').classList.toggle('hidden',!r);$('#duplicateRecipe').classList.toggle('hidden',!r);const diag=$('#recipeIngredientDiagnostic');if(diag){diag.hidden=true;diag.textContent=''}hgRecipeSelectTab(r&&viewedRecipeId===id?hgRecipeActiveTab:'general');$('#recipeDialog').showModal();if(creationEncyclopedia){const el=$('#recipeEncyclopedia');ensureSelectValue(el,creationEncyclopedia);el.value=creationEncyclopedia;el.dispatchEvent(new Event('change',{bubbles:true}));queueMicrotask(()=>{if(document.getElementById('recipeDialog')?.open&&hgRecipeCreationEncyclopedia===creationEncyclopedia&&el.value!==creationEncyclopedia){ensureSelectValue(el,creationEncyclopedia);el.dispatchEvent(new Event('change',{bubbles:true}));}});}hgIngredientRender();}
 $('#newRecipe').onclick=()=>openRecipe();$('#closeRecipe').onclick=hgCloseRecipeEditor;
 document.getElementById('recipeDialog')?.addEventListener('cancel',e=>{e.preventDefault();hgCloseRecipeEditor()});
 
@@ -3520,7 +3528,7 @@ window.addEventListener('hg:catalog-associate',event=>hgOpenCatalogAssociations(
   (recipe.ingredients||[]).forEach((row,index)=>{
    const number=index+1;
    if(!Array.isArray(row)||row.length!==3){issues.push(`Structure à corriger — ligne ${number}`);return}
-   const [name,quantity,unit]=row;
+   const [name,quantity,unit]=hgRecoveredIngredient(row);
    const n=String(name??'').trim(),u=String(unit??'').trim();
    // Une précision facultative n'est acceptée que sous forme de parenthèses
    // fermées en toute fin de l'unité (ex. « kg (différentes couleurs) »).
@@ -3529,7 +3537,7 @@ window.addEventListener('hg:catalog-associate',event=>hgOpenCatalogAssociations(
    // Les intertitres des ingrédients (ex. « Sorbet : / 0 / ») ne sont pas des anomalies.
    // Ne masquer que les intertitres purs, sans quantité ni unité significative.
    if(isIntertitleText(n)&&(quantity==null||String(quantity).trim()===''||Number(quantity)===0)&&!u)return;
-   if(!n||n.includes('/')||typeof quantity==='string'&&quantity.trim()!==''&&!Number.isFinite(Number(quantity))){
+   if(!n||typeof quantity==='string'&&quantity.trim()!==''&&!Number.isFinite(Number(quantity))){
     issues.push(`Structure à corriger — ligne ${number} : ${n||'(sans nom)'}`);return;
    }
    // Les quantités 0 et les unités vides sont autorisées (sel, poivre, etc.).
