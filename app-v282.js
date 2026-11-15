@@ -9,7 +9,7 @@ const norm = s => String(s || '').replace(/[’‘`´ʼ]/g,"'").normalize('NFD')
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='3.0.87';
+const APP_VERSION='3.0.88';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -2956,7 +2956,12 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  freeze.addEventListener('change',updateFreezing);
  get('hgEncyForm').addEventListener('submit',async e=>{e.preventDefault();const name=get('hgEncyName').value.trim();if(!name)return;const c=catalog(),prior=editing?db[active].find(y=>y.id===editing):null,match=c.find(x=>clean(x.name)===clean(name))||(prior&&c.find(x=>x.id===(prior.catalogId||prior.catalogueId)));if(!match&&!editing&&confirm(`Voulez-vous également ajouter « ${name} » au Catalogue ?`)){window.hgEncyCatalogReturn=()=>{get('hgEncyForm').requestSubmit()};window.dispatchEvent(new CustomEvent('hg:open-catalog-create',{detail:{name}}));return;}
   const x=editing?(db[active].find(y=>y.id===editing)||sourceItems().find(y=>y.id===editing)):{id:'ency-'+Date.now()+'-'+Math.random().toString(36).slice(2,6)};
-  if(db[active].some(y=>y!==x&&clean(y.name)===clean(name)))return alert('Une fiche porte déjà ce nom dans cette encyclopédie.');
+  // v3.0.88 : une fiche historique déjà dupliquée doit rester modifiable.
+  // Refuser uniquement la création d'un nouveau doublon ou le changement vers un nom occupé.
+  const oldName=editing?String(x?.name||''):'';
+  if((!editing||clean(name)!==clean(oldName))&&db[active].some(y=>y!==x&&clean(y.name)===clean(name)))return alert('Une fiche porte déjà ce nom dans cette encyclopédie.');
+  // Ne jamais créer une deuxième fiche liée au même article du Catalogue.
+  if(!editing&&match&&db[active].some(y=>String(y.catalogId||y.catalogueId||y.catalogue?.id||'')===String(match.id)))return alert('Cet article possède déjà une fiche dans cette encyclopédie. Ouvrez la fiche existante pour la modifier.');
   x.name=name;x.needsCatalogLink=!match;
   updateFreezing();
   for(const [k,field] of Object.entries(fields)){const el=get(field);if(!el)continue;x[k]=el.type==='checkbox'?el.checked:el.value.trim()}
