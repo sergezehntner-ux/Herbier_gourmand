@@ -516,3 +516,6 @@ nav button{grid-column:span 4!important;font-size:.78rem;padding-inline:2px}
 #produceView .hg-herb-compact-head>.hg-photo-slot{grid-column:3;grid-row:1;position:static!important;right:auto!important;top:auto!important;bottom:auto!important;width:100%;min-width:0;transform:none!important;margin:0}
 #produceView .hg-herb-compact-head>.hg-photo-slot .hg-photo-button{width:100%;height:auto;aspect-ratio:1;box-sizing:border-box}
 @media(max-width:600px){#herbViewContent .hg-herb-photo-controls,#produceView .hg-herb-photo-controls,#hgEncyclopediaDetail .hg-ency-photo-controls{flex-direction:row!important;flex-wrap:nowrap!important}}
+
+/* v3.0.95 : accompagnements visibles sous le plat principal */
+.hg-planned-side{display:block;font-size:.9em;font-weight:400;margin:.2rem 0 .1rem 1rem;color:#345b49;text-align:left}

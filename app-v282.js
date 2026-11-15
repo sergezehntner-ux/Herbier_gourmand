@@ -61,7 +61,7 @@ function sameMeal(a,b){return a.date===b.date&&a.slot===b.slot}
 function mealItems(date,slot){return plan.filter(x=>x.date===date&&x.slot===slot)}
 function mealPeople(date,slot){const value=Number(mealItems(date,slot)[0]?.people);return value>=1&&value<=10?value:''}
 function setMealPeople(date,slot,value){const n=Number(value),p=n>=1&&n<=10?n:null;mealItems(date,slot).forEach(x=>x.people=p);savePlanData();renderPlan();}
-function savePlanData(){hgSet(planStore,JSON.stringify({version:4,weekStart:currentWeekStart,time:$('#planTime')?.value||'',items:plan.map(x=>({uid:x.uid||uid(),date:x.date,slot:x.slot,id:x.recipe.id,people:(Number(x.people)>=1&&Number(x.people)<=10?Number(x.people):null),role:x.role||'',notes:x.notes||'',preparePreviousDay:Boolean(x.preparePreviousDay),isLeftover:Boolean(x.isLeftover),leftoverSourceDate:x.leftoverSourceDate||'',leftoverPortions:Number(x.leftoverPortions)||0,leftoverIdea:x.leftoverIdea||''}))}));markDirty();if(activeViewId()==='planner')markSessionDirty('planner');}
+function savePlanData(){hgSet(planStore,JSON.stringify({version:4,weekStart:currentWeekStart,time:$('#planTime')?.value||'',items:plan.map(x=>({uid:x.uid||uid(),date:x.date,slot:x.slot,id:x.recipe.id,people:(Number(x.people)>=1&&Number(x.people)<=10?Number(x.people):null),role:x.role||'',notes:x.notes||'',preparePreviousDay:Boolean(x.preparePreviousDay),isLeftover:Boolean(x.isLeftover),leftoverSourceDate:x.leftoverSourceDate||'',leftoverPortions:Number(x.leftoverPortions)||0,leftoverIdea:x.leftoverIdea||'',complementRecipeIds:Array.isArray(x.complementRecipeIds)?x.complementRecipeIds:[]}))}));markDirty();if(activeViewId()==='planner')markSessionDirty('planner');}
 function mealTransfers(){try{return JSON.parse(hgGet(mealTransferStore)||'{}')}catch{return{}}}
 function saveMealTransfers(x){hgSet(mealTransferStore,JSON.stringify(x));markDirty()}
 async function init(){
@@ -444,6 +444,21 @@ function startRecipeChoice(index,date=null,slot=null){
   rememberScroll('planner');updateSelectionBar();switchView('recipes',{top:true});$('#search').focus();
 }
 let recipePlanAddId=null;
+// v3.0.95 — les accompagnements du Planning sont des liens indépendants des fiches originales.
+function choosePlanningComplements(recipe,initial,done){
+ const available=[...new Set(recipe.complementRecipeIds||[])].map(id=>recipes.find(r=>r.id===id)).filter(r=>r&&r.id!==recipe.id);
+ if(!available.length){done([]);return;}
+ let dlg=document.getElementById('hgPlanningSidesDialog');
+ if(!dlg){dlg=document.createElement('dialog');dlg.id='hgPlanningSidesDialog';dlg.className='hg-sides-picker';document.body.appendChild(dlg)}
+ const chosen=new Set(initial||[]);
+ dlg.innerHTML=`<div class="dialog-head"><h2>Inclure les accompagnements ?</h2></div><p class="muted">${esc(recipe.title)} · choix multiples</p><div class="hg-sides-results">${available.map(r=>`<label class="hg-side-choice"><input type="checkbox" data-plan-side="${esc(r.id)}" ${chosen.has(r.id)?'checked':''}><span><strong>${esc(r.title)}</strong></span></label>`).join('')}<label class="hg-side-choice"><input type="checkbox" id="hgPlanNoSide" ${chosen.size?'':'checked'}><span><strong>Aucun accompagnement</strong></span></label></div><div class="dialog-actions"><button type="button" id="hgPlanSidesCancel">Annuler</button><button type="button" class="primary" id="hgPlanSidesConfirm">Valider</button></div>`;
+ const none=dlg.querySelector('#hgPlanNoSide');
+ dlg.querySelectorAll('[data-plan-side]').forEach(c=>c.onchange=()=>{if(c.checked)none.checked=false;else none.checked=!Array.from(dlg.querySelectorAll('[data-plan-side]')).some(x=>x.checked)});
+ none.onchange=()=>{if(none.checked)dlg.querySelectorAll('[data-plan-side]').forEach(c=>c.checked=false)};
+ dlg.querySelector('#hgPlanSidesCancel').onclick=()=>dlg.close();
+ dlg.querySelector('#hgPlanSidesConfirm').onclick=()=>{const ids=[...dlg.querySelectorAll('[data-plan-side]:checked')].map(x=>x.dataset.planSide);dlg.close();done(ids)};
+ dlg.showModal();
+}
 function openRecipePlanAdd(id){
   if(!recipes.some(r=>r.id===id))return;
   recipePlanAddId=id;
@@ -459,15 +474,14 @@ if($('#recipePlanAddForm'))$('#recipePlanAddForm').onsubmit=e=>{
   const r=recipes.find(x=>x.id===recipePlanAddId),date=$('#recipePlanAddDate').value,slot=$('#recipePlanAddSlot').value;
   if(!r||!date||!slots.includes(slot))return;
   if(plan.some(x=>x.recipe?.id===r.id&&x.date===date))return alert('Cette recette figure déjà au Planning pour cette date.');
-  plan.push({uid:uid(),date,slot,recipe:r,people:mealPeople(date,slot)||null,role:'',preparePreviousDay:r.special==='veille'});
-  savePlanData();renderPlan();closeRecipePlanAdd();
-  alert('Recette ajoutée au Planning.');
+  closeRecipePlanAdd();
+  choosePlanningComplements(r,[],ids=>{plan.push({uid:uid(),date,slot,recipe:r,people:mealPeople(date,slot)||null,role:'',preparePreviousDay:r.special==='veille',complementRecipeIds:ids});savePlanData();renderPlan();alert('Recette ajoutée au Planning.');});
 };
-function chooseRecipeForPlan(id){if(!selectionContext)return;const ctx={...selectionContext};const used=plannedRecipeIdsForCurrentWeek(ctx.index);if(used.has(id))return alert('Cette recette est déjà prévue cette semaine. Choisis-en une autre.');const r=recipes.find(x=>x.id===id);if(!r)return;if(Number.isInteger(ctx.index)&&plan[ctx.index]){plan[ctx.index].recipe=r;plan[ctx.index].preparePreviousDay=r.special==='veille'}else plan.push({uid:uid(),date:ctx.date,slot:ctx.slot,recipe:r,people:mealPeople(ctx.date,ctx.slot)||null,role:'',preparePreviousDay:r.special==='veille'});selectionContext=null;savePlanData();renderPlan();updateSelectionBar();switchView('planner');}
+function chooseRecipeForPlan(id){if(!selectionContext)return;const ctx={...selectionContext};const used=plannedRecipeIdsForCurrentWeek(ctx.index);if(used.has(id))return alert('Cette recette est déjà prévue cette semaine. Choisis-en une autre.');const r=recipes.find(x=>x.id===id);if(!r)return;choosePlanningComplements(r,[],ids=>{if(Number.isInteger(ctx.index)&&plan[ctx.index]){plan[ctx.index].recipe=r;plan[ctx.index].preparePreviousDay=r.special==='veille';plan[ctx.index].complementRecipeIds=ids}else plan.push({uid:uid(),date:ctx.date,slot:ctx.slot,recipe:r,people:mealPeople(ctx.date,ctx.slot)||null,role:'',preparePreviousDay:r.special==='veille',complementRecipeIds:ids});selectionContext=null;savePlanData();renderPlan();updateSelectionBar();switchView('planner');});}
 function recipeSourceMarkup(source){if(!source)return '';try{const url=new URL(source);const host=url.hostname.replace(/^www\./,'');return `<p class="recipe-source muted">Source : <a href="${esc(url.href)}" target="_blank" rel="noopener noreferrer">${esc(host)}</a></p>`;}catch{return `<p class="recipe-source muted">Source : ${esc(source)}</p>`;}}
 // v3.0.48 — mêmes quatre onglets pour la consultation et l'édition.
 let hgRecipeActiveTab='general';
-// v3.0.94 : conserver la fiche parente lors d'une navigation entre recettes.
+// v3.0.95 : conserver la fiche parente lors d'une navigation entre recettes.
 const hgRecipeReturnStack=[];
 function hgReturnFromRecipe(){
  const parent=hgRecipeReturnStack.pop();
@@ -836,7 +850,7 @@ function renderPlan(){
       const matches=mealItems(date,slot),p=mealPeople(date,slot);
       return `<section class="meal-group"><div class="meal-group-head"><strong>${slot}</strong><label class="meal-people">Portions <select data-meal-people="${date}|${slot}"><option value="">—</option>${Array.from({length:10},(_,i)=>i+1).map(n=>`<option value="${n}" ${p===n?'selected':''}>${n}</option>`).join('')}</select></label><button data-add-plan="${date}|${slot}">+ Ajouter une recette</button><button class="primary" data-transfer-meal="${date}|${slot}" ${matches.length?'':'disabled'}>Transférer dans les courses</button></div><label class="meal-free-note">Ajout / remarque <input data-meal-note="${date}|${slot}" value="${esc(mealNote(date,slot))}" placeholder="Ex. salade, spätzli, raviolis al brodo…"></label>${matches.length?matches.map(m=>{
         const i=plan.indexOf(m),r=m.recipe;
-        return `<div class="meal meal-line"><button class="meal-title-link" data-show-plan="${i}"><span>${m.role?`<b>${esc(m.role)}</b> · `:''}${m.isLeftover?`${esc(m.leftoverIdea||r.title)} <small>· restes de ${esc(r.title)}</small>`:esc(r.title)}</span><small>${m.isLeftover?`${m.leftoverPortions||m.people||'?'} portion(s) · du ${esc(dateLabel(m.leftoverSourceDate||m.date))}`:`${esc(r.category)}${m.people?` · adapté à ${m.people} portion(s)`:' · portions à définir'}`}${m.preparePreviousDay?' · à préparer la veille':''}</small></button><div class="meal-actions"><button data-cooked-plan="${i}" class="${(r.cookedDates||[]).includes(m.date)?'primary':''}">${(r.cookedDates||[]).includes(m.date)?'✓ Cuisiné':'Cuisiné'}</button>${(r.cookedDates||[]).includes(m.date)&&!m.isLeftover?`<button data-leftovers-plan="${i}">Utiliser des restes</button>`:''}<button data-favorite-plan="${i}" class="${r.favorite?'primary':''}">${r.favorite?'★ Favori':'☆ Favori'}</button><button data-prepare-plan="${i}" class="${m.preparePreviousDay?'primary':''}">${m.preparePreviousDay?'✓ Veille':'À préparer la veille'}</button><button data-role-plan="${i}">Service</button><button data-change-plan="${i}">Changer</button><button data-move-plan="${i}">Déplacer</button><button data-remove-plan="${i}" class="danger-soft">Retirer</button></div></div>`
+        return `<div class="meal meal-line"><button class="meal-title-link" data-show-plan="${i}"><span>${m.role?`<b>${esc(m.role)}</b> · `:''}${m.isLeftover?`${esc(m.leftoverIdea||r.title)} <small>· restes de ${esc(r.title)}</small>`:esc(r.title)}</span><small>${m.isLeftover?`${m.leftoverPortions||m.people||'?'} portion(s) · du ${esc(dateLabel(m.leftoverSourceDate||m.date))}`:`${esc(r.category)}${m.people?` · adapté à ${m.people} portion(s)`:' · portions à définir'}`}${m.preparePreviousDay?' · à préparer la veille':''}</small>${(m.complementRecipeIds||[]).map(id=>recipes.find(r=>r.id===id)).filter(Boolean).map(side=>`<span class="hg-planned-side">↳ ${esc(side.title)}</span>`).join('')}</button><div class="meal-actions"><button data-cooked-plan="${i}" class="${(r.cookedDates||[]).includes(m.date)?'primary':''}">${(r.cookedDates||[]).includes(m.date)?'✓ Cuisiné':'Cuisiné'}</button>${(r.cookedDates||[]).includes(m.date)&&!m.isLeftover?`<button data-leftovers-plan="${i}">Utiliser des restes</button>`:''}<button data-favorite-plan="${i}" class="${r.favorite?'primary':''}">${r.favorite?'★ Favori':'☆ Favori'}</button><button data-prepare-plan="${i}" class="${m.preparePreviousDay?'primary':''}">${m.preparePreviousDay?'✓ Veille':'À préparer la veille'}</button><button data-role-plan="${i}">Service</button><button data-change-plan="${i}">Changer</button><button data-move-plan="${i}">Déplacer</button><button data-remove-plan="${i}" class="danger-soft">Retirer</button></div></div>`
       }).join(''):`<div class="meal meal-empty"><span class="meta">Aucune recette choisie</span></div>`}</section>`
     }).join('')}</article>`
   }).join('');
@@ -877,19 +891,19 @@ function saveShopping(){shopping=shopping.map(normalizeShoppingItem);consolidate
 let pendingMealTransfer=null;
 function mealTransferCandidates(date,slot){
   const items=mealItems(date,slot),rows=[];
-  items.filter(m=>!m.isLeftover).forEach(m=>scaledIngredientRows(m.recipe,m.people,m.qtyOverrides||{}).forEach(row=>{
+  items.filter(m=>!m.isLeftover).forEach(m=>[m.recipe,...(m.complementRecipeIds||[]).map(id=>recipes.find(r=>r.id===id)).filter(Boolean)].forEach(recipe=>scaledIngredientRows(recipe,m.people,m.qtyOverrides||{}).forEach(row=>{
     if(isIntertitleText(row.name))return;
     const q=Number(row.qty);if(!Number.isFinite(q)||q===0){if(!String(row.name||'').trim())return;const key=`${shoppingMatchKey(row.name)}|${shoppingMatchKey(row.unit)}`;if(!rows.some(x=>x.key===key))rows.push({key,name:row.name,unit:row.unit,qty:0});return;}
     const key=`${shoppingMatchKey(row.name)}|${shoppingMatchKey(row.unit)}`,hit=rows.find(x=>x.key===key);
     if(hit)hit.qty=Math.round((hit.qty+q)*100)/100;
     else rows.push({key,name:row.name,unit:row.unit,qty:q});
-  }));
+  })));
   return rows;
 }
 function transferMealToShopping(date,slot){
   const items=mealItems(date,slot);
   if(!items.length)return alert('Ajoute d’abord une recette à ce repas.');
-  if(!mealPeople(date,slot))return alert('Indique d’abord le nombre de portions pour ce repas.');
+  if(!mealPeople(date,slot)){const answer=prompt('Nombre de portions pour la recette principale et tous ses accompagnements (1 à 10) :','4');if(answer===null)return;const portions=Number(answer);if(!Number.isInteger(portions)||portions<1||portions>10)return alert('Indique un nombre entier de 1 à 10.');setMealPeople(date,slot,portions);}
   const rows=mealTransferCandidates(date,slot);
   if(!rows.length)return alert('Aucun ingrédient à transférer.');
   pendingMealTransfer={date,slot,rows};
@@ -947,7 +961,7 @@ async function confirmMealTransfer(){
     if(!x){x=normalizeShoppingItem({name:row.name,qty:0,unit:row.unit,catalogId:row.catalogId||'',store:pref.store||'',aisle:row.catalogId?row.aisle:(pref.aisle||''),origins:[],originRefs:[]});shopping.push(x)}
     if(!x.unit&&row.unit)x.unit=row.unit;
     x.qty=Math.round((Number(x.qty||0)+Number(row.qty||0))*100)/100;
-    meal.filter(m=>!m.isLeftover).forEach(m=>{const origin=`${dateLabel(date)} ${slot} · ${m.recipe.title}`;if(!x.origins.includes(origin))x.origins.push(origin);x.originRefs=x.originRefs||[];if(!x.originRefs.some(o=>o.recipeId===m.recipe.id&&o.date===date&&o.slot===slot))x.originRefs.push({recipeId:m.recipe.id,title:m.recipe.title,date,slot})});
+    meal.filter(m=>!m.isLeftover).flatMap(m=>[m.recipe,...(m.complementRecipeIds||[]).map(id=>recipes.find(r=>r.id===id)).filter(Boolean)].map(recipe=>({...m,recipe}))).forEach(m=>{const origin=`${dateLabel(date)} ${slot} · ${m.recipe.title}`;if(!x.origins.includes(origin))x.origins.push(origin);x.originRefs=x.originRefs||[];if(!x.originRefs.some(o=>o.recipeId===m.recipe.id&&o.date===date&&o.slot===slot))x.originRefs.push({recipeId:m.recipe.id,title:m.recipe.title,date,slot})});
   });
   transfers[key]=verified.map(r=>({name:r.name,unit:r.unit,qty:r.qty}));
   consolidateShopping();saveMealTransfers(transfers);saveShopping();renderShopping();
@@ -1246,7 +1260,7 @@ if($('#manageStockProducts'))$('#manageStockProducts').onclick=openStockProducts
 if($('#stockListKind'))$('#stockListKind').onchange=renderStockListManager;if($('#stockListValue'))$('#stockListValue').onchange=updateStockListManagerState;if($('#renameStockListValue'))$('#renameStockListValue').onclick=renameStockListValue;if($('#deleteStockListValue'))$('#deleteStockListValue').onclick=deleteStockListValue;
 if($('#stockRecipeSearch'))$('#stockRecipeSearch').onclick=()=>{const selected=stock.filter(x=>x.checked);$('#stockSearchSummary').textContent=selected.map(x=>x.name).join(' · ');$('#stockSearchDialog').showModal()};if($('#closeStockSearch'))$('#closeStockSearch').onclick=()=>$('#stockSearchDialog').close();if($('#stockSearchAll'))$('#stockSearchAll').onclick=()=>runStockRecipeSearch('all');if($('#stockSearchAny'))$('#stockSearchAny').onclick=()=>runStockRecipeSearch('any');
 
-function loadSaved(){try{const s=JSON.parse(hgGet(planStore)||hgGet('hg-plan-v26')||'null');if(s){currentWeekStart=s.weekStart||hgGet(weekStore)||mondayISO(new Date());plan=(s.items||[]).map(x=>{const date=x.date||addDaysISO(currentWeekStart,Number(x.dayIndex)||0);return{uid:x.uid||uid(),date,slot:x.slot,people:(Number(x.people)>=1&&Number(x.people)<=10?Number(x.people):(Number(s.people)>=1&&Number(s.people)<=10?Number(s.people):null)),role:x.role||'',notes:x.notes||'',preparePreviousDay:Boolean(x.preparePreviousDay),isLeftover:Boolean(x.isLeftover),leftoverSourceDate:x.leftoverSourceDate||'',leftoverPortions:Number(x.leftoverPortions)||0,leftoverIdea:x.leftoverIdea||'',recipe:recipes.find(r=>r.id===x.id)}}).filter(x=>x.recipe)}shopping=(JSON.parse(hgGet(shoppingStore)||hgGet('hg-shopping-v26')||hgGet('hg-shopping')||'[]')||[]).map(normalizeShoppingItem);consolidateShopping();hgSet(shoppingStore,JSON.stringify(shopping))}catch(e){console.error(e)}publishMaVieShoppingStatus();hgSet(weekStore,currentWeekStart);renderDaySlotChoices();renderPlan();renderShopping()}
+function loadSaved(){try{const s=JSON.parse(hgGet(planStore)||hgGet('hg-plan-v26')||'null');if(s){currentWeekStart=s.weekStart||hgGet(weekStore)||mondayISO(new Date());plan=(s.items||[]).map(x=>{const date=x.date||addDaysISO(currentWeekStart,Number(x.dayIndex)||0);return{uid:x.uid||uid(),date,slot:x.slot,people:(Number(x.people)>=1&&Number(x.people)<=10?Number(x.people):(Number(s.people)>=1&&Number(s.people)<=10?Number(s.people):null)),role:x.role||'',notes:x.notes||'',preparePreviousDay:Boolean(x.preparePreviousDay),isLeftover:Boolean(x.isLeftover),leftoverSourceDate:x.leftoverSourceDate||'',leftoverPortions:Number(x.leftoverPortions)||0,leftoverIdea:x.leftoverIdea||'',complementRecipeIds:Array.isArray(x.complementRecipeIds)?x.complementRecipeIds:[],recipe:recipes.find(r=>r.id===x.id)}}).filter(x=>x.recipe)}shopping=(JSON.parse(hgGet(shoppingStore)||hgGet('hg-shopping-v26')||hgGet('hg-shopping')||'[]')||[]).map(normalizeShoppingItem);consolidateShopping();hgSet(shoppingStore,JSON.stringify(shopping))}catch(e){console.error(e)}publishMaVieShoppingStatus();hgSet(weekStore,currentWeekStart);renderDaySlotChoices();renderPlan();renderShopping()}
 
 // Sauvegarde et transfert entre appareils
 let pendingDataImport = null;
