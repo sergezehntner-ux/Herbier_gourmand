@@ -138,7 +138,7 @@ function switchView(id,{top=false}={}){const from=activeViewId();if(from!==id)re
     }
     const view=activeViewId();
     if(view==='home')return;
-    if(view==='recipeView'){switchView(previousView&&previousView!=='recipeView'?previousView:'recipes');return;}
+    if(view==='recipeView'){hgReturnFromRecipe();return;}
     if(view==='shopping'&&shoppingReturnContext){returnFromShoppingContext();return;}
     if(['hgEncyclopedia','herbs','produce','ingredientCatalog'].includes(view)){switchView('library');return;}
     const detailParents={producerView:'producers',restaurantView:'restaurants',herbView:'herbs',produceView:'produce'};
@@ -467,6 +467,26 @@ function chooseRecipeForPlan(id){if(!selectionContext)return;const ctx={...selec
 function recipeSourceMarkup(source){if(!source)return '';try{const url=new URL(source);const host=url.hostname.replace(/^www\./,'');return `<p class="recipe-source muted">Source : <a href="${esc(url.href)}" target="_blank" rel="noopener noreferrer">${esc(host)}</a></p>`;}catch{return `<p class="recipe-source muted">Source : ${esc(source)}</p>`;}}
 // v3.0.48 — mêmes quatre onglets pour la consultation et l'édition.
 let hgRecipeActiveTab='general';
+// v3.0.94 : conserver la fiche parente lors d'une navigation entre recettes.
+const hgRecipeReturnStack=[];
+function hgReturnFromRecipe(){
+ const parent=hgRecipeReturnStack.pop();
+ if(parent){
+  viewedRecipeId=parent.id;
+  const recipe=recipes.find(r=>r.id===parent.id);
+  if(recipe){
+   document.getElementById('recipeViewContent').innerHTML=hgRecipeViewMarkup(recipe);
+   hgRecipeActiveTab=parent.tab;
+   hgBindRecipeViewTabs();
+   restoreScrollStable('recipeView',parent.scroll);
+   return;
+  }
+ }
+ const target=previousView&&previousView!=='recipeView'?previousView:'recipes';
+ switchView(target);
+ restoreScrollStable(target,viewScrollPositions[target]);
+}
+
 const hgRecipeTabs=[['general','Généralités'],['ingredients','Ingrédients'],['preparation','Préparation'],['sides','Accompagn.']];
 function hgRecipeViewTab(name){
  if(!hgRecipeTabs.some(t=>t[0]===name))name='general';hgRecipeActiveTab=name;
@@ -479,8 +499,8 @@ function hgRecipeViewMarkup(r,{portions=r.servings,rows=null,planned=false,planT
  const general=`<section class="hg-recipe-view-general"><div class="meta recipe-meta-line">${recipeMetaMarkup(r)}</div><div class="recipe-tag-meta-row"><div class="badges">${(r.tags||[]).map(t=>`<span>${esc(t)}</span>`).join('')}</div><div class="meta recipe-meta-tail">${recipeMetaTailMarkup(r,portions)}</div></div>${recipeSourceMarkup(r.source)}${planned?'<p class="notice subtle">Cette adaptation appartient uniquement à ce repas. La recette originale reste inchangée.</p>':''}</section>`;
  return `<div class="recipe-title hg-recipe-view-heading"><div class="hg-recipe-heading-main"><div class="hg-recipe-heading-text"><h2>${esc(r.title)}</h2><div class="hg-recipe-heading-summary">${esc(r.category||'Recette')} · ${esc(String(portions||r.servings||4))} portions${r.type?` · ${esc(r.type)}`:''}${r.difficulty?` · ${esc(r.difficulty)}`:''}${(r.tags||[]).length?` · ${esc(r.tags[0])}`:''}</div>${planText?`<div class="muted">${planText}</div>`:''}</div></div><div class="hg-recipe-heading-actions"><button type="button" id="backFromRecipe">← Retour</button><button type="button" id="editViewedRecipe">Modifier</button><button type="button" id="printViewedRecipe" class="primary">Imprimer</button></div></div><nav class="hg-recipe-tabs hg-recipe-view-tabs" role="tablist" aria-label="Rubriques de la recette">${hgRecipeTabs.map(([key,label])=>`<button type="button" role="tab" data-recipe-view-tab="${key}" aria-selected="false">${label}</button>`).join('')}</nav><div class="hg-recipe-view-panels"><div data-recipe-view-panel="general">${general}${recipeMemoryMarkup(r)}</div><div data-recipe-view-panel="ingredients" hidden><section><h3>Ingrédients</h3><ul>${ingredientRowsMarkup(ingredients)}</ul></section></div><div data-recipe-view-panel="preparation" hidden><section><h3>Préparation</h3><ol>${stepRowsMarkup(r.steps)}</ol>${notes?`<h3>Notes du repas</h3><p>${esc(notes).replace(/\n/g,'<br>')}</p>`:''}${r.notes?`<h3>Notes</h3><p>${esc(r.notes).replace(/\n/g,'<br>')}</p>`:''}</section></div><div data-recipe-view-panel="sides" hidden>${recipeComplementMarkup(r)||'<p class="muted">Aucun accompagnement associé.</p>'}</div></div>`;
 }
-function hgBindRecipeViewTabs(){document.getElementById('backFromRecipe')?.addEventListener('click',()=>switchView(previousView));document.getElementById('editViewedRecipe')?.addEventListener('click',()=>openRecipe(viewedRecipeId));document.getElementById('printViewedRecipe')?.addEventListener('click',()=>printRecipe(recipes.find(r=>r.id===viewedRecipeId)));document.querySelectorAll('#recipeViewContent [data-recipe-view-tab]').forEach(b=>b.addEventListener('click',()=>hgRecipeViewTab(b.dataset.recipeViewTab)));hgRecipeViewTab(hgRecipeActiveTab);bindRecipeDetailLinks()}
-function showRecipe(id,from=''){const r=recipes.find(x=>x.id===id);if(!r)return;if(from){rememberScroll(from);previousView=from}else if(!previousView)previousView='recipes';viewedRecipeId=id;$('#recipeViewContent').innerHTML=hgRecipeViewMarkup(r);switchView('recipeView');hgBindRecipeViewTabs();}
+function hgBindRecipeViewTabs(){document.getElementById('backFromRecipe')?.addEventListener('click',hgReturnFromRecipe);document.getElementById('editViewedRecipe')?.addEventListener('click',()=>openRecipe(viewedRecipeId));document.getElementById('printViewedRecipe')?.addEventListener('click',()=>printRecipe(recipes.find(r=>r.id===viewedRecipeId)));document.querySelectorAll('#recipeViewContent [data-recipe-view-tab]').forEach(b=>b.addEventListener('click',()=>hgRecipeViewTab(b.dataset.recipeViewTab)));hgRecipeViewTab(hgRecipeActiveTab);bindRecipeDetailLinks()}
+function showRecipe(id,from=''){const r=recipes.find(x=>x.id===id);if(!r)return;const origin=activeViewId();if(origin==='recipeView'&&viewedRecipeId&&viewedRecipeId!==id){hgRecipeReturnStack.push({id:viewedRecipeId,tab:hgRecipeActiveTab,scroll:scrollY});}else if(origin!=='recipeView'){hgRecipeReturnStack.length=0;if(from&&from!=='recipeView'){rememberScroll(from);previousView=from}else previousView=origin;}viewedRecipeId=id;hgRecipeActiveTab='general';$('#recipeViewContent').innerHTML=hgRecipeViewMarkup(r);switchView('recipeView',{top:true});hgBindRecipeViewTabs();}
 
 
 function captureRecipeListState(){
@@ -800,7 +820,7 @@ function removePlanItem(index){const item=plan[index];if(!item)return;if(confirm
 function setPlanRole(index){const item=plan[index];if(!item)return;const role=prompt('Service dans le repas (entrée, plat, accompagnement, dessert, sauce, boisson…)',item.role||'');if(role===null)return;item.role=role.trim();savePlanData();renderPlan();}
 function togglePreparePreviousDay(index){const item=plan[index];if(!item)return;item.preparePreviousDay=!item.preparePreviousDay;savePlanData();renderPlan();}
 function preparationsForDate(date){return plan.filter(x=>x.preparePreviousDay&&addDaysISO(x.date,-1)===date)}
-function showPlanRecipe(index,{rememberPlannerScroll=true}={}){const m=plan[index];if(!m)return;viewedPlanItemId=m.uid;if(rememberPlannerScroll)rememberScroll('planner');viewedRecipeId=m.recipe.id;previousView='planner';const rows=scaledIngredientRows(m.recipe,m.people,m.qtyOverrides||{});$('#recipeViewContent').innerHTML=hgRecipeViewMarkup(m.recipe,{portions:m.people||m.recipe.servings,rows,planned:true,planText:`Planning : ${esc(dateLabel(m.date))} ${esc(m.slot.toLowerCase())}`,notes:m.notes||''});switchView('recipeView');hgBindRecipeViewTabs();}
+function showPlanRecipe(index,{rememberPlannerScroll=true}={}){const m=plan[index];if(!m)return;viewedPlanItemId=m.uid;if(rememberPlannerScroll)rememberScroll('planner');hgRecipeReturnStack.length=0;viewedRecipeId=m.recipe.id;previousView='planner';const rows=scaledIngredientRows(m.recipe,m.people,m.qtyOverrides||{});$('#recipeViewContent').innerHTML=hgRecipeViewMarkup(m.recipe,{portions:m.people||m.recipe.servings,rows,planned:true,planText:`Planning : ${esc(dateLabel(m.date))} ${esc(m.slot.toLowerCase())}`,notes:m.notes||''});switchView('recipeView');hgBindRecipeViewTabs();}
 function renderPlan(){
   $('#weekLabel').textContent=weekLabel(currentWeekStart);
   const weekDates=days.map((_,i)=>addDaysISO(currentWeekStart,i));
