@@ -9,7 +9,7 @@ const norm = s => String(s || '').replace(/[’‘`´ʼ]/g,"'").normalize('NFD')
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='3.0.86';
+const APP_VERSION='3.0.87';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -2835,6 +2835,42 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  function init(){try{const x=JSON.parse(hgGet(STORE)||'null');if(x&&typeof x==='object')for(const k of Object.keys(labels))if(Array.isArray(x[k]))db[k]=x[k]}catch(e){console.error('Encyclopédies',e)}
   if(!hgGet(STORE)){db.condiments=SEED.map(x=>({...x,needsCatalogLink:!catalog().some(c=>clean(c.name)===clean(x.name))}));hgSet(STORE,JSON.stringify(db));}
  }
+ // v3.0.87 — réparation ponctuelle et volontaire du doublon Pecorino (ID Catalogue fm-514).
+ // Ne s'exécute que si les deux enregistrements précis de l'export du 15.11.2026 sont présents.
+ async function repairPecorinoDuplicate(){
+  const rows=db.dairyPasta;
+  if(!Array.isArray(rows))return;
+  const matches=rows.filter(x=>x?.id==='catalog:fm-514'&&x?.catalogId==='fm-514');
+  if(matches.length!==2||!matches.some(x=>x.name==='Pecorino')||!matches.some(x=>x.name==='Pecorino (doublon)'))return;
+  const filled=matches.find(x=>x.name==='Pecorino (doublon)');
+  const other=matches.find(x=>x.name==='Pecorino');
+  if(!filled||!other||filled.benefitPairings!=='-'||!filled.notes?.includes('Fromage italien au lait de brebis'))return;
+  const catalogRow=catalog().find(x=>x.id==='fm-514');
+  if(!catalogRow||clean(catalogRow.name)!=='pecorino')return;
+  if(!confirm('Réparer le doublon Pecorino ?\n\nDeux fiches ont le même identifiant Catalogue fm-514. Une seule fiche « Pecorino » sera conservée avec les renseignements déjà complétés.\n\nUne sauvegarde de sécurité sera téléchargée avant la réparation. Le Catalogue, les recettes et les photos ne seront pas modifiés.'))return;
+  try{
+   const snapshot=createEmergencyCheckpoint('avant fusion du doublon Pecorino fm-514');
+   downloadTextFile(`Herbier_Gourmand_AVANT_reparation_Pecorino_${backupStamp()}.hgbak`,JSON.stringify(snapshot,null,2));
+   const combined={...other,...filled,name:'Pecorino',id:'catalog:fm-514',catalogId:'fm-514',category:catalogRow.group||filled.category};
+   // Préserver les éventuels champs utiles présents uniquement dans l'autre fiche.
+   for(const [key,value] of Object.entries(other)){
+    if(['id','name','catalogId','category','notes','benefitPairings'].includes(key))continue;
+    if((combined[key]===undefined||combined[key]===null||combined[key]===''||combined[key]==='non renseigné')&&value!==undefined&&value!==null&&value!==''&&value!=='non renseigné')combined[key]=value;
+   }
+   const previous=rows.slice();let used=false;
+   db.dairyPasta=rows.filter(x=>{
+    if(x!==filled&&x!==other)return true;
+    if(x===filled&&!used){used=true;return true}
+    return false;
+   }).map(x=>x===filled?combined:x);
+   if(db.dairyPasta.length!==previous.length-1)throw Error('Contrôle du nombre de fiches échoué.');
+   try{await hgSet(STORE,JSON.stringify(db));await hgFlush()}
+   catch(err){db.dairyPasta=previous;await hgSet(STORE,JSON.stringify(db));await hgFlush();throw err}
+   registerProtectedChange();markDirty();
+   alert('Doublon Pecorino réparé : une seule fiche conservée. Vérifie « Fiches en suspens » : le compteur devrait être à 0.');
+   location.reload();
+  }catch(err){console.error('Réparation Pecorino',err);alert('Réparation annulée : '+err.message)}
+ }
  // v70 : retrait unique des anciennes fiches locales de Condiments & Sauces.
  // Les produits du Catalogue et les recettes originales ne sont jamais effacés.
  const CLEANUP_KEY='hg-condiments-legacy-cleanup-2981170';
@@ -3020,7 +3056,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  window.addEventListener('hg:encyclopedia-edit-target',e=>{const {kind,id}=e.detail||{};if(!labels[kind])return;open(kind);edit(id);window.hgMarkEncyPending?.('hgEncyDialog');});
  window.addEventListener('hg:encyclopedia-linked',e=>{if(labels[e.detail?.kind]){try{const latest=JSON.parse(hgGet(STORE)||'{}');if(Array.isArray(latest[e.detail.kind]))db[e.detail.kind]=latest[e.detail.kind]}catch(err){console.error(err)}}});
  window.addEventListener('hg:recipe-saved',e=>{if(!get('hgEncyclopedia').classList.contains('hidden')){const kind=e.detail?.encyclopediaPreparation;if(kind===active||active==='condiments'){if(kind===active)condimentMode='preparations';showMode();render();}}});
- window.addEventListener('hg:storage-ready',()=>{init();clearLegacyCondiments();importBoucherieOnce();importPoissonnerieOnce();});
+ window.addEventListener('hg:storage-ready',()=>{init();clearLegacyCondiments();importBoucherieOnce();importPoissonnerieOnce();repairPecorinoDuplicate();});
  // Les associations sont chargées depuis les données persistées, sans injection spécifique.
 
 })();
