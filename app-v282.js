@@ -9,7 +9,7 @@ const norm = s => String(s || '').replace(/[’‘`´ʼ]/g,"'").normalize('NFD')
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const recipeStore='hg-recipes-v271', planStore='hg-plan-v271', shoppingStore='hg-shopping-v271', slotStore='hg-day-slots-v271', stockStore='hg-stock-v1', stockProductStore='hg-stock-products-v1', stockLocationStore='hg-stock-locations-v1';
 const shoppingAssignmentStore='hg-shopping-assignments-v251';
-const APP_VERSION='3.0.88';
+const APP_VERSION='3.0.89';
 const mealTransferStore='hg-meal-transfers-v272', weekStore='hg-current-week-v272';
 const weekSlotStore='hg-week-slots-v28', aisleOrderStore='hg-aisle-order-v28';
 const mealNoteStore='hg-meal-notes-v294', shoppingStoreMemory='hg-shopping-stores-v294', leftoverAckStore='hg-leftover-notice-acks-v2977';
@@ -2972,6 +2972,9 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   const linked=!!(x.catalogId||x.catalogueId||x.catalogue||x.id.startsWith('catalog:'));
   const catalogId=x.catalogId||x.catalogueId||x.catalogue?.id||(x.id.startsWith('catalog:')?x.id.slice(8):'');
   const question=linked&&!permanent?`Dissocier « ${x.name} » de ${labels[active]} ?\nLe produit du Catalogue et les recettes seront conservés.`:`Supprimer la fiche « ${x.name} » de ${labels[active]} ?\nLe Catalogue et les recettes seront conservés.`;
+  // Protection v3.0.89 : plusieurs lignes peuvent partager un identifiant historique.
+  // Ne jamais supprimer ou exclure un groupe entier à la place d'une seule fiche.
+  if(db[active].filter(v=>v.id===x.id).length>1){alert('Suppression bloquée : plusieurs fiches partagent cet identifiant. Une correction contrôlée est nécessaire.');return;}
   if(!confirm(question))return;
   // Transaction logique : en cas d'échec, rétablir les fiches ET les exclusions.
   const previousRows=db[active];const previousExclusions=hgGet(EXCLUDED);
@@ -3033,6 +3036,7 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  mergeApply.onclick=async()=>{
   const a=db[active].find(x=>x.id===mergeKeep.value),b=db[active].find(x=>x.id===mergeRemove.value);
   if(!a||!b||a===b)return;
+  if(db[active].filter(x=>x.id===a.id||x.id===b.id).length!==2){alert('Fusion bloquée : identifiants dupliqués. Ne pas fusionner ces fiches par ce bouton.');return;}
   if(!confirm(`Remplacer « ${b.name} » par « ${a.name} » ?\nLe Catalogue et les recettes ne seront pas modifiés.`))return;
   try{downloadTextFile(`Herbier_Gourmand_AVANT_fusion_${active}_${Date.now()}.hgbak.json`,JSON.stringify(herbierStorageSnapshot(),null,2))}
   catch(err){alert('Sauvegarde impossible : fusion annulée. '+err.message);return}
