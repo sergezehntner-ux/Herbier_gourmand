@@ -2954,8 +2954,22 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
  const freeze=get('hgEncyFreezable'),raw=get('hgEncyRaw'),cooked=get('hgEncyCooked');
  function updateFreezing(){raw.disabled=cooked.disabled=!freeze.checked;if(!freeze.checked){raw.checked=false;cooked.checked=false}}
  freeze.addEventListener('change',updateFreezing);
- get('hgEncyForm').addEventListener('submit',async e=>{e.preventDefault();const name=get('hgEncyName').value.trim();if(!name)return;const c=catalog(),prior=editing?db[active].find(y=>y.id===editing):null,match=c.find(x=>clean(x.name)===clean(name))||(prior&&c.find(x=>x.id===(prior.catalogId||prior.catalogueId)));if(!match&&!editing&&confirm(`Voulez-vous également ajouter « ${name} » au Catalogue ?`)){window.hgEncyCatalogReturn=()=>{get('hgEncyForm').requestSubmit()};window.dispatchEvent(new CustomEvent('hg:open-catalog-create',{detail:{name}}));return;}
-  const x=editing?(db[active].find(y=>y.id===editing)||sourceItems().find(y=>y.id===editing)):{id:'ency-'+Date.now()+'-'+Math.random().toString(36).slice(2,6)};
+ get('hgEncyForm').addEventListener('submit',async e=>{e.preventDefault();const name=get('hgEncyName').value.trim();if(!name)return;const c=catalog(),prior=editing?db[active].find(y=>y.id===editing):null;
+  // v3.0.90 : lors d'un renommage, l'identifiant Catalogue d'origine prime sur le nouveau nom.
+  // Ne jamais réassocier silencieusement une fiche à un autre article existant.
+  const previousCatalogId=prior?.catalogId||prior?.catalogueId||prior?.catalogue?.id||'';
+  const byNewName=c.find(x=>clean(x.name)===clean(name));
+  const originalCatalog=previousCatalogId?c.find(x=>String(x.id)===String(previousCatalogId)):null;
+  if(editing&&previousCatalogId&&byNewName&&String(byNewName.id)!==String(previousCatalogId)){
+   alert('Ce nom appartient déjà à un autre article du Catalogue. Le renommage est interrompu.');return;
+  }
+  const match=originalCatalog||(previousCatalogId?null:byNewName);
+  if(editing&&originalCatalog&&clean(name)!==clean(originalCatalog.name)){alert('Cette fiche est liée au Catalogue. Renomme d’abord l’article dans le Catalogue pour conserver une seule désignation et son identifiant.');return;}if(!match&&!editing&&confirm(`Voulez-vous également ajouter « ${name} » au Catalogue ?`)){window.hgEncyCatalogReturn=()=>{get('hgEncyForm').requestSubmit()};window.dispatchEvent(new CustomEvent('hg:open-catalog-create',{detail:{name}}));return;}
+  // Ne pas transformer une fiche affichée depuis une source dérivée en nouvelle fiche dupliquée.
+  const existingRow=editing?db[active].find(y=>y.id===editing):null;
+  const sourcedRow=editing&&!existingRow?sourceItems().find(y=>y.id===editing):null;
+  if(editing&&!existingRow&&!sourcedRow){alert('Fiche d’origine introuvable. Aucun nouvel enregistrement créé.');return;}
+  const x=existingRow|| (sourcedRow?{...sourcedRow}: {id:'ency-'+Date.now()+'-'+Math.random().toString(36).slice(2,6)});
   // v3.0.88 : une fiche historique déjà dupliquée doit rester modifiable.
   // Refuser uniquement la création d'un nouveau doublon ou le changement vers un nom occupé.
   const oldName=editing?String(x?.name||''):'';
@@ -2965,7 +2979,12 @@ function bindEditableOtherSelect(selector,label){const el=$(selector);if(!el)ret
   x.name=name;x.needsCatalogLink=!match;
   updateFreezing();
   for(const [k,field] of Object.entries(fields)){const el=get(field);if(!el)continue;x[k]=el.type==='checkbox'?el.checked:el.value.trim()}
-  if(match){x.category=match.group||'';x.catalogId=match.id;unexclude(active,match.id);}if(x.catalogue){delete x.catalogue;}if(!db[active].some(v=>v.id===x.id))db[active].push(x);try{await save()}catch(err){console.error(err);alert('Enregistrement non confirmé : '+err.message);return}get('hgEncyDialog').close();render();detail(x.id)
+  if(match){x.category=match.group||'';x.catalogId=match.id;unexclude(active,match.id);}if(x.catalogue){delete x.catalogue;}if(existingRow&&db[active].filter(v=>v.id===x.id).length>1){alert('Identifiant partagé par plusieurs fiches : enregistrement bloqué pour éviter toute modification ambiguë.');return;}
+  if(!existingRow){
+   if(db[active].some(v=>v.id===x.id)){alert('Identifiant déjà utilisé : enregistrement interrompu.');return;}
+   db[active].push(x);
+  }
+  try{await save()}catch(err){console.error(err);alert('Enregistrement non confirmé : '+err.message);return}get('hgEncyDialog').close();render();detail(x.id)
  });
  async function deleteEncyclopediaItem(id,permanent=false){
   const x=sourceItems().find(v=>v.id===id);if(!x||x.recipe)return;
