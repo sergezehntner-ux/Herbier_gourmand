@@ -3609,6 +3609,51 @@ for(const [module,kind,get,fields] of specs){let rows=[];try{rows=get()||[]}catc
  window.hgRenderPending=render;
 })();
 
+// v3.0.102 — contrôle ciblé des noms avec « / », lancé uniquement à la demande.
+// Ne modifie jamais les recettes ni les quantités ; une vérification est une action explicite.
+(function(){
+ const key='hg-slash-recipe-reviewed-v1';
+ const button=document.getElementById('hgSlashScan'),reset=document.getElementById('hgSlashReset');
+ const status=document.getElementById('hgSlashStatus'),results=document.getElementById('hgSlashResults');
+ if(!button||!results)return;
+ let matches=[];
+ function reviewed(){try{const value=JSON.parse(hgGet(key)||'{}');return value&&typeof value==='object'&&!Array.isArray(value)?value:{}}catch{return {}}}
+ function scan(){
+  const catalog=shoppingCatalogEntries().filter(x=>x.id&&String(x.name||'').includes('/'));
+  const byId=new Map(catalog.map(x=>[String(x.id),x]));
+  const byName=new Map(catalog.map(x=>[norm(x.name),x]));
+  const checked=reviewed();matches=[];
+  for(const recipe of recipes){
+   const found=[];
+   (recipe.ingredients||[]).forEach((ingredient,i)=>{
+    if(!Array.isArray(ingredient))return;
+    const id=String((recipe.ingredientCatalogIds||[])[i]||'');
+    // Identifiant d'abord ; correspondance exacte du nom seulement pour les anciens liens absents.
+    const item=byId.get(id)||(!id?byName.get(norm(ingredient[0]||'')):null);
+    if(item)found.push({item,quantity:ingredient[1],unit:ingredient[2],index:i});
+   });
+   if(found.length)matches.push({recipe,found});
+  }
+  render(checked,catalog.length);
+ }
+ function render(checked,catalogCount){
+  const todo=matches.filter(x=>!checked[String(x.recipe.id)]);
+  status.textContent=`${catalogCount} nom${catalogCount!==1?'s':''} avec / dans le Catalogue · ${matches.length} recette${matches.length!==1?'s':''} liée${matches.length!==1?'s':''} · ${todo.length} à vérifier`;
+  results.innerHTML=todo.map((x,i)=>`<div class="pending-row"><div class="pending-info"><strong>${esc(x.recipe.title||'Recette sans titre')}</strong><small>${x.found.map(f=>`${esc(f.item.name)} — ${esc(String(f.quantity??''))} ${esc(String(f.unit??''))||'(unité vide)'}`).join(' ; ')}</small></div><div class="button-row"><button type="button" data-slash-open="${i}">Ouvrir</button><button type="button" data-slash-verify="${i}">Vérifié ✓</button></div></div>`).join('')||'<div class="pending-empty">Aucune recette restant à vérifier.</div>';
+  results.querySelectorAll('[data-slash-open]').forEach(b=>b.onclick=()=>openRecipe(todo[Number(b.dataset.slashOpen)].recipe.id));
+  results.querySelectorAll('[data-slash-verify]').forEach(b=>b.onclick=()=>{
+   const item=todo[Number(b.dataset.slashVerify)];if(!item)return;
+   const next=reviewed();next[String(item.recipe.id)]=true;
+   hgSet(key,JSON.stringify(next)).then(()=>render(next,catalogCount)).catch(e=>{console.error(e);alert('Vérification non enregistrée.');});
+  });
+ }
+ button.addEventListener('click',scan);
+ reset.addEventListener('click',()=>{
+  if(!confirm('Réafficher toutes les recettes contenant un nom avec /, y compris celles déjà vérifiées ?'))return;
+  hgSet(key,'{}').then(scan).catch(e=>{console.error(e);alert('Réinitialisation impossible.');});
+ });
+})();
+
 // Diagnostic à la demande : aucune analyse globale au chargement.
 document.getElementById("recipeIngredientCheck")?.addEventListener("click",recipeIngredientDiagnostic);
 // v3.0.11 : proposer l'association au Catalogue dès qu'une ligne est saisie.

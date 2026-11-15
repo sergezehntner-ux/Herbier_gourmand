@@ -318,7 +318,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   </div>
 </div>
 <header>
-  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v3.0.101 · Éditeur commun des préparations</p></div></div>
+  <div class="brand"><img src="icon-hg-2970-192.png" alt="" class="brand-icon"><div><h1>Herbier Gourmand</h1><p>v3.0.102 · Éditeur commun des préparations</p></div></div>
   <div class="header-actions"><span id="lastDeviceAction" class="last-device-action"></span></div>
 </header>
 <nav>
@@ -380,6 +380,11 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
   <section class="panel" id="pendingPanel">
     <div class="section-title"><div><h2>Fiches en suspens</h2><span class="muted">Champs non renseignés</span></div><div class="button-row"><button type="button" id="hgBulkJump">Harmonisation groupée</button><button type="button" id="pendingPrint">Imprimer</button><button type="button" id="pendingRefresh">Actualiser</button></div></div>
     <div class="button-row" style="margin:.45rem 0"><button type="button" id="pendingUnassociated" class="primary">Produits sans encyclopédie</button></div>
+    <div class="pending-row" style="display:block;margin:.5rem 0">
+      <div class="button-row"><button type="button" id="hgSlashScan" class="primary">Contrôler les noms avec /</button><button type="button" id="hgSlashReset" title="Réafficher toutes les recettes déjà vérifiées">Réinitialiser les vérifications /</button></div>
+      <p id="hgSlashStatus" class="muted" aria-live="polite">Contrôle à la demande : recherche des noms avec / dans le Catalogue, puis de leurs identifiants dans les recettes.</p>
+      <div id="hgSlashResults" class="pending-list"></div>
+    </div>
     <div id="pendingSummary" class="pending-summary"></div>
     <div class="producer-search-grid producer-search-compact" style="margin:.45rem 0"><label>Rubrique<select id="pendingModule"><option value="">Toutes les rubriques</option></select></label><label>Recherche<input id="pendingSearch" type="search" placeholder="Nom ou champ manquant…"></label></div>
     <div id="pendingCount" class="muted"></div><div id="pendingList" class="pending-list"></div>
@@ -539,7 +544,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <div class="dialog-actions"><button type="button" id="hgEncyDelete" class="danger">Dissocier</button><button type="button" id="hgEncyDeletePermanent" class="danger">Supprimer</button><button type="button" id="hgEncyCancel">Annuler</button><button type="submit" class="primary">Enregistrer</button></div></form></dialog>
 </main>
 <button id="hgLibraryFloatingBack" type="button" class="primary" aria-label="Retour à la Bibliothèque">← Bibliothèque</button>
-<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v3.0.101</span></footer>
+<footer>Un compagnon pratique pour une semaine plus simple, curieuse et savoureuse. <span style="white-space:nowrap;opacity:.75">· v3.0.102</span></footer>
 <button id="recipeFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des recettes">🔍 Rechercher</button>
 <button id="restaurantFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des sorties">🔍 Rechercher</button>
 <button id="producerFloatingSearch" class="primary floating-search-btn" type="button" aria-label="Revenir à la recherche des producteurs">🔍 Rechercher</button>
@@ -659,7 +664,7 @@ body:has(#ingredientCatalog .catalog-edit-name) #hgCatalogQuickName{display:bloc
 <div class="dialog-actions"><button id="catalogBulkCancel" type="button">Annuler</button><button id="catalogBulkApply" class="primary" type="button">Appliquer aux produits sélectionnés</button></div></dialog>
 <script src="frigo-catalog-data.js?v=2981140"></script>
 <script src="encyclopedia-adapter.js?v=3027"></script>
-<script src="app-v282.js?v=3101"></script>
+<script src="app-v282.js?v=3102"></script>
 <script src="media-v1.js?v=3081"></script>
 <script src="hg-accompagnements.js?v=3093"></script>
 <script id="hg-catalog-picker-v13">
